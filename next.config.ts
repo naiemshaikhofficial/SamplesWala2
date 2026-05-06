@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "sampleswala-images.naiem-shaikh.workers.dev",
+        hostname: "sampleswala-images.sampleswala.workers.dev",
       },
     ],
   },

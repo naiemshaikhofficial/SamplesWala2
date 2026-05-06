@@ -1,18 +1,38 @@
 @import "tailwindcss";
 
-/* IDE Warning Fix: Using standard CSS variables for theme tokens */
-:root {
+/* 
+  Tailwind CSS v4 Configuration
+  The @theme block is the new standard for defining theme tokens.
+  IDE Warnings: "Unknown at rule @theme" is a false positive from some CSS linters.
+  We've suppressed this in .vscode/settings.json.
+*/
+@theme {
   --color-studio-yellow: #FFC800;
+  --color-studio-yellow-hover: #FFE066;
   --color-spider-red: #E11D48;
-  --color-studio-neon: #ffffff;
+  --color-studio-neon: #00FF94;
   --color-studio-grey: #1e1e1e;
   --color-studio-charcoal: #0e0e0e;
-
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   
+  /* Glassmorphism & Premium UI Tokens */
+  --color-glass-white: rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-glass-glow: rgba(255, 200, 0, 0.15);
+
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px var(--color-glass-glow);
+}
+
+
+:root {
   --background: 0 0% 0%;
   --foreground: 0 0% 100%;
-  --radius: 0rem;
 }
 
 @layer base {
@@ -39,43 +59,67 @@
 
 @layer components {
   /* Using standard CSS to avoid @apply warnings in some IDEs */
+  /* Premium Glass Panel */
   .studio-panel {
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    background-color: rgba(14, 14, 14, 0.5);
-    backdrop-filter: blur(12px);
+    border: 1px solid var(--color-glass-border);
+    background-color: var(--color-glass-white);
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-premium);
   }
   
+  /* Industrial Premium Button */
   .studio-button {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.75rem 2rem;
     background-color: white;
     color: black;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+    letter-spacing: 0.15em;
+    font-size: 10px;
+    border-radius: var(--radius-sm);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
   }
 
   .studio-button:hover {
     background-color: var(--color-studio-yellow);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
   }
 
   .studio-button:active {
-    transform: scale(0.95);
+    transform: translateY(1px) scale(0.98);
   }
 
-  .studio-button:disabled {
-    opacity: 0.5;
+  .premium-glow {
+    position: relative;
+  }
+
+  .premium-glow::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(45deg, transparent, var(--color-studio-yellow), transparent);
+    z-index: -1;
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .premium-glow:hover::after {
+    opacity: 0.3;
   }
 
   .step-grid {
-    background-size: 24px 24px;
+    background-size: 32px 32px;
     background-image: 
-      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
   }
+
 }

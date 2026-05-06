@@ -4,14 +4,14 @@
  * Redirects all image requests to the Unified Cloudflare Worker.
  */
 export default function cloudflareLoader({ src, width, quality }: { src: string; width: number; quality?: number }) {
-  const WORKER_URL = process.env.NEXT_PUBLIC_IMAGE_WORKER_URL || 'https://sampleswala-images.sampleswala.workers.dev';
+  // Use the correct worker URL provided by the user
+  const WORKER_URL = 'https://sampleswala-images.sampleswala.workers.dev';
   
   if (src.startsWith('/')) {
     return `${src}?w=${width}&q=${quality || 75}`;
   }
 
   // 🌩️ Optimized Cloudflare Worker Pattern
-  // This pattern handles both direct proxying and resizing
   try {
     const isExternal = src.startsWith('http');
     if (!isExternal) return src;

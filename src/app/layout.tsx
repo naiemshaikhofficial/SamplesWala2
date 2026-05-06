@@ -11,8 +11,9 @@ import { createClient } from "@/lib/supabase/server";
 import { CartProvider } from "@/context/CartContext";
 import { HeaderCartIcon } from "@/components/HeaderCartIcon";
 import { CartSidebar } from "@/components/CartSidebar";
-import { LogoutButton } from "@/components/LogoutButton";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Instagram, Youtube, Twitter } from "lucide-react";
+import { Header } from "@/components/Header";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -45,38 +46,18 @@ export default async function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen flex flex-col step-grid text-white">
+        <ServiceWorkerRegistration />
         <CartProvider>
           <CartSidebar />
-          <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-white/5 bg-black/50 backdrop-blur-xl flex items-center px-8 justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-             <Image 
-               src="/Logo.png" 
-               alt="Samples Wala Logo" 
-               width={200} 
-               height={50} 
-               priority
-               className="h-10 w-auto transition-all group-hover:drop-shadow-[0_0_12px_rgba(255,200,0,0.6)]"
-             />
-          </Link>
-          <nav className="flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.3em]">
-            <Link href="/browse" className="hover:text-studio-yellow transition-colors">Browse</Link>
-            <Link href="/library" className="hover:text-studio-yellow transition-colors">Library</Link>
-            <HeaderCartIcon />
-            {user ? (
-              <LogoutButton />
-            ) : (
-              <Link href="/auth" className="px-4 py-2 border border-white/10 hover:border-studio-yellow transition-all">Sign In</Link>
-            )}
-          </nav>
-        </header>
+          <Header user={user} />
         
         <main className="flex-grow pt-16">
           {children}
         </main>
 
-        <footer className="bg-black border-t border-white/5 pt-20 pb-10">
-          <div className="container mx-auto px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+        <footer className="bg-black border-t border-white/5 pt-12 md:pt-20 pb-10">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 md:mb-20">
               <div className="col-span-1 md:col-span-2 space-y-6">
                 <Image 
                   src="/Logo.png" 
@@ -94,6 +75,7 @@ export default async function RootLayout({
                 <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-yellow">Navigation</h4>
                 <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
                   <li><Link href="/browse" className="hover:text-white transition-colors">Browse Packs</Link></li>
+                  <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
                   <li><Link href="/library" className="hover:text-white transition-colors">Your Library</Link></li>
                   <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
                   <li><Link href="/auth" className="hover:text-white transition-colors">Account</Link></li>
@@ -125,7 +107,7 @@ export default async function RootLayout({
               </div>
             </div>
 
-            <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-20 text-[8px] font-black uppercase tracking-[0.4em]">
+            <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-20 text-[8px] font-black uppercase tracking-[0.4em] text-center md:text-left">
               <span>&copy; 2026 SAMPLES WALA :: DEFINITIVE_COLLECTION</span>
               <div className="flex gap-8">
                 <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>

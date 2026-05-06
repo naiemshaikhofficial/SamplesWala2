@@ -5,6 +5,7 @@ import { getPacks } from '@/app/browse/actions'
 import { ArrowRight, Zap, ShieldCheck, Music } from 'lucide-react'
 import { HeroSearch } from '@/components/HeroSearch'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
+import { HomePacks } from '@/components/HomePacks'
 
 export default async function HomePage() {
   const packs = await getPacks()
@@ -17,16 +18,16 @@ export default async function HomePage() {
         <div className="absolute top-0 right-0 w-1/2 h-full bg-studio-yellow/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 z-0" />
         <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-studio-neon/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4 z-0" />
 
-        <div className="container mx-auto px-4 relative z-30 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center pt-20">
-          <div className="space-y-8 text-center lg:text-left">
-            <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85] text-white">
-              BETTER <br /> <span className="text-studio-yellow italic">SOUNDS.</span>
+        <div className="container mx-auto px-4 relative z-30 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center pt-20">
+          <div className="space-y-6 md:space-y-8 text-center lg:text-left">
+            <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85] text-white">
+              SAMPLES WALA: <br /> <span className="text-studio-yellow italic">BETTER SOUNDS.</span>
             </h1>
-            <p className="text-sm md:text-lg text-white/40 max-w-xl mx-auto lg:mx-0 uppercase font-bold tracking-widest leading-relaxed">
-              Premium sample packs for Indian music producers. <br/> High quality. Instant download. 100% Royalty Free.
+            <p className="text-xs md:text-lg text-white/40 max-w-xl mx-auto lg:mx-0 uppercase font-bold tracking-widest leading-relaxed">
+              Premium Indian sample packs, loops, and VST tools for modern music production. <br className="hidden md:block" /> Industry standard sounds. 100% Royalty Free.
             </p>
             
-            <div className="flex flex-col gap-6 pt-4">
+            <div className="flex flex-col gap-6 pt-2 md:pt-4">
               <HeroSearch />
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
@@ -84,35 +85,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {packs.slice(0, 4).map((pack: any) => (
-            <Link 
-              key={pack.id} 
-              href={`/packs/${pack.slug}`}
-              className="group space-y-4"
-            >
-              <div className="aspect-square relative overflow-hidden bg-white/5 border border-white/5 rounded-sm">
-                <Image
-                  src={pack.cover_url || '/placeholder.jpg'}
-                  alt={pack.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
-                />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-[10px] font-black bg-studio-yellow text-black px-4 py-2 rounded-xs">GET PACK</span>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-[14px] font-black uppercase truncate group-hover:text-studio-yellow transition-colors">{pack.name}</h3>
-                <div className="flex items-center justify-between">
-                  <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{pack.categories?.name || 'Artifacts'}</p>
-                  <p className="text-[10px] font-black text-studio-neon">₹{pack.price_inr}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <HomePacks packs={packs.slice(0, 4)} />
       </section>
 
       {/* Trust Section */}

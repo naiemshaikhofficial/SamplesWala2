@@ -27,7 +27,7 @@ export function DownloadButton({ packId }: { packId: string }) {
       <button 
         disabled={loading}
         onClick={handleDownload}
-        className="w-full h-14 bg-studio-yellow text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50"
+        className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50"
       >
         {loading ? (
           <Loader2 className="animate-spin" size={18} />

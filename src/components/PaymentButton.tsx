@@ -117,7 +117,7 @@ export function PaymentButton({ packId, packName, price, userId }: PaymentButton
     <button 
       disabled={loading || status === 'processing'}
       onClick={handlePayment}
-      className="w-full h-14 bg-studio-yellow text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_30px_rgba(255,200,0,0.1)]"
+      className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_30px_rgba(255,200,0,0.1)]"
     >
       {loading || status === 'processing' ? (
         <Loader2 className="animate-spin" size={18} />

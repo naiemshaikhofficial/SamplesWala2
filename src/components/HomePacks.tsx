@@ -1,15 +1,13 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { clientCache } from '@/lib/clientCache'
 import { useCart } from '@/context/CartContext'
 import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
-import { ShoppingCart, Eye } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 
-export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any[], searchQuery?: string }) {
-  const [packs, setPacks] = useState<any[]>(initialPacks)
+export function HomePacks({ packs }: { packs: any[] }) {
   const { addItem } = useCart()
   const router = useRouter()
 
@@ -24,33 +22,8 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
     router.push('/checkout')
   }
 
-  useEffect(() => {
-    // ... existing cache and filter logic ...
-    const cached = clientCache.get('all_packs')
-    let currentPacks = initialPacks
-
-    if (cached && (!initialPacks || initialPacks.length === 0)) {
-      currentPacks = cached
-    }
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase()
-      currentPacks = currentPacks.filter(p => 
-        p.name.toLowerCase().includes(q) || 
-        p.categories?.name?.toLowerCase().includes(q)
-      )
-    }
-
-    setPacks(currentPacks)
-
-    if (initialPacks && initialPacks.length > 0) {
-      clientCache.set('all_packs', initialPacks)
-    }
-  }, [initialPacks, searchQuery])
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-8 gap-y-12 justify-center">
-
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
       {packs.map((pack: any) => (
         <div 
           key={pack.id} 
@@ -61,9 +34,8 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
               src={getOptimizedImageUrl(pack.cover_url, 600, 80)}
               alt={pack.name}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
-              priority={packs.indexOf(pack) < 5}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
             
@@ -77,7 +49,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
           <div className="space-y-4 px-1">
             <div className="space-y-1">
               <Link href={`/packs/${pack.slug}`}>
-                <h3 className="text-[13px] font-black uppercase truncate hover:text-studio-yellow transition-colors tracking-tight">
+                <h3 className="text-[14px] font-black uppercase truncate hover:text-studio-yellow transition-colors tracking-tight">
                   {pack.name}
                 </h3>
               </Link>

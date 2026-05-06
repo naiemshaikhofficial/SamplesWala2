@@ -127,7 +127,7 @@ export default function CheckoutPage() {
         </div>
         <h1 className="text-4xl font-black uppercase italic tracking-tighter">Payment Successful!</h1>
         <p className="text-white/40 font-bold uppercase tracking-widest text-xs">Your sounds are being added to your library...</p>
-        <Link href="/library" className="px-8 py-4 bg-studio-yellow text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all">
+        <Link href="/library" className="px-8 py-4 bg-[#FFC800] text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all">
           Go to Library
         </Link>
       </div>
@@ -300,7 +300,7 @@ export default function CheckoutPage() {
             <button 
               onClick={handleCheckout}
               disabled={loading || paymentStatus === 'processing'}
-              className="w-full h-14 bg-studio-yellow text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
+              className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
             >
               {loading ? (
                 <Loader2 className="animate-spin" size={20} />

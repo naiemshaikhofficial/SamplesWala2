@@ -19,7 +19,16 @@ const DEFAULT_KEYWORDS = [
   'professional wav loops',
   'high definition audio samples',
   'DAW ready sounds',
-  'best Indian sample library'
+  'best Indian sample library',
+  'VST plugins',
+  'music production software',
+  'Ableton live packs',
+  'FL Studio Indian loops',
+  'Logic Pro sound kits',
+  'contact instruments India',
+  'professional music production samples',
+  'Indian music theory',
+  'world music samples'
 ]
 
 export function generatePageMetadata({
