@@ -53,29 +53,37 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
             
-            {/* Quick Actions Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
-               <Link 
-                 href={`/packs/${pack.slug}`}
-                 className="p-3 bg-white text-black rounded-full hover:bg-studio-yellow transition-colors shadow-xl"
-                 title="View Details"
-               >
-                 <Eye size={18} />
-               </Link>
-               <button 
-                 onClick={() => addItem({
-                   id: pack.id,
-                   name: pack.name,
-                   price: Number(pack.price_inr),
-                   slug: pack.slug,
-                   cover_url: pack.cover_url || undefined
-                 })}
-                 className="p-3 bg-studio-yellow text-black rounded-full hover:bg-white transition-colors shadow-xl"
-                 title="Add to Cart"
-               >
-                 <ShoppingCart size={18} />
-               </button>
-            </div>
+             {/* Quick Actions Overlay */}
+             <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
+                <Link 
+                  href={`/packs/${pack.slug}`}
+                  className="p-3 bg-white text-black rounded-full hover:bg-studio-yellow transition-colors shadow-xl"
+                  title="View Details"
+                >
+                  <Eye size={18} />
+                </Link>
+                {pack.full_pack_download_url && (
+                  <button 
+                    onClick={() => addItem({
+                      id: pack.id,
+                      name: pack.name,
+                      price: Number(pack.price_inr),
+                      slug: pack.slug,
+                      cover_url: pack.cover_url || undefined
+                    })}
+                    className="p-3 bg-studio-yellow text-black rounded-full hover:bg-white transition-colors shadow-xl"
+                    title="Add to Cart"
+                  >
+                    <ShoppingCart size={18} />
+                  </button>
+                )}
+             </div>
+
+             {!pack.full_pack_download_url && (
+               <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3 py-1 border border-white/10 rounded-full">
+                 <span className="text-[8px] font-black uppercase tracking-widest text-studio-yellow">Coming Soon</span>
+               </div>
+             )}
           </div>
 
           <div className="space-y-1 px-1">

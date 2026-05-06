@@ -59,7 +59,11 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
             </div>
 
             <div className="pt-2">
-              {owned ? (
+              {!pack.full_pack_download_url ? (
+                <div className="w-full h-14 bg-white/5 border border-dashed border-white/20 rounded-sm flex items-center justify-center">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 animate-pulse">Coming Soon</span>
+                </div>
+              ) : owned ? (
                 <DownloadButton packId={pack.id} />
               ) : (
                 <div className="flex flex-col sm:flex-row items-stretch gap-3">

@@ -77,6 +77,7 @@ export default async function RootLayout({
                 <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
                   <li><Link href="/browse" className="hover:text-white transition-colors">Browse Packs</Link></li>
                   <li><Link href="/library" className="hover:text-white transition-colors">Your Library</Link></li>
+                  <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
                   <li><Link href="/auth" className="hover:text-white transition-colors">Account</Link></li>
                 </ul>
               </div>
