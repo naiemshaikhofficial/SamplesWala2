@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { getOptimizedImageUrl } from '@/lib/images'
 
+import { DownloadButton } from '@/components/DownloadButton'
+
 export default async function LibraryPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -80,18 +82,10 @@ export default async function LibraryPage() {
                 </div>
 
                 <div className="flex gap-3 mt-auto">
-                   <a 
-                     href={pack.full_pack_download_url} 
-                     target="_blank" 
-                     rel="noopener noreferrer"
-                     className="flex-1 h-12 bg-studio-neon text-black flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(0,255,148,0.1)]"
-                   >
-                     <Download size={16} />
-                     Download Pack
-                   </a>
+                   <DownloadButton packId={pack.id} />
                    <Link 
                      href={`/packs/${pack.slug}`}
-                     className="h-12 w-12 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"
+                     className="h-14 w-14 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"
                    >
                      <ArrowRight size={18} />
                    </Link>
@@ -104,4 +98,5 @@ export default async function LibraryPage() {
     </div>
   )
 }
+
 
