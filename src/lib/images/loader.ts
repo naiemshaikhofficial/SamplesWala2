@@ -4,7 +4,7 @@
  * Redirects all image requests to the Unified Cloudflare Worker.
  */
 export default function cloudflareLoader({ src, width, quality }: { src: string; width: number; quality?: number }) {
-  const WORKER_URL = process.env.NEXT_PUBLIC_IMAGE_WORKER_URL || 'https://sampleswala-images.naiem-shaikh.workers.dev';
+  const WORKER_URL = process.env.NEXT_PUBLIC_IMAGE_WORKER_URL || 'https://sampleswala-images.sampleswala.workers.dev';
   
   if (src.startsWith('/')) {
     return `${src}?w=${width}&q=${quality || 75}`;
