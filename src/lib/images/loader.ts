@@ -1,15 +1,14 @@
 /**
  * 🛰️ CLOUDFLARE_IMAGE_OPTIMIZER_LOADER
  * Bypasses Vercel's Image Optimization to save data transfer.
- * Redirects all image requests to the Unified Cloudflare Worker.
+ * Returns external URLs directly to avoid broken images if the worker is unavailable.
  */
 export default function cloudflareLoader({ src, width, quality }: { src: string; width: number; quality?: number }) {
-  const WORKER_URL = 'https://sampleswala-images.naiem-shaikh.workers.dev';
-  
   if (src.startsWith('/')) {
     return `${src}?w=${width}&q=${quality || 75}`;
   }
 
-  // Optimize external images via Cloudflare Worker
-  return `${WORKER_URL}?url=${encodeURIComponent(src)}&w=${width}&q=${quality || 75}`;
+  // Return original URL for external images to ensure they show up
+  // This still saves Vercel Image Optimization costs as it bypasses their proxy
+  return src;
 }
