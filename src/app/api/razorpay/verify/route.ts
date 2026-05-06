@@ -44,9 +44,12 @@ export async function POST(request: Request) {
         user_id: userId,
         item_id: pid,
         item_type: 'pack',
-        amount: pack?.price_inr || 0
+        amount: pack?.price_inr || 0,
+        razorpay_order_id: razorpay_order_id,
+        razorpay_payment_id: razorpay_payment_id
       }
     })
+
 
 
     // Use upsert or unique constraint on (user_id, item_id) if available, 
