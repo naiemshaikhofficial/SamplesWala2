@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 export const metadata = {
-  title: 'Terms of Service | Sampleswala',
-  description: 'Legal terms and conditions for using Sampleswala sounds and platform.',
+  title: 'Terms of Service | Samples Wala',
+  description: 'Legal terms and conditions for using Samples Wala sounds and platform.',
 }
 
 export default function TermsPage() {
@@ -24,7 +24,7 @@ export default function TermsPage() {
         <section className="space-y-6">
           <h2 className="text-sm font-black uppercase tracking-widest text-studio-yellow italic">1. License Grant</h2>
           <p className="text-xs text-white/60 leading-relaxed font-medium">
-            Upon purchase, Sampleswala grants you a non-exclusive, perpetual, worldwide license to use the sounds in your musical productions. This includes commercial releases, film scores, and live performances.
+            Upon purchase, Samples Wala grants you a non-exclusive, perpetual, worldwide license to use the sounds in your musical productions. This includes commercial releases, film scores, and live performances.
           </p>
         </section>
 

@@ -56,7 +56,7 @@ export function PaymentButton({ packId, packName, price, userId }: PaymentButton
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "Sampleswala",
+        name: "Samples Wala",
         description: `Purchase ${packName}`,
         order_id: orderData.id,
         handler: async function (response: any) {

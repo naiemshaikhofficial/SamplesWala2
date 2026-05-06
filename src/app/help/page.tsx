@@ -26,7 +26,7 @@ export default function HelpPage() {
             </div>
             <h3 className="text-xl font-black uppercase tracking-tight mb-2">Contact Us</h3>
             <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed mb-6">
-              For business inquiries, partnerships, or general questions about Sampleswala.
+              For business inquiries, partnerships, or general questions about Samples Wala.
             </p>
             <a 
               href="mailto:contact@sampleswala.com" 
@@ -72,7 +72,7 @@ export default function HelpPage() {
             <div className="space-y-3">
               <h4 className="text-[10px] font-black uppercase tracking-widest text-white/60">Are the samples royalty-free?</h4>
               <p className="text-[10px] font-medium text-white/30 uppercase leading-relaxed">
-                Yes, all collections on Sampleswala are 100% royalty-free for both personal and commercial music production.
+                Yes, all collections on Samples Wala are 100% royalty-free for both personal and commercial music production.
               </p>
             </div>
             <div className="space-y-3">

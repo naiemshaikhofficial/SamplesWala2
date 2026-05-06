@@ -3,7 +3,7 @@ import "./globals.css";
 import { generatePageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = generatePageMetadata({
-  title: "Sampleswala | Premium Indian Sample Packs & Loops",
+  title: "Samples Wala | Premium Indian Sample Packs & Loops",
   description: "High-quality sounds for Indian music producers. Professional royalty-free samples, loops, and curated collections for Bollywood, Hip-Hop, and Electronic music.",
 });
 
@@ -51,7 +51,7 @@ export default async function RootLayout({
           <Link href="/" className="flex items-center gap-3 group">
              <Image 
                src="/Logo.png" 
-               alt="Sampleswala Logo" 
+               alt="Samples Wala Logo" 
                width={200} 
                height={50} 
                priority
@@ -80,7 +80,7 @@ export default async function RootLayout({
               <div className="col-span-1 md:col-span-2 space-y-6">
                 <Image 
                   src="/Logo.png" 
-                  alt="Sampleswala Logo" 
+                  alt="Samples Wala Logo" 
                   width={180} 
                   height={45} 
                   className="h-9 w-auto grayscale opacity-50"
@@ -126,7 +126,7 @@ export default async function RootLayout({
             </div>
 
             <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-20 text-[8px] font-black uppercase tracking-[0.4em]">
-              <span>&copy; 2026 SAMPLESWALA :: DEFINITIVE_COLLECTION</span>
+              <span>&copy; 2026 SAMPLES WALA :: DEFINITIVE_COLLECTION</span>
               <div className="flex gap-8">
                 <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
                 <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>

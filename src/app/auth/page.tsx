@@ -57,7 +57,7 @@ export default function AuthPage() {
         </h1>
         <p className="text-sm text-white/50">
           {mode === 'login' && 'Welcome back! Please enter your details.'}
-          {mode === 'signup' && 'Join Sampleswala and start downloading.'}
+          {mode === 'signup' && 'Join Samples Wala and start downloading.'}
           {mode === 'forgot' && "Enter your email to get a reset link."}
         </p>
       </div>

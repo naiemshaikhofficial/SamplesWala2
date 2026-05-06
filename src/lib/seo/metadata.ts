@@ -11,7 +11,7 @@ const DEFAULT_KEYWORDS = [
   'lofi samples', 
   'royalty free samples', 
   'music production tools', 
-  'Sampleswala',
+  'Samples Wala',
   'Indian percussion loops',
   'sitar samples',
   'tabla loops',
@@ -35,7 +35,7 @@ export function generatePageMetadata({
   noIndex?: boolean
   keywords?: string[]
 }): Metadata {
-  const siteTitle = "Sampleswala"
+  const siteTitle = "Samples Wala"
   const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`
 
   return {

@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 export const metadata = {
-  title: 'Privacy Policy | Sampleswala',
-  description: 'How Sampleswala handles and protects your personal data.',
+  title: 'Privacy Policy | Samples Wala',
+  description: 'How Samples Wala handles and protects your personal data.',
 }
 
 export default function PrivacyPage() {
