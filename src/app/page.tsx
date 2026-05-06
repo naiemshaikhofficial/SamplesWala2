@@ -56,6 +56,7 @@ export default async function HomePage() {
                      src={pack.cover_url || '/placeholder.jpg'} 
                      alt={pack.name} 
                      fill 
+                     sizes="256px"
                      className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                    />
                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-40 group-hover:opacity-0 transition-opacity" />
@@ -95,6 +96,7 @@ export default async function HomePage() {
                   src={pack.cover_url || '/placeholder.jpg'}
                   alt={pack.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
                 />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

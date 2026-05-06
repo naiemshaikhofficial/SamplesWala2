@@ -47,6 +47,7 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
               src={getOptimizedImageUrl(pack.cover_url, 1200, 90)} 
               alt={pack.name} 
               fill 
+              sizes="(max-width: 768px) 100vw, 500px"
               className="object-cover"
               priority
             />
