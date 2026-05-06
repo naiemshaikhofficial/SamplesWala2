@@ -46,7 +46,7 @@ export default async function LibraryPage() {
   // 3. Fetch user account profile for billing
   const { data: profile } = await supabase
     .from('user_accounts')
-    .select('full_name, address_line1, city, state, postal_code, gstin')
+    .select('full_name, phone_number, address_line1, city, state, postal_code, gstin')
     .eq('user_id', user.id)
     .maybeSingle()
 
@@ -127,10 +127,11 @@ export default async function LibraryPage() {
       </div>
 
       {/* Billing Section */}
-      <BillingHistory items={billingItems} profile={profile} />
+      <BillingHistory items={billingItems} profile={profile} email={user.email} />
     </div>
   )
 }
+
 
 
 

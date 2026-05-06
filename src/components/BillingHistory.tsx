@@ -11,16 +11,18 @@ interface BillingItem {
   razorpay_payment_id: string
 }
 
-export function BillingHistory({ items, profile }: { 
+export function BillingHistory({ items, profile, email }: { 
   items: BillingItem[], 
   profile: {
     full_name: string | null,
+    phone_number: string | null,
     address_line1: string | null,
     city: string | null,
     state: string | null,
     postal_code: string | null,
     gstin: string | null
-  } | null 
+  } | null,
+  email?: string
 }) {
   if (items.length === 0) return null
 
@@ -35,10 +37,7 @@ export function BillingHistory({ items, profile }: {
       year: 'numeric'
     })
 
-    // Indian GST calculation (18%)
     const total = Number(item.amount)
-    const basePrice = total / 1.18
-    const gstAmount = total - basePrice
 
     invoiceWindow.document.write(`
       <html>
@@ -69,12 +68,11 @@ export function BillingHistory({ items, profile }: {
               <div class="address-block">
                 <strong>Samples Wala Production</strong><br/>
                 Andheri West, Mumbai<br/>
-                Maharashtra, India - 400053<br/>
-                <div class="tax-info">GSTIN: [YOUR_GSTIN_HERE]</div>
+                Maharashtra, India - 400053
               </div>
             </div>
             <div style="text-align: right">
-              <div class="section-title">Tax Invoice</div>
+              <div class="section-title">Invoice</div>
               <div style="font-weight: 900; font-size: 20px;">#${item.razorpay_payment_id?.slice(-8).toUpperCase() || item.id.slice(0,8).toUpperCase()}</div>
               <div class="tax-info">Order ID: ${item.razorpay_order_id || 'N/A'}</div>
             </div>
@@ -85,9 +83,10 @@ export function BillingHistory({ items, profile }: {
               <div class="section-title">Billed To</div>
               <div class="address-block">
                 <strong style="font-size: 16px; color: #000;">${profile?.full_name || 'Valued Customer'}</strong><br/>
+                ${email ? `Email: ${email}<br/>` : ''}
+                ${profile?.phone_number ? `Phone: ${profile.phone_number}<br/>` : ''}
                 ${profile?.address_line1 || 'Digital Delivery'}<br/>
-                ${profile?.city || ''}${profile?.state ? ', ' + profile.state : ''} ${profile?.postal_code || ''}<br/>
-                ${profile?.gstin ? `<div class="tax-info" style="margin-top: 8px;">Customer GSTIN: ${profile.gstin}</div>` : ''}
+                ${profile?.city || ''}${profile?.state ? ', ' + profile.state : ''} ${profile?.postal_code || ''}
               </div>
             </div>
             <div style="text-align: right">
@@ -103,10 +102,8 @@ export function BillingHistory({ items, profile }: {
           <table class="table">
             <thead>
               <tr>
-                <th>Description / HSN 9984</th>
+                <th>Description</th>
                 <th style="text-align: center">Qty</th>
-                <th style="text-align: right">Base Price</th>
-                <th style="text-align: right">GST (18%)</th>
                 <th style="text-align: right">Amount</th>
               </tr>
             </thead>
@@ -114,22 +111,12 @@ export function BillingHistory({ items, profile }: {
               <tr>
                 <td style="font-weight: bold">${item.item_name || 'Sample Pack Bundle'}</td>
                 <td style="text-align: center">1</td>
-                <td style="text-align: right">₹${basePrice.toFixed(2)}</td>
-                <td style="text-align: right">₹${gstAmount.toFixed(2)}</td>
                 <td style="text-align: right; font-weight: bold">₹${total.toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
 
           <div class="totals-block">
-            <div class="total-row">
-              <span style="color: #888">Subtotal</span>
-              <span>₹${basePrice.toFixed(2)}</span>
-            </div>
-            <div class="total-row">
-              <span style="color: #888">Total Tax (GST 18%)</span>
-              <span>₹${gstAmount.toFixed(2)}</span>
-            </div>
             <div class="total-row grand-total">
               <span>TOTAL PAID</span>
               <span>₹${total.toFixed(2)}</span>
@@ -137,8 +124,8 @@ export function BillingHistory({ items, profile }: {
           </div>
 
           <div class="footer">
-            This is a computer generated tax invoice for digital services provided by Samples Wala.<br/>
-            All digital sales are final. For support, contact support@sampleswala.com<br/>
+            This is a computer generated invoice for digital services provided by Samples Wala.<br/>
+            All digital sales are final. For support : support@sampleswala.com<br/>
             <div style="margin-top: 10px; font-weight: bold; color: #888;">Thank you for supporting Indian Sound Design.</div>
           </div>
 
@@ -148,9 +135,9 @@ export function BillingHistory({ items, profile }: {
         </body>
       </html>
     `)
-
     invoiceWindow.document.close()
   }
+
 
   return (
     <div className="space-y-8 pt-16 border-t border-white/5">
