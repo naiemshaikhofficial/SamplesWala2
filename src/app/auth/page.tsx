@@ -2,11 +2,15 @@
 import React, { useState } from 'react'
 import { Shield, Loader2, ArrowRight, Mail, Lock, Chrome } from 'lucide-react'
 import { Turnstile } from '@marsidev/react-turnstile'
+import { useSearchParams } from 'next/navigation'
 import { signIn, signUp, signInWithGoogle, forgotPassword } from './actions'
 
 type AuthMode = 'login' | 'signup' | 'forgot'
 
 export default function AuthPage() {
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next') || '/browse'
+  
   const [mode, setMode] = useState<AuthMode>('login')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -19,6 +23,7 @@ export default function AuthPage() {
     setMessage(null)
 
     const formData = new FormData(event.currentTarget)
+    formData.append('next', next)
     
     let result;
     if (mode === 'login') result = await signIn(formData)
@@ -36,7 +41,8 @@ export default function AuthPage() {
 
   const handleGoogleLogin = async () => {
     setLoading(true)
-    const result = await signInWithGoogle()
+    const result = await signInWithGoogle(next)
+
     if (result?.error) {
       setError(result.error)
       setLoading(false)

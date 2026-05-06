@@ -51,9 +51,10 @@ export default function CheckoutPage() {
 
   const handleCheckout = async () => {
     if (!user) {
-      router.push('/auth')
+      router.push('/auth?next=/checkout')
       return
     }
+
 
     setLoading(true)
     const sdkLoaded = await loadRazorpay()

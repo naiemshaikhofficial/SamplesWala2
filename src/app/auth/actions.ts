@@ -30,8 +30,11 @@ export async function signIn(formData: FormData) {
   })
 
   if (error) return { error: error.message }
-  redirect('/browse')
+  
+  const next = formData.get('next') as string || '/browse'
+  redirect(next)
 }
+
 
 export async function signUp(formData: FormData) {
   const token = formData.get('cf-turnstile-response') as string
@@ -61,14 +64,15 @@ export async function signOut() {
   redirect('/auth')
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(next: string = '/browse') {
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${next}`,
     },
   })
+
 
   if (error) return { error: error.message }
   if (data.url) redirect(data.url)
