@@ -62,8 +62,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         return NextResponse.redirect(`${workerUrl}?payload=${payload}&sig=${sig}&exp=${timestamp}&name=${encodedName}&download=1`)
     }
 
-    // Fallback
-    return NextResponse.redirect(downloadUrl)
+    // Fallback - Restricted
+    return new NextResponse("Secure Proxy Configuration Missing. Please contact support.", { status: 500 })
 
   } catch (error: any) {
     console.error("[DOWNLOAD_API_ERROR]", error)
