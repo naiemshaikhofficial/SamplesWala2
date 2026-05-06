@@ -11,7 +11,17 @@ interface BillingItem {
   razorpay_payment_id: string
 }
 
-export function BillingHistory({ items }: { items: BillingItem[] }) {
+export function BillingHistory({ items, profile }: { 
+  items: BillingItem[], 
+  profile: {
+    full_name: string | null,
+    address_line1: string | null,
+    city: string | null,
+    state: string | null,
+    postal_code: string | null,
+    gstin: string | null
+  } | null 
+}) {
   if (items.length === 0) return null
 
   const handleDownloadInvoice = (item: BillingItem) => {
@@ -25,75 +35,120 @@ export function BillingHistory({ items }: { items: BillingItem[] }) {
       year: 'numeric'
     })
 
+    // Indian GST calculation (18%)
+    const total = Number(item.amount)
+    const basePrice = total / 1.18
+    const gstAmount = total - basePrice
+
     invoiceWindow.document.write(`
       <html>
         <head>
           <title>Invoice - ${item.razorpay_order_id}</title>
           <style>
-            body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; }
-            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-            .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; }
-            .details { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-            .section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #999; letter-spacing: 2px; margin-bottom: 8px; }
-            .table { width: 100%; border-collapse: collapse; margin-top: 40px; }
-            .table th { text-align: left; border-bottom: 1px solid #eee; padding: 12px; font-size: 12px; text-transform: uppercase; color: #999; }
-            .table td { padding: 12px; border-bottom: 1px solid #f9f9f9; font-size: 14px; }
-            .total { margin-top: 40px; text-align: right; font-size: 20px; font-weight: 900; }
+            body { font-family: 'Inter', -apple-system, sans-serif; padding: 60px; color: #1a1a1a; line-height: 1.6; }
+            .header { display: flex; justify-content: space-between; border-bottom: 4px solid #000; padding-bottom: 30px; margin-bottom: 40px; }
+            .logo { font-size: 32px; font-weight: 900; letter-spacing: -1.5px; text-transform: uppercase; font-style: italic; }
+            .details { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-bottom: 60px; }
+            .section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #888; letter-spacing: 2px; margin-bottom: 12px; }
+            .address-block { font-size: 13px; color: #444; }
+            .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            .table th { text-align: left; border-bottom: 2px solid #eee; padding: 16px 12px; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
+            .table td { padding: 20px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+            .totals-block { margin-top: 40px; margin-left: auto; width: 300px; }
+            .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+            .grand-total { border-top: 2px solid #000; margin-top: 15px; padding-top: 15px; font-size: 22px; font-weight: 900; }
+            .footer { margin-top: 100px; font-size: 10px; color: #aaa; text-align: center; border-top: 1px solid #eee; padding-top: 30px; }
+            .tax-info { font-size: 11px; color: #888; margin-top: 4px; }
             @media print { .no-print { display: none; } }
           </style>
         </head>
         <body>
           <div class="header">
-            <div class="logo italic">SAMPLES WALA</div>
+            <div>
+              <div class="logo">SAMPLES WALA</div>
+              <div class="address-block">
+                <strong>Samples Wala Production</strong><br/>
+                Andheri West, Mumbai<br/>
+                Maharashtra, India - 400053<br/>
+                <div class="tax-info">GSTIN: [YOUR_GSTIN_HERE]</div>
+              </div>
+            </div>
             <div style="text-align: right">
-              <div class="section-title">Invoice Number</div>
-              <div style="font-weight: bold">${item.razorpay_payment_id || 'INV-' + item.id.slice(0,8)}</div>
+              <div class="section-title">Tax Invoice</div>
+              <div style="font-weight: 900; font-size: 20px;">#${item.razorpay_payment_id?.slice(-8).toUpperCase() || item.id.slice(0,8).toUpperCase()}</div>
+              <div class="tax-info">Order ID: ${item.razorpay_order_id || 'N/A'}</div>
             </div>
           </div>
 
           <div class="details">
             <div>
               <div class="section-title">Billed To</div>
-              <div style="font-weight: bold">Customer</div>
-              <div style="font-size: 12px; color: #666; margin-top: 4px;">Verified Digital Purchase</div>
+              <div class="address-block">
+                <strong style="font-size: 16px; color: #000;">${profile?.full_name || 'Valued Customer'}</strong><br/>
+                ${profile?.address_line1 || 'Digital Delivery'}<br/>
+                ${profile?.city || ''}${profile?.state ? ', ' + profile.state : ''} ${profile?.postal_code || ''}<br/>
+                ${profile?.gstin ? `<div class="tax-info" style="margin-top: 8px;">Customer GSTIN: ${profile.gstin}</div>` : ''}
+              </div>
             </div>
             <div style="text-align: right">
-              <div class="section-title">Date of Issue</div>
-              <div style="font-weight: bold">${date}</div>
+              <div class="section-title">Payment Info</div>
+              <div class="address-block">
+                Date: <strong>${date}</strong><br/>
+                Status: <strong>Paid</strong><br/>
+                Method: <strong>Razorpay Online</strong>
+              </div>
             </div>
           </div>
 
           <table class="table">
             <thead>
               <tr>
-                <th>Description</th>
+                <th>Description / HSN 9984</th>
+                <th style="text-align: center">Qty</th>
+                <th style="text-align: right">Base Price</th>
+                <th style="text-align: right">GST (18%)</th>
                 <th style="text-align: right">Amount</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>${item.item_name || 'Sample Pack Bundle'}</td>
-                <td style="text-align: right">₹${item.amount}</td>
+                <td style="font-weight: bold">${item.item_name || 'Sample Pack Bundle'}</td>
+                <td style="text-align: center">1</td>
+                <td style="text-align: right">₹${basePrice.toFixed(2)}</td>
+                <td style="text-align: right">₹${gstAmount.toFixed(2)}</td>
+                <td style="text-align: right; font-weight: bold">₹${total.toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
 
-          <div class="total">
-            <span style="font-size: 12px; font-weight: normal; color: #999; margin-right: 20px;">TOTAL PAID</span>
-            ₹${item.amount}
+          <div class="totals-block">
+            <div class="total-row">
+              <span style="color: #888">Subtotal</span>
+              <span>₹${basePrice.toFixed(2)}</span>
+            </div>
+            <div class="total-row">
+              <span style="color: #888">Total Tax (GST 18%)</span>
+              <span>₹${gstAmount.toFixed(2)}</span>
+            </div>
+            <div class="total-row grand-total">
+              <span>TOTAL PAID</span>
+              <span>₹${total.toFixed(2)}</span>
+            </div>
           </div>
 
-          <div style="margin-top: 80px; font-size: 10px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-            This is a computer generated invoice. No signature required.
-            <br/>Samples Wala - Premium Sound Artifacts
+          <div class="footer">
+            This is a computer generated tax invoice for digital services provided by Samples Wala.<br/>
+            All digital sales are final. For support, contact support@sampleswala.com<br/>
+            <div style="margin-top: 10px; font-weight: bold; color: #888;">Thank you for supporting Indian Sound Design.</div>
           </div>
 
-          <div class="no-print" style="margin-top: 40px; text-align: center;">
-            <button onclick="window.print()" style="padding: 12px 24px; background: #000; color: #fff; border: none; font-weight: bold; cursor: pointer;">Print / Download PDF</button>
+          <div class="no-print" style="margin-top: 60px; text-align: center;">
+            <button onclick="window.print()" style="padding: 16px 32px; background: #000; color: #fff; border: none; font-weight: 900; text-transform: uppercase; cursor: pointer; letter-spacing: 1px;">Print / Download as PDF</button>
           </div>
         </body>
       </html>
     `)
+
     invoiceWindow.document.close()
   }
 

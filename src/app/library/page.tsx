@@ -43,7 +43,14 @@ export default async function LibraryPage() {
     packs = packData || []
   }
 
-  // 3. Map names to billing items for the table
+  // 3. Fetch user account profile for billing
+  const { data: profile } = await supabase
+    .from('user_accounts')
+    .select('full_name, address_line1, city, state, postal_code, gstin')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  // 4. Map names to billing items for the table
   const billingItems = allVaultItems?.map(item => ({
     ...item,
     item_name: packs.find(p => p.id === item.item_id)?.name || item.item_name || 'Digital Pack'
@@ -120,10 +127,11 @@ export default async function LibraryPage() {
       </div>
 
       {/* Billing Section */}
-      <BillingHistory items={billingItems} />
+      <BillingHistory items={billingItems} profile={profile} />
     </div>
   )
 }
+
 
 
 

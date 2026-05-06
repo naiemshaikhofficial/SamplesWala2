@@ -36,7 +36,7 @@ export function DownloadButton({ packId }: { packId: string }) {
           <>
             <ShieldCheck size={18} className="text-black/40" />
             <Download size={18} />
-            <span>SECURE DOWNLOAD</span>
+            <span>DOWNLOAD</span>
           </>
         )}
       </button>
