@@ -179,6 +179,74 @@ export default function CheckoutPage() {
              <ArrowRight size={14} className="rotate-180" />
              Continue Shopping
           </Link>
+
+          {/* Billing Address Section */}
+          <div className="pt-12 space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_15px_#FFC800]" />
+              <h2 className="text-xl font-black uppercase tracking-tight italic">Billing Details</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Full Name</label>
+                <input 
+                  type="text" 
+                  placeholder="NAME" 
+                  className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  defaultValue={user?.user_metadata?.full_name || ""}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Phone Number</label>
+                <input 
+                  type="text" 
+                  placeholder="PHONE" 
+                  className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                />
+              </div>
+              <div className="col-span-full space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Address</label>
+                <input 
+                  type="text" 
+                  placeholder="STREET ADDRESS" 
+                  className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">City</label>
+                <input 
+                  type="text" 
+                  placeholder="CITY" 
+                  className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">State</label>
+                  <input 
+                    type="text" 
+                    placeholder="STATE" 
+                    className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Pincode</label>
+                  <input 
+                    type="text" 
+                    placeholder="ZIP" 
+                    className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-4 bg-studio-yellow/5 border border-studio-yellow/10 rounded-sm">
+              <p className="text-[9px] font-medium text-studio-yellow uppercase tracking-widest leading-relaxed">
+                Note: This information is used for billing and tax compliance purposes. All samples remain digital and will be added to your account instantly.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Order Summary Side */}
