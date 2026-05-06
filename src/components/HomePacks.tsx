@@ -39,7 +39,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
             
-             {!pack.full_pack_download_url && (
+             {!pack.is_downloadable && (
                <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3 py-1 border border-white/10 rounded-full">
                  <span className="text-[8px] font-black uppercase tracking-widest text-studio-yellow">Coming Soon</span>
                </div>
@@ -63,7 +63,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
               </div>
             </div>
 
-            {pack.full_pack_download_url && (
+            {pack.is_downloadable && (
               <div className="flex flex-row gap-2 pt-2">
                 <button 
                   onClick={() => addItem({

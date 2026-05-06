@@ -17,7 +17,13 @@ async function fetchAllPacks() {
     console.error('[GET_PACKS_ERROR]', error)
     return []
   }
-  return data
+
+  // Transform to hide sensitive URLs
+  return data.map(pack => ({
+    ...pack,
+    is_downloadable: !!pack.full_pack_download_url,
+    full_pack_download_url: undefined // Remove actual URL
+  }))
 }
 
 // Exported cached version (24h)
@@ -43,7 +49,7 @@ export const getSamples = async (filters: {
 
   let queryBuilder = supabase
     .from('artifact_registry')
-    .select('*', { count: 'exact' })
+    .select('id, name, type, created_at, audio_url', { count: 'exact' })
 
   if (filters.query) {
     queryBuilder = queryBuilder.ilike('name', `%${filters.query}%`)
@@ -58,12 +64,16 @@ export const getSamples = async (filters: {
     return { samples: [], count: 0 }
   }
 
-  // Inject signals (Signals are already cached internally by generateAudioSignal)
+  // Inject signals and remove direct URLs
   const enrichedSamples = await Promise.all((data || []).map(async (s: any) => {
     const driveId = getDriveFileId(s.audio_url);
+    const signal = driveId ? await generateAudioSignal(driveId, s.name) : null;
+    
+    // Create safe object without audio_url
+    const { audio_url, ...safeSample } = s;
     return {
-      ...s,
-      signal: driveId ? await generateAudioSignal(driveId, s.name) : null
+      ...safeSample,
+      signal
     }
   }))
 
@@ -76,7 +86,7 @@ async function fetchPackBySlug(slug: string) {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('sample_packs')
-    .select('*, categories(name)')
+    .select('id, name, slug, description, cover_url, price_inr, created_at, full_pack_download_url, categories(name)')
     .eq('slug', slug)
     .single()
   
@@ -84,7 +94,13 @@ async function fetchPackBySlug(slug: string) {
     console.error('[GET_PACK_ERROR]', error)
     return null
   }
-  return data
+
+  // Hide the URL but provide a flag
+  return {
+    ...data,
+    is_downloadable: !!data.full_pack_download_url,
+    full_pack_download_url: undefined
+  }
 }
 
 // Exported cached version (24h)
