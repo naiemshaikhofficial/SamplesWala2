@@ -26,7 +26,7 @@ export default async function LibraryPage() {
   // 1. Fetch ALL vault items for billing history
   const { data: allVaultItems } = await supabase
     .from('user_vault')
-    .select('*')
+    .select('id, item_id, item_type, item_name, amount, razorpay_order_id, razorpay_payment_id, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -38,9 +38,14 @@ export default async function LibraryPage() {
     const packIds = vaultPacks.map(v => v.item_id)
     const { data: packData } = await supabase
       .from('sample_packs')
-      .select('*')
+      .select('id, name, slug, cover_url, full_pack_download_url')
       .in('id', packIds)
-    packs = packData || []
+    // Map to is_downloadable and hide the URL
+    packs = (packData || []).map(p => ({
+      ...p,
+      is_downloadable: !!p.full_pack_download_url,
+      full_pack_download_url: undefined
+    }))
   }
 
   // 3. Fetch user account profile for billing

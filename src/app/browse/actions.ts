@@ -86,7 +86,7 @@ async function fetchPackBySlug(slug: string) {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('sample_packs')
-    .select('id, name, slug, description, cover_url, price_inr, created_at, full_pack_download_url, categories(name)')
+    .select('id, name, slug, description, video_url, cover_url, price_inr, created_at, full_pack_download_url, categories(name)')
     .eq('slug', slug)
     .single()
   
