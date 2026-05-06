@@ -25,15 +25,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid payment signature" }, { status: 400 })
     }
 
-    // 2. Add to User Vault using Admin Client
+    // 2. Fetch pack prices for the vault entry
     const admin = getAdminClient()
-    
-    const vaultEntries = packIds.map((pid: string) => ({
-      user_id: userId,
-      item_id: pid,
-      item_type: 'pack',
-      amount: 0
-    }))
+    const { data: packs, error: packsError } = await admin
+      .from('sample_packs')
+      .select('id, price_inr')
+      .in('id', packIds)
+
+    if (packsError || !packs) {
+      console.error('[FETCH_PACKS_ERROR]', packsError)
+      return NextResponse.json({ error: "Failed to verify pack details" }, { status: 500 })
+    }
+
+    // 3. Add to User Vault
+    const vaultEntries = packIds.map((pid: string) => {
+      const pack = packs.find(p => p.id === pid)
+      return {
+        user_id: userId,
+        item_id: pid,
+        item_type: 'pack',
+        amount: pack?.price_inr || 0
+      }
+    })
+
 
     // Use upsert or unique constraint on (user_id, item_id) if available, 
     // but here we just insert and ignore errors for duplicates if they exist

@@ -59,41 +59,43 @@ export default async function LibraryPage() {
            </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
           {packs.map((pack) => (
-            <div key={pack.id} className="group bg-white/5 border border-white/5 rounded-sm overflow-hidden hover:border-white/20 transition-all flex flex-col">
-              <div className="aspect-video relative overflow-hidden">
+            <div key={pack.id} className="group flex flex-col space-y-4">
+              <div className="aspect-square relative overflow-hidden bg-studio-charcoal/50 border border-white/5 rounded-sm shadow-2xl block group-hover:border-studio-neon/30 transition-all">
                 <Image 
-                  src={getOptimizedImageUrl(pack.cover_url, 800, 80)} 
+                  src={getOptimizedImageUrl(pack.cover_url, 600, 80)} 
                   alt={pack.name} 
                   fill 
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  priority={packs.indexOf(pack) < 4}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                <div className="absolute bottom-4 left-4">
-                   <h3 className="text-xl font-black uppercase italic tracking-tight">{pack.name}</h3>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
               </div>
               
-              <div className="p-6 flex flex-col flex-grow space-y-6">
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
-                  <span className="flex items-center gap-2"><Music size={12} /> Full Pack</span>
-                  <span>Unlocked</span>
+              <div className="space-y-4 px-1">
+                <div className="space-y-1">
+                  <h3 className="text-[13px] font-black uppercase truncate italic tracking-tight">{pack.name}</h3>
+                  <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.2em] text-white/20">
+                    <span className="flex items-center gap-2"><Music size={10} /> Full Pack</span>
+                    <span className="text-studio-neon/60">Unlocked</span>
+                  </div>
                 </div>
 
-                <div className="flex gap-3 mt-auto">
+                <div className="flex gap-2 pt-2">
                    <DownloadButton packId={pack.id} />
                    <Link 
                      href={`/packs/${pack.slug}`}
-                     className="h-14 w-14 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"
+                     className="h-14 w-14 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all group/link"
                    >
-                     <ArrowRight size={18} />
+                     <ArrowRight size={18} className="text-white/20 group-hover/link:text-white transition-colors" />
                    </Link>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
       )}
     </div>
   )
