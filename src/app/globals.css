@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-studio-yellow: #FFC800;
+  --color-spider-red: #E11D48;
+  --color-studio-neon: #ffffff;
+  --color-studio-grey: #1e1e1e;
+  --color-studio-charcoal: #0e0e0e;
+
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --radius: 0rem;
+  }
+
+  body {
+    background-color: black;
+    color: white;
+    font-family: var(--font-mono);
+  }
+
+  /* Industrial Scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #fff;
+  }
+}
+
+@layer components {
+  .studio-panel {
+    @apply border border-white/5 bg-studio-charcoal/50 backdrop-blur-md;
+  }
+  
+  .studio-button {
+    @apply px-6 py-2 bg-white text-black font-black uppercase tracking-widest hover:bg-studio-yellow transition-all active:scale-95 disabled:opacity-50;
+  }
+
+  .step-grid {
+    background-size: 24px 24px;
+    background-image: 
+      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+  }
+}
