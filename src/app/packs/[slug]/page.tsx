@@ -82,6 +82,8 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
     { name: pack.name, item: `https://sampleswala.com/packs/${pack.slug}` }
   ])
 
+  const { user, owned } = await checkOwnership(pack.id)
+
   return (
     <>
       <script

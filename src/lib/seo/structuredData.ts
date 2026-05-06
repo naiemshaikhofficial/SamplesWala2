@@ -9,7 +9,7 @@ export function generatePackStructuredData(pack: any) {
     "description": pack.description || `Premium ${pack.name} sample pack with royalty-free loops and samples.`,
     "brand": {
       "@type": "Brand",
-      "name": "Samples Wala"
+      "name": "Samples wala"
     },
     "offers": {
       "@type": "Offer",
