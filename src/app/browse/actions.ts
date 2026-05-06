@@ -7,7 +7,7 @@ export async function getPacks() {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('sample_packs')
-    .select('id, name, slug, cover_url, price_inr, created_at, updated_at, categories(name)')
+    .select('id, name, slug, cover_url, price_inr, full_pack_download_url, created_at, updated_at, categories(name)')
     .order('created_at', { ascending: false })
   
   if (error) {
