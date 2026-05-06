@@ -2,6 +2,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
+  const publicRoutes = ['/', '/browse', '/packs', '/help', '/terms', '/privacy', '/auth'];
+  const isPublicRoute = publicRoutes.some(route => request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith('/packs/'));
+  
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
   return await updateSession(request)
 }
 

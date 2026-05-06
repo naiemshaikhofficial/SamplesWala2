@@ -3,7 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { unstable_cache } from 'next/cache'
 import { generateAudioSignal, getDriveFileId } from '@/lib/audio/signal'
 
-export async function getPacks() {
+// Internal function to fetch all packs
+async function fetchAllPacks() {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('sample_packs')
@@ -16,6 +17,13 @@ export async function getPacks() {
   }
   return data
 }
+
+// Exported cached version (24h)
+export const getPacks = unstable_cache(
+  async () => fetchAllPacks(),
+  ['all-packs-list'],
+  { revalidate: 86400, tags: ['packs'] }
+)
 
 export const getSamples = async (filters: { 
   query?: string, 
@@ -46,7 +54,7 @@ export const getSamples = async (filters: {
     return { samples: [], count: 0 }
   }
 
-  // Inject signals
+  // Inject signals (Signals are already cached internally by generateAudioSignal)
   const enrichedSamples = await Promise.all((data || []).map(async (s: any) => {
     const driveId = getDriveFileId(s.audio_url);
     return {
@@ -58,7 +66,8 @@ export const getSamples = async (filters: {
   return { samples: enrichedSamples, count: count || 0 }
 }
 
-export async function getPackBySlug(slug: string) {
+// Internal function to fetch single pack
+async function fetchPackBySlug(slug: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('sample_packs')
@@ -72,3 +81,10 @@ export async function getPackBySlug(slug: string) {
   }
   return data
 }
+
+// Exported cached version (24h)
+export const getPackBySlug = (slug: string) => unstable_cache(
+  async () => fetchPackBySlug(slug),
+  [`pack-${slug}`],
+  { revalidate: 86400, tags: [`pack-${slug}`] }
+)()
