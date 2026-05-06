@@ -4,8 +4,9 @@ import { generatePageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Samples Wala | Premium Indian Sample Packs & Loops",
-  description: "High-quality sounds for Indian music producers. Professional royalty-free samples, loops, and curated collections for Bollywood, Hip-Hop, and Electronic music.",
+  description: "Samples Wala (also known as Sample Wala) provides high-quality sounds for Indian music producers. Professional royalty-free samples, loops, and curated collections for Bollywood, Hip-Hop, and Electronic music.",
 });
+
 
 import { createClient } from "@/lib/supabase/server";
 import { CartProvider } from "@/context/CartContext";

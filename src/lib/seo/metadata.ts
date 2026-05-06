@@ -12,6 +12,11 @@ const DEFAULT_KEYWORDS = [
   'royalty free samples', 
   'music production tools', 
   'Samples Wala',
+  'Sample Wala',
+  'Samplewala',
+  'sampleswala',
+  'samples-wala',
+
   'Indian percussion loops',
   'sitar samples',
   'tabla loops',
