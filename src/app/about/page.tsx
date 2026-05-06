@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { generatePageMetadata } from '@/lib/seo/metadata'
-import { Music, Zap, ShieldCheck, Star, CheckCircle2, Heart, Headphones, Users } from 'lucide-react'
+import { Music, Zap, ShieldCheck, Star, CheckCircle2, Heart, Headphones, Users, Instagram, Youtube } from 'lucide-react'
 
 export const metadata = generatePageMetadata({
   title: 'About Us | SamplesWala',
@@ -11,6 +11,12 @@ export const metadata = generatePageMetadata({
 
 export default function AboutPage() {
   const founderImage = "https://imagizer.imageshack.com/img922/310/c8UQzL.jpg"
+
+  const socialLinks = [
+    { icon: Instagram, url: "https://www.instagram.com/naiemShaikhofficial/", label: "Instagram" },
+    { icon: Youtube, url: "https://www.youtube.com/@naiemshaikh", label: "YouTube" },
+    { icon: Music, url: "https://open.spotify.com/artist/08cXWillp8iGPYijt84FpO", label: "Spotify" },
+  ]
 
   return (
     <div className="flex flex-col min-h-screen bg-black selection:bg-studio-yellow selection:text-black">
@@ -75,12 +81,28 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="flex gap-4">
-                <div className="p-4 bg-white/5 border border-white/5 rounded-sm flex-1">
+              {/* Social Links Row */}
+              <div className="flex flex-wrap gap-4 pt-4">
+                {socialLinks.map((link, i) => (
+                  <a 
+                    key={i}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-5 py-3 bg-white/5 border border-white/10 rounded-sm hover:bg-studio-yellow hover:text-black hover:border-studio-yellow transition-all group"
+                  >
+                    <link.icon size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">{link.label}</span>
+                  </a>
+                ))}
+              </div>
+
+              <div className="flex gap-4 pt-4 border-t border-white/5">
+                <div className="flex-1">
                   <p className="text-2xl font-black italic text-white">50+</p>
                   <p className="text-[10px] uppercase tracking-widest text-white/30 mt-1">Musicians</p>
                 </div>
-                <div className="p-4 bg-white/5 border border-white/5 rounded-sm flex-1">
+                <div className="flex-1">
                   <p className="text-2xl font-black italic text-studio-yellow">100%</p>
                   <p className="text-[10px] uppercase tracking-widest text-white/30 mt-1">Real Instruments</p>
                 </div>
@@ -178,5 +200,6 @@ export default function AboutPage() {
     </div>
   )
 }
+
 
 
