@@ -19,11 +19,14 @@ async function fetchAllPacks() {
 }
 
 // Exported cached version (24h)
-export const getPacks = unstable_cache(
-  async () => fetchAllPacks(),
-  ['all-packs-list'],
-  { revalidate: 86400, tags: ['packs'] }
-)
+// Must be an async function to satisfy Next.js Server Actions requirement
+export async function getPacks() {
+  return unstable_cache(
+    async () => fetchAllPacks(),
+    ['all-packs-list'],
+    { revalidate: 86400, tags: ['packs'] }
+  )()
+}
 
 export const getSamples = async (filters: { 
   query?: string, 
@@ -83,8 +86,11 @@ async function fetchPackBySlug(slug: string) {
 }
 
 // Exported cached version (24h)
-export const getPackBySlug = (slug: string) => unstable_cache(
-  async () => fetchPackBySlug(slug),
-  [`pack-${slug}`],
-  { revalidate: 86400, tags: [`pack-${slug}`] }
-)()
+// Must be an async function to satisfy Next.js Server Actions requirement
+export async function getPackBySlug(slug: string) {
+  return unstable_cache(
+    async () => fetchPackBySlug(slug),
+    [`pack-${slug}`],
+    { revalidate: 86400, tags: [`pack-${slug}`] }
+  )()
+}
