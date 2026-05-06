@@ -9,15 +9,29 @@ import { AddToCartButton } from '@/components/AddToCartButton'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const pack = await getPackBySlug(slug)
   if (!pack) return { title: 'Pack Not Found' }
 
-  return {
-    title: `${pack.name} | Sampleswala`,
-    description: pack.description || `Download ${pack.name} sample pack for professional music production.`,
-  }
+  const categoryName = pack.categories?.name || 'Samples'
+  const packKeywords = [
+    `${pack.name} sample pack`,
+    `${pack.name} loops`,
+    `${categoryName} samples`,
+    `Indian ${categoryName}`,
+    'professional sample pack',
+    'royalty free loops'
+  ]
+
+  return generatePageMetadata({
+    title: `${pack.name} - Premium ${categoryName} Pack`,
+    description: pack.description || `Download the ${pack.name} ${categoryName} sample pack. Professional quality royalty-free loops and samples for your music production.`,
+    image: pack.cover_url || '/og-image.jpg',
+    keywords: packKeywords
+  })
 }
 
 async function checkOwnership(packId: string) {

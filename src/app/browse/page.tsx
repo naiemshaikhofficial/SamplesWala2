@@ -3,10 +3,13 @@ import { getPacks } from './actions'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export const metadata = {
-  title: 'Sound Library | Sampleswala',
-  description: 'Explore our curated library of premium sample packs, loops, and one-shots. Perfect for Bollywood, Hip-Hop, and Pop production.',
-}
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: 'Professional Indian Sample Packs Library',
+  description: 'Explore our curated library of premium Indian sample packs, Bollywood loops, and Hip-Hop kits. All sounds are 100% royalty-free and production-ready.',
+  keywords: ['Indian sample packs', 'Bollywood loops', 'hip hop kits', 'music library', 'percussion samples']
+})
 
 import { BrowseLibrary } from '@/components/BrowseLibrary'
 
