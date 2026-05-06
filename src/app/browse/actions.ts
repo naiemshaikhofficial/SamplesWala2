@@ -18,12 +18,14 @@ async function fetchAllPacks() {
     return []
   }
 
-  // Transform to hide sensitive URLs
-  return data.map(pack => ({
-    ...pack,
-    is_downloadable: !!pack.full_pack_download_url,
-    full_pack_download_url: undefined // Remove actual URL
-  }))
+  // Transform to hide sensitive URLs completely
+  return data.map(pack => {
+    const { full_pack_download_url, ...safePack } = pack
+    return {
+      ...safePack,
+      is_downloadable: !!full_pack_download_url
+    }
+  })
 }
 
 // Exported cached version (24h)
@@ -95,11 +97,11 @@ async function fetchPackBySlug(slug: string) {
     return null
   }
 
-  // Hide the URL but provide a flag
+  // Hide the URL completely but provide a flag
+  const { full_pack_download_url, ...safeData } = data
   return {
-    ...data,
-    is_downloadable: !!data.full_pack_download_url,
-    full_pack_download_url: undefined
+    ...safeData,
+    is_downloadable: !!full_pack_download_url
   }
 }
 
