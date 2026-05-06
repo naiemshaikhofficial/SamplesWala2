@@ -38,6 +38,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <link rel="icon" href="/Favicon.ico" sizes="any" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSearchLd) }}
