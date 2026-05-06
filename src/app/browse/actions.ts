@@ -1,11 +1,13 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
+import { getAdminClient } from '@/lib/supabase/admin'
 import { unstable_cache } from 'next/cache'
 import { generateAudioSignal, getDriveFileId } from '@/lib/audio/signal'
 
 // Internal function to fetch all packs
+// We use getAdminClient here to avoid 'cookies()' access inside unstable_cache
 async function fetchAllPacks() {
-  const supabase = await createClient()
+  const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('sample_packs')
     .select('id, name, slug, cover_url, price_inr, full_pack_download_url, created_at, updated_at, categories(name)')
@@ -19,7 +21,6 @@ async function fetchAllPacks() {
 }
 
 // Exported cached version (24h)
-// Must be an async function to satisfy Next.js Server Actions requirement
 export async function getPacks() {
   return unstable_cache(
     async () => fetchAllPacks(),
@@ -70,8 +71,9 @@ export const getSamples = async (filters: {
 }
 
 // Internal function to fetch single pack
+// We use getAdminClient here to avoid 'cookies()' access inside unstable_cache
 async function fetchPackBySlug(slug: string) {
-  const supabase = await createClient()
+  const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('sample_packs')
     .select('*, categories(name)')
@@ -86,7 +88,6 @@ async function fetchPackBySlug(slug: string) {
 }
 
 // Exported cached version (24h)
-// Must be an async function to satisfy Next.js Server Actions requirement
 export async function getPackBySlug(slug: string) {
   return unstable_cache(
     async () => fetchPackBySlug(slug),
