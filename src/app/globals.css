@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-@theme {
+/* IDE Warning Fix: Using standard CSS variables for theme tokens */
+:root {
   --color-studio-yellow: #FFC800;
   --color-spider-red: #E11D48;
   --color-studio-neon: #ffffff;
@@ -8,15 +9,13 @@
   --color-studio-charcoal: #0e0e0e;
 
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --radius: 0rem;
 }
 
 @layer base {
-  :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --radius: 0rem;
-  }
-
   body {
     background-color: black;
     color: white;
@@ -39,12 +38,38 @@
 }
 
 @layer components {
+  /* Using standard CSS to avoid @apply warnings in some IDEs */
   .studio-panel {
-    @apply border border-white/5 bg-studio-charcoal/50 backdrop-blur-md;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: rgba(14, 14, 14, 0.5);
+    backdrop-filter: blur(12px);
   }
   
   .studio-button {
-    @apply px-6 py-2 bg-white text-black font-black uppercase tracking-widest hover:bg-studio-yellow transition-all active:scale-95 disabled:opacity-50;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    background-color: white;
+    color: black;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .studio-button:hover {
+    background-color: var(--color-studio-yellow);
+  }
+
+  .studio-button:active {
+    transform: scale(0.95);
+  }
+
+  .studio-button:disabled {
+    opacity: 0.5;
   }
 
   .step-grid {
