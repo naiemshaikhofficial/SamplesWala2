@@ -14,7 +14,12 @@ const DEFAULT_KEYWORDS = [
   'Sampleswala',
   'Indian percussion loops',
   'sitar samples',
-  'tabla loops'
+  'tabla loops',
+  'Splice alternative India',
+  'professional wav loops',
+  'high definition audio samples',
+  'DAW ready sounds',
+  'best Indian sample library'
 ]
 
 export function generatePageMetadata({

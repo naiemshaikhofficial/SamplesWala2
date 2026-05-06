@@ -8,6 +8,7 @@ import { PaymentButton } from '@/components/PaymentButton'
 import { AddToCartButton } from '@/components/AddToCartButton'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { generatePackStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
 
@@ -74,9 +75,24 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
 
   if (!pack) notFound()
 
-  const { user, owned } = await checkOwnership(pack.id)
+  const jsonLd = generatePackStructuredData(pack)
+  const breadcrumbs = generateBreadcrumbData([
+    { name: 'Home', item: 'https://sampleswala.com' },
+    { name: 'Library', item: 'https://sampleswala.com/browse' },
+    { name: pack.name, item: `https://sampleswala.com/packs/${pack.slug}` }
+  ])
 
   return (
-    <PackDetailClient initialPack={pack} owned={owned} user={user} />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <PackDetailClient initialPack={pack} owned={owned} user={user} />
+    </>
   )
 }

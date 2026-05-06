@@ -24,8 +24,25 @@ export default async function RootLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const siteSearchLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://sampleswala.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://sampleswala.com/browse?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSearchLd) }}
+        />
+      </head>
       <body className="antialiased min-h-screen flex flex-col step-grid text-white">
         <CartProvider>
           <CartSidebar />
