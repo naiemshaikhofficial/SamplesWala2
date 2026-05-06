@@ -4,7 +4,7 @@ import { useCart, CartItem } from '@/context/CartContext'
 import { useState } from 'react'
 
 export function AddToCartButton({ item }: { item: CartItem }) {
-  const { addItem, items } = useCart()
+  const { addItem, items, setSidebarOpen } = useCart()
   const [added, setAdded] = useState(false)
   
   const isAlreadyInCart = items.some(i => i.id === item.id)
@@ -17,10 +17,13 @@ export function AddToCartButton({ item }: { item: CartItem }) {
 
   if (isAlreadyInCart) {
     return (
-      <div className="w-full h-14 bg-white/5 border border-white/10 text-white/40 font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 rounded-sm cursor-not-allowed">
+      <button 
+        onClick={() => setSidebarOpen(true)}
+        className="w-full h-14 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 rounded-sm hover:bg-white/10 transition-all cursor-pointer"
+      >
         <Check size={18} />
         <span>In Cart</span>
-      </div>
+      </button>
     )
   }
 

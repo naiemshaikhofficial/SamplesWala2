@@ -46,8 +46,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = (item: CartItem) => {
     if (!items.find(i => i.id === item.id)) {
       setItems([...items, item])
-      setSidebarOpen(true) // Open sidebar when item added
     }
+    setSidebarOpen(true) // Open sidebar every time addItem is called
   }
 
   const removeItem = (id: string) => {
