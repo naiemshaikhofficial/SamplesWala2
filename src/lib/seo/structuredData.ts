@@ -1,4 +1,4 @@
-import { Pack } from '@/types' // Assuming I have types, if not I'll use any
+// Structured Data utilities for SEO (Splice-style)
 
 export function generatePackStructuredData(pack: any) {
   return {
@@ -9,7 +9,7 @@ export function generatePackStructuredData(pack: any) {
     "description": pack.description || `Premium ${pack.name} sample pack with royalty-free loops and samples.`,
     "brand": {
       "@type": "Brand",
-      "name": "Samples wala"
+      "name": "Samples Wala"
     },
     "offers": {
       "@type": "Offer",
