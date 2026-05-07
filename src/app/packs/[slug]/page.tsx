@@ -17,7 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const pack = await getPackBySlug(slug)
   if (!pack) return { title: 'Pack Not Found' }
 
-  const categoryName = pack.categories?.name || 'Samples'
+  // @ts-ignore
+  const categoryName = pack.categories?.[0]?.name || 'Samples'
   const packKeywords = [
     `${pack.name} sample pack`,
     `${pack.name} loops`,
