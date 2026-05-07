@@ -6,7 +6,7 @@ import { Music, Zap, ShieldCheck, Star, CheckCircle2, Heart, Headphones, Users, 
 
 export const metadata = generatePageMetadata({
   title: 'About Us | SamplesWala',
-  description: 'Learn about SamplesWala, founded by Naiem Shaikh. We are a team of 50+ musicians providing the best Indian sample packs.',
+  description: 'Learn about SamplesWala. We are a team of 50+ musicians providing the best Indian sample packs.',
 })
 
 export default function AboutPage() {
@@ -57,8 +57,8 @@ export default function AboutPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6">
-                <h2 className="text-3xl font-black uppercase italic">Naiem Shaikh</h2>
-                <p className="text-studio-yellow font-bold uppercase tracking-widest text-[10px]">Founder & Musician</p>
+                <h2 className="text-3xl font-black uppercase italic">Samples Wala</h2>
+                <p className="text-studio-yellow font-bold uppercase tracking-widest text-[10px]">Premium Sound Design</p>
               </div>
             </div>
 
@@ -69,15 +69,15 @@ export default function AboutPage() {
               </div>
               
               <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none italic">
-                HI, I'M <span className="text-studio-yellow">NAIEM.</span>
+                WE ARE <span className="text-studio-yellow">SAMPLES WALA.</span>
               </h3>
 
               <div className="space-y-6 text-white/60 text-lg leading-relaxed font-medium">
                 <p>
-                  I'm a music producer and musician just like you. I started SamplesWala because I was frustrated. I couldn't find high-quality, real Indian sounds to use in my tracks. Everything felt "fake" or old.
+                  We are music producers and musicians just like you. We started SamplesWala because we were frustrated. We couldn't find high-quality, real Indian sounds to use in our tracks. Everything felt "fake" or old.
                 </p>
                 <p>
-                  I decided to change that. I wanted to bring the soul of Indian music to every producer in the world. Today, we have a huge family of over <span className="text-white font-bold">50+ professional musicians</span> who work with me to record the best loops and samples you've ever heard.
+                  We decided to change that. We wanted to bring the soul of Indian music to every producer in the world. Today, we have a huge family of over <span className="text-white font-bold">50+ professional musicians</span> who work with us to record the best loops and samples you've ever heard.
                 </p>
               </div>
 

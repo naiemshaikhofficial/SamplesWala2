@@ -15,7 +15,7 @@ export function Header({ user }: { user: any }) {
     <>
       <Link href="/browse" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Browse</Link>
       <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
-      <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Contact</Link>
+     
       <div className="flex items-center gap-4">
         <HeaderCartIcon />
         {user ? (
@@ -73,7 +73,7 @@ export function Header({ user }: { user: any }) {
             <Link href="/about" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">About Us</Link>
             <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">Your Library</Link>
             <Link href="/help" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">Help Center</Link>
-            <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">Contact Us</Link>
+
             
             <div className="pt-4">
               {user ? (

@@ -96,7 +96,22 @@ export default function PrivacyPage() {
                 </div>
                 <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
                   <p>
-                    You can ask us to delete your account and all your data at any time. Just remember, if we delete your account, you will lose access to all the sample packs you bought.
+                    You have the right to access, correct, or request the deletion of your personal data at any time. Just email us and we will process your request.
+                  </p>
+                  <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest">
+                    Note: If we delete your account data, you will lose access to your past purchases and library.
+                  </p>
+                </div>
+              </section>
+
+              <section className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-black text-studio-neon font-mono">05</span>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic">Third Parties</h2>
+                </div>
+                <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
+                  <p>
+                    We only share your information with trusted service providers like **Razorpay** and **PayPal** to process payments and provide support. We never sell or rent your personal data to anyone.
                   </p>
                 </div>
               </section>
@@ -120,9 +135,9 @@ export default function PrivacyPage() {
               </div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 italic">We don't share your info with anyone.</p>
             </div>
-            <a href="mailto:support@sampleswala.com" className="text-[10px] font-black uppercase tracking-widest text-studio-neon hover:underline">
-              Questions? Email Support
-            </a>
+            <Link href="/contact" className="text-[10px] font-black uppercase tracking-widest text-studio-neon hover:underline">
+              Questions? Contact Us
+            </Link>
           </div>
         </div>
       </div>

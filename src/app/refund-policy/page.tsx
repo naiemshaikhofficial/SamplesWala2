@@ -63,14 +63,14 @@ export default function RefundPage() {
                       <CheckCircle2 size={16} className="text-studio-neon mt-1 flex-shrink-0" />
                       <div>
                         <p className="text-xs font-black uppercase text-white tracking-wide">File is Broken</p>
-                        <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-1 italic">If the sounds don't play or the zip file is corrupted and we cannot fix it for you.</p>
+                        <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-1 italic">If the sounds don't play or the zip file is corrupted, we will replace the files for you immediately.</p>
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
                       <CheckCircle2 size={16} className="text-studio-neon mt-1 flex-shrink-0" />
                       <div>
                         <p className="text-xs font-black uppercase text-white tracking-wide">Double Payment</p>
-                        <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-1 italic">If you accidentally paid for the same pack twice.</p>
+                        <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-1 italic">If you accidentally paid for the same pack twice and report it within 14 days.</p>
                       </div>
                     </li>
                   </ul>
@@ -128,8 +128,8 @@ export default function RefundPage() {
               <p className="text-xs font-black uppercase tracking-[0.2em]">Still have questions?</p>
               <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest italic">We are here to help you make better music.</p>
             </div>
-            <Link href="/browse" className="px-10 py-4 bg-white text-black font-black uppercase text-[10px] tracking-widest hover:bg-studio-yellow transition-all">
-              Go to Library
+            <Link href="/contact" className="px-10 py-4 bg-white text-black font-black uppercase text-[10px] tracking-widest hover:bg-studio-yellow transition-all">
+              Contact Us
             </Link>
           </div>
         </div>

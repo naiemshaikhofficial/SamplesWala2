@@ -31,10 +31,10 @@ export default function TermsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 border-t border-white/5 pt-16">
-            <div className="md:col-span-4 space-y-4">
+            <div className="md:col-span-4 space-y-4 text-left">
               <h3 className="text-xs font-black uppercase tracking-widest text-studio-yellow italic">The Basics</h3>
               <p className="text-[10px] font-bold text-white/30 uppercase leading-relaxed tracking-widest">
-                By using Samples Wala, you agree to these simple rules. We keep it fair and easy for all music producers.
+                By using Samples Wala, you agree to these rules. All original sound designs and branding are owned by Samples Wala.
               </p>
             </div>
             
@@ -46,7 +46,7 @@ export default function TermsPage() {
                 </div>
                 <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
                   <p>
-                    When you buy a pack, you get a "License." This means you can use the sounds in your songs forever without paying us again.
+                    When you buy a pack, you get a "Non-exclusive, Non-transferable License." This means you can use the sounds in your songs forever without paying us again. 
                   </p>
                   <ul className="space-y-2 list-none text-[11px] font-bold uppercase tracking-widest text-white/40">
                     <li>• You can release your songs on Spotify, YouTube, etc.</li>
@@ -103,11 +103,23 @@ export default function TermsPage() {
               <section className="space-y-6">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-black text-studio-yellow font-mono">04</span>
-                  <h2 className="text-xl font-black uppercase tracking-tight italic">Changes</h2>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic">Payments</h2>
                 </div>
                 <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
                   <p>
-                    Sometimes we update our prices or these rules. We will let you know if something big changes.
+                    All payments are securely processed via **Razorpay**. We do not store your credit card or sensitive payment details on our servers.
+                  </p>
+                </div>
+              </section>
+
+              <section className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-black text-studio-neon font-mono">05</span>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic">Intellectual Property</h2>
+                </div>
+                <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
+                  <p>
+                    All content on this website, including sound samples, graphics, and text, is the property of Samples Wala and protected by copyright laws.
                   </p>
                 </div>
               </section>
@@ -130,9 +142,9 @@ export default function TermsPage() {
               If you don't understand something, just send us an email. We are here to help.
             </p>
             <div className="pt-4">
-              <a href="mailto:support@sampleswala.com" className="px-8 py-4 bg-black text-white font-black uppercase text-[10px] tracking-widest hover:scale-105 transition-transform inline-block">
-                Email Support
-              </a>
+              <Link href="/contact" className="px-8 py-4 bg-black text-white font-black uppercase text-[10px] tracking-widest hover:scale-105 transition-transform inline-block">
+                Contact Support
+              </Link>
             </div>
           </div>
         </div>
