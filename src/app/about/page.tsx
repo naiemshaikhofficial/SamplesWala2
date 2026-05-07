@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { generatePageMetadata } from '@/lib/seo/metadata'
-import { Music, Zap, ShieldCheck, Star, CheckCircle2, Heart, Headphones, Users, Instagram, Youtube } from 'lucide-react'
+import { Music, Zap, ShieldCheck, Star, CheckCircle2, Heart, Headphones, Users, Instagram, Youtube, Twitter } from 'lucide-react'
 
 export const metadata = generatePageMetadata({
   title: 'About Us | SamplesWala',
@@ -13,9 +13,9 @@ export default function AboutPage() {
   const founderImage = "https://imagizer.imageshack.com/img922/310/c8UQzL.jpg"
 
   const socialLinks = [
-    { icon: Instagram, url: "https://www.instagram.com/naiemShaikhofficial/", label: "Instagram" },
-    { icon: Youtube, url: "https://www.youtube.com/@naiemshaikh", label: "YouTube" },
-    { icon: Music, url: "https://open.spotify.com/artist/08cXWillp8iGPYijt84FpO", label: "Spotify" },
+    { icon: Instagram, url: "https://www.instagram.com/sampleswala", label: "Instagram" },
+    { icon: Youtube, url: "https://www.youtube.com/@sampleswala", label: "YouTube" },
+    { icon: Twitter, url: "https://twitter.com/sampleswala", label: "Twitter" },
   ]
 
   return (
