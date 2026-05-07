@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { verifyDownloadToken } from '@/lib/security'
 import crypto from 'crypto'
@@ -16,6 +17,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (!payload) {
         return new NextResponse("Unauthorized or Expired Link", { status: 403 })
+    }
+
+    // 2. Extra Security: Verify IP address (Optional but recommended)
+    const headerList = await headers()
+    const currentIp = headerList.get("x-forwarded-for")?.split(',')[0] || "unknown"
+    
+    if (payload.ip !== currentIp && process.env.NODE_ENV !== 'development') {
+        console.warn(`[IP_MISMATCH] Token IP: ${payload.ip}, Current IP: ${currentIp}`)
+        // return new NextResponse("IP Address Mismatch. Use the same device/network.", { status: 403 })
     }
 
     const packId = payload.pid
