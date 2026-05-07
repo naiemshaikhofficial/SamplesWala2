@@ -40,8 +40,8 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        {/* Pack Info Left */}
-        <div className="lg:col-span-4 space-y-8">
+        {/* Top Info: Name & Purchase (Order 1 on Mobile) */}
+        <div className="lg:col-span-4 space-y-8 order-1">
           <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl">
             <Image 
               src={getOptimizedImageUrl(pack.cover_url, 1200, 90)} 
@@ -90,37 +90,11 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                 </div>
               )}
             </div>
-            
-            <p className="text-xs text-white/60 leading-relaxed font-medium bg-white/[0.02] p-4 border border-white/5 rounded-sm">
-              {pack.description || "No description available for this collection."}
-            </p>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-white/5 border border-white/5 rounded-sm space-y-1">
-                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Type</span>
-                <p className="text-[10px] font-bold uppercase">{pack.categories?.name || 'Artifacts'}</p>
-              </div>
-              <div className="p-4 bg-white/5 border border-white/5 rounded-sm space-y-1">
-                <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Quality</span>
-                <p className="text-[10px] font-bold uppercase">24-Bit WAV</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-center gap-6 py-2 border-t border-white/5">
-               <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
-                 <ShieldCheck size={14} className="text-studio-neon" />
-                 100% Royalty Free
-               </div>
-               <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
-                 <Zap size={14} className="text-studio-yellow" />
-                 Immediate Access
-               </div>
-            </div>
           </div>
         </div>
 
-        {/* Video Preview Right */}
-        <div className="lg:col-span-8 space-y-10">
+        {/* Video Preview (Order 2 on Mobile, Right Column on Desktop) */}
+        <div className="lg:col-span-8 space-y-10 order-2 lg:row-span-2">
           {vId ? (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -162,6 +136,35 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                 <p className="text-[10px] font-medium text-white/40 leading-relaxed uppercase">
                    Expertly mixed and mastered using industry-standard equipment. Designed to cut through the mix and provide instant inspiration for modern music producers.
                 </p>
+             </div>
+          </div>
+        </div>
+
+        {/* Description & Details (Order 3 on Mobile, under Top Info on Desktop) */}
+        <div className="lg:col-span-4 space-y-8 order-3">
+          <p className="text-xs text-white/60 leading-relaxed font-medium bg-white/[0.02] p-4 border border-white/5 rounded-sm whitespace-pre-wrap">
+            {pack.description || "No description available for this collection."}
+          </p>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-white/5 border border-white/5 rounded-sm space-y-1">
+              <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Type</span>
+              <p className="text-[10px] font-bold uppercase">{pack.categories?.name || 'Artifacts'}</p>
+            </div>
+            <div className="p-4 bg-white/5 border border-white/5 rounded-sm space-y-1">
+              <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Quality</span>
+              <p className="text-[10px] font-bold uppercase">24-Bit WAV</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center gap-6 py-2 border-t border-white/5">
+             <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
+               <ShieldCheck size={14} className="text-studio-neon" />
+               100% Royalty Free
+             </div>
+             <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
+               <Zap size={14} className="text-studio-yellow" />
+               Immediate Access
              </div>
           </div>
         </div>

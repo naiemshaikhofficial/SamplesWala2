@@ -79,6 +79,7 @@ export default async function RootLayout({
                   <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
                   <li><Link href="/library" className="hover:text-white transition-colors">Your Library</Link></li>
                   <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
+                  <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
                   <li><Link href="/auth" className="hover:text-white transition-colors">Account</Link></li>
                 </ul>
               </div>
@@ -110,9 +111,10 @@ export default async function RootLayout({
 
             <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-20 text-[8px] font-black uppercase tracking-[0.4em] text-center md:text-left">
               <span>&copy; 2026 SAMPLES WALA :: DEFINITIVE_COLLECTION</span>
-              <div className="flex gap-8">
-                <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+              <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+                <Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
                 <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <Link href="/refund-policy" className="hover:text-white transition-colors">Refund & Cancellation</Link>
               </div>
             </div>
           </div>
