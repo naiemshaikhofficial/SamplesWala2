@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { Search, Music, ArrowRight, X } from 'lucide-react'
+import { Search, Music, ArrowRight, X, ShieldCheck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getOptimizedImageUrl } from '@/lib/images'
@@ -88,6 +88,10 @@ export function SearchableLibrary({ packs }: { packs: Pack[] }) {
               
               <div className="space-y-4 px-1">
                 <div className="space-y-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <ShieldCheck size={10} className="text-studio-neon" />
+                    <span className="text-[7px] font-black uppercase tracking-[0.2em] text-studio-neon/80">Verified License</span>
+                  </div>
                   <h3 className="text-[13px] font-black uppercase truncate italic tracking-tight">{pack.name}</h3>
                   {pack.created_at && (
                     <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest">

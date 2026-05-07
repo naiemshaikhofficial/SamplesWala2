@@ -115,7 +115,13 @@ export default async function RootLayout({
                 <Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
                 <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                 <Link href="/refund-policy" className="hover:text-white transition-colors">Refund & Cancellation</Link>
+                <Link href="/dmca" className="hover:text-white transition-colors">DMCA</Link>
               </div>
+            </div>
+            <div className="mt-12 text-center">
+               <p className="text-[7px] font-bold text-white/5 uppercase tracking-[0.5em] leading-relaxed max-w-2xl mx-auto">
+                 Unauthorized duplication, distribution, or resale is a violation of international copyright laws. All files are digitally watermarked for licensee identification.
+               </p>
             </div>
           </div>
         </footer>

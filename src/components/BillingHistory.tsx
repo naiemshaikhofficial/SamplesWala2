@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { Receipt, Download, Calendar, Hash, CreditCard } from 'lucide-react'
+import { Receipt, Download, Calendar, Hash, CreditCard, ShieldCheck, FileCheck } from 'lucide-react'
 
 interface BillingItem {
   id: string
@@ -137,6 +137,136 @@ export function BillingHistory({ items, profile, email }: {
     `)
     invoiceWindow.document.close()
   }
+  const handleDownloadLicense = (item: BillingItem) => {
+    const licenseWindow = window.open('', '_blank')
+    if (!licenseWindow) return
+
+    const date = new Date(item.created_at).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    })
+
+    licenseWindow.document.write(`
+      <html>
+        <head>
+          <title>License Certificate - ${item.item_name}</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+            body { font-family: 'Inter', sans-serif; padding: 40px; color: #1a1a1a; line-height: 1.5; background: #fff; }
+            .cert-border { border: 10px double #000; padding: 40px; position: relative; }
+            .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
+            .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; font-style: italic; }
+            .title { font-size: 28px; font-weight: 900; text-transform: uppercase; margin: 10px 0; }
+            .subtitle { font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 2px; }
+            
+            .license-details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 30px 0; background: #f9f9f9; padding: 20px; border: 1px solid #eee; }
+            .detail-item { font-size: 11px; text-transform: uppercase; color: #888; font-weight: 700; }
+            .detail-value { font-size: 14px; font-weight: 700; color: #000; margin-top: 4px; }
+
+            .terms { font-size: 10px; height: 450px; overflow-y: visible; text-align: justify; columns: 2; column-gap: 40px; }
+            .terms h4 { font-size: 11px; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #ddd; display: inline-block; }
+            .terms p { margin-bottom: 10px; color: #444; }
+            
+            .footer { margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #eee; pt: 20px; }
+            .signature { border-top: 1px solid #000; width: 200px; text-align: center; padding-top: 10px; font-size: 12px; font-weight: 700; }
+            .stamp { width: 80px; height: 80px; border: 4px double #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; text-align: center; transform: rotate(-15deg); color: #000; opacity: 0.8; }
+            
+            @media print { .no-print { display: none; } .cert-border { height: 90vh; } }
+          </style>
+        </head>
+        <body>
+          <div class="cert-border">
+            <div class="header">
+              <div class="logo">SAMPLES WALA</div>
+              <div class="title">License Certificate</div>
+              <div class="subtitle">End User License Agreement (EULA)</div>
+            </div>
+
+            <div class="license-details">
+              <div>
+                <div class="detail-item">Product Licensed</div>
+                <div class="detail-value">${item.item_name || 'Digital Sample Pack'}</div>
+              </div>
+              <div>
+                <div class="detail-item">Licensee Name</div>
+                <div class="detail-value">${profile?.full_name || 'Verified User'}</div>
+              </div>
+              <div>
+                <div class="detail-item">Registered Email</div>
+                <div class="detail-value">${email || 'N/A'}</div>
+              </div>
+              <div>
+                <div class="detail-item">Order ID / Reference</div>
+                <div class="detail-value">${item.razorpay_order_id || item.id.slice(0,12).toUpperCase()}</div>
+              </div>
+              <div>
+                <div class="detail-item">Issue Date</div>
+                <div class="detail-value">${date}</div>
+              </div>
+              <div>
+                <div class="detail-item">License Type</div>
+                <div class="detail-value">Royalty-Free / Single User</div>
+              </div>
+            </div>
+
+            <div class="terms">
+              <h4>1. LICENSE GRANT</h4>
+              <p>SamplesWala grants you a limited, non-exclusive, non-transferable, single-user license to use this Product solely for creating original music compositions for commercial and non-commercial use.</p>
+
+              <h4>2. OWNERSHIP</h4>
+              <p>All sounds, samples, and materials remain the exclusive intellectual property of SamplesWala. This Agreement does not transfer ownership, only usage rights.</p>
+
+              <h4>3. PERMITTED USE</h4>
+              <p>You are allowed to use, modify, and include the sounds in your music and release/monetize songs globally on Spotify, YouTube, etc. No royalties or credit required.</p>
+
+              <h4>4. STRICT PROHIBITIONS</h4>
+              <p>Reselling, sharing, or leaking the Product is strictly prohibited. You cannot create competing products or claim ownership of original sounds.</p>
+
+              <h4>5. WATERMARKING</h4>
+              <p>Each copy may include inaudible digital watermarking linked to the purchaser. Leaked content can be traced back to the original buyer.</p>
+
+              <h4>6. ANTI-LEAK POLICY</h4>
+              <p>If your licensed copy is found leaked, your license will be immediately terminated, and you may face financial penalties.</p>
+
+              <h4>7. LEGAL ACTION</h4>
+              <p>Violation results in immediate DMCA takedown notices and permanent banning. We reserve the right to pursue enforcement globally.</p>
+
+              <h4>8. USAGE LIMITATION</h4>
+              <p>You may distribute music created with this Product, but not the sounds in a way that allows extraction or repackaging by others.</p>
+
+              <h4>9. DISCLAIMER</h4>
+              <p>Provided "as is". SamplesWala is not liable for any data loss, software conflicts, or damages resulting from use.</p>
+
+              <h4>10. TERMINATION</h4>
+              <p>License is revoked if terms are violated. Upon termination, all copies must be deleted immediately.</p>
+
+              <h4>11. GOVERNING LAW</h4>
+              <p>Governed under applicable intellectual property laws. Legal disputes will be handled in appropriate courts.</p>
+
+              <h4>12. ENTIRE AGREEMENT</h4>
+              <p>This represents the complete agreement and overrides any prior communication.</p>
+            </div>
+
+            <div class="footer">
+              <div>
+                <div class="stamp">OFFICIAL<br/>LICENSE<br/>VERIFIED</div>
+              </div>
+              <div class="signature">
+                Samples Wala Authorized Representative
+                <div style="font-size: 8px; font-weight: 400; margin-top: 5px;">Digital Document - No Signature Required</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="no-print" style="margin-top: 40px; text-align: center;">
+            <button onclick="window.print()" style="padding: 16px 32px; background: #000; color: #fff; border: none; font-weight: 900; text-transform: uppercase; cursor: pointer; letter-spacing: 1px;">Print License Certificate</button>
+          </div>
+        </body>
+      </html>
+    `)
+    licenseWindow.document.close()
+  }
 
 
   return (
@@ -159,7 +289,7 @@ export function BillingHistory({ items, profile, email }: {
               <th className="p-6 text-[10px] font-black uppercase tracking-widest text-white/20">Item</th>
               <th className="p-6 text-[10px] font-black uppercase tracking-widest text-white/20">Order ID</th>
               <th className="p-6 text-[10px] font-black uppercase tracking-widest text-white/20 text-right">Amount</th>
-              <th className="p-6 text-[10px] font-black uppercase tracking-widest text-white/20 text-right">Action</th>
+              <th className="p-6 text-[10px] font-black uppercase tracking-widest text-white/20 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -186,13 +316,22 @@ export function BillingHistory({ items, profile, email }: {
                   <span className="text-[11px] font-black text-studio-neon">₹{item.amount}</span>
                 </td>
                 <td className="p-6 text-right">
-                   <button 
-                     onClick={() => handleDownloadInvoice(item)}
-                     className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
-                   >
-                     <Download size={12} />
-                     Invoice
-                   </button>
+                   <div className="flex items-center justify-end gap-2">
+                     <button 
+                       onClick={() => handleDownloadInvoice(item)}
+                       className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+                     >
+                       <Receipt size={12} />
+                       Invoice
+                     </button>
+                     <button 
+                       onClick={() => handleDownloadLicense(item)}
+                       className="inline-flex items-center gap-2 px-4 py-2 bg-studio-neon/10 border border-studio-neon/20 text-[9px] font-black uppercase tracking-widest text-studio-neon hover:bg-studio-neon hover:text-black transition-all"
+                     >
+                       <FileCheck size={12} />
+                       License
+                     </button>
+                   </div>
                 </td>
               </tr>
             ))}

@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { Shield, Loader2, ArrowRight, Mail, Lock, Chrome } from 'lucide-react'
 import { Turnstile } from '@marsidev/react-turnstile'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { signIn, signUp, signInWithGoogle, forgotPassword } from './actions'
 
@@ -193,9 +194,14 @@ export default function AuthPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-white/20">
-          Your account is safe and secure.
-        </p>
+        <div className="space-y-4 text-center">
+          <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] leading-relaxed max-w-sm mx-auto">
+            By continuing, you agree to our <Link href="/terms" className="text-white/40 hover:text-studio-neon underline">Terms</Link>, <Link href="/refund-policy" className="text-white/40 hover:text-studio-neon underline">Refund</Link>, <Link href="/privacy" className="text-white/40 hover:text-studio-neon underline">Privacy</Link> & <Link href="/terms" className="text-white/40 hover:text-studio-neon underline">EULA</Link>.
+          </p>
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/10">
+            Securely Managed by Samples Wala Studio
+          </p>
+        </div>
       </div>
     </div>
   )

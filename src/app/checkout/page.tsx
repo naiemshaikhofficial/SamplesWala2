@@ -54,8 +54,6 @@ export default function CheckoutPage() {
       router.push('/auth?next=/checkout')
       return
     }
-
-
     setLoading(true)
     const sdkLoaded = await loadRazorpay()
     if (!sdkLoaded) {
@@ -297,21 +295,27 @@ export default function CheckoutPage() {
               {discount > 0 && <p className="text-[8px] font-bold text-studio-neon uppercase tracking-widest">Coupon Applied Successfully!</p>}
             </div>
 
-            {/* Checkout Button */}
-            <button 
-              onClick={handleCheckout}
-              disabled={loading || paymentStatus === 'processing'}
-              className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
-            >
-              {loading ? (
-                <Loader2 className="animate-spin" size={20} />
-              ) : (
-                <>
-                  <span>COMPLETE PURCHASE</span>
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </button>
+            {/* Legal Agreement */}
+            <div className="space-y-4">
+              <button 
+                onClick={handleCheckout}
+                disabled={loading || paymentStatus === 'processing'}
+                className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" size={20} />
+                ) : (
+                  <>
+                    <span>COMPLETE PURCHASE</span>
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+
+              <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.2em] leading-relaxed text-center px-4">
+                By purchasing, you agree to our <Link href="/terms" className="text-white/40 hover:text-studio-yellow underline">Terms</Link>, <Link href="/refund-policy" className="text-white/40 hover:text-studio-yellow underline">Refund</Link>, <Link href="/privacy" className="text-white/40 hover:text-studio-yellow underline">Privacy</Link> & <Link href="/terms" className="text-white/40 hover:text-studio-yellow underline">EULA</Link>.
+              </p>
+            </div>
 
             <div className="flex items-center justify-center gap-3 pt-2 opacity-20">
                <ShieldCheck size={14} />
