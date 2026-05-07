@@ -1,32 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase/admin'
+import { verifyDownloadToken } from '@/lib/security'
 import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id: tokenId } = await params
+    const { id: token } = await params
     const admin = getAdminClient()
 
-    // 1. Verify Token
-    const { data: tokenRecord, error: tokenError } = await admin
-        .from('secure_download_tokens')
-        .select('*')
-        .eq('id', tokenId)
-        .is('used_at', null)
-        .gt('expires_at', new Date().toISOString())
-        .single()
+    // 1. Verify Token (Database-less)
+    const payload = verifyDownloadToken(token)
 
-    if (tokenError || !tokenRecord) {
-        return new NextResponse("Unauthorized or Expired Signal", { status: 403 })
+    if (!payload) {
+        return new NextResponse("Unauthorized or Expired Link", { status: 403 })
     }
 
-    // 2. Mark as used
-    await admin.from('secure_download_tokens').update({ used_at: new Date().toISOString() }).eq('id', tokenId)
-
-    const packId = tokenRecord.item_id
+    const packId = payload.pid
 
     // 3. Get Pack Download URL
     const { data: pack } = await admin.from('sample_packs').select('name, full_pack_download_url').eq('id', packId).maybeSingle()

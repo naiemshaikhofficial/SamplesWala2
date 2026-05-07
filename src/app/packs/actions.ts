@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { headers } from 'next/headers'
+import { signDownloadToken } from '@/lib/security'
 
 export async function getSecureDownloadUrl(packId: string) {
   const supabase = await createClient()
@@ -33,23 +34,12 @@ export async function getSecureDownloadUrl(packId: string) {
     }
   }
 
-  // 2. Generate secure token
-  const { data: tokenRecord, error: tokenError } = await admin
-    .from('secure_download_tokens')
-    .insert({
-      user_id: user.id,
-      item_id: packId,
-      item_type: 'pack',
-      client_ip: clientIp,
-      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString()
-    })
-    .select('id')
-    .single()
+  // 2. Generate signed token (Database-less)
+  const token = signDownloadToken({
+    uid: user.id,
+    pid: packId,
+    ip: clientIp
+  }, 300) // 5 minutes expiration for tighter security
 
-  if (tokenError || !tokenRecord) {
-    console.error("[TOKEN_ERROR]", tokenError)
-    throw new Error("Failed to generate download link")
-  }
-
-  return `/api/download/${tokenRecord.id}`
+  return `/api/download/${token}`
 }
