@@ -1,8 +1,9 @@
 'use client'
 import React, { useState } from 'react'
-import { Shield, Loader2, ArrowRight, Mail, Lock, Chrome } from 'lucide-react'
+import { Shield, Loader2, ArrowRight, Mail, Lock, Chrome, User, Check, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { signIn, signUp, signInWithGoogle, forgotPassword } from './actions'
 
@@ -16,6 +17,18 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [password, setPassword] = useState('')
+  const [strength, setStrength] = useState(0)
+
+  const checkStrength = (pass: string) => {
+    let s = 0
+    if (pass.length > 7) s++
+    if (/[A-Z]/.test(pass)) s++
+    if (/[0-9]/.test(pass)) s++
+    if (/[^A-Za-z0-9]/.test(pass)) s++
+    setStrength(s)
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -25,6 +38,16 @@ export default function AuthPage() {
 
     const formData = new FormData(event.currentTarget)
     formData.append('next', next)
+
+    if (mode === 'signup') {
+      const pass = formData.get('password') as string
+      const confirm = formData.get('confirmPassword') as string
+      if (pass !== confirm) {
+        setError("Passwords do not match")
+        setLoading(false)
+        return
+      }
+    }
     
     let result;
     if (mode === 'login') result = await signIn(formData)
@@ -50,11 +73,21 @@ export default function AuthPage() {
     }
   }
 
+
+
   return (
-    <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center space-y-8">
-      <div className="h-16 w-16 bg-studio-neon/10 flex items-center justify-center rounded-full">
-        <Shield className="text-studio-neon" size={32} />
-      </div>
+    <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center space-y-8">
+      <Link href="/" className="mb-6 block">
+        <Image 
+          src="/Logo.png" 
+          alt="Samples Wala Logo" 
+          width={400} 
+          height={100} 
+          className="h-20 md:h-24 w-auto"
+          priority
+          draggable={false}
+        />
+      </Link>
       
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
@@ -64,7 +97,7 @@ export default function AuthPage() {
         </h1>
         <p className="text-sm text-white/50">
           {mode === 'login' && 'Welcome back! Please enter your details.'}
-          {mode === 'signup' && 'Join Samples Wala and start downloading.'}
+          {mode === 'signup' && "Let's create a hit for you."}
           {mode === 'forgot' && "Enter your email to get a reset link."}
         </p>
       </div>
@@ -74,14 +107,16 @@ export default function AuthPage() {
           {/* Social Login */}
           {mode !== 'forgot' && (
             <>
-              <button 
-                onClick={handleGoogleLogin}
-                disabled={loading}
-                className="w-full h-12 bg-white text-black font-semibold rounded-xl text-sm flex items-center justify-center gap-3 hover:bg-studio-yellow transition-all group"
-              >
-                <Chrome size={18} />
-                Continue with Google
-              </button>
+              <div className="grid grid-cols-1 gap-3">
+                <button 
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                  className="w-full h-11 bg-white text-black font-semibold rounded-xl text-sm flex items-center justify-center gap-3 hover:bg-studio-yellow transition-all group"
+                >
+                  <Chrome size={18} />
+                  Continue with Google
+                </button>
+              </div>
 
               <div className="relative flex items-center justify-center py-2">
                 <div className="absolute inset-0 flex items-center px-4">
@@ -106,6 +141,22 @@ export default function AuthPage() {
             )}
 
             <div className="space-y-4">
+              {mode === 'signup' && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white/70">Full Name</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                    <input 
+                      name="fullName"
+                      type="text" 
+                      required
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 text-sm focus:border-studio-neon outline-none transition-all"
+                      placeholder="John Doe"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-white/70">Email Address</label>
                 <div className="relative">
@@ -138,12 +189,69 @@ export default function AuthPage() {
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
                     <input 
                       name="password"
-                      type="password" 
+                      type={showPassword ? 'text' : 'password'} 
                       required
                       minLength={6}
-                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 text-sm focus:border-studio-neon outline-none transition-all"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value)
+                        checkStrength(e.target.value)
+                      }}
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 text-sm focus:border-studio-neon outline-none transition-all"
                       placeholder="Enter password"
                     />
+                    <button 
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  
+                  {mode === 'signup' && password.length > 0 && (
+                    <div className="space-y-2 pt-1">
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4].map((level) => (
+                          <div 
+                            key={level}
+                            className={`h-1 flex-1 rounded-full transition-all duration-500 ${
+                              strength >= level 
+                                ? strength <= 2 ? 'bg-red-500' : strength === 3 ? 'bg-yellow-500' : 'bg-studio-neon'
+                                : 'bg-white/10'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-white/40 flex items-center gap-1">
+                        {strength <= 2 && "Weak password"}
+                        {strength === 3 && "Medium strength"}
+                        {strength === 4 && "Strong password"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {mode === 'signup' && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white/70">Confirm Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                    <input 
+                      name="confirmPassword"
+                      type={showPassword ? 'text' : 'password'} 
+                      required
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 text-sm focus:border-studio-neon outline-none transition-all"
+                      placeholder="Repeat password"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
               )}
@@ -197,9 +305,6 @@ export default function AuthPage() {
         <div className="space-y-4 text-center">
           <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] leading-relaxed max-w-sm mx-auto">
             By continuing, you agree to our <Link href="/terms" className="text-white/40 hover:text-studio-neon underline">Terms</Link>, <Link href="/refund-policy" className="text-white/40 hover:text-studio-neon underline">Refund</Link>, <Link href="/privacy" className="text-white/40 hover:text-studio-neon underline">Privacy</Link> & <Link href="/terms" className="text-white/40 hover:text-studio-neon underline">EULA</Link>.
-          </p>
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/10">
-            Securely Managed by Samples Wala Studio
           </p>
         </div>
       </div>
