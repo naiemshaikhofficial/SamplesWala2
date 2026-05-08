@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    revalidateTag(tag)
+    revalidateTag(tag, { expire: 0 })
     console.log(`[REVALIDATE] Tag "${tag}" revalidated successfully`)
     return NextResponse.json({ revalidated: true, now: Date.now() })
   } catch (err) {
