@@ -12,6 +12,7 @@ export function AddToCartButton({ item }: { item: CartItem }) {
   const handleAdd = () => {
     addItem(item)
     setAdded(true)
+    setSidebarOpen(true) // Open sidebar when adding to cart
     setTimeout(() => setAdded(false), 2000)
   }
 

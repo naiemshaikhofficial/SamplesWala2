@@ -113,3 +113,21 @@ export async function getPackBySlug(slug: string) {
     { revalidate: 300, tags: [`pack-${slug}`] }
   )()
 }
+
+export async function getRelatedPacks(category: string, excludeId: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = getAdminClient()
+      const { data } = await supabase
+        .from('sample_packs')
+        .select('id, name, slug, cover_url, price_inr, categories!inner(name)')
+        .eq('categories.name', category)
+        .neq('id', excludeId)
+        .limit(4)
+      
+      return data || []
+    },
+    [`related-${category}-${excludeId}`],
+    { revalidate: 300, tags: ['packs'] }
+  )()
+}

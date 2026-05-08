@@ -97,6 +97,8 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                               packId={pack.id} 
                               packName={pack.name} 
                               price={Number(pack.price_inr)} 
+                              slug={pack.slug}
+                              cover_url={pack.cover_url || ''}
                               userId={user?.id}
                             />
                           </div>

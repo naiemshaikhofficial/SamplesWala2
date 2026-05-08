@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
-import { ShoppingBag, Trash2, Tag, ArrowRight, Loader2, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { ShoppingBag, Trash2, Tag, ArrowRight, Loader2, CheckCircle2, ShieldCheck, Zap } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { validateCoupon } from './actions'
@@ -73,19 +73,72 @@ const MusicalNotesBackground = () => {
 };
 
 export default function CheckoutPage() {
-  const { items, removeItem, total, clearCart, itemCount } = useCart()
+  const { items, removeItem, total, clearCart, itemCount, setSidebarOpen } = useCart()
+  
+  // Close sidebar immediately when checkout page loads
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [setSidebarOpen])
+
   const [coupon, setCoupon] = useState('')
   const [discount, setDiscount] = useState(0)
   const [couponError, setCouponError] = useState('')
   const [loading, setLoading] = useState(false)
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
   const [user, setUser] = useState<any>(null)
+  const [upsellPacks, setUpsellPacks] = useState<any[]>([])
+  const [billingDetails, setBillingDetails] = useState({
+    fullName: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: ''
+  })
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
-  }, [])
+    // 1. Load from localStorage
+    const savedDetails = localStorage.getItem('billing_details')
+    if (savedDetails) {
+      setBillingDetails(JSON.parse(savedDetails))
+    }
+
+    supabase.auth.getUser().then(({ data }) => {
+      const currentUser = data.user
+      setUser(currentUser)
+      
+      // 2. If localStorage was empty, use DB metadata
+      if (!savedDetails && currentUser?.user_metadata) {
+        const meta = currentUser.user_metadata
+        const dbDetails = {
+          fullName: meta.full_name || '',
+          phone: meta.phone || '',
+          address: meta.address || '',
+          city: meta.city || '',
+          state: meta.state || '',
+          zip: meta.zip || ''
+        }
+        setBillingDetails(dbDetails)
+        localStorage.setItem('billing_details', JSON.stringify(dbDetails))
+      }
+    })
+    
+    // Fetch upsell packs
+    fetch('/api/packs/featured')
+      .then(res => res.json())
+      .then(data => {
+        const filtered = data.filter((p: any) => !items.some(item => item.id === p.id)).slice(0, 2)
+        setUpsellPacks(filtered)
+      })
+  }, [items])
+
+  const handleBillingChange = (field: string, value: string) => {
+    const updated = { ...billingDetails, [field]: value }
+    setBillingDetails(updated)
+    localStorage.setItem('billing_details', JSON.stringify(updated))
+  }
 
   const handleApplyCoupon = async () => {
     if (!coupon) return
@@ -157,12 +210,25 @@ export default function CheckoutPage() {
             body: JSON.stringify({
               ...response,
               packIds: items.map(i => i.id),
-              userId: user.id
+              userId: user.id,
+              billingDetails: billingDetails
             }),
           })
           const verifyData = await verifyRes.json()
 
           if (verifyData.success) {
+            // Sync billing details to DB metadata
+            await supabase.auth.updateUser({
+              data: {
+                full_name: billingDetails.fullName,
+                phone: billingDetails.phone,
+                address: billingDetails.address,
+                city: billingDetails.city,
+                state: billingDetails.state,
+                zip: billingDetails.zip
+              }
+            })
+
             setPaymentStatus('success')
             clearCart()
             setTimeout(() => {
@@ -256,9 +322,14 @@ export default function CheckoutPage() {
 
           {/* Billing Address Section */}
           <div className="pt-12 space-y-8">
-            <div className="flex items-center gap-4">
-              <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_15px_#FFC800]" />
-              <h2 className="text-xl font-black uppercase tracking-tight italic">Billing Details</h2>
+            <div className="flex items-center justify-between border-b border-white/5 pb-4">
+              <div className="flex items-center gap-4">
+                <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_15px_#FFC800]" />
+                <h2 className="text-xl font-black uppercase tracking-tight italic">Billing Details</h2>
+              </div>
+              <span className="text-[8px] font-bold text-studio-neon uppercase tracking-widest flex items-center gap-2">
+                <CheckCircle2 size={10} /> Auto-Saved
+              </span>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -268,7 +339,8 @@ export default function CheckoutPage() {
                   type="text" 
                   placeholder="NAME" 
                   className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
-                  defaultValue={user?.user_metadata?.full_name || ""}
+                  value={billingDetails.fullName}
+                  onChange={(e) => handleBillingChange('fullName', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -277,6 +349,8 @@ export default function CheckoutPage() {
                   type="text" 
                   placeholder="PHONE" 
                   className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  value={billingDetails.phone}
+                  onChange={(e) => handleBillingChange('phone', e.target.value)}
                 />
               </div>
               <div className="col-span-full space-y-2">
@@ -285,6 +359,8 @@ export default function CheckoutPage() {
                   type="text" 
                   placeholder="STREET ADDRESS" 
                   className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  value={billingDetails.address}
+                  onChange={(e) => handleBillingChange('address', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -293,6 +369,8 @@ export default function CheckoutPage() {
                   type="text" 
                   placeholder="CITY" 
                   className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  value={billingDetails.city}
+                  onChange={(e) => handleBillingChange('city', e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -302,6 +380,8 @@ export default function CheckoutPage() {
                     type="text" 
                     placeholder="STATE" 
                     className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                    value={billingDetails.state}
+                    onChange={(e) => handleBillingChange('state', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -310,6 +390,8 @@ export default function CheckoutPage() {
                     type="text" 
                     placeholder="ZIP" 
                     className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                    value={billingDetails.zip}
+                    onChange={(e) => handleBillingChange('zip', e.target.value)}
                   />
                 </div>
               </div>
@@ -392,11 +474,91 @@ export default function CheckoutPage() {
               </p>
             </div>
 
-            <div className="flex items-center justify-center gap-3 pt-2 opacity-20">
-               <ShieldCheck size={14} />
-               <span className="text-[8px] font-black uppercase tracking-[0.2em]">Secure Checkout by Razorpay</span>
+            <div className="flex items-center justify-center gap-3 pt-2 opacity-40">
+               <ShieldCheck size={14} className="text-studio-neon" />
+               <span className="text-[8px] font-black uppercase tracking-[0.2em]">128-bit SSL Secure Transaction</span>
             </div>
           </div>
+
+          {/* Trust Badges Section */}
+          <div className="p-6 bg-white/[0.02] border border-white/5 rounded-sm space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="h-4 w-1 bg-studio-neon shadow-[0_0_10px_#00FF94]" />
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-white/60">Why Samples Wala?</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex gap-4 items-start">
+                <Zap size={14} className="text-studio-yellow mt-1" />
+                <div>
+                  <h4 className="text-[9px] font-black uppercase tracking-tight">Instant Delivery</h4>
+                  <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest mt-1">Get your sounds immediately after payment</p>
+                </div>
+              </div>
+              <div className="flex gap-4 items-start">
+                <ShieldCheck size={14} className="text-studio-neon mt-1" />
+                <div>
+                  <h4 className="text-[9px] font-black uppercase tracking-tight">Lifetime Access</h4>
+                  <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest mt-1">Download your purchases anytime from your vault</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Methods */}
+          <div className="flex flex-col items-center gap-4 py-4 grayscale opacity-30">
+            <p className="text-[7px] font-black uppercase tracking-[0.3em] text-white/40">Secure Payments via Razorpay</p>
+            <div className="flex gap-4 items-center">
+               <div className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-xs">UPI</div>
+               <div className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-xs">VISA</div>
+               <div className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-xs">CARD</div>
+               <div className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-xs">NET</div>
+            </div>
+          </div>
+
+          {/* Upsell Section */}
+          {upsellPacks.length > 0 && (
+            <div className="p-6 bg-studio-yellow/5 border border-studio-yellow/10 rounded-sm space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="h-4 w-1 bg-studio-yellow shadow-[0_0_10px_#FFC800]" />
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-studio-yellow italic">Frequently Bought Together</h3>
+              </div>
+              
+              <div className="space-y-4">
+                {upsellPacks.map((pack) => (
+                  <div key={pack.id} className="flex gap-4 items-center group">
+                    <div className="w-12 h-12 relative rounded-sm overflow-hidden flex-shrink-0 border border-white/5">
+                      <Image src={pack.cover_url || '/placeholder.jpg'} alt={pack.name} fill className="object-cover" />
+                    </div>
+                    <div className="flex-grow">
+                      <h4 className="text-[9px] font-black uppercase tracking-tight line-clamp-1">{pack.name}</h4>
+                      <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest">₹{pack.price_inr}</p>
+                    </div>
+                    <Link 
+                      href={`/packs/${pack.slug}`}
+                      className="p-2 border border-white/10 hover:border-studio-yellow hover:text-studio-yellow transition-all rounded-sm"
+                    >
+                      <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Support Section */}
+          <Link href="/contact" className="mt-4 p-6 border border-white/5 rounded-sm flex items-center justify-between group hover:border-studio-yellow/20 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-studio-yellow group-hover:bg-studio-yellow group-hover:text-black transition-all">
+                <ShoppingBag size={18} />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black uppercase tracking-widest">Need Help?</h4>
+                <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest mt-1">Contact Support Team</p>
+              </div>
+            </div>
+            <ArrowRight size={14} className="text-white/10 group-hover:text-studio-yellow group-hover:translate-x-1 transition-all" />
+          </Link>
         </div>
       </div>
       </div>
