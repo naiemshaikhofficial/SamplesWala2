@@ -1,7 +1,7 @@
 'use client'
 
 const CACHE_PREFIX = 'sampleswala_v1_'
-const DEFAULT_EXPIRY = 1000 * 60 * 60 * 24 // 24 Hours
+const DEFAULT_EXPIRY = 1000 * 60 * 5 // 5 Minutes
 
 export const clientCache = {
   set: (key: string, data: any, ttl = DEFAULT_EXPIRY) => {

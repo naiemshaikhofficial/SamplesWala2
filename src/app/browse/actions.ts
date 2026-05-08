@@ -33,7 +33,7 @@ export async function getPacks() {
   return unstable_cache(
     async () => fetchAllPacks(),
     ['all-packs-list'],
-    { revalidate: 86400, tags: ['packs'] }
+    { revalidate: 300, tags: ['packs'] }
   )()
 }
 
@@ -110,6 +110,6 @@ export async function getPackBySlug(slug: string) {
   return unstable_cache(
     async () => fetchPackBySlug(slug),
     [`pack-${slug}`],
-    { revalidate: 86400, tags: [`pack-${slug}`] }
+    { revalidate: 300, tags: [`pack-${slug}`] }
   )()
 }
