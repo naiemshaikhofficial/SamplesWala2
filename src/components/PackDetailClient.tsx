@@ -5,6 +5,7 @@ import { ArrowLeft, PlayCircle, ShieldCheck, Zap } from 'lucide-react'
 import { DownloadButton } from '@/components/DownloadButton'
 import { PaymentButton } from '@/components/PaymentButton'
 import { AddToCartButton } from '@/components/AddToCartButton'
+import { ShareButton } from '@/components/ShareButton'
 import Link from 'next/link'
 import { clientCache } from '@/lib/clientCache'
 import { getOptimizedImageUrl } from '@/lib/images'
@@ -42,21 +43,29 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Top Info: Name & Purchase (Order 1 on Mobile) */}
         <div className="lg:col-span-4 space-y-8 order-1">
-          <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl">
+          <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
             <Image 
               src={getOptimizedImageUrl(pack.cover_url, 1200, 90)} 
               alt={pack.name} 
               fill 
               sizes="(max-width: 768px) 100vw, 500px"
-              className="object-cover"
+              className="object-cover transition-transform duration-500 group-hover/image:scale-105"
               priority
             />
+            <div className="absolute top-4 right-4 z-20">
+              <ShareButton 
+                title={pack.name} 
+                text={`Check out this premium sample pack: ${pack.name}`} 
+                url={typeof window !== 'undefined' ? window.location.href : ''} 
+                className="!h-12 !w-12 bg-black/60 backdrop-blur-xl border-white/20 hover:bg-black/80 hover:border-studio-neon/50 shadow-2xl"
+              />
+            </div>
           </div>
           
           <div className="space-y-8">
-            <div className="flex items-center justify-between border-b border-white/5 pb-6">
-              <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">{pack.name}</h1>
-              <div className="text-2xl font-black text-studio-neon">₹{pack.price_inr}</div>
+            <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/5 pb-6 gap-4">
+              <h1 className="text-3xl font-black uppercase tracking-tighter leading-[0.9] max-w-xl">{pack.name}</h1>
+              <div className="text-3xl font-black text-studio-neon">₹{pack.price_inr}</div>
             </div>
 
             <div className="pt-2">
@@ -64,28 +73,36 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                 <div className="w-full h-14 bg-white/5 border border-dashed border-white/20 rounded-sm flex items-center justify-center">
                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 animate-pulse">Coming Soon</span>
                 </div>
-              ) : owned ? (
-                <DownloadButton packId={pack.id} />
               ) : (
-                <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                <div className="flex items-stretch gap-3">
                   <div className="flex-grow">
-                    <AddToCartButton 
-                      item={{
-                        id: pack.id,
-                        name: pack.name,
-                        price: Number(pack.price_inr),
-                        slug: pack.slug,
-                        cover_url: pack.cover_url || undefined
-                      }} 
-                    />
-                  </div>
-                  <div className="flex-grow">
-                    <PaymentButton 
-                      packId={pack.id} 
-                      packName={pack.name} 
-                      price={Number(pack.price_inr)} 
-                      userId={user?.id}
-                    />
+                    {owned ? (
+                      <DownloadButton packId={pack.id} />
+                    ) : (
+                      <>
+                        <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                          <div className="flex-1">
+                            <AddToCartButton 
+                              item={{
+                                id: pack.id,
+                                name: pack.name,
+                                price: Number(pack.price_inr),
+                                slug: pack.slug,
+                                cover_url: pack.cover_url || undefined
+                              }} 
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <PaymentButton 
+                              packId={pack.id} 
+                              packName={pack.name} 
+                              price={Number(pack.price_inr)} 
+                              userId={user?.id}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

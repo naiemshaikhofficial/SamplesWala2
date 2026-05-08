@@ -15,6 +15,7 @@ import { CartSidebar } from "@/components/CartSidebar";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Instagram, Youtube, Twitter } from "lucide-react";
 import { LayoutWrapper } from "@/components/LayoutWrapper";
+import { ContentProtection } from "@/components/ContentProtection";
 
 export default async function RootLayout({
   children,
@@ -45,6 +46,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen flex flex-col step-grid text-white">
+        <ContentProtection />
         <ServiceWorkerRegistration />
         <CartProvider>
           <CartSidebar />

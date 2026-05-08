@@ -30,16 +30,16 @@ export function AddToCartButton({ item }: { item: CartItem }) {
   return (
     <button 
       onClick={handleAdd}
-      className="w-full h-14 bg-white text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-studio-yellow transition-all rounded-sm"
+      className="w-full h-14 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-4 hover:bg-studio-yellow transition-all rounded-sm"
     >
       {added ? (
         <>
-          <Check size={18} />
+          <Check size={20} />
           <span>Added!</span>
         </>
       ) : (
         <>
-          <ShoppingBag size={18} />
+          <ShoppingBag size={20} />
           <span>Add to Cart</span>
         </>
       )}

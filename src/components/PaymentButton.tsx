@@ -28,7 +28,8 @@ export function PaymentButton({ packId, packName, price, userId }: PaymentButton
 
   const handlePayment = async () => {
     if (!userId) {
-      router.push('/auth')
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : ''
+      router.push(`/auth?next=${currentPath}`)
       return
     }
 
@@ -114,25 +115,19 @@ export function PaymentButton({ packId, packName, price, userId }: PaymentButton
     )
   }
   return (
-    <div className="space-y-4">
-      <button 
-        disabled={loading || status === 'processing'}
-        onClick={handlePayment}
-        className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_30px_rgba(255,200,0,0.1)]"
-      >
-        {loading || status === 'processing' ? (
-          <Loader2 className="animate-spin" size={18} />
-        ) : (
-          <>
-            <CreditCard size={18} />
-            <span>BUY PACK — ₹{price}</span>
-          </>
-        )}
-      </button>
-
-      <p className="text-[8px] font-bold text-white/20 uppercase tracking-[0.2em] leading-relaxed text-center px-2">
-        By purchasing, you agree to our <Link href="/terms" className="text-white/40 hover:text-studio-yellow underline">Terms</Link>, <Link href="/refund-policy" className="text-white/40 hover:text-studio-yellow underline">Refund</Link>, <Link href="/privacy" className="text-white/40 hover:text-studio-yellow underline">Privacy</Link> & <Link href="/terms" className="text-white/40 hover:text-studio-yellow underline">EULA</Link>.
-      </p>
-    </div>
+    <button 
+      disabled={loading || status === 'processing'}
+      onClick={handlePayment}
+      className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_30px_rgba(255,200,0,0.1)]"
+    >
+      {loading || status === 'processing' ? (
+        <Loader2 className="animate-spin" size={20} />
+      ) : (
+        <>
+          <CreditCard size={20} />
+          <span>BUY PACK — ₹{price}</span>
+        </>
+      )}
+    </button>
   )
 }

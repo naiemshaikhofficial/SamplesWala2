@@ -37,10 +37,24 @@
 
 @layer base {
   body {
-    background-color: black;
-    color: white;
+    @apply bg-black text-white;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     font-family: var(--font-mono);
     animation: fadeIn 0.5s ease-in-out;
+  }
+
+  img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Allow text selection in inputs and textareas */
+  input, textarea {
+    user-select: text !important;
+    -webkit-user-select: text !important;
   }
 
   @keyframes fadeIn {

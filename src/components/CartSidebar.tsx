@@ -1,14 +1,41 @@
 'use client'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useCart } from '@/context/CartContext'
 import { X, ShoppingBag, Trash2, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 export function CartSidebar() {
   const { items, removeItem, total, itemCount, isSidebarOpen, setSidebarOpen } = useCart()
+  const [user, setUser] = useState<any>(null)
+  const router = useRouter()
+  const supabase = createClient()
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      setUser(currentUser)
+    }
+    checkUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
 
   if (!isSidebarOpen) return null
+
+  const handleCheckout = () => {
+    setSidebarOpen(false)
+    if (!user) {
+      router.push('/auth?next=/checkout')
+    } else {
+      router.push('/checkout')
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-end">
@@ -67,14 +94,13 @@ export function CartSidebar() {
               <span className="text-2xl font-black text-studio-yellow italic">₹{total}</span>
             </div>
             
-            <Link 
-              href="/checkout" 
-              onClick={() => setSidebarOpen(false)}
-              className="w-full h-14 bg-studio-yellow text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 hover:bg-white transition-all rounded-sm"
+            <button 
+              onClick={handleCheckout}
+              className="w-full h-14 bg-studio-yellow text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 hover:bg-white transition-all rounded-sm shadow-[0_0_30px_rgba(255,200,0,0.1)]"
             >
               <span>Go to Checkout</span>
               <ArrowRight size={16} />
-            </Link>
+            </button>
 
             <button 
               onClick={() => setSidebarOpen(false)}
