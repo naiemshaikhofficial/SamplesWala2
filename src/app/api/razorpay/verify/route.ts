@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { getAdminClient } from '@/lib/supabase/admin'
+import { generateInvoicePDF } from '@/lib/invoice'
+import { sendInvoiceEmail } from '@/lib/emails'
 
 export async function POST(request: Request) {
   try {
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
     const admin = getAdminClient()
     const { data: packs, error: packsError } = await admin
       .from('sample_packs')
-      .select('id, price_inr')
+      .select('id, name, price_inr')
       .in('id', packIds)
 
     if (packsError || !packs) {
@@ -64,6 +66,40 @@ export async function POST(request: Request) {
         console.error('[VAULT_ERROR]', vaultError)
         return NextResponse.json({ error: "Failed to update library" }, { status: 500 })
       }
+    }
+
+    // 4. Send Invoice (Async)
+    try {
+      const { data: { user }, error: userError } = await admin.auth.admin.getUserById(userId)
+      
+      if (user && user.email) {
+        const invoiceItems = packIds.map((pid: string) => {
+          const pack = packs.find(p => p.id === pid)
+          return { name: pack?.name || 'Unknown Pack', price: pack?.price_inr || 0 }
+        })
+
+        const total = invoiceItems.reduce((sum, item) => sum + item.price, 0)
+
+        const pdfBuffer = await generateInvoicePDF({
+          orderId: razorpay_order_id,
+          paymentId: razorpay_payment_id,
+          userName: user.user_metadata?.full_name || user.email.split('@')[0],
+          userEmail: user.email,
+          items: invoiceItems,
+          total: total,
+          date: new Date().toLocaleDateString()
+        })
+
+        await sendInvoiceEmail({
+          email: user.email,
+          pdfBuffer,
+          orderId: razorpay_order_id,
+          packNames: invoiceItems.map(i => i.name)
+        })
+      }
+    } catch (emailErr) {
+      console.error('[INVOICE_SEND_ERROR]', emailErr)
+      // We don't return error to user because the purchase was successful
     }
 
     return NextResponse.json({ success: true })

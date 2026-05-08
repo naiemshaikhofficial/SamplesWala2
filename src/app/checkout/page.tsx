@@ -7,6 +7,70 @@ import Link from 'next/link'
 import { validateCoupon } from './actions'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { Header } from '@/components/Header'
+
+// --- ANIMATED COUNTER HOOK ---
+function useAnimatedCounter(targetValue: number) {
+  const ref = React.useRef<HTMLElement>(null);
+  const prevValueRef = React.useRef(targetValue);
+  const animationFrameRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    const startValue = prevValueRef.current;
+    const duration = 400;
+    let startTime: number | null = null;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const currentValue = startValue + (targetValue - startValue) * progress;
+
+      if (ref.current) {
+        ref.current.textContent = `₹${currentValue.toFixed(2)}`;
+      }
+
+      if (progress < 1) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        prevValueRef.current = targetValue;
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [targetValue]);
+
+  return ref;
+}
+
+// --- MUSICAL NOTES BACKGROUND ---
+const MusicalNotesBackground = () => {
+  const musicalNotes = ['♪', '♫', '♬', '♪', '♫', '♬', '♪', '♫', '♬', '♪'];
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-10">
+      {musicalNotes.map((note, index) => (
+        <span 
+          key={index} 
+          className="absolute text-studio-yellow/20 animate-float-note"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            fontSize: `${Math.random() * 2 + 1}rem`,
+            animationDelay: `${Math.random() * 10}s`,
+            animationDuration: `${10 + Math.random() * 10}s`
+          }}
+        >
+          {note}
+        </span>
+      ))}
+    </div>
+  );
+};
 
 export default function CheckoutPage() {
   const { items, removeItem, total, clearCart, itemCount } = useCart()
@@ -38,6 +102,9 @@ export default function CheckoutPage() {
   }
 
   const discountedTotal = total - (total * discount / 100)
+  
+  const subtotalRef = useAnimatedCounter(total)
+  const totalRef = useAnimatedCounter(discountedTotal)
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -147,11 +214,19 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="flex items-center gap-4 mb-12">
-        <div className="h-10 w-1 bg-studio-yellow shadow-[0_0_20px_#FFC800]" />
-        <h1 className="text-4xl font-black uppercase italic tracking-tighter">Checkout / <span className="text-white/20">Cart</span></h1>
-      </div>
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+      <MusicalNotesBackground />
+      
+      <div className="container mx-auto px-4 py-20 relative z-10">
+        <div className="flex flex-col items-center mb-16 text-center">
+          <div className="h-1 bg-studio-yellow w-24 mb-6 shadow-[0_0_20px_#FFC800]" />
+          <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
+            SECURE <span className="text-studio-yellow">CHECKOUT</span>
+          </h1>
+          <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.4em] mt-4">
+            Premium Assets / Digital Delivery
+          </p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Cart Items List */}
@@ -256,7 +331,7 @@ export default function CheckoutPage() {
             <div className="space-y-4">
               <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-white/40">
                 <span>Subtotal ({itemCount} items)</span>
-                <span>₹{total}</span>
+                <span ref={subtotalRef}>₹{total}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-studio-neon">
@@ -266,7 +341,7 @@ export default function CheckoutPage() {
               )}
               <div className="pt-4 border-t border-white/10 flex justify-between items-end">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Total Amount</span>
-                <span className="text-3xl font-black text-studio-yellow italic">₹{discountedTotal.toFixed(2)}</span>
+                <span ref={totalRef} className="text-3xl font-black text-studio-yellow italic">₹{discountedTotal.toFixed(2)}</span>
               </div>
             </div>
 

@@ -16,9 +16,11 @@
     "caniuse-lite": "^1.0.30001791",
     "lucide-react": "^0.456.0",
     "next": "16.2.4",
+    "pdf-lib": "^1.17.1",
     "razorpay": "^2.9.6",
     "react": "19.2.5",
-    "react-dom": "19.2.5"
+    "react-dom": "19.2.5",
+    "resend": "^6.12.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0-alpha.25",
