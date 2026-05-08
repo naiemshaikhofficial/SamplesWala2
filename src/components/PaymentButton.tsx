@@ -13,7 +13,7 @@ interface PaymentButtonProps {
   userId?: string
 }
 
-export function PaymentButton({ packId, packName, price, userId }: PaymentButtonProps) {
+export function PaymentButton({ packId, packName, price, slug, cover_url, userId }: PaymentButtonProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { addItem, items, setSidebarOpen } = useCart()
