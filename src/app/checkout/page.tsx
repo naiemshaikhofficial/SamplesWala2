@@ -95,6 +95,7 @@ export default function CheckoutPage() {
     state: '',
     zip: ''
   })
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const router = useRouter()
   const supabase = createClient()
 
@@ -138,6 +139,41 @@ export default function CheckoutPage() {
     const updated = { ...billingDetails, [field]: value }
     setBillingDetails(updated)
     localStorage.setItem('billing_details', JSON.stringify(updated))
+    
+    // Clear error for this field as user types
+    if (formErrors[field]) {
+      setFormErrors(prev => {
+        const next = { ...prev }
+        delete next[field]
+        return next
+      })
+    }
+  }
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {}
+    if (!billingDetails.fullName.trim()) errors.fullName = 'FULL NAME IS REQUIRED'
+    
+    const cleanPhone = billingDetails.phone.replace(/\D/g, '')
+    if (!billingDetails.phone.trim()) {
+      errors.phone = 'PHONE NUMBER IS REQUIRED'
+    } else if (cleanPhone.length < 10) {
+      errors.phone = 'ENTER A VALID 10-DIGIT NUMBER'
+    }
+    
+    if (!billingDetails.address.trim()) errors.address = 'STREET ADDRESS IS REQUIRED'
+    if (!billingDetails.city.trim()) errors.city = 'CITY IS REQUIRED'
+    if (!billingDetails.state.trim()) errors.state = 'STATE IS REQUIRED'
+    
+    const cleanZip = billingDetails.zip.trim()
+    if (!cleanZip) {
+      errors.zip = 'PINCODE IS REQUIRED'
+    } else if (!/^\d{6}$/.test(cleanZip)) {
+      errors.zip = 'ENTER A VALID 6-DIGIT PINCODE'
+    }
+    
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
   }
 
   const handleApplyCoupon = async () => {
@@ -174,6 +210,15 @@ export default function CheckoutPage() {
       router.push('/auth?next=/checkout')
       return
     }
+
+    if (!validateForm()) {
+      const billingSection = document.getElementById('billing-details-section')
+      if (billingSection) {
+        billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+      return
+    }
+
     setLoading(true)
     const sdkLoaded = await loadRazorpay()
     if (!sdkLoaded) {
@@ -321,14 +366,15 @@ export default function CheckoutPage() {
           </Link>
 
           {/* Billing Address Section */}
-          <div className="pt-12 space-y-8">
+          <div id="billing-details-section" className="pt-12 space-y-8">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-4">
                 <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_15px_#FFC800]" />
                 <h2 className="text-xl font-black uppercase tracking-tight italic">Billing Details</h2>
               </div>
-              <span className="text-[8px] font-bold text-studio-neon uppercase tracking-widest flex items-center gap-2">
-                <CheckCircle2 size={10} /> Auto-Saved
+              <span className={`text-[8px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors ${Object.keys(formErrors).length > 0 ? 'text-red-500' : 'text-studio-neon'}`}>
+                {Object.keys(formErrors).length > 0 ? <ShieldCheck size={10} className="rotate-180" /> : <CheckCircle2 size={10} />}
+                {Object.keys(formErrors).length > 0 ? 'Action Required' : 'Auto-Saved'}
               </span>
             </div>
             
@@ -338,40 +384,44 @@ export default function CheckoutPage() {
                 <input 
                   type="text" 
                   placeholder="NAME" 
-                  className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.fullName ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                   value={billingDetails.fullName}
                   onChange={(e) => handleBillingChange('fullName', e.target.value)}
                 />
+                {formErrors.fullName && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.fullName}</p>}
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Phone Number</label>
                 <input 
                   type="text" 
                   placeholder="PHONE" 
-                  className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.phone ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                   value={billingDetails.phone}
                   onChange={(e) => handleBillingChange('phone', e.target.value)}
                 />
+                {formErrors.phone && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.phone}</p>}
               </div>
               <div className="col-span-full space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Address</label>
                 <input 
                   type="text" 
                   placeholder="STREET ADDRESS" 
-                  className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.address ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                   value={billingDetails.address}
                   onChange={(e) => handleBillingChange('address', e.target.value)}
                 />
+                {formErrors.address && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.address}</p>}
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">City</label>
                 <input 
                   type="text" 
                   placeholder="CITY" 
-                  className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                  className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.city ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                   value={billingDetails.city}
                   onChange={(e) => handleBillingChange('city', e.target.value)}
                 />
+                {formErrors.city && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.city}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -379,20 +429,22 @@ export default function CheckoutPage() {
                   <input 
                     type="text" 
                     placeholder="STATE" 
-                    className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                    className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.state ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                     value={billingDetails.state}
                     onChange={(e) => handleBillingChange('state', e.target.value)}
                   />
+                  {formErrors.state && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.state}</p>}
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Pincode</label>
                   <input 
                     type="text" 
                     placeholder="ZIP" 
-                    className="w-full h-12 bg-white/5 border border-white/10 rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
+                    className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.zip ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
                     value={billingDetails.zip}
                     onChange={(e) => handleBillingChange('zip', e.target.value)}
                   />
+                  {formErrors.zip && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.zip}</p>}
                 </div>
               </div>
             </div>
