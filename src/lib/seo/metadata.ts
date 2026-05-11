@@ -26,6 +26,7 @@ const DEFAULT_KEYWORDS = [
   'DAW ready sounds',
   'best Indian sample library',
   'VST plugins',
+  'AU plugins',
   'music production software',
   'Ableton live packs',
   'FL Studio Indian loops',
@@ -33,7 +34,17 @@ const DEFAULT_KEYWORDS = [
   'contact instruments India',
   'professional music production samples',
   'Indian music theory',
-  'world music samples'
+  'world music samples',
+  
+  'music tools',
+  'free vst tools',
+  'premium sounds',
+  'digital audio workstation',
+  'music creator tools',
+  'audio production gear',
+  'music production assets',
+  'sound kits India',
+  'music producer essentials'
 ]
 
 export function generatePageMetadata({

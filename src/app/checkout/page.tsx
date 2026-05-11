@@ -50,22 +50,42 @@ function useAnimatedCounter(targetValue: number) {
 
 // --- MUSICAL NOTES BACKGROUND ---
 const MusicalNotesBackground = () => {
-  const musicalNotes = ['♪', '♫', '♬', '♪', '♫', '♬', '♪', '♫', '♬', '♪'];
+  const [mounted, setMounted] = React.useState(false);
+  
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const notes = React.useMemo(() => {
+    if (!mounted) return [];
+    const musicalNotes = ['♪', '♫', '♬', '♪', '♫', '♬', '♪', '♫', '♬', '♪'];
+    return musicalNotes.map((note) => ({
+      note,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      fontSize: `${Math.random() * 2 + 1}rem`,
+      animationDelay: `${Math.random() * 10}s`,
+      animationDuration: `${10 + Math.random() * 10}s`
+    }));
+  }, [mounted]);
+
+  if (!mounted) return null;
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-10">
-      {musicalNotes.map((note, index) => (
+      {notes.map((data, index) => (
         <span 
           key={index} 
           className="absolute text-studio-yellow/20 animate-float-note"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            fontSize: `${Math.random() * 2 + 1}rem`,
-            animationDelay: `${Math.random() * 10}s`,
-            animationDuration: `${10 + Math.random() * 10}s`
+            left: data.left,
+            top: data.top,
+            fontSize: data.fontSize,
+            animationDelay: data.animationDelay,
+            animationDuration: data.animationDuration
           }}
         >
-          {note}
+          {data.note}
         </span>
       ))}
     </div>
@@ -108,31 +128,38 @@ export default function CheckoutPage() {
 
     supabase.auth.getUser().then(({ data }) => {
       const currentUser = data.user
-      setUser(currentUser)
-      
-      // 2. If localStorage was empty, use DB metadata
-      if (!savedDetails && currentUser?.user_metadata) {
-        const meta = currentUser.user_metadata
-        const dbDetails = {
-          fullName: meta.full_name || '',
-          phone: meta.phone || '',
-          address: meta.address || '',
-          city: meta.city || '',
-          state: meta.state || '',
-          zip: meta.zip || ''
+      if (currentUser) {
+        setUser(currentUser)
+        
+        // 2. If localStorage was empty, use DB metadata
+        if (!savedDetails && currentUser.user_metadata) {
+          const meta = currentUser.user_metadata
+          const dbDetails = {
+            fullName: meta.full_name || '',
+            phone: meta.phone || '',
+            address: meta.address || '',
+            city: meta.city || '',
+            state: meta.state || '',
+            zip: meta.zip || ''
+          }
+          setBillingDetails(dbDetails)
+          localStorage.setItem('billing_details', JSON.stringify(dbDetails))
         }
-        setBillingDetails(dbDetails)
-        localStorage.setItem('billing_details', JSON.stringify(dbDetails))
       }
     })
-    
-    // Fetch upsell packs
-    fetch('/api/packs/featured')
-      .then(res => res.json())
-      .then(data => {
-        const filtered = data.filter((p: any) => !items.some(item => item.id === p.id)).slice(0, 2)
-        setUpsellPacks(filtered)
-      })
+  }, []) // Run only once on mount
+
+  useEffect(() => {
+    // Fetch upsell packs separately and only if items change
+    if (items.length > 0) {
+      fetch('/api/packs/featured')
+        .then(res => res.json())
+        .then(data => {
+          const filtered = data.filter((p: any) => !items.some(item => item.id === p.id)).slice(0, 2)
+          setUpsellPacks(filtered)
+        })
+        .catch(err => console.error("Failed to fetch upsells", err))
+    }
   }, [items])
 
   const handleBillingChange = (field: string, value: string) => {
