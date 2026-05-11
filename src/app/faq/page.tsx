@@ -2,10 +2,13 @@ import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft, HelpCircle, Plus, MessageSquare } from 'lucide-react'
 
-export const metadata = {
-  title: 'FAQ | Samples Wala',
-  description: 'Frequently asked questions about Indian sample packs, licenses, and downloads.',
-}
+export const metadata = generatePageMetadata({
+  title: 'FAQ | Samples Wala - Support & Licensing',
+  description: 'Find answers to frequently asked questions about our Indian sample packs, licensing, commercial use, and high-quality WAV downloads.',
+  path: '/faq'
+})
+
+import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 
 const faqData = [
   {
@@ -78,11 +81,20 @@ export default function FAQPage() {
     )
   };
 
+  const breadcrumbs = generateBreadcrumbData([
+    { name: 'Home', item: 'https://sampleswala.com' },
+    { name: 'FAQ', item: 'https://sampleswala.com/faq' }
+  ])
+
   return (
     <div className="min-h-screen bg-black selection:bg-studio-yellow selection:text-black">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
       <div className="container mx-auto px-4 py-20 max-w-4xl">
         <Link href="/" className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-studio-yellow transition-colors mb-16 group">

@@ -5,9 +5,12 @@ import { generatePageMetadata } from '@/lib/seo/metadata'
 import { Music, Zap, ShieldCheck, Star, CheckCircle2, Heart, Headphones, Users, Instagram, Youtube, Twitter } from 'lucide-react'
 
 export const metadata = generatePageMetadata({
-  title: 'About Us | SamplesWala',
-  description: 'Learn about SamplesWala. We are a team of 50+ musicians providing the best Indian sample packs.',
+  title: 'About Us | Samples Wala - The Soul of Indian Sound',
+  description: 'Discover the story behind Samples Wala. We are a family of 50+ professional musicians dedicated to bringing authentic, 100% royalty-free Indian sounds to producers worldwide.',
+  path: '/about'
 })
+
+import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 
 export default function AboutPage() {
   const founderImage = "https://imagizer.imageshack.com/img922/310/c8UQzL.jpg"
@@ -18,8 +21,17 @@ export default function AboutPage() {
     { icon: Twitter, url: "https://twitter.com/sampleswala", label: "Twitter" },
   ]
 
+  const breadcrumbs = generateBreadcrumbData([
+    { name: 'Home', item: 'https://sampleswala.com' },
+    { name: 'About Us', item: 'https://sampleswala.com/about' }
+  ])
+
   return (
     <div className="flex flex-col min-h-screen bg-black selection:bg-studio-yellow selection:text-black">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
       {/* Hero Section */}
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 z-0">
