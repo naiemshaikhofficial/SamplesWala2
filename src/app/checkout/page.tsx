@@ -10,6 +10,8 @@ import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
+import 'react-phone-number-input/style.css'
+import PhoneInput from 'react-phone-number-input'
 
 // --- ANIMATED COUNTER HOOK ---
 function useAnimatedCounter(targetValue: number) {
@@ -127,7 +129,11 @@ export default function CheckoutPage() {
     // 1. Load from localStorage
     const savedDetails = localStorage.getItem('billing_details')
     if (savedDetails) {
-      setBillingDetails(JSON.parse(savedDetails))
+      const parsed = JSON.parse(savedDetails)
+      setBillingDetails({
+        ...parsed,
+        country: parsed.country || 'India'
+      })
     }
 
     supabase.auth.getUser().then(({ data }) => {
@@ -188,11 +194,10 @@ export default function CheckoutPage() {
     const errors: Record<string, string> = {}
     if (!billingDetails.fullName.trim()) errors.fullName = 'FULL NAME IS REQUIRED'
     
-    const cleanPhone = billingDetails.phone.replace(/\D/g, '')
-    if (!billingDetails.phone.trim()) {
+    if (!billingDetails.phone) {
       errors.phone = 'PHONE NUMBER IS REQUIRED'
-    } else if (cleanPhone.length < 10) {
-      errors.phone = 'ENTER A VALID 10-DIGIT NUMBER'
+    } else if (billingDetails.phone.length < 5) {
+      errors.phone = 'ENTER A VALID PHONE NUMBER'
     }
     
     if (!billingDetails.address.trim()) errors.address = 'STREET ADDRESS IS REQUIRED'
@@ -429,13 +434,16 @@ export default function CheckoutPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Phone Number</label>
-                <input 
-                  type="text" 
-                  placeholder="PHONE" 
-                  className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.phone ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                  value={billingDetails.phone}
-                  onChange={(e) => handleBillingChange('phone', e.target.value)}
-                />
+                <div className="phone-input-container">
+                  <PhoneInput
+                    international
+                    defaultCountry="IN"
+                    placeholder="PHONE"
+                    value={billingDetails.phone}
+                    onChange={(val) => handleBillingChange('phone', val || '')}
+                    className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus-within:border-studio-yellow outline-none transition-all ${formErrors.phone ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
+                  />
+                </div>
                 {formErrors.phone && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.phone}</p>}
               </div>
               <div className="col-span-full space-y-2">

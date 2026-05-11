@@ -169,5 +169,49 @@
   .animate-float-note {
     animation: float-note linear infinite;
   }
+
+  /* Phone Input Overrides */
+  .PhoneInput {
+    display: flex;
+    align-items: center;
+  }
+
+  .PhoneInputInput {
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    outline: none !important;
+    padding-left: 12px !important;
+  }
+
+  .PhoneInputCountry {
+    margin-right: 12px !important;
+    display: flex;
+    align-items: center;
+  }
+
+  .PhoneInputCountrySelect {
+    background: black !important;
+    color: white !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .PhoneInputCountryIcon {
+    width: 24px !important;
+    height: 16px !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .PhoneInputCountryIcon--border {
+    background-color: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
 }
 
