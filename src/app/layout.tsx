@@ -25,6 +25,24 @@ export default async function RootLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const organizationLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Samples Wala",
+    "url": "https://sampleswala.com",
+    "logo": "https://sampleswala.com/Logo.png",
+    "sameAs": [
+      "https://instagram.com/sampleswala",
+      "https://youtube.com/@sampleswala",
+      "https://twitter.com/sampleswala"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "support@sampleswala.com"
+    }
+  };
+
   const siteSearchLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -40,6 +58,10 @@ export default async function RootLayout({
     <html lang="en" className="dark">
       <head>
         <link rel="icon" href="/Favicon.ico" sizes="any" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSearchLd) }}

@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowLeft, HelpCircle, Plus, MessageSquare, Headphones, Zap, ShieldCheck, Download } from 'lucide-react'
+import { ArrowLeft, HelpCircle, Plus, MessageSquare } from 'lucide-react'
 
 export const metadata = {
   title: 'FAQ | Samples Wala',
@@ -63,8 +63,27 @@ const faqData = [
 ]
 
 export default function FAQPage() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqData.flatMap(group => 
+      group.questions.map(faq => ({
+        "@type": "Question",
+        "name": faq.q,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.a
+        }
+      }))
+    )
+  };
+
   return (
     <div className="min-h-screen bg-black selection:bg-studio-yellow selection:text-black">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="container mx-auto px-4 py-20 max-w-4xl">
         <Link href="/" className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-studio-yellow transition-colors mb-16 group">
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />

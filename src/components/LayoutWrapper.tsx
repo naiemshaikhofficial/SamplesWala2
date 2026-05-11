@@ -27,7 +27,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
       <footer className="bg-black border-t border-white/5 pt-12 md:pt-20 pb-10">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 md:mb-20">
-            <div className="col-span-1 md:col-span-2 space-y-6">
+            <div className="col-span-1 md:col-span-1 space-y-6">
               <Image 
                 src="/Logo.png" 
                 alt="Samples Wala Logo" 
@@ -48,7 +48,17 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
                 <li><Link href="/library" className="hover:text-white transition-colors">Your Library</Link></li>
                 <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
                 <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
-                <li><Link href="/auth" className="hover:text-white transition-colors">Account</Link></li>
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Categories</h4>
+              <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                <li><Link href="/browse?category=Percussion" className="hover:text-white transition-colors">Percussion</Link></li>
+                <li><Link href="/browse?category=Melodic" className="hover:text-white transition-colors">Melodic Loops</Link></li>
+                <li><Link href="/browse?category=Vocals" className="hover:text-white transition-colors">Indian Vocals</Link></li>
+                <li><Link href="/browse?category=Cinematic" className="hover:text-white transition-colors">Cinematic</Link></li>
+                <li><Link href="/browse?category=Bollywood" className="hover:text-white transition-colors">Bollywood</Link></li>
               </ul>
             </div>
 
@@ -88,7 +98,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
           </div>
           <div className="mt-12 text-center">
              <p className="text-[7px] font-bold text-white/5 uppercase tracking-[0.5em] leading-relaxed max-w-2xl mx-auto">
-               Unauthorized duplication, distribution, or resale is a violation of international copyright laws. All files are digitally watermarked for licensee identification.
+                Unauthorized duplication, distribution, or resale is a violation of international copyright laws. All files are digitally watermarked for licensee identification.
              </p>
           </div>
         </div>

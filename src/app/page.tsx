@@ -120,6 +120,49 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* SEO Content Section */}
+      <section className="py-24 border-t border-white/5 bg-black overflow-hidden relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-yellow/[0.02] blur-[150px] z-0" />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter">
+                THE DEFINITIVE <span className="text-studio-yellow">INDIAN SOUND</span> LIBRARY
+              </h2>
+              <div className="h-1 bg-studio-yellow w-24 mx-auto shadow-[0_0_20px_#FFC800]" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-[11px] font-bold uppercase tracking-[0.2em] leading-relaxed text-white/40">
+              <div className="space-y-6">
+                <p>
+                  <span className="text-white">Samples Wala</span> is India's premier destination for high-quality, professional-grade sample packs and loops. We specialize in capturing the essence of Indian music—from the rhythmic complexity of Tabla and Dholak to the soulful melodies of the Sitar and Bansuri—and processing them for modern music production.
+                </p>
+                <p>
+                  Whether you are a <span className="text-white">Bollywood composer</span>, a <span className="text-white">Hip-Hop producer</span>, or an <span className="text-white">Electronic music artist</span>, our curated collections provide the authentic textures and DAW-ready sounds you need to elevate your tracks.
+                </p>
+              </div>
+              <div className="space-y-6">
+                <p>
+                  Every sound in our library is <span className="text-studio-neon">100% Royalty Free</span>, meaning you keep all your royalties. Our sounds are recorded in world-class studios using premium microphones and analog gear to ensure maximum clarity and punch.
+                </p>
+                <p>
+                  Join thousands of producers who trust <span className="text-white">Sample Wala</span> for their sonic needs. Explore our trending Indian loops, cinematic textures, and percussion kits designed to spark your creativity instantly.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-4 pt-8">
+              {['Indian Percussion', 'Bollywood Melodies', 'Vocal Chops', 'Lofi India', 'Trap Loops'].map((tag) => (
+                <span key={tag} className="px-4 py-2 border border-white/5 rounded-full text-[8px] font-black uppercase tracking-widest text-white/20 hover:text-studio-yellow hover:border-studio-yellow transition-all cursor-default">
+                  #{tag.replace(' ', '')}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

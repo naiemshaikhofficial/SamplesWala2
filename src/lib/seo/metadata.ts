@@ -41,13 +41,15 @@ export function generatePageMetadata({
   description,
   image = '/og-image.jpg',
   noIndex = false,
-  keywords = []
+  keywords = [],
+  path = '/'
 }: {
   title: string
   description: string
   image?: string
   noIndex?: boolean
   keywords?: string[]
+  path?: string
 }): Metadata {
   const siteTitle = "Samples Wala"
   const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`
@@ -83,7 +85,7 @@ export function generatePageMetadata({
       },
     },
     alternates: {
-      canonical: '/',
+      canonical: path,
     }
   }
 }
