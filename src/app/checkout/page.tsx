@@ -128,10 +128,18 @@ export default function CheckoutPage() {
   useEffect(() => {
     // 1. Load from localStorage
     const savedDetails = localStorage.getItem('billing_details')
+    const ensureE164 = (phone: string) => {
+      if (!phone) return ''
+      if (phone.startsWith('+')) return phone
+      if (phone.length === 10 && /^\d+$/.test(phone)) return `+91${phone}`
+      return phone
+    }
+
     if (savedDetails) {
       const parsed = JSON.parse(savedDetails)
       setBillingDetails({
         ...parsed,
+        phone: ensureE164(parsed.phone),
         country: parsed.country || 'India'
       })
     }
@@ -148,7 +156,7 @@ export default function CheckoutPage() {
           
           const dbDetails = {
             fullName: clean(meta.full_name),
-            phone: clean(meta.phone),
+            phone: ensureE164(clean(meta.phone)),
             address: clean(meta.address),
             city: clean(meta.city),
             state: clean(meta.state),
