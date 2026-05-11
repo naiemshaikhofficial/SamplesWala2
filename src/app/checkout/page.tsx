@@ -8,6 +8,8 @@ import { validateCoupon } from './actions'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
+import Select from 'react-select'
+import countryList from 'react-select-country-list'
 
 // --- ANIMATED COUNTER HOOK ---
 function useAnimatedCounter(targetValue: number) {
@@ -93,6 +95,7 @@ const MusicalNotesBackground = () => {
 };
 
 export default function CheckoutPage() {
+  const countryOptions = React.useMemo(() => countryList().getData(), [])
   const { items, removeItem, total, clearCart, itemCount, setSidebarOpen } = useCart()
   
   // Close sidebar immediately when checkout page loads
@@ -113,7 +116,8 @@ export default function CheckoutPage() {
     address: '',
     city: '',
     state: '',
-    zip: ''
+    zip: '',
+    country: 'India'
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const router = useRouter()
@@ -134,13 +138,16 @@ export default function CheckoutPage() {
         // 2. If localStorage was empty, use DB metadata
         if (!savedDetails && currentUser.user_metadata) {
           const meta = currentUser.user_metadata
+          const clean = (val: any) => (val === '0' || val === 0) ? '' : (val || '')
+          
           const dbDetails = {
-            fullName: meta.full_name || '',
-            phone: meta.phone || '',
-            address: meta.address || '',
-            city: meta.city || '',
-            state: meta.state || '',
-            zip: meta.zip || ''
+            fullName: clean(meta.full_name),
+            phone: clean(meta.phone),
+            address: clean(meta.address),
+            city: clean(meta.city),
+            state: clean(meta.state),
+            zip: clean(meta.zip),
+            country: clean(meta.country) || 'India'
           }
           setBillingDetails(dbDetails)
           localStorage.setItem('billing_details', JSON.stringify(dbDetails))
@@ -198,6 +205,8 @@ export default function CheckoutPage() {
     } else if (!/^\d{6}$/.test(cleanZip)) {
       errors.zip = 'ENTER A VALID 6-DIGIT PINCODE'
     }
+
+    if (!billingDetails.country) errors.country = 'COUNTRY IS REQUIRED'
     
     setFormErrors(errors)
     return Object.keys(errors).length === 0
@@ -297,7 +306,8 @@ export default function CheckoutPage() {
                 address: billingDetails.address,
                 city: billingDetails.city,
                 state: billingDetails.state,
-                zip: billingDetails.zip
+                zip: billingDetails.zip,
+                country: billingDetails.country
               }
             })
 
@@ -473,6 +483,67 @@ export default function CheckoutPage() {
                   />
                   {formErrors.zip && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.zip}</p>}
                 </div>
+              </div>
+              
+              <div className="col-span-full space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Country</label>
+                <Select 
+                  options={countryOptions}
+                  value={countryOptions.find(opt => opt.label === billingDetails.country)}
+                  onChange={(val: any) => handleBillingChange('country', val?.label || '')}
+                  placeholder="SELECT COUNTRY"
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (base, state) => ({
+                      ...base,
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderColor: state.isFocused ? '#FFC800' : (formErrors.country ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255, 255, 255, 0.1)'),
+                      borderRadius: '0.125rem',
+                      height: '3rem',
+                      fontSize: '10px',
+                      fontWeight: '900',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      boxShadow: 'none',
+                      '&:hover': {
+                        borderColor: state.isFocused ? '#FFC800' : 'rgba(255, 255, 255, 0.2)',
+                      }
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      backgroundColor: '#000',
+                      border: '1px border rgba(255, 255, 255, 0.1)',
+                      borderRadius: '0.125rem',
+                      zIndex: 50
+                    }),
+                    option: (base, state) => ({
+                      ...base,
+                      backgroundColor: state.isFocused ? 'rgba(255, 200, 0, 0.1)' : 'transparent',
+                      color: state.isFocused ? '#FFC800' : 'rgba(255, 255, 255, 0.6)',
+                      fontSize: '10px',
+                      fontWeight: '900',
+                      textTransform: 'uppercase',
+                      '&:active': {
+                        backgroundColor: '#FFC800',
+                        color: '#000'
+                      }
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      color: '#fff'
+                    }),
+                    input: (base) => ({
+                      ...base,
+                      color: '#fff'
+                    }),
+                    placeholder: (base) => ({
+                      ...base,
+                      color: 'rgba(255, 255, 255, 0.2)'
+                    })
+                  }}
+                />
+                {formErrors.country && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.country}</p>}
               </div>
             </div>
             
