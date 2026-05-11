@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft, HelpCircle, Plus, MessageSquare } from 'lucide-react'
+import { generatePageMetadata } from '@/lib/seo/metadata'
 
 export const metadata = generatePageMetadata({
   title: 'FAQ | Samples Wala - Support & Licensing',
