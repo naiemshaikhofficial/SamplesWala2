@@ -16,14 +16,14 @@
   --color-studio-neon: #00FF94;
   --color-studio-grey: #1e1e1e;
   --color-studio-charcoal: #0a0a0a;
-  
+
   /* Graffiti UI Tokens */
   --color-glass-white: rgba(255, 255, 255, 0.03);
   --color-glass-border: rgba(255, 255, 255, 0.1);
   --color-glass-glow: rgba(0, 255, 148, 0.15);
 
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  
+
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;
@@ -48,12 +48,13 @@
     -ms-user-select: none;
     font-family: var(--font-mono);
     animation: fadeIn 0.5s ease-in-out;
-    background-image: 
-      linear-gradient(rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.92)),
-      url('/graffiti-bg.png');
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.94), rgba(0, 0, 0, 0.94)),
+      url('/mural-bg.png');
     background-attachment: fixed;
-    background-size: 100% 100%, 800px;
-    background-repeat: no-repeat, repeat;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 
   body::before {
@@ -72,14 +73,22 @@
   }
 
   /* Allow text selection in inputs and textareas */
-  input, textarea {
+  input,
+  textarea {
     user-select: text !important;
     -webkit-user-select: text !important;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
 
@@ -87,21 +96,24 @@
   ::-webkit-scrollbar {
     width: 4px;
   }
+
   ::-webkit-scrollbar-track {
     background: #000;
   }
+
   ::-webkit-scrollbar-thumb {
     background: #333;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: #fff;
   }
 
   /* Autofill styling fix */
   input:-webkit-autofill,
-  input:-webkit-autofill:hover, 
-  input:-webkit-autofill:focus, 
-  input:-webkit-autofill:active{
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px #0a0a0a inset !important;
     -webkit-text-fill-color: white !important;
     transition: background-color 5000s ease-in-out 0s;
@@ -109,6 +121,7 @@
 }
 
 @layer components {
+
   /* Using standard CSS to avoid @apply warnings in some IDEs */
   /* Premium Glass Panel */
   .studio-panel {
@@ -117,7 +130,7 @@
     backdrop-filter: blur(20px);
     box-shadow: var(--shadow-premium);
   }
-  
+
   /* Industrial Premium Button */
   .studio-button {
     padding: 0.75rem 2rem;
@@ -167,10 +180,23 @@
   }
 
   @keyframes float-note {
-    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 1;
+    }
+
+    90% {
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateY(-100vh) rotate(360deg);
+      opacity: 0;
+    }
   }
 
   .animate-float-note {
@@ -221,4 +247,3 @@
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
   }
 }
-
