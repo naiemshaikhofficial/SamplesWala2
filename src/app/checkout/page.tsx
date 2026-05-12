@@ -126,8 +126,6 @@ export default function CheckoutPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    // 1. Load from localStorage
-    const savedDetails = localStorage.getItem('billing_details')
     const ensureE164 = (phone: string) => {
       if (!phone) return ''
       if (phone.startsWith('+')) return phone
@@ -135,39 +133,66 @@ export default function CheckoutPage() {
       return phone
     }
 
-    if (savedDetails) {
-      const parsed = JSON.parse(savedDetails)
-      setBillingDetails({
-        ...parsed,
-        phone: ensureE164(parsed.phone),
-        country: parsed.country || 'India'
-      })
+    const loadData = async () => {
+      // 1. Get current user
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (!currentUser) return
+      setUser(currentUser)
+
+      // 2. Try fetching from user_accounts table
+      const { data: account } = await supabase
+        .from('user_accounts')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .maybeSingle()
+
+      if (account && account.address_line1) {
+        const dbDetails = {
+          fullName: account.full_name || '',
+          phone: ensureE164(account.phone_number || ''),
+          address: account.address_line1 || '',
+          city: account.city || '',
+          state: account.state || '',
+          zip: account.postal_code || '',
+          country: account.country || 'India'
+        }
+        setBillingDetails(dbDetails)
+        localStorage.setItem('billing_details', JSON.stringify(dbDetails))
+        return
+      }
+
+      // 3. Fallback to localStorage
+      const savedDetails = localStorage.getItem('billing_details')
+      if (savedDetails) {
+        const parsed = JSON.parse(savedDetails)
+        setBillingDetails({
+          ...parsed,
+          phone: ensureE164(parsed.phone),
+          country: parsed.country || 'India'
+        })
+        return
+      }
+
+      // 4. Fallback to Auth Metadata
+      if (currentUser.user_metadata) {
+        const meta = currentUser.user_metadata
+        const clean = (val: any) => (val === '0' || val === 0) ? '' : (val || '')
+        
+        const metaDetails = {
+          fullName: clean(meta.full_name),
+          phone: ensureE164(clean(meta.phone)),
+          address: clean(meta.address),
+          city: clean(meta.city),
+          state: clean(meta.state),
+          zip: clean(meta.zip),
+          country: clean(meta.country) || 'India'
+        }
+        setBillingDetails(metaDetails)
+        localStorage.setItem('billing_details', JSON.stringify(metaDetails))
+      }
     }
 
-    supabase.auth.getUser().then(({ data }) => {
-      const currentUser = data.user
-      if (currentUser) {
-        setUser(currentUser)
-        
-        // 2. If localStorage was empty, use DB metadata
-        if (!savedDetails && currentUser.user_metadata) {
-          const meta = currentUser.user_metadata
-          const clean = (val: any) => (val === '0' || val === 0) ? '' : (val || '')
-          
-          const dbDetails = {
-            fullName: clean(meta.full_name),
-            phone: ensureE164(clean(meta.phone)),
-            address: clean(meta.address),
-            city: clean(meta.city),
-            state: clean(meta.state),
-            zip: clean(meta.zip),
-            country: clean(meta.country) || 'India'
-          }
-          setBillingDetails(dbDetails)
-          localStorage.setItem('billing_details', JSON.stringify(dbDetails))
-        }
-      }
-    })
+    loadData()
   }, []) // Run only once on mount
 
   useEffect(() => {

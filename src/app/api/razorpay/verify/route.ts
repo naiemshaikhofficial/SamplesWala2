@@ -11,7 +11,8 @@ export async function POST(request: Request) {
       razorpay_payment_id, 
       razorpay_signature,
       packIds,
-      userId
+      userId,
+      billingDetails
     } = await request.json()
 
     // 1. Verify Signature
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
         user_id: userId,
         item_id: pid,
         item_type: 'pack',
+        item_name: pack?.name || 'Unknown Pack',
         amount: pack?.price_inr || 0,
         razorpay_order_id: razorpay_order_id,
         razorpay_payment_id: razorpay_payment_id
@@ -61,14 +63,34 @@ export async function POST(request: Request) {
       .insert(vaultEntries)
 
     if (vaultError) {
-      // If error is duplicate key, we can ignore it
       if (vaultError.code !== '23505') {
         console.error('[VAULT_ERROR]', vaultError)
         return NextResponse.json({ error: "Failed to update library" }, { status: 500 })
       }
     }
 
-    // 4. Send Invoice (Async)
+    // 4. Update User Account Details
+    if (billingDetails) {
+      const { error: accountError } = await admin
+        .from('user_accounts')
+        .upsert({
+          user_id: userId,
+          full_name: billingDetails.fullName,
+          phone_number: billingDetails.phone,
+          address_line1: billingDetails.address,
+          city: billingDetails.city,
+          state: billingDetails.state,
+          postal_code: billingDetails.zip,
+          country: billingDetails.country,
+          updated_at: new Date().toISOString()
+        })
+
+      if (accountError) {
+        console.error('[UPDATE_ACCOUNT_ERROR]', accountError)
+      }
+    }
+
+    // 5. Send Invoice (Async)
     try {
       const { data: { user }, error: userError } = await admin.auth.admin.getUserById(userId)
       
