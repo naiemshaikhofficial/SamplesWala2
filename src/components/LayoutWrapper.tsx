@@ -44,6 +44,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-neon italic">Navigation</h4>
               <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
                 <li><Link href="/browse" className="hover:text-white transition-colors">Browse Packs</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Production Blog</Link></li>
                 <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
                 <li><Link href="/library" className="hover:text-white transition-colors">Your Library</Link></li>
                 <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
