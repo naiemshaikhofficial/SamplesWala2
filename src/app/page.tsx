@@ -34,7 +34,7 @@ export default async function HomePage() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
                 <Link 
                   href="/browse" 
-                  className="w-full sm:w-auto h-14 px-12 bg-white text-black font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-studio-yellow transition-all shadow-[0_0_50px_rgba(255,255,255,0.1)] hover:shadow-studio-yellow/20"
+                  className="w-full sm:w-auto h-14 px-12 bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-studio-neon transition-all border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                 >
                   BROWSE ALL PACKS
                 </Link>

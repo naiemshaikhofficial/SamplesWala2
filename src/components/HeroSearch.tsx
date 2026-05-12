@@ -15,13 +15,13 @@ export function HeroSearch() {
   }
 
   return (
-    <form onSubmit={handleSearch} className="relative max-w-md mx-auto lg:mx-0">
+    <form onSubmit={handleSearch} className="relative max-w-md mx-auto lg:mx-0 border-4 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] overflow-hidden">
       <input 
         type="text" 
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="SEARCH SAMPLES..." 
-        className="w-full h-14 bg-white/5 border border-white/10 px-6 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-studio-yellow transition-colors placeholder:text-white/20"
+        className="w-full h-14 bg-studio-charcoal px-6 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:bg-white/5 transition-all placeholder:text-white/20 text-white"
       />
       <button 
         type="submit"
