@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export function BackgroundMural() {
   return (
-    <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* Next.js Image for automatic optimization and bandwidth saving */}
       <Image
         src="/mural-bg.png"
@@ -11,10 +11,10 @@ export function BackgroundMural() {
         fill
         priority
         quality={80}
-        className="object-cover opacity-10 grayscale" // High opacity/visibility handled by dark overlay or classes
+        className="object-cover opacity-100" 
       />
-      {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-black/90" />
+      {/* Dark overlay for readability - 92% dark */}
+      <div className="absolute inset-0 bg-black/92" />
     </div>
   )
 }
