@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { ShoppingCart } from 'lucide-react'
+import Image from 'next/image'
 import { useCart } from '@/context/CartContext'
 
 export function HeaderCartIcon() {
@@ -9,9 +9,15 @@ export function HeaderCartIcon() {
   return (
     <button 
       onClick={() => setSidebarOpen(true)}
-      className="relative hover:text-studio-yellow transition-colors group outline-none"
+      className="relative hover:opacity-80 transition-all group outline-none"
     >
-      <ShoppingCart size={18} />
+      <Image 
+        src="/cart-bag.png" 
+        alt="Cart" 
+        width={20} 
+        height={20} 
+        className="object-contain brightness-0 invert" 
+      />
       {itemCount > 0 && (
         <span className="absolute -top-2 -right-2 bg-studio-yellow text-black text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-in zoom-in">
           {itemCount}

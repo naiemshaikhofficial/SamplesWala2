@@ -6,6 +6,7 @@ import { ArrowRight, Zap, ShieldCheck, Music } from 'lucide-react'
 import { HeroSearch } from '@/components/HeroSearch'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { HomePacks } from '@/components/HomePacks'
+import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 
 export default async function HomePage() {
   const packs = await getPacks()
@@ -89,35 +90,48 @@ export default async function HomePage() {
         <HomePacks packs={packs.slice(0, 4)} />
       </section>
 
+      <ArtistTestimonials />
+
       {/* Trust Section */}
-      <section className="py-24 bg-studio-charcoal/30 border-y border-white/5">
-        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12">
-          <div className="space-y-4 text-center md:text-left">
-            <div className="h-12 w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0">
-               <ShieldCheck className="text-studio-neon" size={24} />
-            </div>
-            <h3 className="text-sm font-black uppercase tracking-widest">Royalty Free</h3>
-            <p className="text-[10px] text-white/30 font-bold uppercase leading-relaxed tracking-widest">
-              All sounds are 100% royalty-free for commercial use. Keep all your royalties.
-            </p>
+      <section className="py-24 bg-black/40 border-y border-white/5 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-neon/[0.02] blur-[120px] -z-10" />
+        
+        <div className="container mx-auto px-4 space-y-16">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter graffiti-text text-white">
+              TRUSTED BY 500+ ARTISTS
+            </h2>
+            <div className="h-1 bg-studio-neon w-24 mx-auto shadow-[0_0_20px_#00ff9f]" />
           </div>
-          <div className="space-y-4 text-center md:text-left">
-            <div className="h-12 w-12 bg-studio-yellow/10 flex items-center justify-center rounded-sm mx-auto md:mx-0">
-               <Zap className="text-studio-yellow" size={24} />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="space-y-4 text-center md:text-left p-8 bg-studio-charcoal/50 border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
+              <div className="h-12 w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-neon/20">
+                 <ShieldCheck className="text-studio-neon" size={24} />
+              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white">Royalty Free</h3>
+              <p className="text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+                All sounds are 100% royalty-free for commercial use. Keep all your royalties.
+              </p>
             </div>
-            <h3 className="text-sm font-black uppercase tracking-widest">Instant Access</h3>
-            <p className="text-[10px] text-white/30 font-bold uppercase leading-relaxed tracking-widest">
-              Digital delivery immediately after purchase. Start creating in seconds.
-            </p>
-          </div>
-          <div className="space-y-4 text-center md:text-left">
-            <div className="h-12 w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0">
-               <Music className="text-studio-neon" size={24} />
+            <div className="space-y-4 text-center md:text-left p-8 bg-studio-charcoal/50 border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
+              <div className="h-12 w-12 bg-studio-yellow/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-yellow/20">
+                 <Zap className="text-studio-yellow" size={24} />
+              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white">Instant Access</h3>
+              <p className="text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+                Digital delivery immediately after purchase. Start creating in seconds.
+              </p>
             </div>
-            <h3 className="text-sm font-bold uppercase tracking-widest">High Quality</h3>
-            <p className="text-[10px] text-white/30 font-medium uppercase leading-relaxed tracking-widest">
-              Professional audio files made for making hits and great music.
-            </p>
+            <div className="space-y-4 text-center md:text-left p-8 bg-studio-charcoal/50 border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
+              <div className="h-12 w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-neon/20">
+                 <Music className="text-studio-neon" size={24} />
+              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white">High Quality</h3>
+              <p className="text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+                Professional audio files made for making hits and great music.
+              </p>
+            </div>
           </div>
         </div>
       </section>

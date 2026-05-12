@@ -105,7 +105,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
                     className="flex-1 h-10 bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
                     title="Add to Cart"
                   >
-                    <ShoppingCart size={12} />
+                    <Image src="/cart-bag.png" alt="Cart" width={12} height={12} className="brightness-0" />
                     Cart
                   </button>
                   <button 

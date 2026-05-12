@@ -67,7 +67,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSearchLd) }}
         />
       </head>
-      <body className="antialiased min-h-screen flex flex-col step-grid text-white">
+      <body className="antialiased min-h-screen flex flex-col text-white">
         <ContentProtection />
         <ServiceWorkerRegistration />
         <CartProvider>
