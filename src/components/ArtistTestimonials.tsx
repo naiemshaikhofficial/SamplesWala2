@@ -30,9 +30,12 @@ export function ArtistTestimonials() {
         <div className="h-1 bg-studio-pink w-24 mx-auto shadow-[0_0_20px_#ff0080]" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+      <div className="flex md:grid md:grid-cols-2 gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible pb-10 md:pb-0 snap-x snap-mandatory scrollbar-hide max-w-6xl mx-auto -mx-4 px-4 md:px-0 md:mx-auto">
         {testimonials.map((t, i) => (
-          <div key={i} className="bg-studio-charcoal border-4 border-black p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between">
+          <div 
+            key={i} 
+            className="flex-shrink-0 w-[85vw] md:w-auto snap-center bg-studio-charcoal border-4 border-black p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between"
+          >
             {/* Decorative Background Icon */}
             <div className="absolute -right-4 -bottom-4 opacity-[0.03] text-white pointer-events-none">
               <Music size={120} />
@@ -40,7 +43,7 @@ export function ArtistTestimonials() {
 
             <div>
               <div className="flex items-center gap-6 mb-8 relative z-10">
-                <div className="w-20 h-20 relative border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden shrink-0">
+                <div className="w-16 h-16 md:w-20 md:h-20 relative border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden shrink-0">
                   <Image 
                     src={t.image} 
                     alt={t.name} 
@@ -49,18 +52,18 @@ export function ArtistTestimonials() {
                   />
                 </div>
                 <div>
-                  <p className="text-2xl font-black text-white uppercase italic tracking-tighter">{t.name}</p>
-                  <p className="text-[10px] text-studio-neon font-bold uppercase tracking-[0.3em]">{t.role}</p>
+                  <p className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter">{t.name}</p>
+                  <p className="text-[9px] md:text-[10px] text-studio-neon font-bold uppercase tracking-[0.3em]">{t.role}</p>
                 </div>
               </div>
 
               <div className="flex gap-1 mb-6 relative z-10">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={16} className="fill-studio-yellow text-studio-yellow" />
+                  <Star key={s} size={14} className="fill-studio-yellow text-studio-yellow" />
                 ))}
               </div>
 
-              <p className="text-sm font-bold uppercase leading-relaxed text-white/80 tracking-widest relative z-10 italic">
+              <p className="text-xs md:text-sm font-bold uppercase leading-relaxed text-white/80 tracking-widest relative z-10 italic">
                 "{t.quote}"
               </p>
             </div>
@@ -68,16 +71,16 @@ export function ArtistTestimonials() {
             <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between relative z-10">
               <div className="flex items-center gap-2 text-studio-pink">
                 <ShieldCheck size={12} />
-                <span className="text-[9px] font-black uppercase tracking-widest">Verified Buyer</span>
+                <span className="text-[9px] font-black uppercase tracking-widest">Verified</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Purchased:</span>
                 <span className="text-[9px] font-black text-studio-neon uppercase italic">{t.pack}</span>
               </div>
             </div>
           </div>
         ))}
       </div>
+
     </section>
   )
 }
