@@ -73,7 +73,7 @@ export function SearchableLibrary({ packs }: { packs: Pack[] }) {
            )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12">
           {filteredPacks.map((pack) => (
             <div key={pack.id} className="group flex flex-col space-y-4">
               <div className="aspect-square relative overflow-hidden bg-studio-charcoal/50 border border-white/5 rounded-sm shadow-2xl block group-hover:border-studio-neon/30 transition-all">
