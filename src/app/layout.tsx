@@ -11,11 +11,12 @@ export const metadata: Metadata = generatePageMetadata({
 import { createClient } from "@/lib/supabase/server";
 import { CartProvider } from "@/context/CartContext";
 import { HeaderCartIcon } from "@/components/HeaderCartIcon";
-import { CartSidebar } from "@/components/CartSidebar";
-import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { Instagram, Youtube, Twitter } from "lucide-react";
+import { BackgroundMural } from "@/components/BackgroundMural";
 import { LayoutWrapper } from "@/components/LayoutWrapper";
 import { ContentProtection } from "@/components/ContentProtection";
+import { CartSidebar } from "@/components/CartSidebar";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 
 export default async function RootLayout({
   children,
@@ -68,6 +69,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen flex flex-col text-white">
+        <BackgroundMural />
         <ContentProtection />
         <ServiceWorkerRegistration />
         <CartProvider>

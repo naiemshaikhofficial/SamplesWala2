@@ -48,13 +48,6 @@
     -ms-user-select: none;
     font-family: var(--font-mono);
     animation: fadeIn 0.5s ease-in-out;
-    background-image:
-      linear-gradient(rgba(0, 0, 0, 0.94), rgba(0, 0, 0, 0.94)),
-      url('/mural-bg.png');
-    background-attachment: fixed;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
   }
 
   body::before {
