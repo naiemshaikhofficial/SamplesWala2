@@ -24,7 +24,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
         {children}
       </main>
 
-      <footer className="bg-black border-t border-white/5 pt-12 md:pt-20 pb-10">
+      <footer className="bg-studio-charcoal border-t-4 border-black pt-12 md:pt-20 pb-10 shadow-[0_-4px_0_rgba(0,0,0,1)]">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 md:mb-20">
             <div className="col-span-1 md:col-span-1 space-y-6">
@@ -41,7 +41,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
             </div>
             
             <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-yellow">Navigation</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-neon italic">Navigation</h4>
               <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
                 <li><Link href="/browse" className="hover:text-white transition-colors">Browse Packs</Link></li>
                 <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
@@ -52,7 +52,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
             </div>
 
             <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Categories</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-pink italic">Categories</h4>
               <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
                 <li><Link href="/browse?category=Percussion" className="hover:text-white transition-colors">Percussion</Link></li>
                 <li><Link href="/browse?category=Melodic" className="hover:text-white transition-colors">Melodic Loops</Link></li>
@@ -63,7 +63,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
             </div>
 
             <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-neon">Socials</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-blue italic">Socials</h4>
               <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
                 <li>
                   <a href="https://instagram.com/sampleswala" target="_blank" className="flex items-center gap-3 hover:text-white transition-colors">

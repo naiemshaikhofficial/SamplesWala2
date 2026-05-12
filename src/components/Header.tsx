@@ -34,7 +34,7 @@ export function Header({ user }: { user: any }) {
   )
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 h-16 border-b border-white/5 ${isMenuOpen ? 'bg-black' : 'bg-black/50 backdrop-blur-xl'} transition-colors flex items-center`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)]`}>
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full">
         <Link href="/" className="flex items-center gap-3 group">
           <Image 
@@ -48,12 +48,20 @@ export function Header({ user }: { user: any }) {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.3em]">
+        <nav className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] italic">
           <NavLinks />
         </nav>
 
         {/* Mobile Actions */}
-        <div className="flex md:hidden items-center gap-4">
+        <div className="flex md:hidden items-center gap-3">
+          {!user && (
+            <Link 
+              href="/auth" 
+              className="px-3 py-1.5 border-2 border-black bg-white text-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+            >
+              Sign In
+            </Link>
+          )}
           <HeaderCartIcon />
           <button 
             onClick={toggleMenu}

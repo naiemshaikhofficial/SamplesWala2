@@ -29,7 +29,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
           key={pack.id} 
           className="group flex flex-col space-y-4"
         >
-          <Link href={`/packs/${pack.slug}`} className="aspect-square relative overflow-hidden bg-studio-charcoal/50 border border-white/5 rounded-sm shadow-2xl block group-hover:border-studio-yellow/30 transition-all">
+          <Link href={`/packs/${pack.slug}`} className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-pink transition-all group-hover:-translate-y-1">
             <Image
               src={getOptimizedImageUrl(pack.cover_url, 600, 80)}
               alt={pack.name}
@@ -49,7 +49,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
           <div className="space-y-4 px-1">
             <div className="space-y-1">
               <Link href={`/packs/${pack.slug}`}>
-                <h3 className="text-[14px] font-black uppercase truncate hover:text-studio-yellow transition-colors tracking-tight">
+                <h3 className="text-[13px] font-black uppercase truncate hover:text-studio-neon transition-colors tracking-tight">
                   {pack.name}
                 </h3>
               </Link>
@@ -73,7 +73,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                     slug: pack.slug,
                     cover_url: pack.cover_url || undefined
                   })}
-                  className="flex-1 h-10 bg-white text-black text-[8px] font-black uppercase tracking-widest hover:bg-studio-yellow transition-all rounded-sm flex items-center justify-center gap-2"
+                  className="flex-1 h-10 bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
                   title="Add to Cart"
                 >
                   <ShoppingCart size={12} />
@@ -81,7 +81,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 </button>
                 <button 
                   onClick={() => handleBuyNow(pack)}
-                  className="flex-1 h-10 bg-[#FFC800] text-black text-[8px] font-black uppercase tracking-widest hover:bg-white transition-all rounded-sm flex items-center justify-center"
+                  className="flex-1 h-10 bg-studio-pink text-white text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center"
                 >
                   Buy
                 </button>

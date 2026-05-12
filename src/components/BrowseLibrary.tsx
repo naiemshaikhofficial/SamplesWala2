@@ -56,7 +56,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
           key={pack.id} 
           className="group flex flex-col space-y-4"
         >
-          <Link href={`/packs/${pack.slug}`} className="aspect-square relative overflow-hidden bg-studio-charcoal/50 border border-white/5 rounded-sm shadow-2xl block group-hover:border-studio-yellow/30 transition-all">
+          <Link href={`/packs/${pack.slug}`} className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-pink transition-all group-hover:-translate-y-1">
             <Image
               src={getOptimizedImageUrl(pack.cover_url, 600, 80)}
               alt={pack.name}
@@ -93,28 +93,28 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
             </div>
 
             {pack.is_downloadable && (
-              <div className="flex flex-row gap-2 pt-2">
-                <button 
-                  onClick={() => addItem({
-                    id: pack.id,
-                    name: pack.name,
-                    price: Number(pack.price_inr),
-                    slug: pack.slug,
-                    cover_url: pack.cover_url || undefined
-                  })}
-                  className="flex-1 h-10 bg-white text-black text-[8px] font-black uppercase tracking-widest hover:bg-studio-yellow transition-all rounded-sm flex items-center justify-center gap-2"
-                  title="Add to Cart"
-                >
-                  <ShoppingCart size={12} />
-                  Cart
-                </button>
-                <button 
-                  onClick={() => handleBuyNow(pack)}
-                  className="flex-1 h-10 bg-[#FFC800] text-black text-[8px] font-black uppercase tracking-widest hover:bg-white transition-all rounded-sm flex items-center justify-center"
-                >
-                  Buy
-                </button>
-              </div>
+                <div className="flex gap-2 pt-2">
+                   <button 
+                    onClick={() => addItem({
+                      id: pack.id,
+                      name: pack.name,
+                      price: Number(pack.price_inr),
+                      slug: pack.slug,
+                      cover_url: pack.cover_url || undefined
+                    })}
+                    className="flex-1 h-10 bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
+                    title="Add to Cart"
+                  >
+                    <ShoppingCart size={12} />
+                    Cart
+                  </button>
+                  <button 
+                    onClick={() => handleBuyNow(pack)}
+                    className="flex-1 h-10 bg-studio-pink text-white text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center"
+                  >
+                    Buy
+                  </button>
+                </div>
             )}
           </div>
         </div>

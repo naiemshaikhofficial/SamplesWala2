@@ -20,8 +20,8 @@ export default async function HomePage() {
 
         <div className="container mx-auto px-4 relative z-30 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center pt-20">
           <div className="space-y-6 md:space-y-8 text-center lg:text-left">
-            <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85] text-white">
-              SAMPLES WALA: <br /> <span className="text-studio-yellow italic">BETTER SOUNDS.</span>
+            <h1 className="text-6xl md:text-9xl font-black uppercase tracking-tighter leading-[0.8] text-white graffiti-text">
+              SAMPLES WALA: <br /> <span className="text-studio-neon italic">RAW SOUNDS.</span>
             </h1>
             <p className="text-xs md:text-lg text-white/40 max-w-xl mx-auto lg:mx-0 uppercase font-bold tracking-widest leading-relaxed">
               Premium Indian sample packs, loops, and VST tools for modern music production. <br className="hidden md:block" /> Industry standard sounds. 100% Royalty Free.
@@ -48,27 +48,28 @@ export default async function HomePage() {
                 key={pack.id}
                 className="absolute transition-all duration-700 hover:z-50 hover:scale-110 cursor-pointer group"
                 style={{
-                  transform: `translateX(${(index - 1) * 120}px) rotate(${(index - 1) * 8}deg) translateY(${Math.abs(index - 1) * 30}px)`,
+                  transform: `translateX(${(index - 1) * 140}px) rotate(${(index - 1) * 12}deg) translateY(${Math.abs(index - 1) * 40}px)`,
                   zIndex: 3 - Math.abs(index - 1)
                 }}
               >
-                <div className="w-64 aspect-square relative rounded-sm overflow-hidden border border-white/10 shadow-2xl transition-all group-hover:border-studio-yellow/50 group-hover:shadow-studio-yellow/10">
+                <div className="w-64 aspect-square relative border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-all group-hover:border-studio-pink group-hover:-translate-y-4">
                    <Image 
                      src={pack.cover_url || '/placeholder.jpg'} 
                      alt={pack.name} 
                      fill 
                      sizes="256px"
-                     className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                     className="object-cover transition-all duration-500"
                    />
                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-40 group-hover:opacity-0 transition-opacity" />
                    <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                      <Link href={`/packs/${pack.slug}`} className="block w-full py-2 bg-studio-yellow text-black text-[8px] font-black uppercase text-center tracking-widest">
-                        Quick View
+                      <Link href={`/packs/${pack.slug}`} className="block w-full py-3 bg-white text-black text-[10px] font-black uppercase text-center tracking-widest border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)]">
+                        GET THIS PACK
                       </Link>
                    </div>
                 </div>
               </div>
             ))}
+
           </div>
         </div>
       </section>
@@ -121,48 +122,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SEO Content Section */}
-      <section className="py-24 border-t border-white/5 bg-black overflow-hidden relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-yellow/[0.02] blur-[150px] z-0" />
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter">
-                THE DEFINITIVE <span className="text-studio-yellow">INDIAN SOUND</span> LIBRARY
-              </h2>
-              <div className="h-1 bg-studio-yellow w-24 mx-auto shadow-[0_0_20px_#FFC800]" />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-[11px] font-bold uppercase tracking-[0.2em] leading-relaxed text-white/40">
-              <div className="space-y-6">
-                <p>
-                  <span className="text-white">Samples Wala</span> is India's premier destination for high-quality, professional-grade sample packs and loops. We specialize in capturing the essence of Indian music—from the rhythmic complexity of Tabla and Dholak to the soulful melodies of the Sitar and Bansuri—and processing them for modern music production.
-                </p>
-                <p>
-                  Whether you are a <span className="text-white">Bollywood composer</span>, a <span className="text-white">Hip-Hop producer</span>, or an <span className="text-white">Electronic music artist</span>, our curated collections provide the authentic textures and DAW-ready sounds you need to elevate your tracks.
-                </p>
-              </div>
-              <div className="space-y-6">
-                <p>
-                  Every sound in our library is <span className="text-studio-neon">100% Royalty Free</span>, meaning you keep all your royalties. Our sounds are recorded in world-class studios using premium microphones and analog gear to ensure maximum clarity and punch.
-                </p>
-                <p>
-                  Join thousands of producers who trust <span className="text-white">Sample Wala</span> for their sonic needs. Explore our trending Indian loops, cinematic textures, and percussion kits designed to spark your creativity instantly.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-4 pt-8">
-              {['Indian Percussion', 'Bollywood Melodies', 'Vocal Chops', 'Lofi India', 'Trap Loops'].map((tag) => (
-                <span key={tag} className="px-4 py-2 border border-white/5 rounded-full text-[8px] font-black uppercase tracking-widest text-white/20 hover:text-studio-yellow hover:border-studio-yellow transition-all cursor-default">
-                  #{tag.replace(' ', '')}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }
