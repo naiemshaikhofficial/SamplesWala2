@@ -104,35 +104,36 @@ export default async function HomePage() {
             <div className="h-1 bg-studio-neon w-24 mx-auto shadow-[0_0_20px_#00ff9f]" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="space-y-4 text-center md:text-left p-8 bg-studio-charcoal/50 border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
-              <div className="h-12 w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-neon/20">
-                 <ShieldCheck className="text-studio-neon" size={24} />
+          <div className="flex flex-row md:grid md:grid-cols-3 gap-3 md:gap-12">
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-charcoal/50 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
+              <div className="h-8 w-8 md:h-12 md:w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-neon/20">
+                 <ShieldCheck className="text-studio-neon" size={16} />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-white">Royalty Free</h3>
-              <p className="text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+              <h3 className="text-[8px] md:text-sm font-black uppercase tracking-widest text-white">Royalty Free</h3>
+              <p className="hidden md:block text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
                 All sounds are 100% royalty-free for commercial use. Keep all your royalties.
               </p>
             </div>
-            <div className="space-y-4 text-center md:text-left p-8 bg-studio-charcoal/50 border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
-              <div className="h-12 w-12 bg-studio-yellow/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-yellow/20">
-                 <Zap className="text-studio-yellow" size={24} />
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-charcoal/50 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
+              <div className="h-8 w-8 md:h-12 md:w-12 bg-studio-yellow/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-yellow/20">
+                 <Zap className="text-studio-yellow" size={16} />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-white">Instant Access</h3>
-              <p className="text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+              <h3 className="text-[8px] md:text-sm font-black uppercase tracking-widest text-white">Instant</h3>
+              <p className="hidden md:block text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
                 Digital delivery immediately after purchase. Start creating in seconds.
               </p>
             </div>
-            <div className="space-y-4 text-center md:text-left p-8 bg-studio-charcoal/50 border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
-              <div className="h-12 w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-neon/20">
-                 <Music className="text-studio-neon" size={24} />
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-charcoal/50 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
+              <div className="h-8 w-8 md:h-12 md:w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-neon/20">
+                 <Music className="text-studio-neon" size={16} />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-white">High Quality</h3>
-              <p className="text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+              <h3 className="text-[8px] md:text-sm font-black uppercase tracking-widest text-white">High Quality</h3>
+              <p className="hidden md:block text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
                 Professional audio files made for making hits and great music.
               </p>
             </div>
           </div>
+
         </div>
       </section>
 
