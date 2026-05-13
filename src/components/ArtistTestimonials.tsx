@@ -17,6 +17,13 @@ const testimonials = [
     image: "/deepak-poojary.jpg",
     pack: "THE SOUTH",
     quote: "AS A DJ, FINDING AUTHENTIC SOUTH INDIAN SAMPLES THAT ACTUALLY HIT IN THE CLUB IS HARD. THIS PACK IS A GAME CHANGER. THE PERCUSSION IS SO CRISP AND ENERGETIC."
+  },
+  {
+    name: "Python",
+    role: "Music Producer",
+    image: "/python-artist.jpg",
+    pack: "THE BOLLYWOOD",
+    quote: "SAMPLESWALA'S BOLLYWOOD PACK IS THE GOLD STANDARD. THE STRINGS AND PERCUSSION ARE SO AUTHENTIC, THEY BRING THAT CINEMATIC VIBE TO MY TRACKS INSTANTLY."
   }
 ]
 
@@ -30,7 +37,7 @@ export function ArtistTestimonials() {
         <div className="h-1 bg-studio-pink w-24 mx-auto shadow-[0_0_20px_#ff0080]" />
       </div>
 
-      <div className="flex md:grid md:grid-cols-2 gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible pb-10 md:pb-0 snap-x snap-mandatory scrollbar-hide max-w-6xl mx-auto -mx-4 px-4 md:px-0 md:mx-auto">
+      <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible pb-10 md:pb-0 snap-x snap-mandatory scrollbar-hide max-w-7xl mx-auto -mx-4 px-4 md:px-0 md:mx-auto">
         {testimonials.map((t, i) => (
           <div 
             key={i} 
