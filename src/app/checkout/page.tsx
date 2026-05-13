@@ -351,9 +351,7 @@ export default function CheckoutPage() {
 
             setPaymentStatus('success')
             clearCart()
-            setTimeout(() => {
-              router.push('/library')
-            }, 3000)
+            router.push('/library')
           } else {
             alert('Verification failed')
             setPaymentStatus('idle')

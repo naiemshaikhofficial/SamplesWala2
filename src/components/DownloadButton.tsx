@@ -14,7 +14,7 @@ export function DownloadButton({ packId }: { packId: string }) {
     try {
       const secureUrl = await getSecureDownloadUrl(packId)
       window.location.href = secureUrl
-      setTimeout(() => setLoading(false), 5000)
+      setLoading(false)
     } catch (err: any) {
       console.error("Download Failed:", err)
       setError(err.message || "DOWNLOAD_FAILED")
