@@ -5,11 +5,24 @@ import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export function HomePacks({ packs }: { packs: any[] }) {
   const { addItem } = useCart()
   const router = useRouter()
+  const [addedPackId, setAddedPackId] = React.useState<string | null>(null)
+
+  const handleAddToCart = (pack: any) => {
+    addItem({
+      id: pack.id,
+      name: pack.name,
+      price: Number(pack.price_inr),
+      slug: pack.slug,
+      cover_url: pack.cover_url || undefined
+    })
+    setAddedPackId(pack.id)
+    setTimeout(() => setAddedPackId(null), 1200)
+  }
 
   const handleBuyNow = (pack: any) => {
     addItem({
@@ -91,15 +104,25 @@ export function HomePacks({ packs }: { packs: any[] }) {
             </div>
 
             {pack.is_downloadable && (
-              <div className="flex flex-row gap-3 pt-2">
+              <div className="flex flex-row gap-3 pt-2 relative">
+                <AnimatePresence>
+                  {addedPackId === pack.id && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: -20, opacity: 0 }}
+                      animate={{ scale: 1.1, rotate: 12, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      className="absolute -top-12 left-0 right-0 z-50 flex justify-center pointer-events-none"
+                    >
+                      <div className="bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-[4px_4px_0px_black] relative">
+                        ADDED!
+                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <button 
-                  onClick={() => addItem({
-                    id: pack.id,
-                    name: pack.name,
-                    price: Number(pack.price_inr),
-                    slug: pack.slug,
-                    cover_url: pack.cover_url || undefined
-                  })}
+                  onClick={() => handleAddToCart(pack)}
                   className="flex-1 h-11 bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center gap-2"
                 >
                   <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
