@@ -19,6 +19,8 @@ import { CartSidebar } from "@/components/CartSidebar";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { getUser } from "@/lib/supabase/server";
 
+import Script from "next/script";
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -67,13 +69,16 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSearchLd) }}
         />
-        <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+        <Script 
+          src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" 
+          strategy="afterInteractive" 
+        />
       </head>
       <body className="antialiased min-h-screen flex flex-col text-white">
-        <BackgroundMural />
-        <ContentProtection />
-        <ServiceWorkerRegistration />
         <CartProvider>
+          <BackgroundMural />
+          <ContentProtection />
+          <ServiceWorkerRegistration />
           <CartSidebar initialUser={user} />
           <LayoutWrapper user={user}>
             {children}
