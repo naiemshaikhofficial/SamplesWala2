@@ -99,21 +99,29 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
               {/* Bundle Builder Progress - Slim Version */}
               {items.length < 3 ? (
                 <div className="bg-studio-charcoal/50 p-3 border-2 border-black border-dashed relative overflow-hidden group/bundle">
-                  <div className="absolute -right-4 -top-4 w-12 h-12 bg-studio-yellow/5 rounded-full blur-2xl group-hover/bundle:bg-studio-yellow/10 transition-all duration-700" />
+                  <div className="absolute -right-4 -top-4 w-12 h-12 bg-studio-blue/5 rounded-full blur-2xl group-hover/bundle:bg-studio-blue/10 transition-all duration-700" />
                   
                   <p className="text-[9px] font-black uppercase tracking-[0.1em] text-white/60 mb-2.5">
-                    GET <span className="text-studio-yellow">10% OFF</span> 
+                    GET <span className="text-studio-blue">10% OFF</span> 
                     <span className="ml-2 text-[8px] text-white/20 italic tracking-widest font-bold uppercase"> — ADD {3 - items.length} MORE</span>
                   </p>
 
                   <div className="relative h-3 bg-white/5 border-2 border-black overflow-hidden">
-                    {/* Liquid Fill */}
+                    {/* Liquid Fill - Sky Blue Water */}
                     <div 
-                      className="absolute top-0 left-0 h-full bg-studio-yellow transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(255,200,0,0.5)]"
+                      className="absolute top-0 left-0 h-full bg-studio-blue transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(0,224,255,0.5)] animate-pulse-sky"
                       style={{ width: `${(items.length / 3) * 100}%` }}
                     >
-                      {/* Flowing Water Effect Animation */}
-                      <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.4)_50%,transparent_100%)] bg-[length:200%_100%] animate-shimmer" />
+                      {/* Wave Animation */}
+                      <div className="absolute inset-0 w-[200%] h-full bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.2)_25%,rgba(255,255,255,0.2)_75%,transparent_100%)] animate-wave" />
+                      
+                      {/* Rising Bubbles */}
+                      <div className="absolute inset-0">
+                        <div className="absolute bottom-0 left-[10%] w-1 h-1 bg-white/40 rounded-full animate-bubble" style={{ animationDelay: '0.2s' }} />
+                        <div className="absolute bottom-0 left-[30%] w-1.5 h-1.5 bg-white/30 rounded-full animate-bubble" style={{ animationDelay: '0.7s' }} />
+                        <div className="absolute bottom-0 left-[60%] w-0.5 h-0.5 bg-white/50 rounded-full animate-bubble" style={{ animationDelay: '1.2s' }} />
+                        <div className="absolute bottom-0 left-[85%] w-1.2 h-1.2 bg-white/20 rounded-full animate-bubble" style={{ animationDelay: '1.8s' }} />
+                      </div>
                     </div>
 
                     {/* Dividers (Pipe joints) */}

@@ -9,7 +9,7 @@ const razorpay = new Razorpay({
 
 export async function POST(request: Request) {
   try {
-    const { packIds, discountPercent } = await request.json()
+    const { packIds, couponCode } = await request.json()
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Please login to purchase' }, { status: 401 })
     }
 
-    // 1. Fetch pack prices
+    // 1. Fetch pack prices from DB (Never trust client-side prices)
     const { data: packs, error: packError } = await supabase
       .from('sample_packs')
       .select('id, name, price_inr')
@@ -27,15 +27,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Packs not found' }, { status: 404 })
     }
 
-    // 2. Calculate total with Bundle Discount (10% for 3+ items)
+    // 2. Calculate total (Server-side calculation)
     const rawSubtotal = packs.reduce((sum, p) => sum + Number(p.price_inr), 0)
     
-    // Apply Bundle Discount if applicable
+    // Server-side Bundle Discount logic
     const bundleDiscountPercent = packIds.length >= 3 ? 10 : 0
-    const subtotalAfterBundle = rawSubtotal - (rawSubtotal * bundleDiscountPercent / 100)
+    const bundleDiscountAmount = Math.round(rawSubtotal * bundleDiscountPercent / 100)
+    const subtotalAfterBundle = rawSubtotal - bundleDiscountAmount
     
-    // Apply Coupon Discount if any
-    const couponDiscountAmount = discountPercent ? (subtotalAfterBundle * discountPercent / 100) : 0
+    // Server-side Coupon Validation
+    let couponDiscountPercent = 0
+    if (couponCode) {
+      const { data: couponData } = await supabase
+        .from('coupons')
+        .select('discount_percent')
+        .eq('code', couponCode.toUpperCase())
+        .eq('is_active', true)
+        .or(`expires_at.gt.${new Date().toISOString()},expires_at.is.null`)
+        .maybeSingle()
+      
+      if (couponData) {
+        couponDiscountPercent = couponData.discount_percent
+      }
+    }
+
+    const couponDiscountAmount = Math.round(subtotalAfterBundle * couponDiscountPercent / 100)
     const total = subtotalAfterBundle - couponDiscountAmount
 
     // 3. Create Razorpay order
@@ -46,7 +62,7 @@ export async function POST(request: Request) {
       notes: {
         packIds: packIds.join(','),
         userId: user.id,
-        discountPercent: discountPercent || 0
+        discountPercent: couponDiscountPercent || 0
       }
     }
 

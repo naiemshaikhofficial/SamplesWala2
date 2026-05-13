@@ -126,11 +126,31 @@ export default function CheckoutPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    const ensureE164 = (phone: string) => {
-      if (!phone) return ''
-      if (phone.startsWith('+')) return phone
-      if (phone.length === 10 && /^\d+$/.test(phone)) return `+91${phone}`
-      return phone
+    const ensureE164 = (phone: any) => {
+      if (!phone || phone === '0' || phone === 0) return ''
+      let str = String(phone).trim()
+      if (str.startsWith('+')) return str
+      
+      const digits = str.replace(/\D/g, '')
+      if (!digits) return ''
+
+      // 10 digits -> India (+91)
+      if (digits.length === 10) return `+91${digits}`
+      
+      // 12 digits starting with 91 -> India (+91)
+      if (digits.length === 12 && digits.startsWith('91')) return `+${digits}`
+
+      // 11 digits starting with 0 -> Likely UK (+44) or similar local format
+      // Prepending +44 for UK mobile (07...) or just stripping 0 and adding + for safety
+      if (str.startsWith('0') && digits.length === 11) {
+        if (str.startsWith('07')) return `+44${digits.slice(1)}` // UK Mobile
+        return `+${digits}` // Fallback for other 11-digit numbers
+      }
+
+      // If it's a long number without + but doesn't start with 0, assume it's E.164 without +
+      if (digits.length > 10 && !str.startsWith('0')) return `+${digits}`
+
+      return str
     }
 
     const loadData = async () => {
@@ -264,7 +284,7 @@ export default function CheckoutPage() {
     setLoading(false)
   }
 
-  const discountedTotal = total - (total * discount / 100)
+  const discountedTotal = Math.round(total - (total * discount / 100))
   
   const subtotalRef = useAnimatedCounter(total)
   const totalRef = useAnimatedCounter(discountedTotal)
@@ -307,7 +327,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           packIds: items.map(i => i.id),
-          discountPercent: discount
+          couponCode: coupon
         }),
       })
       const order = await res.json()
@@ -607,12 +627,12 @@ export default function CheckoutPage() {
               {discount > 0 && (
                 <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-studio-neon">
                   <span>Discount ({discount}%)</span>
-                  <span>- ₹{(total * discount / 100).toFixed(2)}</span>
+                  <span>- ₹{Math.round(total * discount / 100)}</span>
                 </div>
               )}
               <div className="pt-4 border-t border-white/10 flex justify-between items-end">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Total Amount</span>
-                <span ref={totalRef} className="text-3xl font-black text-studio-yellow italic">₹{discountedTotal.toFixed(2)}</span>
+                <span ref={totalRef} className="text-3xl font-black text-studio-yellow italic">₹{discountedTotal}</span>
               </div>
             </div>
 

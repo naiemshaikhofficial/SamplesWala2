@@ -199,13 +199,32 @@
 
 
 
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+  @keyframes wave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 
-  .animate-shimmer {
-    animation: shimmer 2s infinite linear;
+  .animate-wave {
+    animation: wave 3s infinite linear;
+  }
+
+  @keyframes bubble-rise {
+    0% { transform: translateY(100%) scale(0); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translateY(-100%) scale(1); opacity: 0; }
+  }
+
+  .animate-bubble {
+    animation: bubble-rise 2s infinite ease-out;
+  }
+
+  @keyframes pulse-sky {
+    0%, 100% { background-color: #00E0FF; box-shadow: 0 0 10px rgba(0, 224, 255, 0.5); }
+    50% { background-color: #70EFFF; box-shadow: 0 0 20px rgba(112, 239, 255, 0.8); }
+  }
+
+  .animate-pulse-sky {
+    animation: pulse-sky 2s infinite ease-in-out;
   }
 
   @keyframes float-note {
