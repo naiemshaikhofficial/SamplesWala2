@@ -131,3 +131,20 @@ export async function getRelatedPacks(category: string, excludeId: string) {
     { revalidate: 300, tags: ['packs'] }
   )()
 }
+
+export async function getSearchSuggestions(query: string) {
+  if (!query || query.length < 2) return []
+  
+  const supabase = getAdminClient()
+  const { data, error } = await supabase
+    .from('sample_packs')
+    .select('id, name, slug, cover_url, price_inr')
+    .ilike('name', `%${query}%`)
+    .limit(5)
+    
+  if (error) {
+    console.error('[SUGGESTIONS_ERROR]', error)
+    return []
+  }
+  return data
+}

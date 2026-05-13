@@ -1,13 +1,13 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useCart } from '@/context/CartContext'
-import { X, ShoppingBag, Trash2, ArrowRight } from 'lucide-react'
+import { X, ShoppingBag, Trash2, ArrowRight, Zap } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export function CartSidebar({ initialUser }: { initialUser?: any }) {
-  const { items, removeItem, total, itemCount, isSidebarOpen, setSidebarOpen } = useCart()
+  const { items, removeItem, subtotal, discount, total, itemCount, isSidebarOpen, setSidebarOpen } = useCart()
   const [user, setUser] = useState<any>(initialUser)
   const router = useRouter()
   const supabase = createClient()
@@ -95,8 +95,52 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 italic">Cart is empty</p>
             </div>
           ) : (
-            <div className="space-y-8">
-              {items.map((item) => (
+            <div className="space-y-10">
+              {/* Bundle Builder Progress - Slim Version */}
+              {items.length < 3 ? (
+                <div className="bg-studio-charcoal/50 p-3 border-2 border-black border-dashed relative overflow-hidden group/bundle">
+                  <div className="absolute -right-4 -top-4 w-12 h-12 bg-studio-yellow/5 rounded-full blur-2xl group-hover/bundle:bg-studio-yellow/10 transition-all duration-700" />
+                  
+                  <p className="text-[9px] font-black uppercase tracking-[0.1em] text-white/60 mb-2.5">
+                    GET <span className="text-studio-yellow">10% OFF</span> 
+                    <span className="ml-2 text-[8px] text-white/20 italic tracking-widest font-bold uppercase"> — ADD {3 - items.length} MORE</span>
+                  </p>
+
+                  <div className="relative h-3 bg-white/5 border-2 border-black overflow-hidden">
+                    {/* Liquid Fill */}
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-studio-yellow transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(255,200,0,0.5)]"
+                      style={{ width: `${(items.length / 3) * 100}%` }}
+                    >
+                      {/* Flowing Water Effect Animation */}
+                      <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.4)_50%,transparent_100%)] bg-[length:200%_100%] animate-shimmer" />
+                    </div>
+
+                    {/* Dividers (Pipe joints) */}
+                    <div className="absolute inset-0 flex justify-evenly pointer-events-none">
+                      <div className="w-[2px] h-full bg-black/40" />
+                      <div className="w-[2px] h-full bg-black/40" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <div className="bg-studio-pink p-4 border-4 border-black shadow-[6px_6px_0px_black] -rotate-1 animate-in zoom-in duration-300">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-black text-studio-yellow p-1 border-2 border-black rotate-12">
+                        <Zap size={16} fill="currentColor" />
+                      </div>
+                      <p className="text-[11px] font-black uppercase tracking-tighter text-white italic">
+                        BUNDLE UNLOCKED: <span className="underline decoration-studio-yellow decoration-2 underline-offset-4">10% DISCOUNT</span> APPLIED!
+                      </p>
+                    </div>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-studio-yellow border-2 border-black rotate-45 animate-ping" />
+                </div>
+              )}
+
+              <div className="space-y-8">
+                {items.map((item) => (
                 <div key={item.id} className="flex gap-6 group animate-in fade-in slide-in-from-right-4 duration-300">
                   <div className="w-20 h-20 relative border-2 border-black flex-shrink-0 bg-studio-charcoal group-hover:-translate-y-1 transition-all">
                     <Image src={item.cover_url || '/placeholder.jpg'} alt={item.name} fill className="object-cover" />
@@ -120,19 +164,31 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
         {/* Footer - Solid & Defined */}
         {items.length > 0 && (
-          <div className="p-8 border-t-2 border-white/5 space-y-8 bg-black relative z-10">
-            <div className="flex justify-between items-end">
-              <div className="space-y-1.5">
-                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 italic block">Subtotal</span>
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-studio-neon block">Digital Delivery Only</span>
+          <div className="p-8 border-t-2 border-white/5 space-y-6 bg-black relative z-10">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/40">
+                <span>Subtotal</span>
+                <span>₹{subtotal}</span>
               </div>
-              <div className="text-right">
-                <span className="text-3xl font-black text-studio-yellow italic">₹{total}</span>
+              {discount > 0 && (
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-studio-neon">
+                  <span>Bundle Discount (10%)</span>
+                  <span>-₹{discount}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-end pt-2">
+                <div className="space-y-1.5">
+                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 italic block">Total Amount</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-3xl font-black text-studio-yellow italic">₹{total}</span>
+                </div>
               </div>
             </div>
             

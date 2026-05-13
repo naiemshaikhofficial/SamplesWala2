@@ -14,6 +14,8 @@ interface CartContextType {
   addItem: (item: CartItem) => void
   removeItem: (id: string) => void
   clearCart: () => void
+  subtotal: number
+  discount: number
   total: number
   itemCount: number
   isSidebarOpen: boolean
@@ -58,11 +60,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([])
   }
 
-  const total = items.reduce((acc, item) => acc + item.price, 0)
+  const subtotal = items.reduce((acc, item) => acc + item.price, 0)
+  const discount = items.length >= 3 ? Math.round(subtotal * 0.1) : 0
+  const total = subtotal - discount
   const itemCount = items.length
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clearCart, total, itemCount, isSidebarOpen, setSidebarOpen }}>
+    <CartContext.Provider value={{ 
+      items, 
+      addItem, 
+      removeItem, 
+      clearCart, 
+      subtotal,
+      discount,
+      total, 
+      itemCount, 
+      isSidebarOpen, 
+      setSidebarOpen 
+    }}>
       {children}
     </CartContext.Provider>
   )

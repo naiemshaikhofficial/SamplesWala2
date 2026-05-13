@@ -27,10 +27,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Packs not found' }, { status: 404 })
     }
 
-    // 2. Calculate total
-    const subtotal = packs.reduce((sum, p) => sum + Number(p.price_inr), 0)
-    const discountAmount = discountPercent ? (subtotal * discountPercent / 100) : 0
-    const total = subtotal - discountAmount
+    // 2. Calculate total with Bundle Discount (10% for 3+ items)
+    const rawSubtotal = packs.reduce((sum, p) => sum + Number(p.price_inr), 0)
+    
+    // Apply Bundle Discount if applicable
+    const bundleDiscountPercent = packIds.length >= 3 ? 10 : 0
+    const subtotalAfterBundle = rawSubtotal - (rawSubtotal * bundleDiscountPercent / 100)
+    
+    // Apply Coupon Discount if any
+    const couponDiscountAmount = discountPercent ? (subtotalAfterBundle * discountPercent / 100) : 0
+    const total = subtotalAfterBundle - couponDiscountAmount
 
     // 3. Create Razorpay order
     const options = {
