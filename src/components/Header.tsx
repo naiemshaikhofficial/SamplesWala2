@@ -1,15 +1,28 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, ShoppingBag } from 'lucide-react'
+import { Menu, X, ShoppingBag, ChevronRight } from 'lucide-react'
 import { HeaderCartIcon } from './HeaderCartIcon'
 import { LogoutButton } from './LogoutButton'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export function Header({ user }: { user: any }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+
+  // Scroll Lock
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isMenuOpen])
 
   const NavLinks = () => (
     <>
@@ -34,16 +47,16 @@ export function Header({ user }: { user: any }) {
   )
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)]`}>
+    <header className={`fixed top-0 left-0 right-0 z-[70] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)]`}>
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full">
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsMenuOpen(false)}>
           <Image
             src="/Logo.png"
             alt="Samples Wala Logo"
-            width={200}
-            height={50}
+            width={300}
+            height={100}
             priority
-            className="h-8 md:h-10 w-auto transition-all group-hover:drop-shadow-[0_0_12px_rgba(255,200,0,0.6)]"
+            className="h-16 md:h-16 w-auto transition-all group-hover:drop-shadow-[0_0_12px_rgba(255,200,0,0.6)]"
           />
         </Link>
 
@@ -65,48 +78,84 @@ export function Header({ user }: { user: any }) {
           <HeaderCartIcon />
           <button
             onClick={toggleMenu}
-            className="p-2 text-white/60 hover:text-white transition-colors"
+            className="w-8 h-8 flex flex-col items-center justify-center gap-1 border-4 border-black bg-white shadow-[3px_3px_0px_black] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all group overflow-hidden"
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <motion.div
+              animate={isMenuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
+              className="w-5 h-1 bg-black rounded-full origin-center"
+            />
+            <motion.div
+              animate={isMenuOpen ? { opacity: 0, x: 20 } : { opacity: 1, x: 0 }}
+              className="w-5 h-1 bg-black rounded-full"
+            />
+            <motion.div
+              animate={isMenuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
+              className="w-5 h-1 bg-black rounded-full origin-center"
+            />
           </button>
         </div>
       </div>
 
 
-      {/* Mobile Menu Overlay */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 top-16 bg-black z-[60] flex flex-col p-8 space-y-8 animate-in fade-in slide-in-from-top-4 duration-300 overflow-y-auto">
-          <nav className="flex flex-col space-y-8 text-xl font-black uppercase tracking-[0.2em]">
-            <Link href="/browse" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">Browse Packs</Link>
-            <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">Production Blog</Link>
-            <Link href="/about" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">About Us</Link>
-            <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">Your Library</Link>
-            <Link href="/help" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors border-b border-white/5 pb-4">Help Center</Link>
+      {/* Mobile Menu Overlay - Framer Motion */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed inset-0 top-20 bg-black z-[60] flex flex-col p-8 space-y-8 overflow-y-auto border-t-4 border-black"
+          >
+            {/* Comic Accent */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:16px_16px]" />
 
-
-            <div className="pt-4">
-              {user ? (
-                <div className="flex flex-col gap-4">
-                  <p className="text-[10px] text-white/20">Signed in as {user.email}</p>
-                  <LogoutButton />
-                </div>
-              ) : (
+            <nav className="flex flex-col space-y-4 text-2xl font-black uppercase tracking-tighter relative z-10">
+              {[
+                { name: 'Browse Packs', href: '/browse' },
+                { name: 'Your Library', href: '/library' },
+                { name: 'Production Blog', href: '/blog' },
+                { name: 'About Us', href: '/about' },
+                { name: 'Help Center', href: '/help' },
+              ].map((link) => (
                 <Link
-                  href="/auth"
+                  key={link.href}
+                  href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-full h-14 bg-white text-black flex items-center justify-center text-sm font-black tracking-widest"
+                  className="group flex items-center justify-between p-4 bg-studio-charcoal border-4 border-black shadow-[6px_6px_0px_black] hover:-translate-y-1 hover:bg-studio-pink transition-all text-white italic"
                 >
-                  SIGN IN
+                  <span>{link.name}</span>
+                  <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
                 </Link>
-              )}
-            </div>
-          </nav>
+              ))}
 
-          <div className="mt-auto pt-8 border-t border-white/5">
-            <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em]">Samples Wala :: 2026</p>
-          </div>
-        </div>
-      )}
+              <div className="pt-8">
+                {user ? (
+                  <div className="p-6 bg-white/5 border-4 border-black flex flex-col gap-4 italic shadow-[6px_6px_0px_black]">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Account</span>
+                      <p className="text-sm text-studio-neon truncate font-black">{user.email}</p>
+                    </div>
+                    <LogoutButton />
+                  </div>
+                ) : (
+                  <Link
+                    href="/auth"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full h-16 bg-studio-yellow text-black flex items-center justify-center text-lg font-black tracking-widest border-4 border-black shadow-[8px_8px_0px_black] italic hover:bg-white transition-all"
+                  >
+                    SIGN IN NOW
+                  </Link>
+                )}
+              </div>
+            </nav>
+
+            <div className="mt-auto pt-8 border-t-2 border-white/5 text-center">
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.6em]">SAMPLESWALA :: NOISE 2026</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   )
 }

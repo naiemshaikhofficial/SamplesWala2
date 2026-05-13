@@ -29,6 +29,17 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
     return () => subscription.unsubscribe()
   }, [supabase.auth, initialUser])
 
+  useEffect(() => {
+    if (isSidebarOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isSidebarOpen])
+
   if (!isSidebarOpen) return null
 
   const handleCheckout = () => {
