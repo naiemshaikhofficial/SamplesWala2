@@ -64,7 +64,11 @@ export function HomePacks({ packs }: { packs: any[] }) {
           variants={item}
           className="group flex flex-col space-y-4"
         >
-          <Link href={`/packs/${pack.slug}`} className="comic-panel aspect-square block group-hover:border-studio-pink transition-all group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[14px_14px_0px_black]">
+          <Link 
+            href={`/packs/${pack.slug}`} 
+            prefetch={false}
+            className="comic-panel aspect-square block group-hover:border-studio-pink transition-all group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[14px_14px_0px_black]"
+          >
             <Image
               src={getOptimizedImageUrl(pack.cover_url, 600, 80)}
               alt={pack.name}
@@ -88,7 +92,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
 
           <div className="space-y-4 px-1">
             <div className="space-y-1">
-              <Link href={`/packs/${pack.slug}`}>
+              <Link href={`/packs/${pack.slug}`} prefetch={false}>
                 <h3 className="text-[14px] font-black uppercase truncate hover:text-studio-neon transition-colors tracking-tighter italic">
                   {pack.name}
                 </h3>

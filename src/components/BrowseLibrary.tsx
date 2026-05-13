@@ -56,7 +56,11 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
           key={pack.id} 
           className="group flex flex-col space-y-4"
         >
-          <Link href={`/packs/${pack.slug}`} className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-pink transition-all group-hover:-translate-y-1">
+          <Link 
+            href={`/packs/${pack.slug}`} 
+            prefetch={false}
+            className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-pink transition-all group-hover:-translate-y-1"
+          >
             <Image
               src={getOptimizedImageUrl(pack.cover_url, 600, 80)}
               alt={pack.name}
@@ -77,7 +81,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
 
           <div className="space-y-4 px-1">
             <div className="space-y-1">
-              <Link href={`/packs/${pack.slug}`}>
+              <Link href={`/packs/${pack.slug}`} prefetch={false}>
                 <h3 className="text-[13px] font-black uppercase truncate hover:text-studio-yellow transition-colors tracking-tight">
                   {pack.name}
                 </h3>
