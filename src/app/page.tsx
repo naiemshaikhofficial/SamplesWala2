@@ -8,7 +8,6 @@ import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { HomePacks } from '@/components/HomePacks'
 import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
-import TrustedBy from '@/components/TrustedBy'
 
 export default async function HomePage() {
   const packs = await getPacks()
@@ -77,9 +76,6 @@ export default async function HomePage() {
           
           </div>
       </section>
-
-      {/* Social Proof Marquee */}
-      <TrustedBy />
 
       {/* Featured Packs */}
       <section className="py-24 container mx-auto px-4">

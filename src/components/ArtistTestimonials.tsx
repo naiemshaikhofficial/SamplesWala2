@@ -2,6 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { Star, Music, ShieldCheck } from 'lucide-react'
+import TrustedBy from './TrustedBy'
 
 const testimonials = [
   {
@@ -29,7 +30,8 @@ const testimonials = [
 
 export function ArtistTestimonials() {
   return (
-    <section className="py-24 container mx-auto px-4">
+    <section className="py-24 bg-black/20 border-t border-white/5">
+      <div className="container mx-auto px-4">
       <div className="text-center mb-16 space-y-4">
         <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic graffiti-text text-white">
           ARTIST REVIEWS
@@ -88,6 +90,10 @@ export function ArtistTestimonials() {
         ))}
       </div>
 
+      </div>
+      <div className="mt-8">
+        <TrustedBy />
+      </div>
     </section>
   )
 }
