@@ -28,18 +28,18 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 md:mb-20">
             <div className="col-span-1 md:col-span-1 space-y-6">
-              <Image 
-                src="/Logo.png" 
-                alt="Samples Wala Logo" 
-                width={180} 
-                height={45} 
+              <Image
+                src="/Logo.png"
+                alt="Samples Wala Logo"
+                width={180}
+                height={45}
                 className="h-9 w-auto grayscale opacity-50"
               />
               <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest leading-relaxed max-w-sm">
                 Premium sound design for the modern producer. Industry standard sample packs, loops, and tools for Indian music production.
               </p>
             </div>
-            
+
             <div className="space-y-6">
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-neon italic">Navigation</h4>
               <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
@@ -89,7 +89,6 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
           </div>
 
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-20 text-[8px] font-black uppercase tracking-[0.4em] text-center md:text-left">
-            <span>&copy; 2026 SAMPLES WALA :: DEFINITIVE_COLLECTION</span>
             <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
               <Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
               <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
@@ -98,9 +97,9 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
             </div>
           </div>
           <div className="mt-12 text-center">
-             <p className="text-[7px] font-bold text-white/5 uppercase tracking-[0.5em] leading-relaxed max-w-2xl mx-auto">
-                Unauthorized duplication, distribution, or resale is a violation of international copyright laws. All files are digitally watermarked for licensee identification.
-             </p>
+            <p className="text-[7px] font-bold text-white/5 uppercase tracking-[0.5em] leading-relaxed max-w-2xl mx-auto">
+              ©Samples Wala 2026. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
