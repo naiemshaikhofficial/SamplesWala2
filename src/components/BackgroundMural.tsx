@@ -7,35 +7,36 @@ export function BackgroundMural() {
   const containerRef = useRef<HTMLDivElement>(null)
   
   // Track global scroll progress
-  const { scrollYProgress } = useScroll()
+  // Track pixel-based scroll for more stability than percentage-based on mobile
+  const { scrollY } = useScroll()
   
-  // Create a smooth spring-based scroll progress
-  // This adds a "gliding" feel to the parallax
-  const smoothProgress = useSpring(scrollYProgress, {
+  // Create a smooth spring-based scroll value
+  const smoothY = useSpring(scrollY, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.01
   })
   
-  // Map smooth progress to a subtle vertical movement
-  const y = useTransform(smoothProgress, [0, 1], ['0%', '10%'])
+  // Map scroll pixel value to a subtle vertical movement (parallax factor 0.1)
+  // This is more robust than scrollYProgress on mobile where height can change
+  const y = useTransform(smoothY, (v) => v * 0.08)
   
   return (
     <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none">
-      {/* 
-         Parallax Container:
-         We use motion.div to move the entire image layer slightly slower than the scroll.
-      */}
       <motion.div 
-        style={{ y }}
-        className="absolute inset-0 w-full h-[120%] -top-[10%]" // Extra height to allow movement
+        style={{ 
+          y,
+          willChange: 'transform',
+          translateZ: 0 
+        }}
+        className="absolute inset-0 w-full h-[140%] -top-[20%]" // More buffer for movement
       >
         <Image
           src="/mural-bg.png"
           alt="Graffiti Background"
           fill
           priority
-          quality={90}
+          quality={85}
           className="object-cover object-center md:object-right-bottom opacity-100" 
         />
       </motion.div>
