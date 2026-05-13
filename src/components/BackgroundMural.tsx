@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 export function BackgroundMural() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -23,6 +23,11 @@ export function BackgroundMural() {
   const speedLinesY = useTransform(smoothY, (v) => v * 0.4)
   const assetsY = useTransform(smoothY, (v) => v * -0.2) // Moves opposite for depth
   
+  const [isClient, setIsClient] = useState(false)
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   return (
     <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-black">
       {/* LAYER 0: The Base Mural (Deepest) */}
@@ -65,7 +70,7 @@ export function BackgroundMural() {
         style={{ y: speedLinesY }}
         className="absolute inset-0 w-full h-[200%] -top-[50%] opacity-10 flex justify-around pointer-events-none"
       >
-        {[...Array(12)].map((_, i) => (
+        {isClient && [...Array(12)].map((_, i) => (
           <div 
             key={i} 
             className="w-[2px] h-full bg-gradient-to-b from-transparent via-studio-yellow to-transparent" 

@@ -57,6 +57,7 @@ export function ArtistTestimonials() {
                     src={t.image}
                     alt={t.name}
                     fill
+                    sizes="(max-width: 768px) 80px, 120px"
                     className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                   />
                 </div>
