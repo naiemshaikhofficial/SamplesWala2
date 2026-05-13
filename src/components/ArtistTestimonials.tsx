@@ -23,7 +23,7 @@ const testimonials = [
     role: "Music Producer",
     image: "/python-artist.jpg",
     pack: "THE BOLLYWOOD",
-    quote: "SAMPLESWALA'S BOLLYWOOD PACK IS THE GOLD STANDARD. THE STRINGS AND PERCUSSION ARE SO AUTHENTIC, THEY BRING THAT CINEMATIC VIBE TO MY TRACKS INSTANTLY."
+    quote: "SAMPLESWALA'S BOLLYWOOD PACK IS THE GOLD STANDARD. THE MELODIES AND PERCUSSION ARE SO AUTHENTIC, THEY BRING THAT CINEMATIC VIBE TO MY TRACKS INSTANTLY."
   }
 ]
 
@@ -39,8 +39,8 @@ export function ArtistTestimonials() {
 
       <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible pb-10 md:pb-0 snap-x snap-mandatory scrollbar-hide max-w-7xl mx-auto -mx-4 px-4 md:px-0 md:mx-auto">
         {testimonials.map((t, i) => (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className="flex-shrink-0 w-[85vw] md:w-auto snap-center bg-studio-charcoal border-4 border-black p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between"
           >
             {/* Decorative Background Icon */}
@@ -51,11 +51,11 @@ export function ArtistTestimonials() {
             <div>
               <div className="flex items-center gap-6 mb-8 relative z-10">
                 <div className="w-16 h-16 md:w-20 md:h-20 relative border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden shrink-0">
-                  <Image 
-                    src={t.image} 
-                    alt={t.name} 
-                    fill 
-                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                  <Image
+                    src={t.image}
+                    alt={t.name}
+                    fill
+                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                   />
                 </div>
                 <div>
