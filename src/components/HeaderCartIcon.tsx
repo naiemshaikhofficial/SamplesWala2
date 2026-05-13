@@ -19,7 +19,7 @@ export function HeaderCartIcon() {
         className="object-contain brightness-0 invert" 
       />
       {itemCount > 0 && (
-        <span className="absolute -top-2 -right-2 bg-studio-yellow text-black text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-in zoom-in">
+        <span className="absolute -top-2 -right-2 bg-studio-yellow text-black text-[9px] font-black w-4 h-4 border-2 border-black flex items-center justify-center animate-in zoom-in rotate-6 shadow-[2px_2px_0px_black]">
           {itemCount}
         </span>
       )}
