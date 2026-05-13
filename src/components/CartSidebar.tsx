@@ -106,29 +106,54 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                     <span className="ml-2 text-[8px] text-white/20 italic tracking-widest font-bold uppercase"> — ADD {3 - items.length} MORE</span>
                   </p>
 
-                  <div className="relative h-3 bg-white/5 border-2 border-black overflow-hidden">
-                    {/* Liquid Fill - Sky Blue Water */}
+                  <div className="relative h-6 bg-white/5 border-2 border-black overflow-hidden rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+                    {/* Liquid Fill - Seamless Water Body */}
                     <div 
-                      className="absolute top-0 left-0 h-full bg-studio-blue transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(0,224,255,0.5)] animate-pulse-sky"
-                      style={{ width: `${(items.length / 3) * 100}%` }}
+                      className="absolute top-0 left-0 h-full transition-all duration-1000 ease-out"
+                      style={{ 
+                        width: `${(items.length / 3) * 100}%`,
+                        background: 'linear-gradient(180deg, #00E0FF 0%, #0077B6 100%)'
+                      }}
                     >
-                      {/* Wave Animation */}
-                      <div className="absolute inset-0 w-[200%] h-full bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.2)_25%,rgba(255,255,255,0.2)_75%,transparent_100%)] animate-wave" />
-                      
-                      {/* Rising Bubbles */}
-                      <div className="absolute inset-0">
-                        <div className="absolute bottom-0 left-[10%] w-1 h-1 bg-white/40 rounded-full animate-bubble" style={{ animationDelay: '0.2s' }} />
-                        <div className="absolute bottom-0 left-[30%] w-1.5 h-1.5 bg-white/30 rounded-full animate-bubble" style={{ animationDelay: '0.7s' }} />
-                        <div className="absolute bottom-0 left-[60%] w-0.5 h-0.5 bg-white/50 rounded-full animate-bubble" style={{ animationDelay: '1.2s' }} />
-                        <div className="absolute bottom-0 left-[85%] w-1.2 h-1.2 bg-white/20 rounded-full animate-bubble" style={{ animationDelay: '1.8s' }} />
+                      {/* Rounded Liquid Front (Seamless Bulb - Background Layer) */}
+                      <div 
+                        className="absolute right-[-12px] top-0 h-full w-10 rounded-full animate-wave-push"
+                        style={{ background: 'linear-gradient(180deg, #00E0FF 0%, #0077B6 100%)' }}
+                      />
+
+                      {/* Flowing Bubbles (Randomized Particles & Buddy Bubbles) */}
+                      <div className="absolute inset-0 overflow-visible z-10">
+                        {/* Main Bubbles */}
+                        <div className="w-2 h-2 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '0.1s', animationDuration: '3.2s', top: '15%' }} />
+                        <div className="w-1.5 h-1.5 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '0.8s', animationDuration: '4.5s', top: '55%' }} />
+                        <div className="w-1 h-1 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '1.5s', animationDuration: '3.8s', top: '75%' }} />
+                        <div className="w-2.2 h-2.2 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '2.2s', animationDuration: '5.2s', top: '25%' }} />
+                        <div className="w-1.2 h-1.2 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '2.9s', animationDuration: '4.1s', top: '65%' }} />
+                        <div className="w-1.8 h-1.8 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '0.4s', animationDuration: '3.5s', top: '40%' }} />
+                        <div className="w-0.8 h-0.8 bg-white border border-white/30 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '1.2s', animationDuration: '4.8s', top: '85%' }} />
+                        <div className="w-1.5 h-1.5 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '1.9s', animationDuration: '3.9s', top: '10%' }} />
+                        <div className="w-2 h-2 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '2.6s', animationDuration: '4.3s', top: '50%' }} />
+                        <div className="w-1.4 h-1.4 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '3.3s', animationDuration: '5.5s', top: '30%' }} />
+
+                        {/* Extra Buddy Bubbles (Tiny & Fast) */}
+                        <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '0.2s', animationDuration: '2.5s', top: '20%' }} />
+                        <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '0.7s', animationDuration: '3.1s', top: '45%' }} />
+                        <div className="w-0.7 h-0.7 bg-white/90 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '1.4s', animationDuration: '2.8s', top: '70%' }} />
+                        <div className="w-0.4 h-0.4 bg-white/70 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '2.1s', animationDuration: '3.4s', top: '12%' }} />
+                        <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '2.8s', animationDuration: '2.9s', top: '62%' }} />
+                        <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '0.5s', animationDuration: '3.2s', top: '38%' }} />
+                        <div className="w-0.7 h-0.7 bg-white/90 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '1.1s', animationDuration: '2.6s', top: '82%' }} />
+                        <div className="w-0.4 h-0.4 bg-white/70 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '1.8s', animationDuration: '3.0s', top: '28%' }} />
+                        <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '2.5s', animationDuration: '2.7s', top: '52%' }} />
+                        <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '3.1s', animationDuration: '3.3s', top: '18%' }} />
                       </div>
+
+                      {/* Liquid Glow Highlight (Very Top) */}
+                      <div className="absolute right-0 top-0 h-full w-6 bg-gradient-to-r from-transparent to-white/20 blur-sm pointer-events-none z-20" />
                     </div>
 
-                    {/* Dividers (Pipe joints) */}
-                    <div className="absolute inset-0 flex justify-evenly pointer-events-none">
-                      <div className="w-[2px] h-full bg-black/40" />
-                      <div className="w-[2px] h-full bg-black/40" />
-                    </div>
+                    {/* Pipe Glossy Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
                   </div>
                 </div>
               ) : (
