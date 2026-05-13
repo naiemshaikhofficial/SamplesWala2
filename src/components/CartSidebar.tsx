@@ -6,25 +6,28 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-export function CartSidebar() {
+export function CartSidebar({ initialUser }: { initialUser?: any }) {
   const { items, removeItem, total, itemCount, isSidebarOpen, setSidebarOpen } = useCart()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<any>(initialUser)
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
-      setUser(currentUser)
+    // Only fetch if we don't have an initial user (safety fallback)
+    if (!initialUser) {
+      const checkUser = async () => {
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        setUser(currentUser)
+      }
+      checkUser()
     }
-    checkUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null)
     })
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [supabase.auth, initialUser])
 
   if (!isSidebarOpen) return null
 

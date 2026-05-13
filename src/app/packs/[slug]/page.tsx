@@ -2,7 +2,7 @@ import React from 'react'
 import { getPackBySlug, getRelatedPacks } from '@/app/browse/actions'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { generatePackStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
 
@@ -35,9 +35,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 async function checkOwnership(packId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await getUser()
   if (!user) return { user: null, owned: false }
+
+  const supabase = await createClient()
 
   // Check vault
   const { data: vaultRecord } = await supabase

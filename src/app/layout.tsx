@@ -17,14 +17,14 @@ import { LayoutWrapper } from "@/components/LayoutWrapper";
 import { ContentProtection } from "@/components/ContentProtection";
 import { CartSidebar } from "@/components/CartSidebar";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import { getUser } from "@/lib/supabase/server";
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getUser();
 
   const organizationLd = {
     "@context": "https://schema.org",
@@ -73,7 +73,7 @@ export default async function RootLayout({
         <ContentProtection />
         <ServiceWorkerRegistration />
         <CartProvider>
-          <CartSidebar />
+          <CartSidebar initialUser={user} />
           <LayoutWrapper user={user}>
             {children}
           </LayoutWrapper>

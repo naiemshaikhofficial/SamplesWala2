@@ -1,7 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 
-export async function createClient() {
+export const createClient = cache(async () => {
   const cookieStore = await cookies()
 
   return createServerClient(
@@ -26,4 +27,9 @@ export async function createClient() {
       },
     }
   )
-}
+})
+
+export const getUser = cache(async () => {
+  const supabase = await createClient()
+  return await supabase.auth.getUser()
+})
