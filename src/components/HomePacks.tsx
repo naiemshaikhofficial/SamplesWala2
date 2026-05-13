@@ -30,12 +30,12 @@ export function HomePacks({ packs }: { packs: any[] }) {
         staggerChildren: 0.1
       }
     }
-  }
+  } as const
 
   const item = {
     hidden: { opacity: 0, y: 30, scale: 0.9 },
     show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 200, damping: 15 } }
-  }
+  } as const
 
   return (
     <motion.div 
