@@ -7,7 +7,7 @@ export function BackgroundMural() {
   const containerRef = useRef<HTMLDivElement>(null)
   
   // Track global scroll progress
-  // Track pixel-based scroll for more stability than percentage-based on mobile
+  // Track pixel-based scroll for more stability
   const { scrollY } = useScroll()
   
   // Create a smooth spring-based scroll value
@@ -17,19 +17,22 @@ export function BackgroundMural() {
     restDelta: 0.01
   })
   
-  // Map scroll pixel value to a subtle vertical movement (parallax factor 0.1)
-  // This is more robust than scrollYProgress on mobile where height can change
-  const y = useTransform(smoothY, (v) => v * 0.08)
+  // Multiple parallax layers with different speeds
+  const muralY = useTransform(smoothY, (v) => v * 0.05)
+  const dotsY = useTransform(smoothY, (v) => v * 0.15)
+  const speedLinesY = useTransform(smoothY, (v) => v * 0.4)
+  const assetsY = useTransform(smoothY, (v) => v * -0.2) // Moves opposite for depth
   
   return (
-    <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none">
+    <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-black">
+      {/* LAYER 0: The Base Mural (Deepest) */}
       <motion.div 
         style={{ 
-          y,
+          y: muralY,
           willChange: 'transform',
           translateZ: 0 
         }}
-        className="absolute inset-0 w-full h-[140%] -top-[20%]" // More buffer for movement
+        className="absolute inset-0 w-full h-[140%] -top-[20%]"
       >
         <Image
           src="/mural-bg.png"
@@ -37,25 +40,69 @@ export function BackgroundMural() {
           fill
           priority
           quality={85}
-          className="object-cover object-center md:object-right-bottom opacity-100" 
+          className="object-cover object-center md:object-right-bottom opacity-60" 
         />
       </motion.div>
+
+      {/* LAYER 1: Comic Halftone Dots Overlay */}
+      <motion.div 
+        style={{ y: dotsY }}
+        className="absolute inset-0 w-full h-[150%] -top-[25%] opacity-[0.15] mix-blend-overlay"
+        dangerouslySetInnerHTML={{ __html: `
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="halftone" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                <circle cx="3" cy="3" r="1.5" fill="white" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#halftone)" />
+          </svg>
+        ` }}
+      />
+
+      {/* LAYER 2: Floating Comic Speed Lines */}
+      <motion.div 
+        style={{ y: speedLinesY }}
+        className="absolute inset-0 w-full h-[200%] -top-[50%] opacity-10 flex justify-around pointer-events-none"
+      >
+        {[...Array(12)].map((_, i) => (
+          <div 
+            key={i} 
+            className="w-[2px] h-full bg-gradient-to-b from-transparent via-studio-yellow to-transparent" 
+            style={{ 
+              marginLeft: `${Math.random() * 100}px`,
+              opacity: Math.random() * 0.5 + 0.2,
+              transform: `rotate(${Math.random() * 10 - 5}deg)`
+            }}
+          />
+        ))}
+      </motion.div>
+
+      {/* LAYER 3: Floating Musical Assets (Notes, etc.) */}
+      <motion.div 
+        style={{ y: assetsY }}
+        className="absolute inset-0 w-full h-[120%] -top-[10%] flex flex-wrap justify-between p-20 opacity-20"
+      >
+        <div className="text-studio-pink animate-bounce" style={{ animationDuration: '3s' }}>
+          <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div className="text-studio-blue mt-96 animate-pulse" style={{ animationDuration: '5s' }}>
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l8.16 14.91L12 21l-8.16-3.09L12 3z"/></svg>
+        </div>
+        <div className="text-studio-neon ml-auto mt-40 rotate-12">
+          <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="5"/></svg>
+        </div>
+      </motion.div>
+
+      {/* LAYER 4: Dynamic Overlays & Vignettes */}
+      <div className="absolute inset-0 bg-black/40 mix-blend-multiply" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-60" />
       
-      {/* 
-          Master Overlay:
-          - 80% on mobile: Let the graffiti texture breathe
-          - 92% on desktop: Cleaner, more professional look for wide layouts
-      */}
-      <div className="absolute inset-0 bg-black/80 md:bg-black/92 transition-all duration-700" />
+      {/* Comic Radial Gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
       
-      {/* Radial Gradient for depth - focusing light in the center-top */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(255,255,255,0.05),transparent_70%)]" />
-      
-      {/* Bottom Vignette for content legibility (especially footer area) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-      
-      {/* Subtle Grain/Noise overlay for that industrial "street" feel */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      {/* Subtle Scanner Line Effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
     </div>
   )
 }
