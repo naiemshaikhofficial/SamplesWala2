@@ -20,6 +20,15 @@ const blogPosts = [
     image: "/graffiti-bg.png"
   },
   {
+    slug: "how-to-make-bollywood-drill-the-ultimate-guide",
+    title: "HOW TO MAKE BOLLYWOOD DRILL: THE ULTIMATE GUIDE",
+    excerpt: "The fusion of UK Drill and Indian melodies is taking over. Master the art of sliding 808s and complex Tabla rhythms.",
+    date: "May 13, 2026",
+    author: "Samples Wala Team",
+    category: "Tutorials",
+    image: "/mural-bg.png"
+  },
+  {
     slug: "how-to-produce-bollywood-style-beats-complete-guide",
     title: "HOW TO PRODUCE BOLLYWOOD STYLE BEATS: A COMPLETE GUIDE",
     excerpt: "Learn the secret arrangements, instrument layering, and percussion techniques to create chart-topping Bollywood hits.",

@@ -39,6 +39,32 @@ const blogPosts: Record<string, any> = {
       <p>Explore these packs today in our <a href="/browse" class="text-studio-neon underline">Browse section</a> and take your production to the next level.</p>
     `
   },
+  "how-to-make-bollywood-drill-the-ultimate-guide": {
+    title: "HOW TO MAKE BOLLYWOOD DRILL: THE ULTIMATE GUIDE",
+    description: "Learn how to fuse UK/NY Drill with traditional Indian melodies and percussion. The definitive guide to Bollywood Drill.",
+    date: "May 13, 2026",
+    author: "Samples Wala Team",
+    category: "Tutorials",
+    image: "/mural-bg.png",
+    content: `
+      <p>The sound of "Drill" has gone global, but nothing sounds quite like its Indian counterpart. Bollywood Drill is a genre-defying fusion that combines the aggressive energy of UK/NY Drill with the rich, melodic heritage of India.</p>
+      
+      <h2>1. The Rhythmic Foundation: Beyond the Hi-Hats</h2>
+      <p>In standard Drill, the hi-hats provide the bounce. In Bollywood Drill, we replace or layer those hats with <b>Tabla Takis</b> or <b>Dholak Chantis</b>. This adds a "swing" that is uniquely Indian.</p>
+      
+      <h2>2. The Melodic Hook: Sitar & Sarangi</h2>
+      <p>Forget the dark piano loops for a second. Try using a minor-scale <b>Sitar</b> loop or a haunting <b>Sarangi</b> melody. When these traditional sounds are chopped and pitched down, they create an atmosphere that is both gritty and sophisticated.</p>
+      
+      <h2>3. The 808s: Sliding with Purpose</h2>
+      <p>The 808s in Drill are iconic. For the Bollywood version, ensure your 808 slides complement the melodic scale of your Indian instrument. Using a "Phrygian Dominant" scale often works best for that Middle-Eastern/Indian cinematic feel.</p>
+      
+      <blockquote>
+        "The secret is in the contrast—the hardness of the Drill beat vs. the soul of the Indian melody."
+      </blockquote>
+
+      <p>Ready to start? Check out our <a href="/browse?q=drill" class="text-studio-neon underline">Drill-ready Indian samples</a> and start cooking!</p>
+    `
+  },
   "how-to-produce-bollywood-style-beats-complete-guide": {
     title: "HOW TO PRODUCE BOLLYWOOD STYLE BEATS: A COMPLETE GUIDE",
     description: "Learn the secret arrangements, instrument layering, and percussion techniques to create chart-topping Bollywood hits.",

@@ -8,7 +8,7 @@ import { generatePageMetadata } from '@/lib/seo/metadata'
 export const metadata = generatePageMetadata({
   title: 'Indian Sample Packs Library | Professional Sound Kits',
   description: 'Download the best Indian sample packs, Bollywood loops, and ethnic sound kits. Over 50+ professional musicians contributing 100% royalty-free sounds for your hits.',
-  keywords: ['Indian sample packs', 'Bollywood loops', 'hip hop kits', 'music library', 'percussion samples', 'VST plugins', 'music production tools', 'Ableton live packs', 'FL Studio loops', 'tabla loops', 'sitar samples'],
+  keywords: ['Indian sample packs', 'Bollywood loops', 'hip hop kits', 'music library', 'percussion samples', 'VST plugins', 'music production tools', 'Ableton live packs', 'FL Studio loops', 'tabla loops', 'sitar samples', 'Bhojpuri vocal samples', 'Dholak loops', 'Tabla loops for FL Studio', 'Sitar samples for Ableton', 'Indian vocals'],
   path: '/browse'
 })
 
