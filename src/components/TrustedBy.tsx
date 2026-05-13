@@ -1,12 +1,16 @@
 import Image from 'next/image';
 
 const labels = [
-  { name: 'Sony Music', logo: '/logos/sony.png' },
-  { name: 'T-Series', logo: '/logos/tseries.png' },
-  { name: 'Desi Music Factory', logo: '/logos/desi.png' },
-  { name: 'Tips', logo: '/logos/tips.png' },
-  { name: 'Saregama', logo: '/logos/saregama.png' },
-  { name: 'White Hill', logo: '/logos/hill.png' },
+  { name: 'Sony Music', logo: '/logos/sony.png', scale: 'scale-110' },
+  { name: 'T-Series', logo: '/logos/tseries.png', scale: 'scale-90' },
+  { name: 'Zee Music', logo: '/logos/zee.png', scale: 'scale-150' },
+  { name: 'Desi Music Factory', logo: '/logos/desi.png', scale: 'scale-110' },
+  { name: 'Tips', logo: '/logos/tips.png', scale: 'scale-125' },
+  { name: 'Saregama', logo: '/logos/saregama.png', scale: 'scale-110' },
+  { name: 'White Hill', logo: '/logos/hill.png', scale: 'scale-110' },
+  { name: 'Speed Records', logo: '/logos/speed.png', scale: 'scale-110' },
+  { name: 'Aditya Music', logo: '/logos/aditya.png', scale: 'scale-110' },
+
 ];
 
 export default function TrustedBy() {
@@ -22,26 +26,28 @@ export default function TrustedBy() {
       </div>
 
       <div className="relative flex overflow-hidden group">
-        <div className="flex space-x-16 md:space-x-32 animate-marquee whitespace-nowrap py-4 items-center">
-          {/* Double the labels for seamless loop */}
-          {[...labels, ...labels, ...labels].map((label, index) => (
+        <div className="flex animate-marquee whitespace-nowrap py-4 items-center">
+          {/* Use 2 sets for perfect -50% loop with translateX */}
+          {[...labels, ...labels].map((label, index) => (
             <div
               key={index}
-              className="flex items-center justify-center transition-all duration-500 w-32 md:w-48 h-10 md:h-14 relative group/logo"
+              className="flex items-center justify-center transition-all duration-500 w-32 md:w-44 h-16 md:h-20 relative group/logo px-6 md:px-12"
             >
-              <Image
-                src={label.logo}
-                alt={label.name}
-                fill
-                className="object-contain transition-all duration-500"
-              />
+              <div className="relative w-full h-full">
+                <Image
+                  src={label.logo}
+                  alt={label.name}
+                  fill
+                  className={`object-contain transition-all duration-500 group-hover/logo:scale-125 ${label.scale || ''}`}
+                />
+              </div>
             </div>
           ))}
         </div>
 
         {/* Gradient overlays for smooth fade edges */}
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent z-20 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white to-transparent z-20 pointer-events-none" />
       </div>
     </div>
   );
