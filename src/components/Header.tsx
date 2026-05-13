@@ -49,15 +49,25 @@ export function Header({ user }: { user: any }) {
   return (
     <header className={`fixed top-0 left-0 right-0 z-[70] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)]`}>
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full">
-        <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsMenuOpen(false)}>
-          <Image
-            src="/Logo.png"
-            alt="Samples Wala Logo"
-            width={300}
-            height={100}
-            priority
-            className="h-16 md:h-16 w-auto transition-all group-hover:drop-shadow-[0_0_12px_rgba(255,200,0,0.6)]"
-          />
+        <Link href="/" className="flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+          <motion.div
+            whileHover={{ 
+              scale: 1.1, 
+              rotate: [0, -2, 2, -2, 0],
+              transition: { duration: 0.3 } 
+            }}
+            whileTap={{ scale: 0.9 }}
+            className="relative"
+          >
+            <Image
+              src="/Logo.png"
+              alt="Samples Wala Logo"
+              width={300}
+              height={100}
+              priority
+              className="h-12 md:h-16 w-auto transition-all"
+            />
+          </motion.div>
         </Link>
 
         {/* Desktop Nav */}
