@@ -67,6 +67,7 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSearchLd) }}
         />
+        <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
       </head>
       <body className="antialiased min-h-screen flex flex-col text-white">
         <BackgroundMural />
