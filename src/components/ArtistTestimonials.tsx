@@ -13,14 +13,14 @@ const testimonials = [
   },
   {
     name: "Deepak Poojary",
-    role: "Professional DJ",
+    role: "DJ",
     image: "/deepak-poojary.jpg",
     pack: "THE SOUTH",
     quote: "AS A DJ, FINDING AUTHENTIC SOUTH INDIAN SAMPLES THAT ACTUALLY HIT IN THE CLUB IS HARD. THIS PACK IS A GAME CHANGER. THE PERCUSSION IS SO CRISP AND ENERGETIC."
   },
   {
     name: "Python",
-    role: "Music Producer",
+    role: "Producer",
     image: "/python-artist.jpg",
     pack: "THE BOLLYWOOD",
     quote: "SAMPLESWALA'S BOLLYWOOD PACK IS THE GOLD STANDARD. THE MELODIES AND PERCUSSION ARE SO AUTHENTIC, THEY BRING THAT CINEMATIC VIBE TO MY TRACKS INSTANTLY."
