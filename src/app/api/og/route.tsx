@@ -24,59 +24,58 @@ export async function GET(req: NextRequest) {
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: '#000',
-            backgroundImage: 'radial-gradient(circle at 25px 25px, #ffffff05 2%, transparent 0%), radial-gradient(circle at 75px 75px, #ffffff05 2%, transparent 0%)',
-            backgroundSize: '100px 100px',
+            backgroundImage: 'radial-gradient(circle at 25px 25px, #ffffff08 2%, transparent 0%), radial-gradient(circle at 75px 75px, #ffffff08 2%, transparent 0%)',
+            backgroundSize: '80px 80px',
             position: 'relative',
-            padding: '40px',
+            padding: '60px',
+            border: '20px solid #000',
           }}
         >
-          {/* Neon Border */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '20px',
-              left: '20px',
-              right: '20px',
-              bottom: '20px',
-              border: '2px solid rgba(0, 255, 159, 0.2)',
-              display: 'flex',
-            }}
-          />
-
+          {/* Main Container */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'row',
               alignItems: 'center',
               width: '100%',
-              gap: '40px',
+              height: '100%',
+              backgroundColor: '#000',
+              border: '8px solid #fff',
+              boxShadow: '20px 20px 0px #00ff9f',
+              padding: '40px',
+              gap: '60px',
               zIndex: 10,
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
-            {/* Pack Cover */}
-            {coverUrl && (
-              <div
-                style={{
-                  display: 'flex',
-                  width: '400px',
-                  height: '400px',
-                  borderRadius: '4px',
-                  overflow: 'hidden',
-                  border: '4px solid #000',
-                  boxShadow: '12px 12px 0px rgba(0, 0, 0, 1), 12px 12px 0px 2px rgba(255, 200, 0, 0.3)',
-                }}
-              >
-                <img
-                  src={coverUrl}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                  alt="cover"
-                />
-              </div>
-            )}
+            {/* Background Texture */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.1, display: 'flex' }}>
+               <div style={{ width: '100%', height: '100%', background: 'repeating-linear-gradient(45deg, #fff, #fff 1px, transparent 1px, transparent 10px)' }} />
+            </div>
+
+            {/* Pack Cover / Logo Area */}
+            <div
+              style={{
+                display: 'flex',
+                width: '380px',
+                height: '380px',
+                backgroundColor: '#00ff9f',
+                border: '10px solid #000',
+                boxShadow: '15px 15px 0px #fff',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              {coverUrl ? (
+                <img src={coverUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="cover" />
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', padding: '20px' }}>
+                   <div style={{ fontSize: '120px', fontWeight: '900', color: '#000' }}>SW</div>
+                   <div style={{ fontSize: '20px', fontWeight: 'black', color: '#000', letterSpacing: '0.5em', marginTop: '-20px' }}>NOISE</div>
+                </div>
+              )}
+            </div>
 
             {/* Content Area */}
             <div
@@ -90,15 +89,17 @@ export async function GET(req: NextRequest) {
               <div
                 style={{
                   display: 'flex',
-                  backgroundColor: '#00ff9f',
+                  backgroundColor: '#fff',
                   color: '#000',
-                  padding: '4px 12px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  letterSpacing: '0.2em',
+                  padding: '8px 20px',
+                  fontSize: '24px',
+                  fontWeight: '900',
+                  letterSpacing: '0.3em',
                   width: 'fit-content',
-                  marginBottom: '20px',
+                  marginBottom: '30px',
                   textTransform: 'uppercase',
+                  transform: 'rotate(-2deg)',
+                  boxShadow: '6px 6px 0px #00ff9f',
                 }}
               >
                 {category}
@@ -106,79 +107,47 @@ export async function GET(req: NextRequest) {
 
               <h1
                 style={{
-                  fontSize: '72px',
+                  fontSize: '100px',
                   color: '#fff',
-                  fontWeight: 'black',
+                  fontWeight: '900',
                   textTransform: 'uppercase',
-                  letterSpacing: '-0.05em',
-                  lineHeight: 0.9,
-                  marginBottom: '20px',
+                  letterSpacing: '-0.06em',
+                  lineHeight: 0.85,
+                  marginBottom: '30px',
                   display: 'flex',
                   flexDirection: 'column',
+                  fontStyle: 'italic',
                 }}
               >
-                {title}
+                {title.split(' ').map((word, i) => (
+                  <span key={i} style={{ color: i % 2 === 0 ? '#fff' : '#00ff9f' }}>{word}</span>
+                ))}
               </h1>
 
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '20px',
-                }}
-              >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
                 {price && (
                   <div
                     style={{
-                      fontSize: '32px',
-                      color: '#FFC800',
-                      fontWeight: 'bold',
-                      fontStyle: 'italic',
+                      fontSize: '48px',
+                      backgroundColor: '#FFC800',
+                      color: '#000',
+                      padding: '4px 20px',
+                      fontWeight: '900',
+                      boxShadow: '8px 8px 0px #fff',
                     }}
                   >
                     ₹{price}
                   </div>
                 )}
-                
-                <div
-                  style={{
-                    display: 'flex',
-                    height: '2px',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    flex: 1,
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  marginTop: '40px',
-                  fontSize: '18px',
-                  color: 'rgba(255,255,255,0.4)',
-                  fontWeight: 'bold',
-                  letterSpacing: '0.4em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                SAMPLESWALA.COM // RAW SOUNDS
+                <div style={{ fontSize: '24px', color: '#00ff9f', fontWeight: 'bold', letterSpacing: '0.4em' }}>
+                   SAMPLESWALA.COM
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Accent Graffiti Marks */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '40px',
-              right: '40px',
-              fontSize: '120px',
-              color: 'rgba(255, 255, 255, 0.03)',
-              fontWeight: '900',
-              fontStyle: 'italic',
-              zIndex: 0,
-            }}
-          >
+          {/* Floating Accents */}
+          <div style={{ position: 'absolute', top: '40px', right: '40px', color: '#fff', fontSize: '100px', fontWeight: '900', opacity: 0.1, fontStyle: 'italic' }}>
             RAW
           </div>
         </div>

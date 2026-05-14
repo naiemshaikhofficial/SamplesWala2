@@ -75,18 +75,16 @@ export function generatePageMetadata({
   const siteTitle = "Samples Wala"
   const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`
   
-  // Ensure absolute image URL for social media
-  // Use dynamic OG generator for branded consistency if it's a relative path
-  let absoluteImageUrl = image;
+  // Use Vercel's Dynamic OG API by default
+  let imageUrl = image;
   if (!image.startsWith('http')) {
-    if (image === '/og-image.jpg' || image === 'og-image.jpg') {
-      const ogUrl = new URL('https://sampleswala.com/api/og')
-      ogUrl.searchParams.set('title', title)
-      ogUrl.searchParams.set('category', 'Premium Samples')
-      absoluteImageUrl = ogUrl.toString()
-    } else {
-      absoluteImageUrl = `https://sampleswala.com${image.startsWith('/') ? '' : '/'}${image}`
-    }
+    const ogUrl = new URL('/api/og', 'https://sampleswala.com')
+    ogUrl.searchParams.set('title', title)
+    ogUrl.searchParams.set('category', 'Premium Samples')
+    
+    // If it's a specific image path but not absolute, we could pass it to the OG API
+    // but for now, let's just use the dynamic generator for everything that's not a full URL
+    imageUrl = ogUrl.pathname + ogUrl.search
   }
 
   return {
@@ -97,7 +95,7 @@ export function generatePageMetadata({
     openGraph: {
       title: fullTitle,
       description,
-      images: [{ url: absoluteImageUrl }],
+      images: [{ url: imageUrl }],
       type: 'website',
       siteName: siteTitle,
     },
@@ -105,7 +103,7 @@ export function generatePageMetadata({
       card: 'summary_large_image',
       title: fullTitle,
       description,
-      images: [absoluteImageUrl],
+      images: [imageUrl],
       creator: '@sampleswala',
     },
     robots: {
