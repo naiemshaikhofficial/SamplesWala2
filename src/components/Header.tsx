@@ -115,7 +115,7 @@ export function Header({ user }: { user: any }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-0 top-20 bg-black z-[60] flex flex-col p-8 space-y-8 overflow-y-auto border-t-4 border-black"
+            className="absolute top-full left-0 right-0 h-[calc(100vh-80px)] bg-black z-[60] flex flex-col p-8 space-y-8 overflow-y-auto border-t-4 border-black"
           >
             {/* Comic Accent */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:16px_16px]" />
