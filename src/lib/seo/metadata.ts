@@ -76,9 +76,18 @@ export function generatePageMetadata({
   const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`
   
   // Ensure absolute image URL for social media
-  const absoluteImageUrl = image.startsWith('http') 
-    ? image 
-    : `https://sampleswala.com${image.startsWith('/') ? '' : '/'}${image}`
+  // Use dynamic OG generator for branded consistency if it's a relative path
+  let absoluteImageUrl = image;
+  if (!image.startsWith('http')) {
+    if (image === '/og-image.jpg' || image === 'og-image.jpg') {
+      const ogUrl = new URL('https://sampleswala.com/api/og')
+      ogUrl.searchParams.set('title', title)
+      ogUrl.searchParams.set('category', 'Premium Samples')
+      absoluteImageUrl = ogUrl.toString()
+    } else {
+      absoluteImageUrl = `https://sampleswala.com${image.startsWith('/') ? '' : '/'}${image}`
+    }
+  }
 
   return {
     title: fullTitle,
@@ -143,10 +152,22 @@ export function generatePackMetadata(pack: any): Metadata {
     'high quality wav'
   ]
 
+  // Construct Dynamic OG Image URL
+  const ogUrl = new URL('https://sampleswala.com/api/og')
+  ogUrl.searchParams.set('title', pack.name)
+  ogUrl.searchParams.set('category', categoryName)
+  ogUrl.searchParams.set('price', pack.price_inr?.toString() || '')
+  if (pack.cover_url) {
+    const fullCoverUrl = pack.cover_url.startsWith('http') 
+      ? pack.cover_url 
+      : `https://sampleswala.com${pack.cover_url}`
+    ogUrl.searchParams.set('image', fullCoverUrl)
+  }
+
   return generatePageMetadata({
     title: `${pack.name} - Premium ${categoryName} Pack`,
-    description: description.slice(0, 160), // Keep description under 160 chars for SEO
-    image: pack.cover_url || '/og-image.jpg',
+    description: description.slice(0, 160),
+    image: ogUrl.toString(),
     keywords,
     path: `/packs/${pack.slug}`
   })
