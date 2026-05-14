@@ -97,18 +97,20 @@ export function ArtistTestimonials() {
                 <ShieldCheck size={10} />
                 <span className="text-[8px] font-black uppercase tracking-widest">Verified</span>
               </div>
-              <div className="flex items-center gap-3">
-                {t.youtube && (
-                  <Link href={t.youtube} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
-                    <Youtube size={12} />
-                  </Link>
-                )}
-                {t.instagram && (
-                  <Link href={t.instagram} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
-                    <Instagram size={12} />
-                  </Link>
-                )}
-                <span className="text-[9px] font-black text-studio-yellow uppercase italic comic-text">{t.pack}</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  {t.youtube && (
+                    <Link href={t.youtube} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
+                      <Youtube size={12} />
+                    </Link>
+                  )}
+                  {t.instagram && (
+                    <Link href={t.instagram} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
+                      <Instagram size={12} />
+                    </Link>
+                  )}
+                </div>
+                <span className="text-[9px] font-black text-studio-yellow uppercase italic comic-text ml-1">{t.pack}</span>
               </div>
             </div>
           </div>
