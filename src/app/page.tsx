@@ -9,6 +9,7 @@ import { HomePacks } from '@/components/HomePacks'
 import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
 
+
 export default async function HomePage() {
   const packs = await getPacks()
 
@@ -24,7 +25,7 @@ export default async function HomePage() {
           <div className="space-y-6 md:space-y-8 text-center lg:text-left relative">
             {/* Splatter Backdrop */}
             <div className="splatter-effect bg-studio-pink/30 -top-10 -left-10 animate-pulse" />
-            
+
             <div className="inline-block px-4 py-1 bg-studio-pink text-white font-black uppercase text-[10px] tracking-[0.3em] jagged-border mb-4 rotate-[-2deg]">
               OFFICIALLY LAUNCHED!
             </div>
@@ -36,13 +37,22 @@ export default async function HomePage() {
             <p className="text-xs md:text-lg text-white/60 max-w-xl mx-auto lg:mx-0 uppercase font-bold tracking-widest leading-relaxed border-l-4 border-studio-blue pl-4">
               Premium Indian sample packs, presets & plugin sounds. <br className="hidden md:block" /> Built for the creative community. 100% Royalty Free.
             </p>
-            
+
             <div className="flex flex-col gap-6 pt-2 md:pt-4">
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                <div className="px-4 py-1 bg-studio-yellow text-black font-black uppercase text-[10px] tracking-widest jagged-border -rotate-3">
+                  FOR ARTIST BY ARTIST
+                </div>
+                <div className="px-4 py-1 bg-studio-blue text-white font-black uppercase text-[10px] tracking-widest jagged-border rotate-2">
+                  MADE IN BHARAT 👑
+                </div>
+              </div>
+
               <HeroSearch />
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
-                <Link 
-                  href="/browse" 
+                <Link
+                  href="/browse"
                   className="w-full sm:w-auto h-14 px-12 bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-studio-neon transition-all border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                 >
                   BROWSE ALL PACKS
@@ -54,7 +64,7 @@ export default async function HomePage() {
           {/* Hero Packs Showcase */}
           <div className="relative h-[500px] hidden lg:flex items-center justify-center">
             {packs.slice(0, 3).map((pack: any, index: number) => (
-              <div 
+              <div
                 key={pack.id}
                 className="absolute transition-all duration-700 hover:z-50 hover:scale-110 cursor-pointer group"
                 style={{
@@ -63,26 +73,26 @@ export default async function HomePage() {
                 }}
               >
                 <div className="w-64 aspect-square relative border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-all group-hover:border-studio-pink group-hover:-translate-y-4">
-                   <Image 
-                     src={pack.cover_url || '/placeholder.jpg'} 
-                     alt={pack.name} 
-                     fill 
-                     sizes="256px"
-                     className="object-cover transition-all duration-500"
-                   />
-                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-40 group-hover:opacity-0 transition-opacity" />
-                   <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                      <Link href={`/packs/${pack.slug}`} className="block w-full py-3 bg-white text-black text-[10px] font-black uppercase text-center tracking-widest border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)]">
-                        GET THIS PACK
-                      </Link>
-                   </div>
+                  <Image
+                    src={pack.cover_url || '/placeholder.jpg'}
+                    alt={pack.name}
+                    fill
+                    sizes="256px"
+                    className="object-cover transition-all duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-40 group-hover:opacity-0 transition-opacity" />
+                  <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+                    <Link href={`/packs/${pack.slug}`} className="block w-full py-3 bg-white text-black text-[10px] font-black uppercase text-center tracking-widest border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)]">
+                      GET THIS PACK
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
 
           </div>
-          
-          </div>
+
+        </div>
       </section>
 
       {/* Featured Packs */}
@@ -105,7 +115,7 @@ export default async function HomePage() {
       {/* Trust Section */}
       <section className="py-24 bg-black/40 border-y border-white/5 relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-neon/[0.02] blur-[120px] -z-10" />
-        
+
         <div className="container mx-auto px-4 space-y-16">
           <div className="text-center space-y-4 relative">
             <div className="splatter-effect bg-studio-blue/20 -top-10 left-1/2 -translate-x-1/2" />
@@ -116,30 +126,30 @@ export default async function HomePage() {
           </div>
 
           <div className="flex flex-row md:grid md:grid-cols-3 gap-3 md:gap-12">
-            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-charcoal/50 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
-              <div className="h-8 w-8 md:h-12 md:w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-neon/20">
-                 <ShieldCheck className="text-studio-neon" size={16} />
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-pink border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
+              <div className="h-8 w-8 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[3px_3px_0px_black]">
+                <ShieldCheck className="text-black" size={16} />
               </div>
-              <h3 className="text-[8px] md:text-sm font-black uppercase tracking-widest text-white">Royalty Free</h3>
-              <p className="hidden md:block text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+              <h3 className="text-[10px] md:text-lg font-black uppercase tracking-widest text-black">Royalty Free</h3>
+              <p className="hidden md:block text-[11px] text-black font-bold uppercase leading-relaxed tracking-[0.1em]">
                 All sounds are 100% royalty-free for commercial use. Keep all your royalties.
               </p>
             </div>
-            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-charcoal/50 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
-              <div className="h-8 w-8 md:h-12 md:w-12 bg-studio-yellow/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-yellow/20">
-                 <Zap className="text-studio-yellow" size={16} />
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-yellow border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
+              <div className="h-8 w-8 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[3px_3px_0px_black]">
+                <Zap className="text-black" size={16} />
               </div>
-              <h3 className="text-[8px] md:text-sm font-black uppercase tracking-widest text-white">Instant</h3>
-              <p className="hidden md:block text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+              <h3 className="text-[10px] md:text-lg font-black uppercase tracking-widest text-black">Instant</h3>
+              <p className="hidden md:block text-[11px] text-black font-bold uppercase leading-relaxed tracking-[0.1em]">
                 Digital delivery immediately after purchase. Start creating in seconds.
               </p>
             </div>
-            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-charcoal/50 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all">
-              <div className="h-8 w-8 md:h-12 md:w-12 bg-studio-neon/10 flex items-center justify-center rounded-sm mx-auto md:mx-0 border border-studio-neon/20">
-                 <Music className="text-studio-neon" size={16} />
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-blue border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
+              <div className="h-8 w-8 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[3px_3px_0px_black]">
+                <Music className="text-black" size={16} />
               </div>
-              <h3 className="text-[8px] md:text-sm font-black uppercase tracking-widest text-white">High Quality</h3>
-              <p className="hidden md:block text-[10px] text-white/40 font-bold uppercase leading-relaxed tracking-[0.2em]">
+              <h3 className="text-[10px] md:text-lg font-black uppercase tracking-widest text-black">High Quality</h3>
+              <p className="hidden md:block text-[11px] text-black font-bold uppercase leading-relaxed tracking-[0.1em]">
                 Professional audio files made for making hits and great music.
               </p>
             </div>
@@ -150,7 +160,6 @@ export default async function HomePage() {
 
         </div>
       </section>
-
 
     </div>
   )

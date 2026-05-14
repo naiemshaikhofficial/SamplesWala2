@@ -35,6 +35,13 @@ export function BackgroundMural() {
 
   return (
     <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-black">
+      {/* LAYER -1: Dynamic Color Splatters (Deepest Color Wash) */}
+      <div className="absolute inset-0 opacity-25 blur-[120px] pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-studio-pink rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-studio-blue rounded-full" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-[30%] right-[-5%] w-[40%] h-[40%] bg-studio-purple rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-[20%] left-[-5%] w-[45%] h-[45%] bg-studio-yellow rounded-full" style={{ animationDelay: '1.5s' }} />
+      </div>
       {/* LAYER 0: The Base Mural (Deepest) */}
       <motion.div 
         style={{ 
@@ -141,6 +148,30 @@ export function BackgroundMural() {
           <span className="text-6xl md:text-[8rem] font-black italic">FIRE</span>
         </div>
       </motion.div>
+
+      {/* LAYER 5.5: Hand-Drawn Comic Doodles (Stars, Crowns) */}
+      {isClient && (
+        <div className="absolute inset-0 opacity-[0.07] pointer-events-none overflow-hidden">
+          {/* Stars */}
+          <div className="absolute top-[15%] left-[20%] rotate-12 text-white">
+             <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L14.39 8.26H22L15.81 12.74L18.19 20L12 15.52L5.81 20L8.19 12.74L2 8.26H9.61L12 1Z"/></svg>
+          </div>
+          <div className="absolute top-[60%] right-[15%] -rotate-12 text-studio-yellow">
+             <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L14.39 8.26H22L15.81 12.74L18.19 20L12 15.52L5.81 20L8.19 12.74L2 8.26H9.61L12 1Z"/></svg>
+          </div>
+          <div className="absolute bottom-[10%] left-[40%] rotate-45 text-studio-pink">
+             <svg width="50" height="50" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L14.39 8.26H22L15.81 12.74L18.19 20L12 15.52L5.81 20L8.19 12.74L2 8.26H9.61L12 1Z"/></svg>
+          </div>
+
+          {/* Crowns */}
+          <div className="absolute top-[40%] left-[8%] -rotate-12 text-studio-blue">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.55 18.55 20 18 20H6C5.45 20 5 19.55 5 19V18H19V19Z"/></svg>
+          </div>
+          <div className="absolute top-[8%] right-[30%] rotate-12 text-white">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.55 18.55 20 18 20H6C5.45 20 5 19.55 5 19V18H19V19Z"/></svg>
+          </div>
+        </div>
+      )}
 
       {/* LAYER 6: Dynamic Overlays & Vignettes */}
       <div className="absolute inset-0 bg-black/40 mix-blend-multiply" />
