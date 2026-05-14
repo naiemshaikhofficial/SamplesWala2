@@ -40,7 +40,7 @@ const testimonials = [
 
 export function ArtistTestimonials() {
   return (
-    <section className="py-24 bg-black/20 border-t border-white/5">
+    <section className="pt-24 pb-20 bg-black/20 border-t border-white/5">
       <div className="container mx-auto px-4">
       <div className="text-center mb-16 space-y-4 relative">
         {/* Splatter Accents */}
@@ -53,11 +53,11 @@ export function ArtistTestimonials() {
         <div className="h-2 bg-studio-yellow w-32 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
       </div>
 
-      <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible pb-10 md:pb-0 snap-x snap-mandatory scrollbar-hide max-w-7xl mx-auto -mx-4 px-4 md:px-0 md:mx-auto">
+      <div className="flex md:grid md:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-x-visible pb-8 md:pb-0 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-auto max-w-7xl">
         {testimonials.map((t, i) => (
           <div
             key={i}
-            className="flex-shrink-0 w-[85vw] md:w-auto snap-center bg-studio-charcoal border-4 border-black p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between"
+            className="flex-shrink-0 w-[80vw] sm:w-[45vw] md:w-auto aspect-square snap-center bg-studio-charcoal border-4 border-black p-4 md:p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between"
           >
             {/* Decorative Background Icon */}
             <div className="absolute -right-4 -bottom-4 opacity-[0.03] text-white pointer-events-none">
@@ -65,19 +65,19 @@ export function ArtistTestimonials() {
             </div>
 
             <div>
-              <div className="flex items-center gap-6 mb-8 relative z-10">
-                <div className="w-16 h-16 md:w-20 md:h-20 relative border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden shrink-0">
+              <div className="flex items-center gap-4 mb-4 relative z-10">
+                <div className="w-12 h-12 md:w-14 md:h-14 relative border-2 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] overflow-hidden shrink-0">
                   <Image
                     src={t.image}
                     alt={t.name}
                     fill
-                    sizes="(max-width: 768px) 80px, 120px"
+                    sizes="(max-width: 768px) 48px, 64px"
                     className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                   />
                 </div>
                 <div>
-                  <p className="text-xl md:text-2xl font-black text-white uppercase italic tracking-tighter">{t.name}</p>
-                  <p className="text-[9px] md:text-[10px] text-studio-neon font-bold uppercase tracking-[0.3em]">{t.role}</p>
+                  <p className="text-base md:text-lg font-black text-white uppercase italic tracking-tighter leading-tight">{t.name}</p>
+                  <p className="text-[8px] text-studio-neon font-bold uppercase tracking-[0.2em]">{t.role}</p>
                 </div>
               </div>
 
@@ -87,28 +87,28 @@ export function ArtistTestimonials() {
                 ))}
               </div>
 
-              <p className="text-xs md:text-sm font-bold uppercase leading-relaxed text-white/80 tracking-widest relative z-10 italic">
+              <p className="text-[11px] font-bold uppercase leading-relaxed text-white/80 tracking-widest relative z-10 italic">
                 "{t.quote}"
               </p>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between relative z-10">
+            <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between relative z-10">
               <div className="flex items-center gap-2 text-studio-pink">
-                <ShieldCheck size={12} />
-                <span className="text-[9px] font-black uppercase tracking-widest">Verified</span>
+                <ShieldCheck size={10} />
+                <span className="text-[8px] font-black uppercase tracking-widest">Verified</span>
               </div>
               <div className="flex items-center gap-3">
                 {t.youtube && (
                   <Link href={t.youtube} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
-                    <Youtube size={14} />
+                    <Youtube size={12} />
                   </Link>
                 )}
                 {t.instagram && (
                   <Link href={t.instagram} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
-                    <Instagram size={14} />
+                    <Instagram size={12} />
                   </Link>
                 )}
-                <span className="text-[10px] font-black text-studio-yellow uppercase italic comic-text">{t.pack}</span>
+                <span className="text-[9px] font-black text-studio-yellow uppercase italic comic-text">{t.pack}</span>
               </div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export function ArtistTestimonials() {
       </div>
 
       </div>
-      <div className="mt-8">
+      <div className="mt-20 md:mt-32">
         <TrustedBy />
       </div>
     </section>

@@ -22,6 +22,7 @@ export default function AboutPage() {
             src="/graffiti-bg.png"
             alt="Graffiti Background"
             fill
+            sizes="100vw"
             className="object-cover opacity-20"
             priority
           />

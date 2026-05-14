@@ -57,6 +57,7 @@ export function BackgroundMural() {
           fill
           priority
           quality={85}
+          sizes="100vw"
           className="object-cover object-center md:object-right-bottom opacity-60" 
         />
       </motion.div>

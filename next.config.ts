@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    qualities: [75, 85],
     loader: 'custom',
     loaderFile: './src/lib/images/loader.ts',
     remotePatterns: [

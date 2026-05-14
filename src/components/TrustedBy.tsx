@@ -10,13 +10,14 @@ const labels = [
   { name: 'White Hill', logo: '/logos/hill.png', scale: 'scale-110' },
   { name: 'Speed Records', logo: '/logos/speed.png', scale: 'scale-110' },
   { name: 'Aditya Music', logo: '/logos/aditya.png', scale: 'scale-110' },
+  { name: 'Ommsom Entertainment', logo: '/logos/odia-removebg-preview.png', scale: 'scale-110' },
 
 ];
 
 export default function TrustedBy() {
   return (
-    <div className="py-12 overflow-hidden relative bg-white border-y-4 border-black shadow-[0_0_50px_rgba(255,255,255,0.1)]">
-      <div className="container mx-auto px-4 mb-8 relative z-10">
+    <div className="py-8 overflow-hidden relative bg-white border-y-4 border-black shadow-[0_0_50px_rgba(255,255,255,0.1)]">
+      <div className="container mx-auto px-4 mb-4 relative z-10">
         <div className="flex flex-col items-center gap-3">
           <h2 className="text-center text-black text-[10px] md:text-xs font-black uppercase tracking-[0.6em]">
             TRUSTED BY PRODUCERS AT
@@ -38,6 +39,7 @@ export default function TrustedBy() {
                   src={label.logo}
                   alt={label.name}
                   fill
+                  sizes="(max-width: 768px) 128px, 176px"
                   className={`object-contain transition-all duration-500 group-hover/logo:scale-125 ${label.scale || ''}`}
                 />
               </div>

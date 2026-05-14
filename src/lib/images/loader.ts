@@ -12,8 +12,9 @@ export default function cloudflareLoader({ src, width, quality }: { src: string;
   }
 
   // ⚡ LOCAL DEV BYPASS: Don't use the worker in development mode to speed up loading
+  // Note: We still append width/quality to satisfy Next.js loader requirements
   if (process.env.NODE_ENV === 'development') {
-    return src;
+    return `${src}${src.includes('?') ? '&' : '?'}w=${width}&q=${quality || 75}`;
   }
 
 

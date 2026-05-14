@@ -101,6 +101,7 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
                       src={item.cover_url || '/placeholder.jpg'} 
                       alt={item.name}
                       fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
