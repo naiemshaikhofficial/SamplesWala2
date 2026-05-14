@@ -14,14 +14,14 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
   // Use prop directly to avoid unnecessary re-renders
   const pack = initialPack
 
-  const videoId = (url: string | null) => {
+  const videoId = React.useCallback((url: string | null) => {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
-  }
+  }, [])
 
-  const vId = videoId(pack.video_url)
+  const vId = React.useMemo(() => videoId(pack.video_url), [pack.video_url, videoId])
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">

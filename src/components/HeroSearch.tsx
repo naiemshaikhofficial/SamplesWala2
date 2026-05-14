@@ -41,13 +41,13 @@ export function HeroSearch() {
     return () => clearTimeout(timer)
   }, [query])
 
-  const handleSearch = (e?: React.FormEvent) => {
+  const handleSearch = React.useCallback((e?: React.FormEvent) => {
     e?.preventDefault()
     if (query.trim()) {
       setIsOpen(false)
       router.push(`/browse?q=${encodeURIComponent(query.trim())}`)
     }
-  }
+  }, [query, router])
 
   return (
     <div ref={searchRef} className="relative w-full max-w-md mx-auto lg:mx-0 z-50">

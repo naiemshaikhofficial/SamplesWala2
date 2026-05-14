@@ -12,7 +12,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
   const { addItem } = useCart()
   const router = useRouter()
 
-  const handleBuyNow = (pack: any) => {
+  const handleBuyNow = React.useCallback((pack: any) => {
     addItem({
       id: pack.id,
       name: pack.name,
@@ -21,7 +21,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
       cover_url: pack.cover_url || undefined
     })
     router.push('/checkout')
-  }
+  }, [addItem, router])
 
   const packs = React.useMemo(() => {
     let currentPacks = initialPacks || []
