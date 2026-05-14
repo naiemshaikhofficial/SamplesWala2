@@ -53,7 +53,7 @@ export function Header({ user }: { user: any }) {
   )
 
   return (
-    <header className={`h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black/95' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)] w-full`}>
+    <header className={`${isMenuOpen ? 'fixed top-0' : 'sticky top-0'} z-[100] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)] w-full`}>
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full relative z-[110]">
         <Link href="/" className="flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
           <motion.div
@@ -121,7 +121,7 @@ export function Header({ user }: { user: any }) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="absolute top-full left-0 right-0 h-[calc(100dvh-120px)] bg-black z-[100] flex flex-col p-6 md:p-8 space-y-8 overflow-y-auto border-t-4 border-black"
+            className="absolute top-full left-0 right-0 h-[calc(100dvh-5rem)] bg-black z-[100] flex flex-col p-6 md:p-8 space-y-8 overflow-y-auto border-t-4 border-black"
           >
             {/* Comic Accent */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:16px_16px]" />
