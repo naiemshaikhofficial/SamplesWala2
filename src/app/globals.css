@@ -237,7 +237,8 @@
   }
 
   .section-heading {
-    @apply text-4xl md:text-7xl font-black uppercase italic tracking-tighter graffiti-text text-white mb-8;
+    @apply text-4xl md:text-7xl font-black uppercase italic tracking-tighter text-white mb-8;
+    text-shadow: 4px 4px 0px black, 8px 8px 0px var(--color-studio-pink);
   }
 
 

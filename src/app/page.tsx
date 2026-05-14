@@ -8,6 +8,7 @@ import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { HomePacks } from '@/components/HomePacks'
 import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
+import { HowItWorks } from '@/components/HowItWorks'
 
 
 export default async function HomePage() {
@@ -109,6 +110,8 @@ export default async function HomePage() {
 
         <HomePacks packs={packs.slice(0, 4)} />
       </section>
+
+      <HowItWorks />
 
       <ArtistTestimonials />
 
