@@ -57,7 +57,7 @@ export function ArtistTestimonials() {
         {testimonials.map((t, i) => (
           <div
             key={i}
-            className="flex-shrink-0 w-[80vw] sm:w-[45vw] md:w-auto aspect-square snap-center bg-studio-charcoal border-4 border-black p-4 md:p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between"
+            className="flex-shrink-0 w-[80vw] sm:w-[45vw] md:w-auto aspect-square snap-center bg-studio-charcoal border-4 border-black p-6 md:p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between"
           >
             {/* Decorative Background Icon */}
             <div className="absolute -right-4 -bottom-4 opacity-[0.03] text-white pointer-events-none">
@@ -94,23 +94,21 @@ export function ArtistTestimonials() {
 
             <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between relative z-10">
               <div className="flex items-center gap-2 text-studio-pink">
-                <ShieldCheck size={10} />
+                <ShieldCheck size={14} />
                 <span className="text-[8px] font-black uppercase tracking-widest">Verified</span>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  {t.youtube && (
-                    <Link href={t.youtube} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
-                      <Youtube size={12} />
-                    </Link>
-                  )}
-                  {t.instagram && (
-                    <Link href={t.instagram} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
-                      <Instagram size={12} />
-                    </Link>
-                  )}
-                </div>
-                <span className="text-[9px] font-black text-studio-yellow uppercase italic comic-text ml-1">{t.pack}</span>
+              <div className="flex items-center gap-3">
+                {t.youtube && (
+                  <Link href={t.youtube} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
+                    <Youtube size={16} />
+                  </Link>
+                )}
+                {t.instagram && (
+                  <Link href={t.instagram} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
+                    <Instagram size={16} />
+                  </Link>
+                )}
+                <span className="text-[9px] font-black text-studio-yellow uppercase italic comic-text">{t.pack}</span>
               </div>
             </div>
           </div>
