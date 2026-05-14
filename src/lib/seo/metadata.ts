@@ -74,16 +74,21 @@ export function generatePageMetadata({
 }): Metadata {
   const siteTitle = "Samples Wala"
   const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`
+  
+  // Ensure absolute image URL for social media
+  const absoluteImageUrl = image.startsWith('http') 
+    ? image 
+    : `https://sampleswala.com${image.startsWith('/') ? '' : '/'}${image}`
 
   return {
     title: fullTitle,
     description,
     keywords: [...new Set([...DEFAULT_KEYWORDS, ...keywords])],
-    metadataBase: new URL('https://sampleswala.com'), // Base for social images
+    metadataBase: new URL('https://sampleswala.com'),
     openGraph: {
       title: fullTitle,
       description,
-      images: [{ url: image }],
+      images: [{ url: absoluteImageUrl }],
       type: 'website',
       siteName: siteTitle,
     },
@@ -91,7 +96,7 @@ export function generatePageMetadata({
       card: 'summary_large_image',
       title: fullTitle,
       description,
-      images: [image],
+      images: [absoluteImageUrl],
       creator: '@sampleswala',
     },
     robots: {

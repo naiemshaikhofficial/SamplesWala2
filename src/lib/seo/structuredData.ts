@@ -2,11 +2,15 @@
 
 export function generatePackStructuredData(pack: any) {
   const categoryName = pack.categories?.[0]?.name || 'Samples'
-  return {
+  const imageUrl = pack.cover_url?.startsWith('http') 
+    ? pack.cover_url 
+    : `https://sampleswala.com${pack.cover_url || '/og-image.jpg'}`
+
+  const structuredData = {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": pack.name,
-    "image": pack.cover_url,
+    "image": [imageUrl],
     "description": pack.description || `${pack.name} - A premium ${categoryName} sample pack by Samples Wala. Professional quality, 100% royalty-free for your music production.`,
     "sku": pack.id,
     "brand": {
@@ -27,8 +31,14 @@ export function generatePackStructuredData(pack: any) {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
       "reviewCount": Math.floor(Math.random() * 100) + 150
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://sampleswala.com/packs/${pack.slug}`
     }
   }
+
+  return structuredData
 }
 
 export function generateBreadcrumbData(items: { name: string, item: string }[]) {

@@ -46,7 +46,7 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
           <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
             <Image 
               src={getOptimizedImageUrl(pack.cover_url, 1200, 90)} 
-              alt={pack.name} 
+              alt={`${pack.name} Premium Sample Pack Cover - Samples Wala`} 
               fill 
               sizes="(max-width: 768px) 100vw, 500px"
               className="object-cover transition-transform duration-500 group-hover/image:scale-105"
