@@ -46,20 +46,21 @@ async function checkOwnership(packId: string) {
 export default async function PackDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const pack = await getPackBySlug(slug)
-
   if (!pack) notFound()
 
+  // Run independent checks in parallel
+  const [ownershipData, relatedPacks] = await Promise.all([
+    checkOwnership(pack.id),
+    getRelatedPacks((pack as any).categories?.[0]?.name || 'Samples', pack.id)
+  ])
+
+  const { user, owned } = ownershipData
   const jsonLd = generatePackStructuredData(pack)
   const breadcrumbs = generateBreadcrumbData([
     { name: 'Home', item: 'https://sampleswala.com' },
     { name: 'Library', item: 'https://sampleswala.com/browse' },
     { name: pack.name, item: `https://sampleswala.com/packs/${pack.slug}` }
   ])
-
-  const { user, owned } = await checkOwnership(pack.id)
-
-  const categoryName = (pack as any).categories?.[0]?.name || 'Samples'
-  const relatedPacks = await getRelatedPacks(categoryName, pack.id)
 
   return (
     <div className="flex flex-col min-h-screen">

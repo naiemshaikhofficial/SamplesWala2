@@ -11,18 +11,8 @@ import { clientCache } from '@/lib/clientCache'
 import { getOptimizedImageUrl } from '@/lib/images'
 
 export function PackDetailClient({ initialPack, owned, user }: { initialPack: any, owned: boolean, user: any }) {
-  const [pack, setPack] = useState(initialPack)
-
-  useEffect(() => {
-    // 1. Load from cache if exists (to show instant data if we navigate back)
-    const cached = clientCache.get(`pack_${initialPack.slug}`)
-    if (cached) {
-      setPack(cached)
-    }
-
-    // 2. Cache the latest data
-    clientCache.set(`pack_${initialPack.slug}`, initialPack)
-  }, [initialPack])
+  // Use prop directly to avoid unnecessary re-renders
+  const pack = initialPack
 
   const videoId = (url: string | null) => {
     if (!url) return null;

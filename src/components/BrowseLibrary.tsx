@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation'
 import { ShoppingCart, Eye } from 'lucide-react'
 
 export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any[], searchQuery?: string }) {
-  const [packs, setPacks] = useState<any[]>(initialPacks)
   const { addItem } = useCart()
   const router = useRouter()
 
@@ -24,14 +23,8 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
     router.push('/checkout')
   }
 
-  useEffect(() => {
-    // ... existing cache and filter logic ...
-    const cached = clientCache.get('all_packs')
-    let currentPacks = initialPacks
-
-    if (cached && (!initialPacks || initialPacks.length === 0)) {
-      currentPacks = cached
-    }
+  const packs = React.useMemo(() => {
+    let currentPacks = initialPacks || []
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
@@ -40,12 +33,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
         p.categories?.name?.toLowerCase().includes(q)
       )
     }
-
-    setPacks(currentPacks)
-
-    if (initialPacks && initialPacks.length > 0) {
-      clientCache.set('all_packs', initialPacks)
-    }
+    return currentPacks
   }, [initialPacks, searchQuery])
 
   return (
