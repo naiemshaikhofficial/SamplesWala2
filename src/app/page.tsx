@@ -10,6 +10,14 @@ import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
 
 
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Samples Wala | Premium Indian Sample Packs & Loops",
+  description: "Download high-quality Indian sample packs, loops, and curated collections for Bollywood, Hip-Hop, and Electronic music. 100% royalty-free.",
+  path: '/'
+})
+
 export default async function HomePage() {
   const packs = await getPacks()
 

@@ -3,10 +3,13 @@ import { motion } from 'framer-motion'
 import { Zap, Music, DollarSign, Globe, ShieldCheck, Mail, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
-export const metadata = {
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
   title: 'Careers | Join Samples Wala - Sell Your Sounds',
   description: 'Join the Samples Wala family. Sell your high-quality Indian sample packs, loops, and presets to a global audience of music producers.',
-}
+  path: '/careers'
+})
 
 export default function CareersPage() {
   return (

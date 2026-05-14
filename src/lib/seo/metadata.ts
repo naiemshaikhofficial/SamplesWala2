@@ -63,7 +63,7 @@ export function generatePageMetadata({
   image = '/og-image.jpg',
   noIndex = false,
   keywords = [],
-  path = '/'
+  path
 }: {
   title: string
   description: string
@@ -119,9 +119,9 @@ export function generatePageMetadata({
         'max-snippet': -1,
       },
     },
-    alternates: {
+    alternates: path ? {
       canonical: path,
-    }
+    } : undefined
   }
 }
 export function generatePackMetadata(pack: any): Metadata {
