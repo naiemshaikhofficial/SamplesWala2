@@ -98,24 +98,32 @@ export default function CareersPage() {
               <div className="flex gap-6 items-start">
                 <div className="w-12 h-12 bg-black text-white flex items-center justify-center font-black text-2xl flex-shrink-0">1</div>
                 <div>
-                  <h4 className="text-xl font-black">Prepare Your Demo</h4>
-                  <p className="text-sm opacity-70">Create a 2-minute showcase of your best loops, one-shots, or presets. High-quality 24-bit WAV only.</p>
+                  <h4 className="text-xl font-black">PREPARE YOUR PACK</h4>
+                  <p className="text-sm opacity-70 leading-relaxed">
+                    UPLOAD YOUR SAMPLES TO <span className="bg-black text-white px-1">GOOGLE DRIVE</span> OR <span className="bg-black text-white px-1">DROPBOX</span>. 
+                    MAKE SURE THE LINK ACCESS IS SET TO <span className="underline decoration-2">"EVERYONE WITH THE LINK"</span> SO OUR TEAM CAN REVIEW IT.
+                  </p>
                 </div>
               </div>
 
               <div className="flex gap-6 items-start">
                 <div className="w-12 h-12 bg-black text-white flex items-center justify-center font-black text-2xl flex-shrink-0">2</div>
                 <div>
-                  <h4 className="text-xl font-black">Tell Us About Yourself</h4>
-                  <p className="text-sm opacity-70">Include a short bio, links to your previous work, and why you want to join Samples Wala.</p>
+                  <h4 className="text-xl font-black">100% ORIGINAL WORK</h4>
+                  <p className="text-sm opacity-70 leading-relaxed">
+                    EVERY SOUND IN YOUR PACK MUST BE CREATED BY YOU FROM SCRATCH. WE HAVE A ZERO-TOLERANCE POLICY FOR PLAGIARISM OR RE-USED SAMPLES.
+                  </p>
                 </div>
               </div>
 
               <div className="flex gap-6 items-start">
                 <div className="w-12 h-12 bg-black text-white flex items-center justify-center font-black text-2xl flex-shrink-0">3</div>
                 <div>
-                  <h4 className="text-xl font-black">Send The Email</h4>
-                  <p className="text-sm opacity-70">Send your application to <span className="bg-black text-white px-2">Careers@sampleswala.com</span>. We respond to all serious inquiries within 48 hours.</p>
+                  <h4 className="text-xl font-black">SUBMIT VIA EMAIL</h4>
+                  <p className="text-sm opacity-70 leading-relaxed">
+                    SEND THE LINK TO <span className="bg-black text-white px-2">Careers@sampleswala.com</span>. 
+                    OUR TEAM WILL REVIEW YOUR WORK AND CONTACT YOU WITHIN <span className="bg-white text-black px-1 shadow-[2px_2px_0px_black]">24-48 HOURS</span>.
+                  </p>
                 </div>
               </div>
             </div>
