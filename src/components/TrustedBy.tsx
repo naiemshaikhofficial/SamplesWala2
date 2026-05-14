@@ -1,4 +1,6 @@
+'use client';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const labels = [
   { name: 'Sony Music', logo: '/logos/sony.png', scale: 'scale-110' },
@@ -26,26 +28,35 @@ export default function TrustedBy() {
         </div>
       </div>
 
-      <div className="relative flex overflow-hidden group">
-        <div className="flex animate-marquee whitespace-nowrap py-4 items-center">
-          {/* Use 2 sets for perfect -50% loop with translateX */}
+      <div className="relative flex overflow-hidden">
+        {/* Using Framer Motion for a much smoother, non-glitchy loop */}
+        <motion.div 
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ 
+            duration: 30, 
+            ease: "linear", 
+            repeat: Infinity 
+          }}
+          className="flex whitespace-nowrap py-4 items-center"
+        >
+          {/* Use 2 sets for perfect -50% loop */}
           {[...labels, ...labels].map((label, index) => (
             <div
               key={index}
-              className="flex items-center justify-center transition-all duration-500 w-32 md:w-44 h-16 md:h-20 relative group/logo px-6 md:px-12"
+              className="flex items-center justify-center w-32 md:w-44 h-16 md:h-20 relative group/logo px-6 md:px-12"
             >
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-full transition-transform duration-500 group-hover/logo:scale-125">
                 <Image
                   src={label.logo}
                   alt={label.name}
                   fill
                   sizes="(max-width: 768px) 128px, 176px"
-                  className={`object-contain transition-all duration-500 group-hover/logo:scale-125 ${label.scale || ''}`}
+                  className={`object-contain ${label.scale || ''}`}
                 />
               </div>
             </div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Gradient overlays for smooth fade edges */}
         <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent z-20 pointer-events-none" />
