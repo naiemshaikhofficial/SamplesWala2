@@ -30,7 +30,7 @@ export default async function HomePage() {
               OFFICIALLY LAUNCHED!
             </div>
 
-            <h1 className="text-5xl sm:text-6xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.75] text-white comic-text break-words">
+            <h1 className="text-4xl sm:text-6xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.75] text-white comic-text break-words">
               SAMPLES<br />
               <span className="text-studio-yellow italic">WALA</span>
             </h1>
@@ -119,10 +119,10 @@ export default async function HomePage() {
         <div className="container mx-auto px-4 space-y-16">
           <div className="text-center space-y-4 relative">
             <div className="splatter-effect bg-studio-blue/20 -top-10 left-1/2 -translate-x-1/2" />
-            <h2 className="text-3xl sm:text-4xl md:text-8xl font-black uppercase italic tracking-tighter comic-text text-white">
+            <h2 className="text-2xl sm:text-4xl md:text-8xl font-black uppercase italic tracking-tighter comic-text text-white break-words">
               USED BY 500+ ARTISTS
             </h2>
-            <div className="h-2 bg-studio-neon w-32 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
+            <div className="h-2 bg-studio-neon w-24 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
           </div>
 
           <div className="flex flex-row md:grid md:grid-cols-3 gap-3 md:gap-12">

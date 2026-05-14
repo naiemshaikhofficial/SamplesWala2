@@ -44,6 +44,10 @@
   --foreground: 0 0% 100%;
 }
 
+html, body {
+  overflow-x: clip;
+}
+
 @layer base {
   body {
     @apply bg-black text-white;

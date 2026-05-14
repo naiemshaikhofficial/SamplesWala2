@@ -46,17 +46,17 @@ const testimonials = [
 
 export function ArtistTestimonials() {
   return (
-    <section className="pt-24 pb-20 bg-black/20 border-t border-white/5">
+    <section className="pt-24 pb-20 bg-black/20 border-t border-white/5 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 space-y-4 relative">
           {/* Splatter Accents */}
           <div className="splatter-effect bg-studio-pink/20 -top-20 -left-20 animate-pulse" />
           <div className="splatter-effect bg-studio-blue/10 bottom-0 -right-20" />
 
-          <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter italic comic-text text-white">
+          <h2 className="text-4xl md:text-8xl font-black uppercase tracking-tighter italic comic-text text-white break-words">
             ARTIST REVIEWS
           </h2>
-          <div className="h-2 bg-studio-yellow w-32 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
+          <div className="h-2 bg-studio-yellow w-24 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
         </div>
 
         <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible pb-8 md:pb-0 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-auto max-w-7xl">

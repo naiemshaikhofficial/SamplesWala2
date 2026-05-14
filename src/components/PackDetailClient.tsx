@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { ArrowLeft, PlayCircle, ShieldCheck, Zap } from 'lucide-react'
+import { ArrowLeft, PlayCircle, ShieldCheck, Zap, CheckCircle2, Headphones } from 'lucide-react'
 import { DownloadButton } from '@/components/DownloadButton'
 import { PaymentButton } from '@/components/PaymentButton'
 import { AddToCartButton } from '@/components/AddToCartButton'
@@ -114,6 +114,51 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                   </div>
                 </div>
               )}
+
+              {/* Trust Stack Section */}
+              <div className="mt-8 space-y-4 border-t border-white/5 pt-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 group/trust">
+                    <div className="w-8 h-8 rounded-sm bg-studio-neon/10 border border-studio-neon/20 flex items-center justify-center group-hover/trust:bg-studio-neon group-hover/trust:text-black transition-all">
+                      <ShieldCheck size={16} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase tracking-tight">Secure Checkout</span>
+                      <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">Via Razorpay & PayPal</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 group/trust">
+                    <div className="w-8 h-8 rounded-sm bg-studio-yellow/10 border border-studio-yellow/20 flex items-center justify-center group-hover/trust:bg-studio-yellow group-hover/trust:text-black transition-all">
+                      <Zap size={16} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase tracking-tight">Instant Delivery</span>
+                      <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">Direct to your Email</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 group/trust">
+                    <div className="w-8 h-8 rounded-sm bg-studio-blue/10 border border-studio-blue/20 flex items-center justify-center group-hover/trust:bg-studio-blue group-hover/trust:text-black transition-all">
+                      <CheckCircle2 size={16} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase tracking-tight">100% Royalty Free</span>
+                      <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">Commercial Use Ready</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 group/trust">
+                    <div className="w-8 h-8 rounded-sm bg-studio-pink/10 border border-studio-pink/20 flex items-center justify-center group-hover/trust:bg-studio-pink group-hover/trust:text-white transition-all">
+                      <Headphones size={16} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase tracking-tight">High Quality</span>
+                      <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">24-Bit / 44.1kHz Wav</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
