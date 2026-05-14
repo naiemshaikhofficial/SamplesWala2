@@ -7,13 +7,14 @@
   We've suppressed this in .vscode/settings.json.
 */
 @theme {
-  --color-studio-yellow: #FFC800;
-  --color-studio-yellow-hover: #FFE066;
-  --color-studio-pink: #FF007A;
-  --color-studio-blue: #00E0FF;
+  --color-studio-yellow: #FFE600; /* Cyber Yellow from 'WALA' */
+  --color-studio-yellow-hover: #FFF066;
+  --color-studio-pink: #FF0080; /* Neon Pink from Splatter */
+  --color-studio-blue: #00BFFF; /* Electric Blue from 'VISIT NOW' */
   --color-studio-orange: #FF5C00;
-  --color-studio-purple: #BF00FF;
-  --color-studio-neon: #00FF94;
+  --color-studio-purple: #BF00FF; /* Neon Purple from Splatter */
+  --color-studio-neon: #00FF94; /* Neon Green from Icons */
+  --color-studio-red: #FF3131; /* Bright Red from 'OFFICIALLY' */
   --color-studio-grey: #1e1e1e;
   --color-studio-charcoal: #0a0a0a;
 
@@ -153,12 +154,33 @@
   }
 
   .graffiti-text {
-    text-shadow: 2px 2px 0px var(--color-studio-pink);
+    text-shadow: 4px 4px 0px black, 8px 8px 0px var(--color-studio-pink);
+  }
+
+  .comic-text {
+    -webkit-text-stroke: 2px black;
+    paint-order: stroke fill;
+    text-shadow: 4px 4px 0px rgba(0,0,0,1);
   }
 
   .neon-border {
-    border: 2px solid var(--color-studio-neon);
-    box-shadow: 0 0 10px var(--color-studio-neon);
+    border: 4px solid black;
+    box-shadow: 8px 8px 0px var(--color-studio-neon);
+  }
+
+  .pink-border {
+    border: 4px solid black;
+    box-shadow: 8px 8px 0px var(--color-studio-pink);
+  }
+
+  .blue-border {
+    border: 4px solid black;
+    box-shadow: 8px 8px 0px var(--color-studio-blue);
+  }
+
+  .yellow-border {
+    border: 4px solid black;
+    box-shadow: 8px 8px 0px var(--color-studio-yellow);
   }
 
   /* Comic Book Style Panels */
@@ -195,6 +217,27 @@
   .comic-button:active {
     @apply translate-x-1 translate-y-1;
     box-shadow: 0px 0px 0px black;
+  }
+
+  .splatter-effect {
+    position: absolute;
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .jagged-border {
+    border: 4px solid black;
+    background: white;
+    box-shadow: 8px 8px 0px black;
+    clip-path: polygon(0% 5%, 5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%);
+  }
+
+  .section-heading {
+    @apply text-4xl md:text-7xl font-black uppercase italic tracking-tighter graffiti-text text-white mb-8;
   }
 
 

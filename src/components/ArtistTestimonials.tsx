@@ -1,7 +1,8 @@
 'use client'
 import React from 'react'
 import Image from 'next/image'
-import { Star, Music, ShieldCheck } from 'lucide-react'
+import { Star, Music, ShieldCheck, Youtube, Instagram } from 'lucide-react'
+import Link from 'next/link'
 import TrustedBy from './TrustedBy'
 
 const testimonials = [
@@ -10,21 +11,30 @@ const testimonials = [
     role: "Singer / Producer",
     image: "/abhi-bright.jpg",
     pack: "THE SOUTH",
-    quote: "THE 'THE SOUTH' PACK IS ABSOLUTE FIRE. THOSE TAPORI RHYTHMS AND SOUTH INDIAN VIBES ARE EXACTLY WHAT I NEEDED FOR MY LATEST PRODUCTION. SAMPLESWALA IS THE REAL DEAL."
+    quote: "Honestly, 'THE SOUTH' pack is a complete vibe. Those tapori rhythms and South Indian elements were exactly what my latest track needed. SamplesWala is definitely the real deal."
   },
   {
     name: "Deepak Poojary",
     role: "DJ",
     image: "/deepak-poojary.jpg",
     pack: "THE SOUTH",
-    quote: "AS A DJ, FINDING AUTHENTIC SOUTH INDIAN SAMPLES THAT ACTUALLY HIT IN THE CLUB IS HARD. THIS PACK IS A GAME CHANGER. THE PERCUSSION IS SO CRISP AND ENERGETIC."
+    quote: "Finding authentic South Indian samples that actually work in a club setting used to be a struggle. This pack changed everything for me. The percussion is so crisp and hard-hitting."
   },
   {
     name: "Python",
     role: "Producer",
     image: "/python-artist.jpg",
     pack: "THE BOLLYWOOD",
-    quote: "SAMPLESWALA'S BOLLYWOOD PACK IS THE GOLD STANDARD. THE MELODIES AND PERCUSSION ARE SO AUTHENTIC, THEY BRING THAT CINEMATIC VIBE TO MY TRACKS INSTANTLY."
+    quote: "SamplesWala's Bollywood pack is basically the gold standard. The melodies and percussion feel so authentic, they bring that cinematic feel to my tracks instantly. Great stuff."
+  },
+  {
+    name: "Sohan Beatz",
+    role: "Music Producer",
+    image: "/Sohan.jpeg",
+    pack: "THE SOUTH",
+    quote: "Just picked up 'The South' pack and I'm really impressed. The authenticity of the percussion adds so much energy to my beats. It's a must-have for anyone producing Indian hip-hop.",
+    youtube: "https://www.youtube.com/@sohanbeatz",
+    instagram: "https://www.instagram.com/sohanbeatz/"
   }
 ]
 
@@ -32,11 +42,15 @@ export function ArtistTestimonials() {
   return (
     <section className="py-24 bg-black/20 border-t border-white/5">
       <div className="container mx-auto px-4">
-      <div className="text-center mb-16 space-y-4">
-        <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic graffiti-text text-white">
+      <div className="text-center mb-16 space-y-4 relative">
+        {/* Splatter Accents */}
+        <div className="splatter-effect bg-studio-pink/20 -top-20 -left-20 animate-pulse" />
+        <div className="splatter-effect bg-studio-blue/10 bottom-0 -right-20" />
+        
+        <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter italic comic-text text-white">
           ARTIST REVIEWS
         </h2>
-        <div className="h-1 bg-studio-pink w-24 mx-auto shadow-[0_0_20px_#ff0080]" />
+        <div className="h-2 bg-studio-yellow w-32 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
       </div>
 
       <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible pb-10 md:pb-0 snap-x snap-mandatory scrollbar-hide max-w-7xl mx-auto -mx-4 px-4 md:px-0 md:mx-auto">
@@ -83,8 +97,18 @@ export function ArtistTestimonials() {
                 <ShieldCheck size={12} />
                 <span className="text-[9px] font-black uppercase tracking-widest">Verified</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-studio-neon uppercase italic">{t.pack}</span>
+              <div className="flex items-center gap-3">
+                {t.youtube && (
+                  <Link href={t.youtube} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
+                    <Youtube size={14} />
+                  </Link>
+                )}
+                {t.instagram && (
+                  <Link href={t.instagram} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
+                    <Instagram size={14} />
+                  </Link>
+                )}
+                <span className="text-[10px] font-black text-studio-yellow uppercase italic comic-text">{t.pack}</span>
               </div>
             </div>
           </div>

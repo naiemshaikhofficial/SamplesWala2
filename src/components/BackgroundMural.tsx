@@ -6,27 +6,32 @@ import { useRef, useState, useEffect } from 'react'
 export function BackgroundMural() {
   const containerRef = useRef<HTMLDivElement>(null)
   
-  // Track global scroll progress
-  // Track pixel-based scroll for more stability
   const { scrollY } = useScroll()
   
-  // Create a smooth spring-based scroll value
   const smoothY = useSpring(scrollY, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.01
   })
-  
-  // Multiple parallax layers with different speeds
-  const muralY = useTransform(smoothY, (v) => v * 0.05)
-  const dotsY = useTransform(smoothY, (v) => v * 0.15)
-  const speedLinesY = useTransform(smoothY, (v) => v * 0.4)
-  const assetsY = useTransform(smoothY, (v) => v * -0.2) // Moves opposite for depth
-  
+
+  const [isMobile, setIsMobile] = useState(false)
   const [isClient, setIsClient] = useState(false)
+
   useEffect(() => {
     setIsClient(true)
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
+  
+  // Multiple parallax layers with different speeds
+  // On mobile, we set the multiplier to 0 to prevent glitching
+  const muralY = useTransform(smoothY, (v) => isMobile ? 0 : v * 0.05)
+  const dotsY = useTransform(smoothY, (v) => isMobile ? 0 : v * 0.15)
+  const speedLinesY = useTransform(smoothY, (v) => isMobile ? 0 : v * 0.4)
+  const assetsY = useTransform(smoothY, (v) => isMobile ? 0 : v * -0.2)
+  const tagsY = useTransform(smoothY, (v) => isMobile ? 0 : v * 0.1)
 
   return (
     <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-black">
@@ -51,7 +56,11 @@ export function BackgroundMural() {
 
       {/* LAYER 1: Comic Halftone Dots Overlay */}
       <motion.div 
-        style={{ y: dotsY }}
+        style={{ 
+          y: dotsY,
+          willChange: 'transform',
+          translateZ: 0
+        }}
         className="absolute inset-0 w-full h-[150%] -top-[25%] opacity-[0.15] mix-blend-overlay"
         dangerouslySetInnerHTML={{ __html: `
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -67,7 +76,11 @@ export function BackgroundMural() {
 
       {/* LAYER 2: Floating Comic Speed Lines */}
       <motion.div 
-        style={{ y: speedLinesY }}
+        style={{ 
+          y: speedLinesY,
+          willChange: 'transform',
+          translateZ: 0
+        }}
         className="absolute inset-0 w-full h-[200%] -top-[50%] opacity-10 flex justify-around pointer-events-none"
       >
         {isClient && [...Array(12)].map((_, i) => (
@@ -85,7 +98,11 @@ export function BackgroundMural() {
 
       {/* LAYER 3: Floating Musical Assets (Notes, etc.) */}
       <motion.div 
-        style={{ y: assetsY }}
+        style={{ 
+          y: assetsY,
+          willChange: 'transform',
+          translateZ: 0
+        }}
         className="absolute inset-0 w-full h-[120%] -top-[10%] flex flex-wrap justify-between p-20 opacity-20"
       >
         <div className="text-studio-pink animate-bounce" style={{ animationDuration: '3s' }}>
@@ -101,7 +118,11 @@ export function BackgroundMural() {
 
       {/* LAYER 5: Floating Neon Graffiti Tags */}
       <motion.div 
-        style={{ y: useTransform(smoothY, (v) => v * 0.1) }}
+        style={{ 
+          y: tagsY,
+          willChange: 'transform',
+          translateZ: 0
+        }}
         className="absolute inset-0 w-full h-[130%] -top-[15%] pointer-events-none overflow-hidden"
       >
         <div className="absolute top-[10%] left-[5%] -rotate-12 opacity-[0.08]" style={{ WebkitTextStroke: '2px var(--color-studio-pink)', color: 'transparent', filter: 'drop-shadow(0 0 10px var(--color-studio-pink))' }}>
