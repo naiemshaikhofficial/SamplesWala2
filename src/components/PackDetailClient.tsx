@@ -35,37 +35,33 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
         <div className="lg:col-span-4 space-y-8 order-1">
           <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
             <Image 
-              src={getOptimizedImageUrl(pack.cover_url, 1200, 90)} 
-              alt={`${pack.name} Premium Sample Pack Cover - Samples Wala`} 
+              src={getOptimizedImageUrl(pack.cover_url, 800, 90)} 
+              alt={pack.name} 
               fill 
-              sizes="(max-width: 768px) 100vw, 500px"
-              className="object-cover transition-transform duration-500 group-hover/image:scale-105"
               priority
+              sizes="(max-width: 768px) 100vw, 500px"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute top-4 right-4 z-20">
-              <ShareButton 
-                title={pack.name} 
-                text={`Check out this premium sample pack: ${pack.name}`} 
-                url={typeof window !== 'undefined' ? window.location.href : ''} 
-                className="!h-12 !w-12 bg-black/60 backdrop-blur-xl border-white/20 hover:bg-black/80 hover:border-studio-neon/50 shadow-2xl"
-              />
-            </div>
           </div>
-          
+
           <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-6">
-              <h1 className="text-3xl font-black uppercase tracking-tighter leading-[0.9] max-w-xl">{pack.name}</h1>
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex items-center gap-3 bg-studio-yellow/10 px-3 py-1 border border-studio-yellow/20 rounded-sm">
-                  <span className="text-[10px] text-white/40 line-through font-bold tracking-widest">
+            <div className="space-y-4">
+              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic comic-text">
+                {pack.name}
+              </h1>
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-col">
+                  <span className="text-[12px] text-white/50 line-through font-bold">
                     ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
                   </span>
-                  <span className="text-[12px] font-black text-studio-yellow uppercase italic">
+                  <p className="text-3xl font-black text-studio-neon uppercase italic tracking-widest leading-none">
+                    ₹{pack.price_inr}
+                  </p>
+                </div>
+                <div className="bg-studio-yellow px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2">
+                  <span className="text-[11px] font-black text-black uppercase italic">
                     {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
                   </span>
-                </div>
-                <div className="text-5xl font-black text-studio-neon italic drop-shadow-[0_0_15px_rgba(166,226,46,0.3)]">
-                  ₹{pack.price_inr}
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-2 h-2 rounded-full bg-studio-blue animate-pulse shadow-[0_0_10px_#00BFFF]" />
@@ -85,31 +81,29 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                     {owned ? (
                       <DownloadButton packId={pack.id} />
                     ) : (
-                      <>
-                        <div className="flex flex-col sm:flex-row items-stretch gap-3">
-                          <div className="flex-1">
-                            <AddToCartButton 
-                              item={{
-                                id: pack.id,
-                                name: pack.name,
-                                price: Number(pack.price_inr),
-                                slug: pack.slug,
-                                cover_url: pack.cover_url || undefined
-                              }} 
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <PaymentButton 
-                              packId={pack.id} 
-                              packName={pack.name} 
-                              price={Number(pack.price_inr)} 
-                              slug={pack.slug}
-                              cover_url={pack.cover_url || ''}
-                              userId={user?.id}
-                            />
-                          </div>
+                      <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                        <div className="flex-1">
+                          <AddToCartButton 
+                            item={{
+                              id: pack.id,
+                              name: pack.name,
+                              price: Number(pack.price_inr),
+                              slug: pack.slug,
+                              cover_url: pack.cover_url || undefined
+                            }} 
+                          />
                         </div>
-                      </>
+                        <div className="flex-1">
+                          <PaymentButton 
+                            packId={pack.id} 
+                            packName={pack.name} 
+                            price={Number(pack.price_inr)} 
+                            slug={pack.slug}
+                            cover_url={pack.cover_url || ''}
+                            userId={user?.id}
+                          />
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>

@@ -55,6 +55,7 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
   ])
 
   const { user, owned } = ownershipData
+  const categoryName = (pack as any).categories?.[0]?.name || 'Samples'
   const jsonLd = generatePackStructuredData(pack)
   const breadcrumbs = generateBreadcrumbData([
     { name: 'Home', item: 'https://sampleswala.com' },
