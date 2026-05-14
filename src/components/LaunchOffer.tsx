@@ -5,7 +5,7 @@ import { Zap } from 'lucide-react'
 
 export function LaunchOffer() {
   return (
-    <div className="relative overflow-hidden h-10 md:h-12 flex items-center border-b-4 border-black z-[100] group">
+    <div className="relative overflow-hidden h-10 md:h-12 flex items-center border-b-4 border-black z-[50] group">
       {/* Animated Gradient Background */}
       <motion.div 
         animate={{ 
