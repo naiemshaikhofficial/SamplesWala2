@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { ArrowLeft, PlayCircle, ShieldCheck, Zap, CheckCircle2, Headphones } from 'lucide-react'
+import { ArrowLeft, PlayCircle, ShieldCheck, Zap, CheckCircle2, Headphones, HelpCircle } from 'lucide-react'
 import { DownloadButton } from '@/components/DownloadButton'
 import { PaymentButton } from '@/components/PaymentButton'
 import { AddToCartButton } from '@/components/AddToCartButton'
@@ -157,8 +157,8 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
           </div>
         </div>
 
-        {/* Video Preview (Order 2 on Mobile, Right Column on Desktop) */}
-        <div className="lg:col-span-8 space-y-10 order-2 lg:row-span-2">
+        {/* Video Preview & Technical Specs (Order 2 on Mobile, Center Column on Desktop) */}
+        <div className="lg:col-span-8 space-y-10 order-2">
           {vId ? (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -204,7 +204,7 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
           </div>
         </div>
 
-        {/* Description & Details (Order 3 on Mobile, under Top Info on Desktop) */}
+        {/* Description & Details (Order 3 on Mobile, Bottom Right on Desktop) */}
         <div className="lg:col-span-4 space-y-8 order-3">
           <p className="text-xs text-white/60 leading-relaxed font-medium bg-white/[0.02] p-4 border border-white/5 rounded-sm whitespace-pre-wrap">
             {pack.description || "No description available for this collection."}
@@ -231,6 +231,47 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                Immediate Access
              </div>
           </div>
+        </div>
+      </div>
+
+      {/* FAQ Section - Moved Below Description and changed to Yellow for visibility */}
+      <div className="pt-12 border-t border-white/5 space-y-8">
+        <div className="flex items-center gap-3">
+          <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_10px_rgba(255,200,0,0.5)]" />
+          <h2 className="text-lg font-black uppercase tracking-tighter">Frequently Asked Questions</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              q: "Is this compatible with FL Studio?",
+              a: "Yes! Our samples are professional 24-bit WAV files, compatible with all DAWs including FL Studio, Ableton Live, Logic Pro, Cubase, and more."
+            },
+            {
+              q: "Where is my download link?",
+              a: "Delivery is instant. You will get a download link on the screen immediately after payment, and a backup link will be sent to your registered email."
+            },
+            {
+              q: "Will I get an official invoice?",
+              a: "Yes, a digital invoice is automatically generated for every purchase and sent to your email for your records."
+            },
+            {
+              q: "Are these sounds royalty-free?",
+              a: "Absolutely. Every sound you buy from Samples Wala is 100% royalty-free for use in your commercial music productions without any attribution."
+            }
+          ].map((faq, idx) => (
+            <div key={idx} className="p-6 bg-white/[0.02] border border-white/5 rounded-sm hover:bg-white/[0.04] transition-all hover:-translate-y-1 group">
+              <div className="flex flex-col gap-4">
+                <div className="text-studio-yellow">
+                  <HelpCircle size={20} />
+                </div>
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-white group-hover:text-studio-yellow transition-colors leading-tight">{faq.q}</h4>
+                  <p className="text-[10px] font-medium text-white/40 leading-relaxed uppercase">{faq.a}</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

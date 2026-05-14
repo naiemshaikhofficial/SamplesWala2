@@ -113,9 +113,9 @@ export function ArtistTestimonials() {
               </div>
 
               <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-2 text-studio-pink">
+                <div className="flex items-center gap-2 text-studio-neon">
                   <ShieldCheck size={14} />
-                  <span className="text-[8px] font-black uppercase tracking-widest">Verified Artist</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest">Verified Buyer</span>
                 </div>
                 <span className="text-[10px] font-black text-studio-yellow uppercase italic comic-text">{t.pack}</span>
               </div>
