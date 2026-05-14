@@ -22,7 +22,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
     <>
       <LaunchOffer />
       <Header user={user} />
-      <main className="flex-grow pt-16">
+      <main className="flex-grow">
         {children}
       </main>
 

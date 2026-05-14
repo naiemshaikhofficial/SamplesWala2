@@ -47,7 +47,7 @@ export function Header({ user }: { user: any }) {
   )
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-[70] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)]`}>
+    <header className={`sticky top-0 z-[70] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)] w-full`}>
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full">
         <Link href="/" className="flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
           <motion.div
