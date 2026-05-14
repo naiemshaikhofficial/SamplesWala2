@@ -50,6 +50,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
                 <li><Link href="/blog" className="hover:text-white transition-colors">Production Blog</Link></li>
                 <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
                 <li><Link href="/library" className="hover:text-white transition-colors">Your Library</Link></li>
+                <li><Link href="/careers" className="hover:text-white transition-colors text-studio-neon">Sell Your Samples</Link></li>
                 <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
                 <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
               </ul>
