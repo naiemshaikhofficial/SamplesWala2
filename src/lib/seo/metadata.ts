@@ -110,3 +110,39 @@ export function generatePageMetadata({
     }
   }
 }
+export function generatePackMetadata(pack: any): Metadata {
+  const categoryName = pack.categories?.[0]?.name || 'Samples'
+  const siteTitle = "Samples Wala"
+  
+  // Create a rich, SEO-optimized description
+  const contentSummary = pack.total_contents_summary || 'Includes professional loops and samples'
+  const counts = []
+  if (pack.melody_count > 0) counts.push(`${pack.melody_count} Melodies`)
+  if (pack.loop_count > 0) counts.push(`${pack.loop_count} Loops`)
+  if (pack.one_shot_count > 0) counts.push(`${pack.one_shot_count} One-shots`)
+  if (pack.preset_count > 0) counts.push(`${pack.preset_count} Presets`)
+  
+  const countString = counts.length > 0 ? ` featuring ${counts.join(', ')}` : ''
+  const description = pack.description || `${pack.name} - A premium ${categoryName} sample pack by Samples Wala. ${contentSummary}${countString}. Professional quality, 100% royalty-free for your music production.`
+
+  const keywords = [
+    `${pack.name} sample pack`,
+    `${pack.name} loops`,
+    `${pack.name} sounds`,
+    `${categoryName} samples`,
+    `Indian ${categoryName}`,
+    'professional sample pack',
+    'royalty free loops',
+    'music production',
+    'DAW ready',
+    'high quality wav'
+  ]
+
+  return generatePageMetadata({
+    title: `${pack.name} - Premium ${categoryName} Pack`,
+    description: description.slice(0, 160), // Keep description under 160 chars for SEO
+    image: pack.cover_url || '/og-image.jpg',
+    keywords,
+    path: `/packs/${pack.slug}`
+  })
+}

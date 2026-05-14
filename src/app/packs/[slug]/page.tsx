@@ -6,7 +6,7 @@ import { createClient, getUser } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { generatePackStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
 
-import { generatePageMetadata } from '@/lib/seo/metadata'
+import { generatePageMetadata, generatePackMetadata } from '@/lib/seo/metadata'
 import { PackDetailClient } from '@/components/PackDetailClient'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -14,24 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const pack = await getPackBySlug(slug)
   if (!pack) return { title: 'Pack Not Found' }
 
-  // @ts-ignore
-  const categoryName = pack.categories?.[0]?.name || 'Samples'
-  const packKeywords = [
-    `${pack.name} sample pack`,
-    `${pack.name} loops`,
-    `${categoryName} samples`,
-    `Indian ${categoryName}`,
-    'professional sample pack',
-    'royalty free loops'
-  ]
-
-  return generatePageMetadata({
-    title: `${pack.name} - Premium ${categoryName} Pack`,
-    description: pack.description || `Download the ${pack.name} ${categoryName} sample pack. Professional quality royalty-free loops and samples for your music production.`,
-    image: pack.cover_url || '/og-image.jpg',
-    keywords: packKeywords,
-    path: `/packs/${slug}`
-  })
+  return generatePackMetadata(pack)
 }
 
 async function checkOwnership(packId: string) {
