@@ -1,6 +1,7 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import { Header } from '@/components/Header'
+import { LaunchOffer } from '@/components/LaunchOffer'
 import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Youtube, Twitter } from "lucide-react";
@@ -19,6 +20,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
 
   return (
     <>
+      <LaunchOffer />
       <Header user={user} />
       <main className="flex-grow pt-16">
         {children}
