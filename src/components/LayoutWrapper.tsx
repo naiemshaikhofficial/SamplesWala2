@@ -20,9 +20,12 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
 
   return (
     <>
-      <LaunchOffer />
-      <Header user={user} />
-      <main className="flex-grow">
+      <div className="fixed top-0 left-0 right-0 z-[100]">
+        <LaunchOffer />
+        <Header user={user} />
+      </div>
+      
+      <main className="flex-grow pt-[120px] md:pt-[128px]">
         {children}
       </main>
 

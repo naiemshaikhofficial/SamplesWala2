@@ -1,7 +1,8 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { ArrowLeft, PlayCircle, ShieldCheck, Zap, CheckCircle2, Headphones, HelpCircle } from 'lucide-react'
+import { ArrowLeft, PlayCircle, ShieldCheck, Zap, CheckCircle2, Headphones, HelpCircle, Plus } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { DownloadButton } from '@/components/DownloadButton'
 import { PaymentButton } from '@/components/PaymentButton'
 import { AddToCartButton } from '@/components/AddToCartButton'
@@ -13,6 +14,7 @@ import { getOptimizedImageUrl } from '@/lib/images'
 export function PackDetailClient({ initialPack, owned, user }: { initialPack: any, owned: boolean, user: any }) {
   // Use prop directly to avoid unnecessary re-renders
   const pack = initialPack
+  const [activeFaq, setActiveFaq] = useState<number | null>(null)
 
   const videoId = React.useCallback((url: string | null) => {
     if (!url) return null;
@@ -234,14 +236,14 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
         </div>
       </div>
 
-      {/* FAQ Section - Moved Below Description and changed to Yellow for visibility */}
+      {/* FAQ Section - Netflix Style Accordion */}
       <div className="pt-12 border-t border-white/5 space-y-8">
         <div className="flex items-center gap-3">
           <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_10px_rgba(255,200,0,0.5)]" />
           <h2 className="text-lg font-black uppercase tracking-tighter">Frequently Asked Questions</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="max-w-4xl space-y-4">
           {[
             {
               q: "Is this compatible with FL Studio?",
@@ -260,16 +262,46 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
               a: "Absolutely. Every sound you buy from Samples Wala is 100% royalty-free for use in your commercial music productions without any attribution."
             }
           ].map((faq, idx) => (
-            <div key={idx} className="p-6 bg-white/[0.02] border border-white/5 rounded-sm hover:bg-white/[0.04] transition-all hover:-translate-y-1 group">
-              <div className="flex flex-col gap-4">
-                <div className="text-studio-yellow">
-                  <HelpCircle size={20} />
+            <div key={idx} className="border-b border-white/5 last:border-0">
+              <button
+                onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
+                className="w-full py-6 flex items-center justify-between group text-left"
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`transition-colors duration-300 ${activeFaq === idx ? 'text-studio-yellow' : 'text-white/20'}`}>
+                    <HelpCircle size={20} />
+                  </div>
+                  <span className={`text-sm md:text-base font-black uppercase tracking-tight transition-colors duration-300 ${activeFaq === idx ? 'text-studio-yellow' : 'text-white/80 group-hover:text-white'}`}>
+                    {faq.q}
+                  </span>
                 </div>
-                <div className="space-y-3">
-                  <h4 className="text-[11px] font-black uppercase tracking-widest text-white group-hover:text-studio-yellow transition-colors leading-tight">{faq.q}</h4>
-                  <p className="text-[10px] font-medium text-white/40 leading-relaxed uppercase">{faq.a}</p>
-                </div>
-              </div>
+                
+                <motion.div
+                  animate={{ rotate: activeFaq === idx ? 45 : 0 }}
+                  transition={{ duration: 0.3, ease: "circOut" }}
+                  className={`flex-shrink-0 transition-colors duration-300 ${activeFaq === idx ? 'text-studio-yellow' : 'text-white/40 group-hover:text-white'}`}
+                >
+                  <Plus size={24} />
+                </motion.div>
+              </button>
+
+              <AnimatePresence>
+                {activeFaq === idx && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pb-8 pl-9">
+                      <p className="text-xs md:text-sm font-bold text-white/40 uppercase tracking-widest leading-relaxed">
+                        {faq.a}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
