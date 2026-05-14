@@ -10,7 +10,7 @@ async function fetchAllPacks() {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('sample_packs')
-    .select('id, name, slug, cover_url, price_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
+    .select('id, name, slug, cover_url, price_inr, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
     .order('created_at', { ascending: false })
   
   if (error) {
@@ -88,7 +88,7 @@ async function fetchPackBySlug(slug: string) {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('sample_packs')
-    .select('id, name, slug, description, video_url, cover_url, price_inr, created_at, full_pack_download_url, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
+    .select('id, name, slug, description, video_url, cover_url, price_inr, mrp_inr, created_at, full_pack_download_url, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
     .eq('slug', slug)
     .single()
   
@@ -120,7 +120,7 @@ export async function getRelatedPacks(category: string, excludeId: string) {
       const supabase = getAdminClient()
       const { data } = await supabase
         .from('sample_packs')
-        .select('id, name, slug, cover_url, price_inr, categories!inner(name)')
+        .select('id, name, slug, cover_url, price_inr, mrp_inr, categories!inner(name)')
         .eq('categories.name', category)
         .neq('id', excludeId)
         .limit(4)
@@ -138,7 +138,7 @@ export async function getSearchSuggestions(query: string) {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('sample_packs')
-    .select('id, name, slug, cover_url, price_inr')
+    .select('id, name, slug, cover_url, price_inr, mrp_inr')
     .ilike('name', `%${query}%`)
     .limit(5)
     

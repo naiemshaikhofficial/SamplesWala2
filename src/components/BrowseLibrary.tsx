@@ -86,13 +86,32 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
                   {pack.name}
                 </h3>
               </Link>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-1">
                 <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
                   {pack.categories?.name || 'Artifacts'}
                 </p>
-                <p className="text-[10px] font-black text-studio-neon">
-                  ₹{pack.price_inr}
-                </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-white/50 line-through font-bold">
+                      ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
+                    </span>
+                    <p className="text-[14px] font-black text-studio-neon italic leading-none">
+                      ₹{pack.price_inr}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-studio-yellow px-1.5 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
+                    <span className="text-[8px] font-black text-black uppercase italic">
+                      {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Limited Offer Tag */}
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-studio-blue animate-pulse shadow-[0_0_8px_#00BFFF]" />
+                <span className="text-[7px] font-black text-studio-blue uppercase tracking-widest">Limited Offer</span>
               </div>
             </div>
 

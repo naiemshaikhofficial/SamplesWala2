@@ -108,9 +108,14 @@ export function HeroSearch() {
                     <h4 className="text-[10px] font-black uppercase truncate group-hover:text-studio-neon transition-colors">
                       {pack.name}
                     </h4>
-                    <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
-                      ₹{pack.price_inr}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[8px] text-white/40 line-through font-bold">
+                        ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
+                      </span>
+                      <p className="text-[10px] font-black text-studio-neon uppercase italic tracking-widest">
+                        ₹{pack.price_inr}
+                      </p>
+                    </div>
                   </div>
                   <ArrowRight size={12} className="text-white/10 group-hover:text-studio-neon -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all" />
                 </Link>

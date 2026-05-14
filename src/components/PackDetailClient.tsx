@@ -63,9 +63,25 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
           </div>
           
           <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/5 pb-6 gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-6">
               <h1 className="text-3xl font-black uppercase tracking-tighter leading-[0.9] max-w-xl">{pack.name}</h1>
-              <div className="text-3xl font-black text-studio-neon">₹{pack.price_inr}</div>
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-3 bg-studio-yellow/10 px-3 py-1 border border-studio-yellow/20 rounded-sm">
+                  <span className="text-[10px] text-white/40 line-through font-bold tracking-widest">
+                    ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
+                  </span>
+                  <span className="text-[12px] font-black text-studio-yellow uppercase italic">
+                    {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
+                  </span>
+                </div>
+                <div className="text-5xl font-black text-studio-neon italic drop-shadow-[0_0_15px_rgba(166,226,46,0.3)]">
+                  ₹{pack.price_inr}
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="w-2 h-2 rounded-full bg-studio-blue animate-pulse shadow-[0_0_10px_#00BFFF]" />
+                  <span className="text-[9px] font-black text-studio-blue uppercase tracking-[0.2em]">Limited Time Offer</span>
+                </div>
+              </div>
             </div>
 
             <div className="pt-2">

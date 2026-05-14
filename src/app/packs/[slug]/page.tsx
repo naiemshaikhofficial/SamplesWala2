@@ -110,9 +110,19 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
                        </span>
                     </div>
                   </div>
-                  <div>
+                  <div className="flex flex-col gap-1">
                     <h3 className="font-black uppercase tracking-tight text-xs group-hover:text-studio-yellow transition-colors">{item.name}</h3>
-                    <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest mt-1 italic">₹{item.price_inr}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[8px] text-white/40 line-through font-bold">
+                        ₹{item.mrp_inr || (Number(item.price_inr) * 3)}
+                      </span>
+                      <p className="text-[10px] font-black text-studio-neon uppercase italic tracking-tighter">₹{item.price_inr}</p>
+                      <div className="bg-studio-yellow px-1 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
+                        <span className="text-[7px] font-black text-black uppercase italic">
+                          {Math.round((1 - (Number(item.price_inr) / (item.mrp_inr || (Number(item.price_inr) * 3)))) * 100)}% OFF
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
