@@ -13,7 +13,9 @@ export function DownloadButton({ itemId, type = 'pack' }: { itemId: string, type
     
     try {
       const secureUrl = await getSecureDownloadUrl(itemId, type)
-      window.location.href = secureUrl
+      if (secureUrl) {
+          window.location.href = secureUrl
+      }
       setLoading(false)
     } catch (err: any) {
       console.error("Download Failed:", err)
