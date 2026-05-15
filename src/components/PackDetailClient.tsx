@@ -79,7 +79,7 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                 <div className="flex items-stretch gap-3">
                   <div className="flex-grow">
                     {owned ? (
-                      <DownloadButton packId={pack.id} />
+                      <DownloadButton itemId={pack.id} />
                     ) : (
                       <div className="flex flex-col sm:flex-row items-stretch gap-3">
                         <div className="flex-1">

@@ -18,7 +18,8 @@ export function HomePacks({ packs }: { packs: any[] }) {
       name: pack.name,
       price: Number(pack.price_inr),
       slug: pack.slug,
-      cover_url: pack.cover_url || undefined
+      cover_url: pack.cover_url || undefined,
+      type: 'pack'
     })
     setAddedPackId(pack.id)
     setTimeout(() => setAddedPackId(null), 1200)
@@ -30,7 +31,8 @@ export function HomePacks({ packs }: { packs: any[] }) {
       name: pack.name,
       price: Number(pack.price_inr),
       slug: pack.slug,
-      cover_url: pack.cover_url || undefined
+      cover_url: pack.cover_url || undefined,
+      type: 'pack'
     })
     router.push('/checkout')
   }

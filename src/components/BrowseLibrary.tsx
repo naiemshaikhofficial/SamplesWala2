@@ -18,7 +18,8 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
       name: pack.name,
       price: Number(pack.price_inr),
       slug: pack.slug,
-      cover_url: pack.cover_url || undefined
+      cover_url: pack.cover_url || undefined,
+      type: 'pack'
     })
     router.push('/checkout')
   }, [addItem, router])
@@ -111,7 +112,8 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
                       name: pack.name,
                       price: Number(pack.price_inr),
                       slug: pack.slug,
-                      cover_url: pack.cover_url || undefined
+                      cover_url: pack.cover_url || undefined,
+                      type: 'pack'
                     })}
                     className="flex-1 h-10 bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
                     title="Add to Cart"
