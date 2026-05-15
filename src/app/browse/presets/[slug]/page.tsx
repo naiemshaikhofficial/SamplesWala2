@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, Youtube, Download, ShieldCheck, Zap, Music, ShoppingBag, CheckCircle2 } from 'lucide-react'
 import { generatePageMetadata } from '@/lib/seo/metadata'
-import { generateBreadcrumbData } from '@/lib/seo/structuredData'
+import { generateBreadcrumbData, generatePresetStructuredData } from '@/lib/seo/structuredData'
 import { createClient } from '@/lib/supabase/server'
 import { AddToCartButton } from '@/components/AddToCartButton'
 import { DownloadButton } from '@/components/DownloadButton'
@@ -36,10 +36,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const preset = await getPresetBySlug(slug)
   if (!preset) return { title: 'Preset Not Found' }
 
+  const dawList = preset.daws?.join(', ') || 'FL Studio, Ableton, Logic Pro'
+
   return generatePageMetadata({
-    title: `${preset.name} | Professional ${preset.type} Preset`,
-    description: `Download ${preset.name}, a professional ${preset.type} preset compatible with ${preset.daws.join(', ')}. 100% royalty-free for your music production.`,
-    path: `/browse/presets/${preset.slug}`
+    title: `${preset.name} | ${preset.type} Preset for ${preset.daws?.[0] || 'FL Studio'}`,
+    description: `Download ${preset.name}, a professional ${preset.type} preset chain for ${dawList}. 100% royalty-free. Includes vocal chains, master presets, and more.`,
+    keywords: [
+      `${preset.name} preset`,
+      `${preset.type} preset`,
+      `${preset.daws?.[0] || 'FL Studio'} vocal presets`,
+      'Indian vocal presets',
+      'Samples Wala presets',
+      ...preset.daws || []
+    ],
+    path: `/browse/presets/${preset.slug}`,
+    image: preset.cover_url
   })
 }
 
@@ -74,11 +85,17 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
     { name: preset.name, item: `https://sampleswala.com/browse/presets/${preset.slug}` }
   ])
 
+  const productData = generatePresetStructuredData(preset)
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productData) }}
       />
 
       <Link href="/browse/presets" className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-studio-pink transition-colors group">

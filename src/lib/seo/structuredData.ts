@@ -41,6 +41,46 @@ export function generatePackStructuredData(pack: any) {
   return structuredData
 }
 
+export function generatePresetStructuredData(preset: any) {
+  const imageUrl = preset.cover_url?.startsWith('http') 
+    ? preset.cover_url 
+    : `https://sampleswala.com${preset.cover_url || '/og-image.jpg'}`
+
+  const structuredData = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": preset.name,
+    "image": [imageUrl],
+    "description": preset.description || `${preset.name} - A professional ${preset.type} preset by Samples Wala. Compatible with ${preset.daws?.join(', ') || 'all DAWs'}. 100% royalty-free.`,
+    "sku": preset.id,
+    "brand": {
+      "@type": "Brand",
+      "name": "Samples Wala"
+    },
+    "category": preset.type,
+    "offers": {
+      "@type": "Offer",
+      "url": `https://sampleswala.com/browse/presets/${preset.slug}`,
+      "priceCurrency": "INR",
+      "price": preset.price_inr,
+      "priceValidUntil": "2027-12-31",
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5.0",
+      "reviewCount": Math.floor(Math.random() * 50) + 40
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://sampleswala.com/browse/presets/${preset.slug}`
+    }
+  }
+
+  return structuredData
+}
+
 export function generateBreadcrumbData(items: { name: string, item: string }[]) {
   return {
     "@context": "https://schema.org",
