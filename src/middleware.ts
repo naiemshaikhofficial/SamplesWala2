@@ -8,20 +8,10 @@ const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 100; // 100 requests per minute
 
 export async function middleware(request: NextRequest) {
-  return new NextResponse("Middleware is working!");
   const host = request.headers.get('host') || '';
   const url = request.nextUrl.clone();
 
-  // 1. Redirect WWW to Non-WWW (Commented out to prevent redirect loops with hosting provider)
-  /*
-  if (host.startsWith('www.')) {
-    const nonWwwHost = host.replace(/^www\./, '');
-    url.host = nonWwwHost;
-    return NextResponse.redirect(url, 301);
-  }
-  */
-
-  // 2. Redirect Dead/Removed Pages
+  // 1. Redirect Dead/Removed Pages
   const deadLinks = ['/free', '/samples', '/vst-plugins', '/vocal-packs'];
   if (deadLinks.includes(request.nextUrl.pathname)) {
     return NextResponse.redirect(new URL('/browse/packs', request.url), 301);
