@@ -4,7 +4,7 @@ import { getAdminClient } from '@/lib/supabase/admin'
 import { headers } from 'next/headers'
 import { signDownloadToken } from '@/lib/security'
 
-export async function getSecureDownloadUrl(packId: string) {
+export async function getSecureDownloadUrl(itemId: string, type: 'pack' | 'preset' = 'pack') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const headerList = await headers()
@@ -19,8 +19,8 @@ export async function getSecureDownloadUrl(packId: string) {
     .from('user_vault')
     .select('id')
     .eq('user_id', user.id)
-    .eq('item_id', packId)
-    .eq('item_type', 'pack')
+    .eq('item_id', itemId)
+    .eq('item_type', type)
     .maybeSingle()
 
   if (!vaultRecord) {
@@ -37,7 +37,8 @@ export async function getSecureDownloadUrl(packId: string) {
   // 2. Generate signed token (Database-less)
   const token = signDownloadToken({
     uid: user.id,
-    pid: packId,
+    pid: itemId,
+    type: type,
     ip: clientIp
   }, 300) // 5 minutes expiration for tighter security
 

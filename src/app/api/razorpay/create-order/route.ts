@@ -9,7 +9,7 @@ const razorpay = new Razorpay({
 
 export async function POST(request: Request) {
   try {
-    const { packIds, couponCode } = await request.json()
+    const { items, couponCode } = await request.json()
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -17,21 +17,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Please login to purchase' }, { status: 401 })
     }
 
-    // 1. Fetch pack prices from DB (Never trust client-side prices)
-    const { data: packs, error: packError } = await supabase
-      .from('sample_packs')
-      .select('id, name, price_inr')
-      .in('id', packIds)
+    // 1. Fetch prices from both tables
+    const packIds = items.filter((i: any) => i.type === 'pack').map((i: any) => i.id)
+    const presetIds = items.filter((i: any) => i.type === 'preset').map((i: any) => i.id)
 
-    if (packError || !packs || packs.length === 0) {
-      return NextResponse.json({ error: 'Packs not found' }, { status: 404 })
+    const [packsRes, presetsRes] = await Promise.all([
+      packIds.length > 0 ? supabase.from('sample_packs').select('id, name, price_inr').in('id', packIds) : { data: [] },
+      presetIds.length > 0 ? supabase.from('presets').select('id, name, price_inr').in('id', presetIds) : { data: [] }
+    ])
+
+    const allItems = [...(packsRes.data || []), ...(presetsRes.data || [])]
+
+    if (allItems.length === 0) {
+      return NextResponse.json({ error: 'Items not found' }, { status: 404 })
     }
 
     // 2. Calculate total (Server-side calculation)
-    const rawSubtotal = packs.reduce((sum, p) => sum + Number(p.price_inr), 0)
+    const rawSubtotal = allItems.reduce((sum, p) => sum + Number(p.price_inr), 0)
     
     // Server-side Bundle Discount logic
-    const bundleDiscountPercent = packIds.length >= 3 ? 10 : 0
+    const bundleDiscountPercent = items.length >= 3 ? 10 : 0
     const bundleDiscountAmount = Math.round(rawSubtotal * bundleDiscountPercent / 100)
     const subtotalAfterBundle = rawSubtotal - bundleDiscountAmount
     
@@ -60,7 +65,7 @@ export async function POST(request: Request) {
       currency: "INR",
       receipt: `cart_${user.id.substring(0, 8)}`,
       notes: {
-        packIds: packIds.join(','),
+        itemDetails: JSON.stringify(items.map((i: any) => ({ id: i.id, type: i.type }))),
         userId: user.id,
         discountPercent: couponDiscountPercent || 0
       }

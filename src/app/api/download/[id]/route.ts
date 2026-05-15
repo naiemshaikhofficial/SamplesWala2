@@ -28,16 +28,31 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         // return new NextResponse("IP Address Mismatch. Use the same device/network.", { status: 403 })
     }
 
-    const packId = payload.pid
+    const itemId = payload.pid
+    const itemType = payload.type || 'pack' // Default to pack for backward compatibility
 
-    // 3. Get Pack Download URL
-    const { data: pack } = await admin.from('sample_packs').select('name, full_pack_download_url').eq('id', packId).maybeSingle()
+    // 3. Get Item Download URL from respective table
+    let downloadUrl = ''
+    let itemName = ''
+
+    if (itemType === 'preset') {
+        const { data: preset } = await admin.from('presets').select('name, drive_url').eq('id', itemId).maybeSingle()
+        if (preset) {
+            downloadUrl = preset.drive_url
+            itemName = preset.name
+        }
+    } else {
+        const { data: pack } = await admin.from('sample_packs').select('name, full_pack_download_url').eq('id', itemId).maybeSingle()
+        if (pack) {
+            downloadUrl = pack.full_pack_download_url
+            itemName = pack.name
+        }
+    }
     
-    if (!pack || !pack.full_pack_download_url) {
+    if (!downloadUrl) {
         return new NextResponse("File not found in registry", { status: 404 })
     }
 
-    const downloadUrl = pack.full_pack_download_url
     const driveIdMatch = downloadUrl.match(/[-\w]{25,}/)?.[0]
     
     // 4. Redirect or Proxy via Worker
@@ -58,7 +73,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         hmac.update(`${payload}:${timestamp}`)
         const sig = hmac.digest('base64').replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
 
-        const fileName = `SamplesWala - ${pack.name}.zip`
+        const fileName = `SamplesWala - ${itemName}.zip`
         const encodedName = encodeURIComponent(fileName)
 
         return NextResponse.redirect(`${workerUrl}?payload=${payload}&sig=${sig}&exp=${timestamp}&name=${encodedName}&download=1`)

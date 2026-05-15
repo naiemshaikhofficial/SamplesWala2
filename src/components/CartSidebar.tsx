@@ -182,7 +182,9 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                     <div className="space-y-1.5">
                       <h3 className="font-bold uppercase tracking-tight text-sm truncate text-white/90">{item.name}</h3>
                       <div className="flex items-center gap-3">
-                        <span className="text-[8px] font-black bg-white/10 text-white/40 px-1.5 py-0.5 border border-white/5">PACK</span>
+                        <span className="text-[8px] font-black bg-white/10 text-white/40 px-1.5 py-0.5 border border-white/5 uppercase tracking-widest">
+                          {item.type}
+                        </span>
                         <p className="text-xs font-black text-studio-yellow italic tracking-widest">₹{item.price}</p>
                       </div>
                     </div>

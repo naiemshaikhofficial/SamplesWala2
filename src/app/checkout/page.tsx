@@ -109,6 +109,7 @@ export default function CheckoutPage() {
   const [discount, setDiscount] = useState(0)
   const [couponError, setCouponError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
   const [user, setUser] = useState<any>(null)
   const [upsellPacks, setUpsellPacks] = useState<any[]>([])
@@ -314,9 +315,41 @@ export default function CheckoutPage() {
     }
 
     setLoading(true)
+    setError('')
+
+    // --- 1. HANDLE FREE CHECKOUT (BYPASS RAZORPAY) ---
+    if (total === 0) {
+      try {
+        const verifyRes = await fetch('/api/razorpay/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isFree: true,
+            items: items.map(i => ({ id: i.id, type: i.type })),
+            userId: user.id,
+            billingDetails: billingDetails
+          }),
+        })
+
+        if (verifyRes.ok) {
+          clearCart()
+          router.push('/library?success=true')
+        } else {
+          const err = await verifyRes.json()
+          setError(err.error || 'Checkout failed')
+        }
+      } catch (err) {
+        setError('Network error during checkout')
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
+    // --- 2. REGULAR PAID CHECKOUT ---
     const sdkLoaded = await loadRazorpay()
     if (!sdkLoaded) {
-      alert('Razorpay SDK failed to load')
+      setError('Razorpay SDK failed to load')
       setLoading(false)
       return
     }
@@ -326,7 +359,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          packIds: items.map(i => i.id),
+          items: items.map(i => ({ id: i.id, type: i.type })),
           couponCode: coupon
         }),
       })
@@ -334,8 +367,11 @@ export default function CheckoutPage() {
 
       if (order.error) throw new Error(order.error)
 
+      const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+      if (!keyId) throw new Error('Razorpay Key ID is missing')
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId,
         amount: order.amount,
         currency: order.currency,
         name: "Sampleswala",
@@ -343,48 +379,57 @@ export default function CheckoutPage() {
         order_id: order.id,
         handler: async function (response: any) {
           setPaymentStatus('processing')
-          const verifyRes = await fetch('/api/razorpay/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...response,
-              packIds: items.map(i => i.id),
-              userId: user.id,
-              billingDetails: billingDetails
-            }),
-          })
-          const verifyData = await verifyRes.json()
-
-          if (verifyData.success) {
-            // Sync billing details to DB metadata
-            await supabase.auth.updateUser({
-              data: {
-                full_name: billingDetails.fullName,
-                phone: billingDetails.phone,
-                address: billingDetails.address,
-                city: billingDetails.city,
-                state: billingDetails.state,
-                zip: billingDetails.zip,
-                country: billingDetails.country
-              }
+          try {
+            const verifyRes = await fetch('/api/razorpay/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...response,
+                items: items.map(i => ({ id: i.id, type: i.type })),
+                userId: user.id,
+                billingDetails: billingDetails
+              }),
             })
+            const verifyData = await verifyRes.json()
 
-            setPaymentStatus('success')
-            clearCart()
-            router.push('/library')
-          } else {
-            alert('Verification failed')
+            if (verifyData.success) {
+              // Sync billing details to DB metadata
+              await supabase.auth.updateUser({
+                data: {
+                  full_name: billingDetails.fullName,
+                  phone: billingDetails.phone,
+                  address: billingDetails.address,
+                  city: billingDetails.city,
+                  state: billingDetails.state,
+                  zip: billingDetails.zip,
+                  country: billingDetails.country
+                }
+              })
+
+              setPaymentStatus('success')
+              clearCart()
+              router.push('/library')
+            } else {
+              setError('Verification failed')
+              setPaymentStatus('idle')
+            }
+          } catch (err) {
+            setError('Payment verification error')
             setPaymentStatus('idle')
           }
         },
-        theme: { color: "#FFC800" }
+        theme: { color: "#FFC800" },
+        modal: {
+          ondismiss: function() {
+            setLoading(false)
+          }
+        }
       }
 
       const rzp = new (window as any).Razorpay(options)
       rzp.open()
     } catch (e: any) {
-      alert(e.message)
-    } finally {
+      setError(e.message || 'Payment initiation failed')
       setLoading(false)
     }
   }
@@ -442,7 +487,9 @@ export default function CheckoutPage() {
               </div>
               <div className="flex-grow">
                 <h3 className="font-black uppercase tracking-tight text-lg">{item.name}</h3>
-                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Premium Sample Pack</p>
+                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                  {item.type === 'preset' ? 'Producer Preset' : 'Premium Sample Pack'}
+                </p>
               </div>
               <div className="text-right space-y-2">
                 <p className="font-black text-xl">₹{item.price}</p>
@@ -663,17 +710,24 @@ export default function CheckoutPage() {
 
             {/* Legal Agreement */}
             <div className="space-y-4">
+              {error && (
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-sm">
+                  <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center">
+                    {error}
+                  </p>
+                </div>
+              )}
               <button 
                 onClick={handleCheckout}
                 disabled={loading || paymentStatus === 'processing'}
                 className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
               >
                 {loading ? (
-                  <Loader2 className="animate-spin" size={20} />
+                  <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>COMPLETE PURCHASE</span>
-                    <ArrowRight size={18} />
+                    <Zap size={20} className="group-hover:rotate-12 transition-transform" />
+                    <span>{total === 0 ? 'GET FOR FREE' : 'COMPLETE PAYMENT'}</span>
                   </>
                 )}
               </button>

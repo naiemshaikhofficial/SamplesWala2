@@ -1,13 +1,14 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getPacks } from '@/app/browse/actions'
-import { ArrowRight, Zap, ShieldCheck, Music } from 'lucide-react'
+import { getPacks, getPresets } from '@/app/browse/actions'
+import { ArrowRight, Zap, ShieldCheck, Music, Sparkles } from 'lucide-react'
 import { HeroSearch } from '@/components/HeroSearch'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { HomePacks } from '@/components/HomePacks'
 import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
+import { PresetCard } from '@/components/PresetCard'
 
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
@@ -19,7 +20,10 @@ export const metadata = generatePageMetadata({
 })
 
 export default async function HomePage() {
-  const packs = await getPacks()
+  const [packs, presets] = await Promise.all([
+    getPacks(),
+    getPresets()
+  ])
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -116,6 +120,37 @@ export default async function HomePage() {
         </div>
 
         <HomePacks packs={packs.slice(0, 4)} />
+      </section>
+
+      {/* Featured Presets */}
+      <section className="py-24 bg-studio-charcoal/30 border-y border-white/5 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-12 gap-6">
+            <div className="space-y-4 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio-neon text-black text-[10px] font-black uppercase tracking-widest jagged-border -rotate-1">
+                <Sparkles size={12} fill="currentColor" />
+                Vocal Chains & Mix Presets
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
+                PRODUCER <span className="text-studio-neon">PRESETS</span>
+              </h2>
+              <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Professional FL Studio & DAW Chains</p>
+            </div>
+            <Link 
+              href="/browse?type=presets" 
+              className="px-8 py-3 border-2 border-white/10 hover:border-studio-neon hover:text-studio-neon transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group"
+            >
+              Explore Presets
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {presets.slice(0, 4).map((preset: any) => (
+              <PresetCard key={preset.id} preset={preset} />
+            ))}
+          </div>
+        </div>
       </section>
 
       <ArtistTestimonials />

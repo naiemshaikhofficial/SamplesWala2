@@ -11,9 +11,10 @@ interface PaymentButtonProps {
   slug: string
   cover_url: string
   userId?: string
+  type?: 'pack' | 'preset'
 }
 
-export function PaymentButton({ packId, packName, price, slug, cover_url, userId }: PaymentButtonProps) {
+export function PaymentButton({ packId, packName, price, slug, cover_url, userId, type = 'pack' }: PaymentButtonProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { addItem, items, setSidebarOpen } = useCart()
@@ -30,7 +31,8 @@ export function PaymentButton({ packId, packName, price, slug, cover_url, userId
         name: packName,
         price: price,
         slug: slug,
-        cover_url: cover_url
+        cover_url: cover_url,
+        type: type
       })
     }
 

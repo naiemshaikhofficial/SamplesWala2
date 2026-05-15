@@ -31,9 +31,11 @@ export default async function LibraryPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
-  // 2. Filter for packs and fetch details
+  // 2. Filter for items and fetch details
   const vaultPacks = allVaultItems?.filter(v => v.item_type === 'pack') || []
-  let packs: any[] = []
+  const vaultPresets = allVaultItems?.filter(v => v.item_type === 'preset') || []
+  
+  let libraryItems: any[] = []
   
   if (vaultPacks.length > 0) {
     const packIds = vaultPacks.map(v => v.item_id)
@@ -41,16 +43,32 @@ export default async function LibraryPage() {
       .from('sample_packs')
       .select('id, name, slug, cover_url, full_pack_download_url')
       .in('id', packIds)
-    // Map to is_downloadable and hide the URL
-    packs = (packData || []).map(p => {
-      const vaultItem = vaultPacks.find(v => v.item_id === p.id)
-      return {
+    
+    if (packData) {
+      libraryItems.push(...packData.map(p => ({
         ...p,
-        created_at: vaultItem?.created_at,
-        is_downloadable: !!p.full_pack_download_url,
-        full_pack_download_url: undefined
-      }
-    })
+        type: 'pack',
+        created_at: vaultPacks.find(v => v.item_id === p.id)?.created_at,
+        is_downloadable: !!p.full_pack_download_url
+      })))
+    }
+  }
+
+  if (vaultPresets.length > 0) {
+    const presetIds = vaultPresets.map(v => v.item_id)
+    const { data: presetData } = await supabase
+      .from('presets')
+      .select('id, name, slug, cover_url, drive_url')
+      .in('id', presetIds)
+    
+    if (presetData) {
+      libraryItems.push(...presetData.map(p => ({
+        ...p,
+        type: 'preset',
+        created_at: vaultPresets.find(v => v.item_id === p.id)?.created_at,
+        is_downloadable: !!p.drive_url
+      })))
+    }
   }
 
   // 3. Fetch user account profile for billing
@@ -63,7 +81,7 @@ export default async function LibraryPage() {
   // 4. Map names to billing items for the table
   const billingItems = allVaultItems?.map(item => ({
     ...item,
-    item_name: packs.find(p => p.id === item.item_id)?.name || item.item_name || 'Digital Pack'
+    item_name: libraryItems.find(p => p.id === item.item_id)?.name || item.item_name || 'Digital Asset'
   })) || []
 
   return (
@@ -76,7 +94,7 @@ export default async function LibraryPage() {
         <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Unlocked High-Fidelity Artifacts</p>
       </div>
       
-      <SearchableLibrary packs={packs} />
+      <SearchableLibrary items={libraryItems} />
 
       {/* Billing Section */}
       <BillingHistory items={billingItems} profile={profile} email={user.email} />

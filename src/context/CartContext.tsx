@@ -7,6 +7,7 @@ export interface CartItem {
   price: number
   cover_url: string
   slug: string
+  type: 'pack' | 'preset'
 }
 
 interface CartContextType {

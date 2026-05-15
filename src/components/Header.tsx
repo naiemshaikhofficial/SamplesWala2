@@ -32,7 +32,8 @@ export function Header({ user }: { user: any }) {
 
   const NavLinks = () => (
     <>
-      <Link href="/browse" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Browse</Link>
+      <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Packs</Link>
+      <Link href="/browse/presets" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
       <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
 
       <div className="flex items-center gap-4">
@@ -128,7 +129,8 @@ export function Header({ user }: { user: any }) {
 
             <nav className="flex flex-col space-y-4 text-2xl font-black uppercase tracking-tighter relative z-10">
               {[
-                { name: 'Browse Packs', href: '/browse' },
+                { name: 'Browse Packs', href: '/browse/packs' },
+                { name: 'Producer Presets', href: '/browse/presets' },
                 { name: 'Your Library', href: '/library' },
                 { name: 'Production Blog', href: '/blog' },
                 { name: 'About Us', href: '/about' },

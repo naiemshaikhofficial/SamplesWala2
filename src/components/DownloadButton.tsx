@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Download, Loader2, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { getSecureDownloadUrl } from '@/app/packs/actions'
 
-export function DownloadButton({ packId }: { packId: string }) {
+export function DownloadButton({ itemId, type = 'pack' }: { itemId: string, type?: 'pack' | 'preset' }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -12,7 +12,7 @@ export function DownloadButton({ packId }: { packId: string }) {
     setError(null)
     
     try {
-      const secureUrl = await getSecureDownloadUrl(packId)
+      const secureUrl = await getSecureDownloadUrl(itemId, type)
       window.location.href = secureUrl
       setLoading(false)
     } catch (err: any) {

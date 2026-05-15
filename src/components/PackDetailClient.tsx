@@ -89,7 +89,8 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                               name: pack.name,
                               price: Number(pack.price_inr),
                               slug: pack.slug,
-                              cover_url: pack.cover_url || undefined
+                              cover_url: pack.cover_url || undefined,
+                              type: 'pack'
                             }} 
                           />
                         </div>

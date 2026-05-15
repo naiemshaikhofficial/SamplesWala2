@@ -160,7 +160,15 @@ export async function getCategoryBySlug(slug: string) {
         .single()
       
       if (error) {
-        console.error('[GET_CATEGORY_ERROR]', error)
+        // PGRST116 is the code for '0 rows returned' which is expected if slug is wrong
+        if (error.code !== 'PGRST116') {
+          console.error('[GET_CATEGORY_ERROR]', {
+            code: error.code,
+            message: error.message,
+            details: error.details,
+            slug
+          })
+        }
         return null
       }
       return data
@@ -221,3 +229,71 @@ export async function getAllCategories() {
     { revalidate: 3600, tags: ['categories'] }
   )()
 }
+
+// Preset Actions
+async function fetchPresets() {
+  const supabase = getAdminClient()
+  const { data, error } = await supabase
+    .from('presets')
+    .select('*')
+    .order('created_at', { ascending: false })
+  
+  if (error) {
+    console.error('[GET_PRESETS_ERROR]', error)
+    return []
+  }
+  return data
+}
+
+export async function getPresets() {
+  return unstable_cache(
+    async () => fetchPresets(),
+    ['all-presets-list'],
+    { revalidate: 300, tags: ['presets'] }
+  )()
+}
+
+async function fetchPresetBySlug(slug: string) {
+  const supabase = getAdminClient()
+  const { data, error } = await supabase
+    .from('presets')
+    .select('*')
+    .eq('slug', slug)
+    .single()
+  
+  if (error) {
+    console.error('[GET_PRESET_ERROR]', error)
+    return null
+  }
+  return data
+}
+
+export async function getPresetBySlug(slug: string) {
+  return unstable_cache(
+    async () => fetchPresetBySlug(slug),
+    [`preset-${slug}`],
+    { revalidate: 300, tags: [`preset-${slug}`] }
+  )()
+}
+
+export async function getPresetsByCategory(categoryId: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = getAdminClient()
+      const { data, error } = await supabase
+        .from('presets')
+        .select('*')
+        .eq('category_id', categoryId)
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('[GET_CATEGORY_PRESETS_ERROR]', error)
+        return []
+      }
+      return data
+    },
+    [`presets-category-${categoryId}`],
+    { revalidate: 300, tags: ['presets', 'categories'] }
+  )()
+}
+

@@ -6,19 +6,20 @@ import Link from 'next/link'
 import { getOptimizedImageUrl } from '@/lib/images'
 import { DownloadButton } from '@/components/DownloadButton'
 
-interface Pack {
+interface LibraryItem {
   id: string
   name: string
   slug: string
   cover_url: string
+  type: 'pack' | 'preset'
   is_downloadable: boolean
   created_at?: string
 }
 
-export function SearchableLibrary({ packs }: { packs: Pack[] }) {
+export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
   const [search, setSearch] = useState('')
 
-  const filteredPacks = packs.filter(p => 
+  const filteredItems = items.filter(p => 
     p.name.toLowerCase().includes(search.toLowerCase())
   )
 
@@ -31,9 +32,9 @@ export function SearchableLibrary({ packs }: { packs: Pack[] }) {
             <Music size={20} className="text-white/40" />
           </div>
           <div>
-            <h2 className="text-xl font-black uppercase tracking-tight italic">Purchased Packs</h2>
+            <h2 className="text-xl font-black uppercase tracking-tight italic">Your Collection</h2>
             <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
-              {packs.length} {packs.length === 1 ? 'Pack' : 'Packs'} Unlocked
+              {items.length} {items.length === 1 ? 'Item' : 'Items'} Unlocked
             </p>
           </div>
         </div>
@@ -58,7 +59,7 @@ export function SearchableLibrary({ packs }: { packs: Pack[] }) {
         </div>
       </div>
 
-      {filteredPacks.length === 0 ? (
+      {filteredItems.length === 0 ? (
         <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-white/5 rounded-sm">
            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">
              {search ? 'No matches found for your search' : 'Vault is currently empty'}
@@ -74,17 +75,20 @@ export function SearchableLibrary({ packs }: { packs: Pack[] }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12">
-          {filteredPacks.map((pack) => (
-            <div key={pack.id} className="group flex flex-col space-y-4">
+          {filteredItems.map((item) => (
+            <div key={item.id} className="group flex flex-col space-y-4">
               <div className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-neon transition-all">
                 <Image 
-                  src={getOptimizedImageUrl(pack.cover_url, 600, 80)} 
-                  alt={pack.name} 
+                  src={getOptimizedImageUrl(item.cover_url, 600, 80)} 
+                  alt={item.name} 
                   fill 
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-1 border border-white/10 rounded-sm">
+                   <p className="text-[7px] font-black uppercase tracking-widest text-studio-neon">{item.type}</p>
+                </div>
               </div>
               
               <div className="space-y-4 px-1">
@@ -93,22 +97,22 @@ export function SearchableLibrary({ packs }: { packs: Pack[] }) {
                     <ShieldCheck size={10} className="text-studio-neon" />
                     <span className="text-[7px] font-black uppercase tracking-[0.2em] text-studio-neon/80">Verified License</span>
                   </div>
-                  <h3 className="text-[13px] font-black uppercase truncate italic tracking-tight">{pack.name}</h3>
-                  {pack.created_at && (
+                  <h3 className="text-[13px] font-black uppercase truncate italic tracking-tight">{item.name}</h3>
+                  {item.created_at && (
                     <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
-                      Purchased on {new Date(pack.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      Purchased on {new Date(item.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </p>
                   )}
                   <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.2em] text-white/20 pt-1">
-                    <span className="flex items-center gap-2"><Music size={10} /> Full Pack</span>
+                    <span className="flex items-center gap-2"><Music size={10} /> Full {item.type === 'pack' ? 'Pack' : 'Preset'}</span>
                     <span className="text-studio-neon/60">Unlocked</span>
                   </div>
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                   <DownloadButton packId={pack.id} />
+                   <DownloadButton itemId={item.id} type={item.type} />
                    <Link 
-                     href={`/packs/${pack.slug}`}
+                     href={item.type === 'pack' ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`}
                      className="h-14 w-14 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all group/link"
                    >
                      <ArrowRight size={18} className="text-white/20 group-hover/link:text-white transition-colors" />

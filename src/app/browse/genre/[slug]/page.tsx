@@ -1,14 +1,17 @@
 import React from 'react'
-import { getPacksByCategorySlug, getCategoryBySlug, getAllCategories } from '../../actions'
+import { getPacksByCategorySlug, getCategoryBySlug, getAllCategories, getPresetsByCategory } from '../../actions'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
+import { PresetCard } from '@/components/PresetCard'
 import Link from 'next/link'
 import { generatePageMetadata } from '@/lib/seo/metadata'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
+import { Music, Sparkles, ChevronLeft } from 'lucide-react'
 
 interface Props {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ type?: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -18,23 +21,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!category) return {}
 
   return generatePageMetadata({
-    title: `Best ${category.name} Sample Packs & Loops | SamplesWala`,
+    title: `Best ${category.name} Sample Packs & Presets | SamplesWala`,
     description: `Download premium ${category.name} sample packs, loops, and curated sound kits. 100% royalty-free ${category.name} sounds for music producers.`,
-    path: `/browse/genre/${slug}`,
-    keywords: [category.name, `${category.name} samples`, `${category.name} loops`, 'Indian sample packs', 'Bollywood sounds']
+    path: `/browse/genre/${slug}`
   })
 }
 
-export default async function GenrePage({ params }: Props) {
+export default async function GenrePage({ params, searchParams }: Props) {
   const { slug } = await params
+  const { type = 'packs' } = await searchParams
   const category = await getCategoryBySlug(slug)
 
   if (!category) {
     notFound()
   }
 
-  const packs = await getPacksByCategorySlug(slug)
-  const categories = await getAllCategories()
+  const [packs, presets, categories] = await Promise.all([
+    getPacksByCategorySlug(slug),
+    getPresetsByCategory(category.id),
+    getAllCategories()
+  ])
 
   const breadcrumbs = generateBreadcrumbData([
     { name: 'Home', item: 'https://sampleswala.com' },
@@ -43,51 +49,94 @@ export default async function GenrePage({ params }: Props) {
   ])
 
   return (
-    <div className="container mx-auto px-4 py-20 space-y-20">
+    <div className="container mx-auto px-4 py-12 min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
       
-      <section className="space-y-12">
-        <div className="flex flex-col items-center text-center border-b border-white/5 pb-12 gap-6">
-          <div className="space-y-3">
-            <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic">
-              {category.name} <span className="text-studio-yellow">Packs.</span>
-            </h1>
-            <p className="text-[10px] md:text-sm font-bold text-white/40 uppercase tracking-[0.3em]">
-              Premium {category.name} sounds for your next hit
-            </p>
-          </div>
+      <Link 
+        href="/browse" 
+        className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white mb-8 transition-colors"
+      >
+        <ChevronLeft size={14} />
+        Back to all sounds
+      </Link>
 
-          {/* Genre Navigation */}
-          <div className="flex flex-wrap justify-center gap-3 max-w-3xl">
-            <Link 
-              href="/browse"
-              className="px-4 py-2 bg-white/10 border-2 border-black text-white/80 text-[10px] font-black uppercase tracking-widest hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black] transition-all rounded-sm"
-            >
-              All Genres
-            </Link>
-            {categories.map((cat: any) => (
-              <Link
-                key={cat.id}
-                href={`/browse/genre/${cat.slug}`}
-                className={`px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all rounded-sm ${cat.slug === slug ? 'bg-studio-yellow text-black shadow-[4px_4px_0px_black] -rotate-1' : 'bg-white/10 text-white/80 hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black] hover:-rotate-1'}`}
-              >
-                {cat.name}
-              </Link>
-            ))}
-          </div>
-        </div>
+      <div className="mb-12 space-y-4">
+        <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic">
+          {category.name} <span className={type === 'packs' ? 'text-studio-yellow' : 'text-studio-pink'}>{type === 'packs' ? 'Packs' : 'Presets'}.</span>
+        </h1>
+        <p className="text-sm font-bold text-white/40 uppercase tracking-widest">
+          Premium {category.name} {type === 'packs' ? 'sample kits' : 'producer presets'}
+        </p>
+      </div>
 
-        <BrowseLibrary initialPacks={packs} />
-        
-        {packs.length === 0 && (
-          <div className="py-20 text-center">
-            <p className="text-white/40 font-bold uppercase tracking-widest">No packs found in this genre yet.</p>
-          </div>
-        )}
-      </section>
+      {/* --- TAB SWITCHER --- */}
+      <div className="flex flex-col md:flex-row gap-4 mb-16">
+         <Link 
+            href={`/browse/genre/${slug}?type=packs`}
+            className={`flex-1 h-20 flex items-center justify-center gap-4 border-4 border-black text-2xl font-black uppercase italic tracking-tighter transition-all ${type === 'packs' ? 'bg-studio-yellow text-black shadow-[8px_8px_0px_black] -translate-y-1' : 'bg-studio-charcoal text-white/40 hover:text-white'}`}
+         >
+            <Music size={28} />
+            Sample Packs
+         </Link>
+         
+         <Link 
+            href={`/browse/genre/${slug}?type=presets`}
+            className={`flex-1 h-20 flex items-center justify-center gap-4 border-4 border-black text-2xl font-black uppercase italic tracking-tighter transition-all ${type === 'presets' ? 'bg-studio-pink text-white shadow-[8px_8px_0px_black] -translate-y-1' : 'bg-studio-charcoal text-white/40 hover:text-white'}`}
+         >
+            <Sparkles size={28} />
+            Presets
+         </Link>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* --- SIDEBAR --- */}
+        <aside className="lg:col-span-3 space-y-8">
+           <div className="bg-black border-4 border-black p-6 space-y-6 shadow-[8px_8px_0px_black] jagged-border">
+              <h2 className="text-xl font-black uppercase tracking-tighter italic">Other Genres.</h2>
+              <div className="space-y-3">
+                 {categories.map((cat: any) => (
+                    <Link
+                      key={cat.id}
+                      href={`/browse/genre/${cat.slug}?type=${type}`}
+                      className={`block w-full p-3 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all ${cat.slug === slug ? 'bg-studio-neon text-black' : 'bg-white/5 text-white/40 hover:bg-studio-neon hover:text-black'}`}
+                    >
+                      {cat.name}
+                    </Link>
+                 ))}
+              </div>
+           </div>
+        </aside>
+
+        {/* --- CONTENT --- */}
+        <main className="lg:col-span-9">
+           {type === 'packs' ? (
+              packs.length > 0 ? (
+                 <BrowseLibrary initialPacks={packs} />
+              ) : (
+                 <div className="h-64 flex flex-col items-center justify-center border-4 border-black border-dashed opacity-20">
+                    <Music size={48} strokeWidth={1} />
+                    <p className="font-black uppercase tracking-widest mt-4">No packs in this genre</p>
+                 </div>
+              )
+           ) : (
+              presets.length > 0 ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                    {presets.map((preset: any) => (
+                       <PresetCard key={preset.id} preset={preset} />
+                    ))}
+                 </div>
+              ) : (
+                 <div className="h-64 flex flex-col items-center justify-center border-4 border-black border-dashed opacity-20">
+                    <Sparkles size={48} strokeWidth={1} />
+                    <p className="font-black uppercase tracking-widest mt-4">No presets in this genre</p>
+                 </div>
+              )
+           )}
+        </main>
+      </div>
     </div>
   )
 }
