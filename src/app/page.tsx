@@ -50,13 +50,15 @@ export default async function HomePage() {
               Premium Indian sample packs, presets & plugin sounds. <br className="hidden md:block" /> Built for the creative community. 100% Royalty Free.
             </p>
 
-            <div className="flex flex-col gap-6 pt-2 md:pt-4">
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                <div className="px-4 py-1 bg-studio-yellow text-black font-black uppercase text-[10px] tracking-widest jagged-border -rotate-3">
-                  FOR ARTIST BY ARTIST
-                </div>
-                <div className="px-4 py-1 bg-studio-blue text-white font-black uppercase text-[10px] tracking-widest jagged-border rotate-2">
-                  MADE IN BHARAT 👑
+              <div className="flex justify-center lg:justify-start pt-2">
+                <div className="relative group">
+                  <div className="absolute -inset-4 bg-white/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <h2 
+                    className="text-4xl md:text-6xl font-normal tracking-widest animate-rainbow select-none comic-text"
+                    style={{ fontFamily: 'var(--font-luckiest-guy), cursive' }}
+                  >
+                    BY ARTIST FOR ARTIST
+                  </h2>
                 </div>
               </div>
 
@@ -71,41 +73,38 @@ export default async function HomePage() {
                 </Link>
               </div>
             </div>
-          </div>
 
-          {/* Hero Packs Showcase */}
-          <div className="relative h-[500px] hidden lg:flex items-center justify-center">
-            {packs.slice(0, 3).map((pack: any, index: number) => (
-              <div
-                key={pack.id}
-                className="absolute transition-all duration-700 hover:z-50 hover:scale-110 cursor-pointer group"
-                style={{
-                  transform: `translateX(${(index - 1) * 140}px) rotate(${(index - 1) * 12}deg) translateY(${Math.abs(index - 1) * 40}px)`,
-                  zIndex: 3 - Math.abs(index - 1)
-                }}
-              >
-                <div className="w-64 aspect-square relative border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-all group-hover:border-studio-pink group-hover:-translate-y-4">
-                  <Image
-                    src={pack.cover_url || '/placeholder.jpg'}
-                    alt={pack.name}
-                    fill
-                    sizes="256px"
-                    className="object-cover transition-all duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-40 group-hover:opacity-0 transition-opacity" />
-                  <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                    <Link href={`/packs/${pack.slug}`} className="block w-full py-3 bg-white text-black text-[10px] font-black uppercase text-center tracking-widest border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)]">
-                      GET THIS PACK
-                    </Link>
+            {/* Hero Packs Showcase */}
+            <div className="relative h-[500px] hidden lg:flex items-center justify-center">
+              {packs.slice(0, 3).map((pack: any, index: number) => (
+                <div
+                  key={pack.id}
+                  className="absolute transition-all duration-700 hover:z-50 hover:scale-110 cursor-pointer group"
+                  style={{
+                    transform: `translateX(${(index - 1) * 140}px) rotate(${(index - 1) * 12}deg) translateY(${Math.abs(index - 1) * 40}px)`,
+                    zIndex: 3 - Math.abs(index - 1)
+                  }}
+                >
+                  <div className="w-64 aspect-square relative border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-all group-hover:border-studio-pink group-hover:-translate-y-4">
+                    <Image
+                      src={pack.cover_url || '/placeholder.jpg'}
+                      alt={pack.name}
+                      fill
+                      sizes="256px"
+                      className="object-cover transition-all duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-40 group-hover:opacity-0 transition-opacity" />
+                    <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+                      <Link href={`/packs/${pack.slug}`} className="block w-full py-3 bg-white text-black text-[10px] font-black uppercase text-center tracking-widest border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)]">
+                        GET THIS PACK
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-
+              ))}
+            </div>
           </div>
-
-        </div>
-      </section>
+        </section>
 
       {/* Featured Packs */}
       <section className="py-24 container mx-auto px-4">

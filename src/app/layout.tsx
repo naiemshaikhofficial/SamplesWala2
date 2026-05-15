@@ -1,5 +1,17 @@
-import type { Metadata } from "next";
+import { Permanent_Marker, Luckiest_Guy } from 'next/font/google'
 import "./globals.css";
+
+const permanentMarker = Permanent_Marker({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-permanent-marker',
+})
+
+const luckiestGuy = Luckiest_Guy({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-luckiest-guy',
+})
 import { generatePageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = generatePageMetadata({
@@ -74,7 +86,7 @@ export default async function RootLayout({
           strategy="afterInteractive" 
         />
       </head>
-      <body className="antialiased min-h-screen flex flex-col text-white">
+      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} antialiased min-h-screen flex flex-col text-white`}>
         <CartProvider>
           <BackgroundMural />
           <ContentProtection />

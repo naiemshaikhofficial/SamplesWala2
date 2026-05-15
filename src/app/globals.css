@@ -395,13 +395,17 @@ html, body {
       font-size: 2.25rem;
     }
   }
-  /* Marquee Animation */
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+  @keyframes rainbow {
+    0% { color: #ff0000; text-shadow: 2px 2px 0px #000; }
+    17% { color: #ff8800; text-shadow: 2px 2px 0px #000; }
+    33% { color: #ffff00; text-shadow: 2px 2px 0px #000; }
+    50% { color: #00ff00; text-shadow: 2px 2px 0px #000; }
+    67% { color: #0000ff; text-shadow: 2px 2px 0px #000; }
+    83% { color: #8800ff; text-shadow: 2px 2px 0px #000; }
+    100% { color: #ff0000; text-shadow: 2px 2px 0px #000; }
   }
-  .animate-marquee {
-    animation: marquee 30s infinite linear;
+  .animate-rainbow {
+    animation: rainbow 3s linear infinite;
   }
 }
 

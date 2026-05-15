@@ -92,15 +92,27 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
             </div>
           </div>
 
-          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-20 text-[8px] font-black uppercase tracking-[0.4em] text-center md:text-left">
-            <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+          <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-10">
+            <div className="flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-4 text-[8px] font-black uppercase tracking-[0.4em] opacity-20">
               <Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
               <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
               <Link href="/refund-policy" className="hover:text-white transition-colors">Refund & Cancellation</Link>
               <Link href="/dmca" className="hover:text-white transition-colors">DMCA</Link>
             </div>
+            
+            {/* ULTRA MASSIVE Made In Bharat Badge */}
+            <div className="relative h-64 w-[600px] cursor-default -mt-20 -mb-10">
+               <Image 
+                 src="/made-in-bharat.png" 
+                 alt="Made In Bharat" 
+                 fill 
+                 className="object-contain"
+                 priority
+               />
+            </div>
           </div>
-          <div className="mt-12 text-center">
+          
+          <div className="mt-8 text-center pb-8">
             <p className="text-[7px] font-bold text-white/5 uppercase tracking-[0.5em] leading-relaxed max-w-2xl mx-auto">
               ©Samples Wala 2026. All rights reserved.
             </p>
