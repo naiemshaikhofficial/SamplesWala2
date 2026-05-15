@@ -8,6 +8,7 @@ const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 100; // 100 requests per minute
 
 export async function middleware(request: NextRequest) {
+  return new NextResponse("Middleware is working!");
   const host = request.headers.get('host') || '';
   const url = request.nextUrl.clone();
 
