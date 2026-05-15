@@ -60,7 +60,7 @@ export function HeaderCartIcon() {
                   damping: 15,
                   mass: 1
                 }}
-                className="absolute -top-2 -right-2 bg-studio-yellow text-black text-[9px] font-black w-4 h-4 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_black] z-50 rounded-sm"
+                className="absolute -top-2 -right-2 bg-studio-red text-white text-[9px] font-black w-4 h-4 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_black] z-50 rounded-sm"
               >
                 {itemCount}
               </motion.span>

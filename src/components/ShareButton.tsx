@@ -6,12 +6,14 @@ export function ShareButton({ title, text, url, className = "" }: { title: strin
   const [copied, setCopied] = useState(false)
 
   const handleShare = async () => {
+    const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '')
+
     if (navigator.share) {
       try {
         await navigator.share({
           title,
           text,
-          url,
+          url: shareUrl,
         })
       } catch (err) {
         console.error('Error sharing:', err)
@@ -19,7 +21,7 @@ export function ShareButton({ title, text, url, className = "" }: { title: strin
     } else {
       // Fallback: Copy to clipboard
       try {
-        await navigator.clipboard.writeText(url)
+        await navigator.clipboard.writeText(shareUrl)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
       } catch (err) {

@@ -72,7 +72,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
               <h2 className="text-2xl font-black uppercase tracking-tight italic text-white">
                 YOUR <span className="text-studio-pink">CART</span>
               </h2>
-              <div className="bg-studio-neon text-black px-2 py-0.5 border-2 border-black text-[10px] font-black rotate-3">
+              <div className="bg-studio-red text-white px-2 py-0.5 border-2 border-black text-[10px] font-black rotate-3">
                 {itemCount}
               </div>
             </div>
@@ -229,7 +229,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
             
             <button 
               onClick={handleCheckout}
-              className="w-full h-16 bg-white text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-studio-neon transition-all border-4 border-black shadow-[6px_6px_0px_rgba(255,255,255,0.1)] active:translate-x-1 active:translate-y-1 active:shadow-none group"
+              className="w-full h-16 bg-white text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-studio-red hover:text-white transition-all border-4 border-black shadow-[6px_6px_0px_rgba(255,255,255,0.1)] active:translate-x-1 active:translate-y-1 active:shadow-none group"
             >
               <span className="italic">PROCEED TO CHECKOUT</span>
               <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />

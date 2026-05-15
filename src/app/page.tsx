@@ -38,7 +38,7 @@ export default async function HomePage() {
             {/* Splatter Backdrop */}
             <div className="splatter-effect bg-studio-pink/30 -top-10 -left-10 animate-pulse" />
 
-            <div className="inline-block px-4 py-1 bg-studio-pink text-white font-black uppercase text-[10px] tracking-[0.3em] jagged-border mb-4 rotate-[-2deg]">
+            <div className="inline-block px-4 py-1 bg-studio-red text-white font-black uppercase text-[10px] tracking-[0.3em] jagged-border mb-4 rotate-[-2deg]">
               OFFICIALLY LAUNCHED!
             </div>
 
@@ -65,7 +65,7 @@ export default async function HomePage() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
                 <Link
                   href="/browse"
-                  className="w-full sm:w-auto h-14 px-12 bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-studio-neon transition-all border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                  className="w-full sm:w-auto h-14 px-12 bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-studio-red hover:text-white transition-all border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                 >
                   BROWSE ALL PACKS
                 </Link>
@@ -169,7 +169,7 @@ export default async function HomePage() {
           </div>
 
           <div className="flex flex-row md:grid md:grid-cols-3 gap-3 md:gap-12">
-            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-pink border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-red border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
               <div className="h-8 w-8 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[3px_3px_0px_black]">
                 <ShieldCheck className="text-black" size={16} />
               </div>

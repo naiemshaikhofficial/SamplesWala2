@@ -42,6 +42,16 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
               sizes="(max-width: 768px) 100vw, 500px"
               className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
+            
+            {/* Floating Share Button on Image */}
+            <div className="absolute top-4 right-4 z-20">
+               <ShareButton 
+                 title={pack.name} 
+                 text={`Check out ${pack.name} on SamplesWala!`} 
+                 url={typeof window !== 'undefined' ? window.location.href : ''}
+                 className="w-10 h-10 bg-black/40 backdrop-blur-md border border-white/20 hover:bg-studio-red hover:border-studio-red hover:rotate-12"
+               />
+            </div>
           </div>
 
           <div className="space-y-8">
@@ -64,8 +74,8 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="w-2 h-2 rounded-full bg-studio-blue animate-pulse shadow-[0_0_10px_#00BFFF]" />
-                  <span className="text-[9px] font-black text-studio-blue uppercase tracking-[0.2em]">Limited Time Offer</span>
+                  <div className="w-2 h-2 rounded-full bg-studio-red animate-pulse shadow-[0_0_10px_#E50914]" />
+                  <span className="text-[9px] font-black text-studio-red uppercase tracking-[0.2em]">Limited Time Offer</span>
                 </div>
               </div>
             </div>
@@ -76,36 +86,38 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 animate-pulse">Coming Soon</span>
                 </div>
               ) : (
-                <div className="flex items-stretch gap-3">
-                  <div className="flex-grow">
-                    {owned ? (
-                      <DownloadButton itemId={pack.id} />
-                    ) : (
-                      <div className="flex flex-col sm:flex-row items-stretch gap-3">
-                        <div className="flex-1">
-                          <AddToCartButton 
-                            item={{
-                              id: pack.id,
-                              name: pack.name,
-                              price: Number(pack.price_inr),
-                              slug: pack.slug,
-                              cover_url: pack.cover_url || undefined,
-                              type: 'pack'
-                            }} 
-                          />
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-stretch gap-3">
+                    <div className="flex-grow">
+                      {owned ? (
+                        <DownloadButton itemId={pack.id} />
+                      ) : (
+                        <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                          <div className="flex-1">
+                            <AddToCartButton 
+                              item={{
+                                id: pack.id,
+                                name: pack.name,
+                                price: Number(pack.price_inr),
+                                slug: pack.slug,
+                                cover_url: pack.cover_url || undefined,
+                                type: 'pack'
+                              }} 
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <PaymentButton 
+                              packId={pack.id} 
+                              packName={pack.name} 
+                              price={Number(pack.price_inr)} 
+                              slug={pack.slug}
+                              cover_url={pack.cover_url || ''}
+                              userId={user?.id}
+                            />
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <PaymentButton 
-                            packId={pack.id} 
-                            packName={pack.name} 
-                            price={Number(pack.price_inr)} 
-                            slug={pack.slug}
-                            cover_url={pack.cover_url || ''}
-                            userId={user?.id}
-                          />
-                        </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

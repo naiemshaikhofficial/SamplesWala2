@@ -8,6 +8,7 @@ import { generatePageMetadata } from '@/lib/seo/metadata'
 import { generateBreadcrumbData, generatePresetStructuredData } from '@/lib/seo/structuredData'
 import { createClient } from '@/lib/supabase/server'
 import { AddToCartButton } from '@/components/AddToCartButton'
+import { ShareButton } from '@/components/ShareButton'
 import { DownloadButton } from '@/components/DownloadButton'
 
 async function checkOwnership(presetId: string) {
@@ -175,6 +176,10 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
                      </Link>
                   </div>
                )}
+               
+               <div className="pt-2">
+                 <ShareButton title={preset.name} text={`Check out this ${preset.type} preset on SamplesWala: ${preset.name}`} />
+               </div>
            </div>
 
            <div className="flex items-center justify-center gap-6 py-4 border-t border-white/5">
