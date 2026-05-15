@@ -50,15 +50,20 @@ export default async function HomePage() {
               Premium Indian sample packs, presets & plugin sounds. <br className="hidden md:block" /> Built for the creative community. 100% Royalty Free.
             </p>
 
-              <div className="flex justify-center lg:justify-start pt-2">
-                <div className="relative group">
-                  <div className="absolute -inset-4 bg-white/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <h2 
-                    className="text-4xl md:text-6xl font-normal tracking-widest animate-rainbow select-none comic-text"
-                    style={{ fontFamily: 'var(--font-luckiest-guy), cursive' }}
-                  >
-                    BY ARTIST FOR ARTIST
-                  </h2>
+              <div className="flex justify-center lg:justify-start pt-4">
+                <div 
+                  className="relative flex flex-wrap gap-x-4 gap-y-2 select-none"
+                  style={{ fontFamily: 'var(--font-luckiest-guy), cursive' }}
+                >
+                  <span className="text-4xl md:text-6xl text-studio-neon comic-text -rotate-3 hover:rotate-0 transition-transform">BY</span>
+                  <span className="text-4xl md:text-6xl text-studio-pink comic-text rotate-2 hover:rotate-0 transition-transform">ARTIST</span>
+                  <span className="text-4xl md:text-6xl text-studio-yellow comic-text -rotate-1 hover:rotate-0 transition-transform">FOR</span>
+                  <span className="text-4xl md:text-6xl text-studio-blue comic-text rotate-3 hover:rotate-0 transition-transform">ARTIST</span>
+                  
+                  {/* Decorative Comic Elements */}
+                  <div className="absolute -top-4 -right-4 text-studio-red animate-pulse">
+                    <Sparkles size={24} fill="currentColor" />
+                  </div>
                 </div>
               </div>
 
