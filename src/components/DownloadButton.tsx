@@ -10,11 +10,11 @@ export function DownloadButton({ itemId, type = 'pack' }: { itemId: string, type
   const handleDownload = async () => {
     setLoading(true)
     setError(null)
-    
+
     try {
       const secureUrl = await getSecureDownloadUrl(itemId, type)
       if (secureUrl) {
-          window.location.href = secureUrl
+        window.location.href = secureUrl
       }
       setLoading(false)
     } catch (err: any) {
@@ -26,7 +26,7 @@ export function DownloadButton({ itemId, type = 'pack' }: { itemId: string, type
 
   return (
     <div className="w-full space-y-2">
-      <button 
+      <button
         disabled={loading}
         onClick={handleDownload}
         className="w-full h-14 bg-studio-neon text-black font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(0,255,148,0.1)]"
