@@ -148,3 +148,76 @@ export async function getSearchSuggestions(query: string) {
   }
   return data
 }
+
+export async function getCategoryBySlug(slug: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = getAdminClient()
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('slug', slug)
+        .single()
+      
+      if (error) {
+        console.error('[GET_CATEGORY_ERROR]', error)
+        return null
+      }
+      return data
+    },
+    [`category-${slug}`],
+    { revalidate: 3600, tags: ['categories'] }
+  )()
+}
+
+export async function getPacksByCategorySlug(slug: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = getAdminClient()
+      // First get category id
+      const { data: category } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', slug)
+        .single()
+
+      if (!category) return []
+
+      const { data, error } = await supabase
+        .from('sample_packs')
+        .select('id, name, slug, cover_url, price_inr, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
+        .eq('category_id', category.id)
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('[GET_GENRE_PACKS_ERROR]', error)
+        return []
+      }
+
+      return data.map(pack => {
+        const { full_pack_download_url, ...safePack } = pack
+        return {
+          ...safePack,
+          is_downloadable: !!full_pack_download_url
+        }
+      })
+    },
+    [`packs-genre-${slug}`],
+    { revalidate: 300, tags: ['packs', 'categories'] }
+  )()
+}
+
+export async function getAllCategories() {
+  return unstable_cache(
+    async () => {
+      const supabase = getAdminClient()
+      const { data } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name')
+      return data || []
+    },
+    ['all-categories'],
+    { revalidate: 3600, tags: ['categories'] }
+  )()
+}

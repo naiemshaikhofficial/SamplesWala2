@@ -43,6 +43,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
+  // 4. Genres
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('slug, created_at')
+  
+  const genreEntries = (categories || []).map((cat) => ({
+    url: `${baseUrl}/browse/genre/${cat.slug}`,
+    lastModified: new Date(cat.created_at || new Date()),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
   // 4. Static routes
   const staticRoutes = [
     '',
@@ -62,5 +74,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1.0 : 0.7,
   }))
 
-  return [...staticRoutes, ...packEntries, ...softwareEntries, ...blogEntries]
+  return [...staticRoutes, ...packEntries, ...softwareEntries, ...blogEntries, ...genreEntries]
 }

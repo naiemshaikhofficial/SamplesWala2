@@ -1,5 +1,5 @@
 import React from 'react'
-import { getPacks } from './actions'
+import { getPacks, getAllCategories } from './actions'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -22,6 +22,7 @@ export default async function BrowsePage({
 }) {
   const { q } = await searchParams
   const packs = await getPacks()
+  const categories = await getAllCategories()
 
   const breadcrumbs = generateBreadcrumbData([
     { name: 'Home', item: 'https://sampleswala.com' },
@@ -41,6 +42,25 @@ export default async function BrowsePage({
               Sound <span className="text-studio-yellow">Library.</span>
             </h1>
             <p className="text-[10px] md:text-sm font-bold text-white/40 uppercase tracking-[0.3em]">Premium sounds for your next hit</p>
+          </div>
+
+          {/* Genre Navigation */}
+          <div className="flex flex-wrap justify-center gap-3 max-w-3xl">
+            <Link 
+              href="/browse"
+              className={`px-4 py-1.5 rounded-sm border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all ${!q ? 'bg-studio-yellow text-black shadow-[4px_4px_0px_black]' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'}`}
+            >
+              All Genres
+            </Link>
+            {categories.map((cat: any) => (
+              <Link
+                key={cat.id}
+                href={`/browse/genre/${cat.slug}`}
+                className="px-4 py-1.5 bg-white/5 border-2 border-black text-white/40 text-[10px] font-black uppercase tracking-widest hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black] transition-all rounded-sm"
+              >
+                {cat.name}
+              </Link>
+            ))}
           </div>
         </div>
 
