@@ -1,4 +1,5 @@
 import { Permanent_Marker, Luckiest_Guy } from 'next/font/google'
+import type { Metadata } from "next";
 import "./globals.css";
 
 const permanentMarker = Permanent_Marker({
