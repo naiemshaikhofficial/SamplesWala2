@@ -32,7 +32,7 @@ export function Header({ user }: { user: any }) {
 
   const NavLinks = () => (
     <>
-      <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Packs</Link>
+      <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Sample Packs</Link>
       <Link href="/browse/presets" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
       <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
 
@@ -58,10 +58,10 @@ export function Header({ user }: { user: any }) {
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full relative z-[110]">
         <Link href="/" className="flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
           <motion.div
-            whileHover={{ 
-              scale: 1.1, 
+            whileHover={{
+              scale: 1.1,
               rotate: [0, -2, 2, -2, 0],
-              transition: { duration: 0.3 } 
+              transition: { duration: 0.3 }
             }}
             whileTap={{ scale: 0.9 }}
             className="relative"
