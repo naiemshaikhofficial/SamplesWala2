@@ -11,12 +11,14 @@ export async function middleware(request: NextRequest) {
   const host = request.headers.get('host') || '';
   const url = request.nextUrl.clone();
 
-  // 1. Redirect WWW to Non-WWW
+  // 1. Redirect WWW to Non-WWW (Commented out to prevent redirect loops with hosting provider)
+  /*
   if (host.startsWith('www.')) {
     const nonWwwHost = host.replace(/^www\./, '');
     url.host = nonWwwHost;
     return NextResponse.redirect(url, 301);
   }
+  */
 
   // 2. Redirect Dead/Removed Pages
   const deadLinks = ['/free', '/samples', '/vst-plugins', '/vocal-packs'];
