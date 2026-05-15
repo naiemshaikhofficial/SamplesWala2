@@ -18,29 +18,36 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 async function checkOwnership(packId: string) {
-  const { data: { user } } = await getUser()
-  if (!user) return { user: null, owned: false }
+  try {
+    const authResponse = await getUser()
+    const user = authResponse?.data?.user
+    
+    if (!user) return { user: null, owned: false }
 
-  const supabase = await createClient()
+    const supabase = await createClient()
 
-  // Check vault
-  const { data: vaultRecord } = await supabase
-    .from('user_vault')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('item_id', packId)
-    .maybeSingle()
+    // 1. Check vault ownership
+    const { data: vaultRecord } = await supabase
+      .from('user_vault')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('item_id', packId)
+      .maybeSingle()
 
-  if (vaultRecord) return { user, owned: true }
+    if (vaultRecord) return { user, owned: true }
 
-  // Check admin
-  const { data: adminRecord } = await supabase
-    .from('admins')
-    .select('user_id')
-    .eq('user_id', user.id)
-    .maybeSingle()
+    // 2. Check admin status (using user_accounts for consistency)
+    const { data: accountRecord } = await supabase
+      .from('user_accounts')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .maybeSingle()
 
-  return { user, owned: !!adminRecord }
+    return { user, owned: !!accountRecord?.is_admin }
+  } catch (error) {
+    console.error('[OWNERSHIP_CHECK_ERROR]', error)
+    return { user: null, owned: false }
+  }
 }
 
 export default async function PackDetailPage({ params }: { params: Promise<{ slug: string }> }) {
