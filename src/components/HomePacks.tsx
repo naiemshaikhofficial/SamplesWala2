@@ -73,7 +73,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
           >
             <Image
               src={getOptimizedImageUrl(pack.cover_url, 600, 80)}
-              alt={pack.name}
+              alt={`${pack.name} - Indian Sample Pack & Loops | SamplesWala`}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
@@ -111,8 +111,8 @@ export function HomePacks({ packs }: { packs: any[] }) {
                   </div>
                   
                   {/* Discount Badge - Yellow for more punch */}
-                  <div className="bg-studio-yellow px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
-                    <span className="text-[9px] font-black text-black uppercase italic">
+                  <div className="bg-studio-red px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
+                    <span className="text-[9px] font-black text-white uppercase italic">
                       {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
                     </span>
                   </div>
@@ -121,8 +121,8 @@ export function HomePacks({ packs }: { packs: any[] }) {
 
               {/* Limited Offer Tag - Blue for variety */}
               <div className="flex items-center gap-1.5 mt-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-studio-blue animate-pulse shadow-[0_0_8px_#00BFFF]" />
-                <span className="text-[8px] font-black text-studio-blue uppercase tracking-widest">Limited Offer</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-studio-red animate-pulse shadow-[0_0_8px_#E50914]" />
+                <span className="text-[8px] font-black text-studio-red uppercase tracking-widest">Limited Offer</span>
               </div>
             </div>
 

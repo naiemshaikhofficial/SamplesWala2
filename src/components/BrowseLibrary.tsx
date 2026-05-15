@@ -52,7 +52,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
           >
             <Image
               src={getOptimizedImageUrl(pack.cover_url, 600, 80)}
-              alt={pack.name}
+              alt={`${pack.name} - Indian Sample Pack & Loops | SamplesWala`}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"

@@ -55,10 +55,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
-  // 4. Static routes
+  // 5. Presets
+  const { data: presets } = await supabase
+    .from('presets')
+    .select('slug, updated_at')
+    .eq('is_active', true)
+  
+  const presetEntries = (presets || []).map((item) => ({
+    url: `${baseUrl}/browse/presets/${item.slug}`,
+    lastModified: new Date(item.updated_at || new Date()),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }))
+
+  // 6. Static routes
   const staticRoutes = [
     '',
-    '/browse',
+    '/browse/packs',
+    '/browse/presets',
     '/library',
     '/faq',
     '/contact',
@@ -74,5 +88,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1.0 : 0.7,
   }))
 
-  return [...staticRoutes, ...packEntries, ...softwareEntries, ...blogEntries, ...genreEntries]
+  return [
+    ...staticRoutes, 
+    ...packEntries, 
+    ...softwareEntries, 
+    ...blogEntries, 
+    ...genreEntries,
+    ...presetEntries
+  ]
 }

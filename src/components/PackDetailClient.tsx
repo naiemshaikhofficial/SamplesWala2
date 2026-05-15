@@ -36,7 +36,7 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
           <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
             <Image 
               src={getOptimizedImageUrl(pack.cover_url, 800, 90)} 
-              alt={pack.name} 
+              alt={`${pack.name} - Premium Indian Sample Pack | SamplesWala`} 
               fill 
               priority
               sizes="(max-width: 768px) 100vw, 500px"

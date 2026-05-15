@@ -33,12 +33,12 @@ export function PresetCard({ preset }: PresetCardProps) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group relative bg-black border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[12px_12px_0px_#ff0080] transition-all overflow-hidden"
+      className="group relative bg-black border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[12px_12px_0px_#E50914] transition-all overflow-hidden"
     >
       {/* Link wrapper for the main card area */}
       <Link href={`/browse/presets/${preset.slug}`} className="block">
         {/* Type Badge */}
-        <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-studio-pink text-white text-[8px] font-black uppercase tracking-widest jagged-border -rotate-2 border-2 border-black">
+        <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-studio-red text-white text-[8px] font-black uppercase tracking-widest jagged-border -rotate-2 border-2 border-black">
           {preset.type}
         </div>
 
@@ -47,7 +47,7 @@ export function PresetCard({ preset }: PresetCardProps) {
           {preset.cover_url ? (
             <Image 
               src={preset.cover_url} 
-              alt={preset.name}
+              alt={`${preset.name} - ${preset.type} Preset | SamplesWala`}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-700"
             />
