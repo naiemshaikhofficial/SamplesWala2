@@ -64,7 +64,7 @@ export default async function GenrePage({ params }: Props) {
           <div className="flex flex-wrap justify-center gap-3 max-w-3xl">
             <Link 
               href="/browse"
-              className="px-4 py-1.5 bg-white/5 border-2 border-black text-white/40 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all rounded-sm"
+              className="px-4 py-2 bg-white/10 border-2 border-black text-white/80 text-[10px] font-black uppercase tracking-widest hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black] transition-all rounded-sm"
             >
               All Genres
             </Link>
@@ -72,7 +72,7 @@ export default async function GenrePage({ params }: Props) {
               <Link
                 key={cat.id}
                 href={`/browse/genre/${cat.slug}`}
-                className={`px-4 py-1.5 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all rounded-sm ${cat.slug === slug ? 'bg-studio-yellow text-black shadow-[4px_4px_0px_black]' : 'bg-white/5 text-white/40 hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black]'}`}
+                className={`px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all rounded-sm ${cat.slug === slug ? 'bg-studio-yellow text-black shadow-[4px_4px_0px_black] -rotate-1' : 'bg-white/10 text-white/80 hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black] hover:-rotate-1'}`}
               >
                 {cat.name}
               </Link>

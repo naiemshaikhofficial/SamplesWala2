@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { ArrowLeft, PlayCircle, ShieldCheck, Zap, CheckCircle2, Headphones, HelpCircle, Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -16,14 +16,12 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
   const pack = initialPack
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
 
-  const videoId = React.useCallback((url: string | null) => {
-    if (!url) return null;
+  const vId = React.useMemo(() => {
+    if (!pack.video_url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
+    const match = pack.video_url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
-  }, [])
-
-  const vId = React.useMemo(() => videoId(pack.video_url), [pack.video_url, videoId])
+  }, [pack.video_url])
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
@@ -48,7 +46,7 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
 
           <div className="space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic comic-text">
+              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic comic-text drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
                 {pack.name}
               </h1>
               <div className="flex flex-wrap items-center gap-4">
@@ -111,50 +109,6 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                 </div>
               )}
 
-              {/* Trust Stack Section */}
-              <div className="mt-8 space-y-4 border-t border-white/5 pt-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 group/trust">
-                    <div className="w-8 h-8 rounded-sm bg-studio-neon/10 border border-studio-neon/20 flex items-center justify-center group-hover/trust:bg-studio-neon group-hover/trust:text-black transition-all">
-                      <ShieldCheck size={16} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase tracking-tight">Secure Checkout</span>
-                      <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">Via Razorpay & PayPal</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 group/trust">
-                    <div className="w-8 h-8 rounded-sm bg-studio-yellow/10 border border-studio-yellow/20 flex items-center justify-center group-hover/trust:bg-studio-yellow group-hover/trust:text-black transition-all">
-                      <Zap size={16} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase tracking-tight">Instant Delivery</span>
-                      <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">Direct to your Email</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 group/trust">
-                    <div className="w-8 h-8 rounded-sm bg-studio-blue/10 border border-studio-blue/20 flex items-center justify-center group-hover/trust:bg-studio-blue group-hover/trust:text-black transition-all">
-                      <CheckCircle2 size={16} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase tracking-tight">100% Royalty Free</span>
-                      <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">Commercial Use Ready</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 group/trust">
-                    <div className="w-8 h-8 rounded-sm bg-studio-pink/10 border border-studio-pink/20 flex items-center justify-center group-hover/trust:bg-studio-pink group-hover/trust:text-white transition-all">
-                      <Headphones size={16} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase tracking-tight">High Quality</span>
-                      <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">24-Bit / 44.1kHz Wav</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -208,18 +162,18 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
 
         {/* Description & Details (Order 3 on Mobile, Bottom Right on Desktop) */}
         <div className="lg:col-span-4 space-y-8 order-3">
-          <p className="text-xs text-white/60 leading-relaxed font-medium bg-white/[0.02] p-4 border border-white/5 rounded-sm whitespace-pre-wrap">
+          <p className="text-xs text-white/80 leading-relaxed font-medium bg-black/40 backdrop-blur-md p-6 border border-white/10 rounded-sm whitespace-pre-wrap">
             {pack.description || "No description available for this collection."}
           </p>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-white/5 border border-white/5 rounded-sm space-y-1">
-              <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Type</span>
-              <p className="text-[10px] font-bold uppercase">{pack.categories?.[0]?.name || 'Artifacts'}</p>
+            <div className="p-4 bg-black/30 backdrop-blur-md border border-white/10 rounded-sm space-y-1">
+              <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Type</span>
+              <p className="text-[10px] font-bold uppercase text-white">{pack.categories?.[0]?.name || 'Artifacts'}</p>
             </div>
-            <div className="p-4 bg-white/5 border border-white/5 rounded-sm space-y-1">
-              <span className="text-[8px] font-black text-white/20 uppercase tracking-widest">Quality</span>
-              <p className="text-[10px] font-bold uppercase">24-Bit WAV</p>
+            <div className="p-4 bg-black/30 backdrop-blur-md border border-white/10 rounded-sm space-y-1">
+              <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Quality</span>
+              <p className="text-[10px] font-bold uppercase text-white">24-Bit WAV</p>
             </div>
           </div>
           
@@ -232,6 +186,51 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                <Zap size={14} className="text-studio-yellow" />
                Immediate Access
              </div>
+          </div>
+
+          {/* Trust Stack Section - Compact 1-Line Layout */}
+          <div className="mt-8 border-t border-white/5 pt-8">
+            <div className="grid grid-cols-4 gap-2">
+              <div className="flex flex-col items-center text-center gap-2 group/trust">
+                <div className="w-8 h-8 rounded-sm bg-studio-neon/10 border border-studio-neon/20 flex items-center justify-center group-hover/trust:bg-studio-neon group-hover/trust:text-black transition-all">
+                  <ShieldCheck size={14} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[7px] font-black uppercase tracking-tighter leading-tight">Secure</span>
+                  <span className="text-[6px] font-bold text-white/30 uppercase tracking-tighter">Checkout</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center text-center gap-2 group/trust">
+                <div className="w-8 h-8 rounded-sm bg-studio-yellow/10 border border-studio-yellow/20 flex items-center justify-center group-hover/trust:bg-studio-yellow group-hover/trust:text-black transition-all">
+                  <Zap size={14} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[7px] font-black uppercase tracking-tighter leading-tight">Instant</span>
+                  <span className="text-[6px] font-bold text-white/30 uppercase tracking-tighter">Delivery</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center text-center gap-2 group/trust">
+                <div className="w-8 h-8 rounded-sm bg-studio-blue/10 border border-studio-blue/20 flex items-center justify-center group-hover/trust:bg-studio-blue group-hover/trust:text-black transition-all">
+                  <CheckCircle2 size={14} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[7px] font-black uppercase tracking-tighter leading-tight">100%</span>
+                  <span className="text-[6px] font-bold text-white/30 uppercase tracking-tighter">Royalty Free</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center text-center gap-2 group/trust">
+                <div className="w-8 h-8 rounded-sm bg-studio-pink/10 border border-studio-pink/20 flex items-center justify-center group-hover/trust:bg-studio-pink group-hover/trust:text-white transition-all">
+                  <Headphones size={14} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[7px] font-black uppercase tracking-tighter leading-tight">High</span>
+                  <span className="text-[6px] font-bold text-white/30 uppercase tracking-tighter">Quality</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

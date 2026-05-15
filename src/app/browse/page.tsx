@@ -48,7 +48,7 @@ export default async function BrowsePage({
           <div className="flex flex-wrap justify-center gap-3 max-w-3xl">
             <Link 
               href="/browse"
-              className={`px-4 py-1.5 rounded-sm border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all ${!q ? 'bg-studio-yellow text-black shadow-[4px_4px_0px_black]' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'}`}
+              className={`px-4 py-2 rounded-sm border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all ${!q ? 'bg-studio-yellow text-black shadow-[4px_4px_0px_black] -rotate-1' : 'bg-white/10 text-white/80 hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black]'}`}
             >
               All Genres
             </Link>
@@ -56,7 +56,7 @@ export default async function BrowsePage({
               <Link
                 key={cat.id}
                 href={`/browse/genre/${cat.slug}`}
-                className="px-4 py-1.5 bg-white/5 border-2 border-black text-white/40 text-[10px] font-black uppercase tracking-widest hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black] transition-all rounded-sm"
+                className="px-4 py-2 bg-white/10 border-2 border-black text-white/80 text-[10px] font-black uppercase tracking-widest hover:bg-studio-neon hover:text-black hover:shadow-[4px_4px_0px_black] transition-all rounded-sm hover:-rotate-1"
               >
                 {cat.name}
               </Link>
