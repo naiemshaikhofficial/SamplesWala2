@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Share2, Check } from 'lucide-react'
 
-export function ShareButton({ title, text, url, className = "" }: { title: string, text: string, url: string, className?: string }) {
+export function ShareButton({ title, text, url, className = "" }: { title: string, text: string, url?: string, className?: string }) {
   const [copied, setCopied] = useState(false)
 
   const handleShare = async () => {
