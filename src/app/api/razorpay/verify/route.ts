@@ -39,8 +39,8 @@ export async function POST(request: Request) {
     const presetIds = items.filter((i: any) => i.type === 'preset').map((i: any) => i.id)
 
     const [packsRes, presetsRes] = await Promise.all([
-      packIds.length > 0 ? admin.from('sample_packs').select('id, name, price_inr').in('id', packIds) : { data: [] },
-      presetIds.length > 0 ? admin.from('presets').select('id, name, price_inr').in('id', presetIds) : { data: [] }
+      packIds.length > 0 ? admin.from('sample_packs').select('id, name, price_inr, full_pack_download_url').in('id', packIds) : { data: [] },
+      presetIds.data ? { data: presetIds.data } : (presetIds.length > 0 ? admin.from('presets').select('id, name, price_inr').in('id', presetIds) : { data: [] })
     ])
 
     const allPurchasedItems = [...(packsRes.data || []), ...(presetsRes.data || [])]
@@ -54,6 +54,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid free order" }, { status: 400 })
     }
 
+    // Generate internal IDs for free orders to avoid "undefined" in logs and invoices
+    const finalOrderId = isFree ? `SW_FREE_${Date.now()}` : razorpay_order_id
+    const finalPaymentId = isFree ? `SW_PAY_FREE_${Date.now()}` : razorpay_payment_id
+
     // 3. Add to User Vault
     const vaultEntries = items.map((item: any) => {
       const dbItem = allPurchasedItems.find(p => p.id === item.id)
@@ -63,8 +67,8 @@ export async function POST(request: Request) {
         item_type: item.type,
         item_name: dbItem?.name || 'Unknown Item',
         amount: dbItem?.price_inr || 0,
-        razorpay_order_id: isFree ? `FREE_${Date.now()}` : razorpay_order_id,
-        razorpay_payment_id: isFree ? `FREE_${Date.now()}` : razorpay_payment_id
+        razorpay_order_id: finalOrderId,
+        razorpay_payment_id: finalPaymentId
       }
     })
 
@@ -107,16 +111,26 @@ export async function POST(request: Request) {
       if (user && user.email) {
         const invoiceItems = items.map((item: any) => {
           const dbItem = allPurchasedItems.find(p => p.id === item.id)
-          return { name: dbItem?.name || 'Unknown Item', price: dbItem?.price_inr || 0 }
+          return { 
+            name: dbItem?.name || 'Unknown Item', 
+            price: dbItem?.price_inr || 0,
+            isPreorder: item.type === 'pack' && !dbItem?.full_pack_download_url 
+          }
         })
 
         const total = invoiceItems.reduce((sum, item) => sum + item.price, 0)
+        const hasPreorder = invoiceItems.some(i => i.isPreorder)
+
+        const userAddress = billingDetails 
+          ? `${billingDetails.address}, ${billingDetails.city}, ${billingDetails.state} - ${billingDetails.zip}`
+          : undefined
 
         const pdfBuffer = await generateInvoicePDF({
-          orderId: razorpay_order_id,
-          paymentId: razorpay_payment_id,
-          userName: user.user_metadata?.full_name || user.email.split('@')[0],
+          orderId: finalOrderId,
+          paymentId: finalPaymentId,
+          userName: user.user_metadata?.full_name || billingDetails?.fullName || user.email.split('@')[0],
           userEmail: user.email,
+          userAddress: userAddress,
           items: invoiceItems,
           total: total,
           date: new Date().toLocaleDateString()
@@ -125,12 +139,16 @@ export async function POST(request: Request) {
         await sendInvoiceEmail({
           email: user.email,
           pdfBuffer,
-          orderId: razorpay_order_id,
-          packNames: invoiceItems.map(i => i.name)
+          orderId: finalOrderId,
+          packNames: invoiceItems.map(i => i.name),
+          userName: user.user_metadata?.full_name || billingDetails?.fullName || user.email.split('@')[0],
+          total: total,
+          items: invoiceItems,
+          isPreorder: hasPreorder
         })
       }
     } catch (emailErr) {
-      console.error('[INVOICE_SEND_ERROR]', emailErr)
+      console.error('[INVOICE_SEND_EMAIL_ERROR]', emailErr)
     }
 
     return NextResponse.json({ success: true })
