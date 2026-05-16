@@ -115,7 +115,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
                       cover_url: pack.cover_url || undefined,
                       type: 'pack'
                     })}
-                    className="flex-1 h-10 bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
+                    className="flex-1 h-10 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
                     title="Add to Cart"
                   >
                     <Image src="/cart-bag.png" alt="Cart" width={12} height={12} className="brightness-0" />
@@ -123,7 +123,7 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
                   </button>
                   <button 
                     onClick={() => handleBuyNow(pack)}
-                    className="flex-1 h-10 bg-studio-pink text-white text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center"
+                    className="flex-1 h-10 bg-studio-pink text-white text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center"
                   >
                     Buy
                   </button>

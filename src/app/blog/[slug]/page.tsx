@@ -132,7 +132,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
              <div className="h-[2px] bg-white/10 flex-grow" />
           </div>
 
-          <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9] text-white">
+          <h1 className="text-3xl sm:text-4xl md:text-7xl font-black uppercase tracking-tighter leading-[0.95] md:leading-[0.9] text-white">
             {post.title}
           </h1>
 
@@ -157,22 +157,22 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-               <button className="p-3 bg-studio-charcoal border-2 border-black hover:bg-studio-neon hover:text-black transition-all">
-                  <Share2 size={16} />
+            <div className="flex items-center gap-2 md:gap-4">
+               <button className="p-2 md:p-3 bg-studio-charcoal border-2 border-black hover:bg-studio-neon hover:text-black transition-all">
+                  <Share2 size={14} className="md:w-4 md:h-4" />
                </button>
-               <button className="p-3 bg-studio-charcoal border-2 border-black hover:text-[#1877F2] transition-all">
-                  <Facebook size={16} />
+               <button className="p-2 md:p-3 bg-studio-charcoal border-2 border-black hover:text-[#1877F2] transition-all">
+                  <Facebook size={14} className="md:w-4 md:h-4" />
                </button>
-               <button className="p-3 bg-studio-charcoal border-2 border-black hover:text-[#1DA1F2] transition-all">
-                  <Twitter size={16} />
+               <button className="p-2 md:p-3 bg-studio-charcoal border-2 border-black hover:text-[#1DA1F2] transition-all">
+                  <Twitter size={14} className="md:w-4 md:h-4" />
                </button>
             </div>
           </div>
         </div>
 
         {/* Featured Image */}
-        <div className="aspect-video relative border-4 border-black shadow-[15px_15px_0px_rgba(0,0,0,1)] mb-16 overflow-hidden">
+        <div className="aspect-video relative border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] md:shadow-[15px_15px_0px_rgba(0,0,0,1)] mb-16 overflow-hidden">
            <Image 
              src={post.image} 
              alt={post.title} 

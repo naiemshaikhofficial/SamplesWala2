@@ -39,20 +39,20 @@ export default async function BrowsePage({
       <div className="flex flex-col md:flex-row gap-4 mb-16">
          <Link 
             href="/browse/packs"
-            className={`flex-1 h-20 flex items-center justify-center gap-4 border-4 border-black text-2xl font-black uppercase italic tracking-tighter transition-all ${type === 'packs' ? 'bg-studio-yellow text-black shadow-[8px_8px_0px_black] -translate-y-1' : 'bg-studio-charcoal text-white/40 hover:text-white hover:bg-studio-charcoal/80'}`}
+            className={`flex-1 h-14 md:h-20 flex items-center justify-center gap-3 md:gap-4 border-4 border-black text-lg md:text-2xl font-black uppercase italic tracking-tighter transition-all ${type === 'packs' ? 'bg-studio-yellow text-black shadow-[4px_4px_0px_black] md:shadow-[8px_8px_0px_black] -translate-y-1' : 'bg-studio-charcoal text-white/40 hover:text-white hover:bg-studio-charcoal/80'}`}
          >
-            <Music size={28} />
+            <Music size={20} className="md:w-7 md:h-7" />
             Sample Packs
-            <span className="ml-2 text-xs bg-black text-studio-yellow px-2 py-0.5 border-2 border-black rotate-12">NEW</span>
+            <span className="ml-1 md:ml-2 text-[8px] md:text-xs bg-black text-studio-yellow px-1 md:px-2 py-0.5 border-2 border-black rotate-12">NEW</span>
          </Link>
          
          <Link 
             href="/browse/presets"
-            className={`flex-1 h-20 flex items-center justify-center gap-4 border-4 border-black text-2xl font-black uppercase italic tracking-tighter transition-all ${type === 'presets' ? 'bg-studio-pink text-white shadow-[8px_8px_0px_black] -translate-y-1' : 'bg-studio-charcoal text-white/40 hover:text-white hover:bg-studio-charcoal/80'}`}
+            className={`flex-1 h-14 md:h-20 flex items-center justify-center gap-3 md:gap-4 border-4 border-black text-lg md:text-2xl font-black uppercase italic tracking-tighter transition-all ${type === 'presets' ? 'bg-studio-pink text-white shadow-[4px_4px_0px_black] md:shadow-[8px_8px_0px_black] -translate-y-1' : 'bg-studio-charcoal text-white/40 hover:text-white hover:bg-studio-charcoal/80'}`}
          >
-            <Sparkles size={28} />
+            <Sparkles size={20} className="md:w-7 md:h-7" />
             Producer Presets
-            <span className="ml-2 text-xs bg-black text-studio-pink px-2 py-0.5 border-2 border-black rotate-12">HOT</span>
+            <span className="ml-1 md:ml-2 text-[8px] md:text-xs bg-black text-studio-pink px-1 md:px-2 py-0.5 border-2 border-black rotate-12">HOT</span>
          </Link>
       </div>
 
@@ -101,7 +101,7 @@ export default async function BrowsePage({
           {type === 'packs' ? (
              <div className="space-y-12">
                 <div className="space-y-2">
-                   <h1 className="text-6xl font-black uppercase tracking-tighter italic">
+                   <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
                       Premium <span className="text-studio-yellow">Packs.</span>
                    </h1>
                    <p className="text-sm font-bold text-white/40 uppercase tracking-widest">Professional Indian Sample Kits & Vocal Stacks</p>
@@ -111,7 +111,7 @@ export default async function BrowsePage({
           ) : (
              <div className="space-y-12">
                 <div className="space-y-2">
-                   <h1 className="text-6xl font-black uppercase tracking-tighter italic">
+                   <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic">
                       Signature <span className="text-studio-pink">Presets.</span>
                    </h1>
                    <p className="text-sm font-bold text-white/40 uppercase tracking-widest">Mixing Chains & Soundbanks for FL Studio & More</p>

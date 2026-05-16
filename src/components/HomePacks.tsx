@@ -146,14 +146,14 @@ export function HomePacks({ packs }: { packs: any[] }) {
 
                 <button
                   onClick={() => handleAddToCart(pack)}
-                  className="flex-1 h-11 bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center gap-2"
+                  className="flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center gap-2"
                 >
                   <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
                   Cart
                 </button>
                 <button
                   onClick={() => handleBuyNow(pack)}
-                  className="flex-1 h-11 bg-studio-pink text-white text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  className="flex-1 h-11 bg-studio-pink text-white text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none"
                 >
                   Get
                 </button>

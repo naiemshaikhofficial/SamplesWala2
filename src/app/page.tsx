@@ -42,7 +42,7 @@ export default async function HomePage() {
               OFFICIALLY LAUNCHED!
             </div>
 
-            <h1 className="text-4xl sm:text-6xl md:text-[10rem] font-black uppercase tracking-tighter leading-[0.75] text-white comic-text break-words">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] font-black uppercase tracking-tighter leading-[0.8] md:leading-[0.75] text-white comic-text break-words">
               SAMPLES<br />
               <span className="text-studio-yellow italic">WALA</span>
             </h1>
@@ -55,10 +55,10 @@ export default async function HomePage() {
                   className="relative flex flex-wrap gap-x-4 gap-y-2 select-none"
                   style={{ fontFamily: 'var(--font-luckiest-guy), cursive' }}
                 >
-                  <span className="text-4xl md:text-6xl text-studio-neon comic-text -rotate-3 hover:rotate-0 transition-transform">BY</span>
-                  <span className="text-4xl md:text-6xl text-studio-pink comic-text rotate-2 hover:rotate-0 transition-transform">ARTIST</span>
-                  <span className="text-4xl md:text-6xl text-studio-yellow comic-text -rotate-1 hover:rotate-0 transition-transform">FOR</span>
-                  <span className="text-4xl md:text-6xl text-studio-blue comic-text rotate-3 hover:rotate-0 transition-transform">ARTIST</span>
+                  <span className="text-3xl md:text-6xl text-studio-neon comic-text -rotate-3 hover:rotate-0 transition-transform">BY</span>
+                  <span className="text-3xl md:text-6xl text-studio-pink comic-text rotate-2 hover:rotate-0 transition-transform">ARTIST</span>
+                  <span className="text-3xl md:text-6xl text-studio-yellow comic-text -rotate-1 hover:rotate-0 transition-transform">FOR</span>
+                  <span className="text-3xl md:text-6xl text-studio-blue comic-text rotate-3 hover:rotate-0 transition-transform">ARTIST</span>
                   
                   {/* Decorative Comic Elements */}
                   <div className="absolute -top-4 -right-4 text-studio-red animate-pulse">
@@ -115,7 +115,7 @@ export default async function HomePage() {
       <section className="py-24 container mx-auto px-4">
         <div className="flex items-end justify-between mb-12 border-b border-white/5 pb-8">
           <div className="space-y-2">
-            <h2 className="text-4xl font-black uppercase tracking-tighter">Trending Collections</h2>
+            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter">Trending Collections</h2>
             <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Top rated by industry veterans</p>
           </div>
           <Link href="/browse" className="text-[10px] font-black text-white/40 uppercase hover:text-studio-neon transition-colors">
@@ -135,10 +135,10 @@ export default async function HomePage() {
                 <Sparkles size={12} fill="currentColor" />
                 Vocal Chains & Mix Presets
               </div>
-              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
+              <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
                 PRODUCER <span className="text-studio-neon">PRESETS</span>
               </h2>
-              <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Professional FL Studio & DAW Chains</p>
+              <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] md:tracking-[0.3em]">Professional FL Studio & DAW Chains</p>
             </div>
             <Link 
               href="/browse?type=presets" 
@@ -166,36 +166,36 @@ export default async function HomePage() {
         <div className="container mx-auto px-4 space-y-16">
           <div className="text-center space-y-4 relative">
             <div className="splatter-effect bg-studio-blue/20 -top-10 left-1/2 -translate-x-1/2" />
-            <h2 className="text-2xl sm:text-4xl md:text-8xl font-black uppercase italic tracking-tighter comic-text text-white break-words">
+            <h2 className="text-3xl sm:text-5xl md:text-8xl font-black uppercase italic tracking-tighter comic-text text-white break-words">
               USED BY 500+ ARTISTS
             </h2>
-            <div className="h-2 bg-studio-neon w-24 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
+            <div className="h-1.5 md:h-2 bg-studio-neon w-16 md:w-24 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
-            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-red border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
-              <div className="h-8 w-8 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[3px_3px_0px_black]">
-                <ShieldCheck className="text-black" size={16} />
+          <div className="grid grid-cols-3 gap-2 md:gap-12">
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-2 md:p-8 bg-studio-red border-2 md:border-4 border-black shadow-[3px_3px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-1 md:hover:-translate-y-2 transition-all group">
+              <div className="h-6 w-6 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[2px_2px_0px_black] md:shadow-[3px_3px_0px_black]">
+                <ShieldCheck className="text-black w-3 h-3 md:w-4 md:h-4" />
               </div>
-              <h3 className="text-[10px] md:text-lg font-black uppercase tracking-widest text-black">Royalty Free</h3>
+              <h3 className="text-[7px] md:text-lg font-black uppercase tracking-widest text-black leading-tight">Royalty Free</h3>
               <p className="hidden md:block text-[11px] text-black font-bold uppercase leading-relaxed tracking-[0.1em]">
                 All sounds are 100% royalty-free for commercial use. Keep all your royalties.
               </p>
             </div>
-            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-yellow border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
-              <div className="h-8 w-8 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[3px_3px_0px_black]">
-                <Zap className="text-black" size={16} />
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-2 md:p-8 bg-studio-yellow border-2 md:border-4 border-black shadow-[3px_3px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-1 md:hover:-translate-y-2 transition-all group">
+              <div className="h-6 w-6 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[2px_2px_0px_black] md:shadow-[3px_3px_0px_black]">
+                <Zap className="text-black w-3 h-3 md:w-4 md:h-4" />
               </div>
-              <h3 className="text-[10px] md:text-lg font-black uppercase tracking-widest text-black">Instant</h3>
+              <h3 className="text-[7px] md:text-lg font-black uppercase tracking-widest text-black leading-tight">Instant</h3>
               <p className="hidden md:block text-[11px] text-black font-bold uppercase leading-relaxed tracking-[0.1em]">
                 Digital delivery immediately after purchase. Start creating in seconds.
               </p>
             </div>
-            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-blue border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
-              <div className="h-8 w-8 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[3px_3px_0px_black]">
-                <Music className="text-black" size={16} />
+            <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-2 md:p-8 bg-studio-blue border-2 md:border-4 border-black shadow-[3px_3px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-1 md:hover:-translate-y-2 transition-all group">
+              <div className="h-6 w-6 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[2px_2px_0px_black] md:shadow-[3px_3px_0px_black]">
+                <Music className="text-black w-3 h-3 md:w-4 md:h-4" />
               </div>
-              <h3 className="text-[10px] md:text-lg font-black uppercase tracking-widest text-black">High Quality</h3>
+              <h3 className="text-[7px] md:text-lg font-black uppercase tracking-widest text-black leading-tight">High Quality</h3>
               <p className="hidden md:block text-[11px] text-black font-bold uppercase leading-relaxed tracking-[0.1em]">
                 Professional audio files made for making hits and great music.
               </p>
