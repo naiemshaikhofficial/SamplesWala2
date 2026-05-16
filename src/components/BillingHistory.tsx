@@ -11,8 +11,8 @@ interface BillingItem {
   razorpay_payment_id: string
 }
 
-export function BillingHistory({ items, profile, email }: { 
-  items: BillingItem[], 
+export function BillingHistory({ items, profile, email }: {
+  items: BillingItem[],
   profile: {
     full_name: string | null,
     phone_number: string | null,
@@ -44,7 +44,7 @@ export function BillingHistory({ items, profile, email }: {
         <head>
           <title>Bill of Supply - ${item.razorpay_order_id}</title>
           <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Luckiest+Guy&family=Kalam:wght@700&display=swap');
             @keyframes glow {
               0% { text-shadow: 0 0 5px #00FF94; }
               50% { text-shadow: 0 0 15px #00FF94; }
@@ -73,7 +73,8 @@ export function BillingHistory({ items, profile, email }: {
             
             .declarations { margin-top: 60px; font-size: 10px; font-weight: 900; color: #444; border-left: 5px solid #00EAFF; padding-left: 20px; }
             .footer { margin-top: 80px; text-align: center; border-top: 4px solid #000; padding-top: 30px; }
-            .made-in { font-size: 20px; font-weight: 900; font-style: italic; }
+            .made-in { font-size: 32px; letter-spacing: -1px; text-shadow: 3px 3px 0px #000; margin-bottom: 5px; }
+            .font-kalam { font-family: 'Kalam', cursive; font-weight: 700; }
             .help-box { margin-top: 20px; display: inline-flex; align-items: center; gap: 8px; background: #f0f0f0; padding: 10px 20px; border: 2px solid #000; font-size: 11px; font-weight: 900; text-transform: uppercase; }
             
             @media print { .no-print { display: none; } }
@@ -90,7 +91,7 @@ export function BillingHistory({ items, profile, email }: {
               <p class="subtitle-text">(Digital Services - GST Exempt)</p>
               <div style="margin-top: 10px;">
                 <div class="label">Invoice Ref</div><br>
-                <div class="value">#${item.razorpay_payment_id?.slice(-10).toUpperCase() || item.id.slice(0,10).toUpperCase()}</div>
+                <div class="value">#${item.razorpay_payment_id?.slice(-10).toUpperCase() || item.id.slice(0, 10).toUpperCase()}</div>
               </div>
             </div>
           </div>
@@ -158,7 +159,7 @@ export function BillingHistory({ items, profile, email }: {
           </div>
 
           <div class="footer">
-            <div class="made-in">MADE IN <span style="color: #ff9933;">BHA</span><span style="color: #000;">R</span><span style="color: #128807;">AT</span></div>
+            <div class="made-in">MADE IN <span class="font-kalam" style="color: #FF9933;">भा</span><span class="font-kalam" style="color: #FFFFFF;">र</span><span class="font-kalam" style="color: #128807;">त</span></div>
             <div class="help-box">
               <img src="https://img.icons8.com/ios-filled/50/000000/mail.png" width="14" style="vertical-align: middle;">
               NEED HELP? SUPPORT@SAMPLESWALA.COM
@@ -190,7 +191,7 @@ export function BillingHistory({ items, profile, email }: {
         <head>
           <title>License Certificate - ${item.item_name}</title>
           <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Luckiest+Guy&family=Kalam:wght@700&display=swap');
             @keyframes glow {
               0% { text-shadow: 0 0 5px #00FF94; }
               50% { text-shadow: 0 0 15px #00FF94; }
@@ -249,7 +250,7 @@ export function BillingHistory({ items, profile, email }: {
               </div>
               <div class="grid-item">
                 <div class="grid-label">Order Ref</div>
-                <div class="grid-value">#${item.razorpay_order_id || item.id.slice(0,12).toUpperCase()}</div>
+                <div class="grid-value">#${item.razorpay_order_id || item.id.slice(0, 12).toUpperCase()}</div>
               </div>
               <div class="grid-item">
                 <div class="grid-label">Type</div>
@@ -352,22 +353,22 @@ export function BillingHistory({ items, profile, email }: {
                   <span className="text-[11px] font-black text-studio-neon">₹{item.amount}</span>
                 </td>
                 <td className="p-6 text-right">
-                   <div className="flex items-center justify-end gap-2">
-                     <button 
-                       onClick={() => handleDownloadInvoice(item)}
-                       className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
-                     >
-                       <Receipt size={12} />
-                       Invoice
-                     </button>
-                     <button 
-                       onClick={() => handleDownloadLicense(item)}
-                       className="inline-flex items-center gap-2 px-4 py-2 bg-studio-neon/10 border border-studio-neon/20 text-[9px] font-black uppercase tracking-widest text-studio-neon hover:bg-studio-neon hover:text-black transition-all"
-                     >
-                       <FileCheck size={12} />
-                       License
-                     </button>
-                   </div>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => handleDownloadInvoice(item)}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+                    >
+                      <Receipt size={12} />
+                      Invoice
+                    </button>
+                    <button
+                      onClick={() => handleDownloadLicense(item)}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-studio-neon/10 border border-studio-neon/20 text-[9px] font-black uppercase tracking-widest text-studio-neon hover:bg-studio-neon hover:text-black transition-all"
+                    >
+                      <FileCheck size={12} />
+                      License
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -100,15 +100,41 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
               <Link href="/dmca" className="hover:text-white transition-colors">DMCA</Link>
             </div>
             
-            {/* ULTRA MASSIVE Made In Bharat Badge */}
-            <div className="relative h-48 md:h-64 w-full max-w-[600px] cursor-default -mt-10 md:-mt-20 -mb-10 mx-auto md:mx-0">
-               <Image 
-                 src="/made-in-bharat.png" 
-                 alt="Made In Bharat" 
-                 fill 
-                 className="object-contain"
-                 priority
-               />
+            {/* ULTRA MASSIVE Made In Bharat Text Badge */}
+            <div className="relative w-full max-w-[600px] flex flex-col items-center md:items-end justify-center py-10 md:py-16 group select-none">
+              <div className="relative z-10 transform -rotate-3 transition-all duration-500 group-hover:rotate-0 group-hover:scale-105">
+                {/* MADE IN - Small brutalist tag */}
+                <div className="absolute -top-8 left-4 md:left-auto md:-right-4 z-20 
+                  bg-white text-black px-4 py-1 font-black text-sm md:text-xl uppercase italic 
+                  border-4 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] 
+                  skew-x-[-12deg] group-hover:skew-x-0 transition-transform">
+                  Made In
+                </div>
+
+                {/* भारत - Indian Flag Colors */}
+                <h2 className="text-[100px] md:text-[180px] font-kalam font-bold leading-none tracking-tight
+                  drop-shadow-[10px_10px_0px_#000] drop-shadow-[10px_10px_20px_rgba(0,0,0,0.5)]
+                  filter saturate-150 relative z-10 flex items-center justify-center md:justify-end">
+                  <span style={{ color: '#FF9933' }}>भा</span>
+                  <span style={{ color: '#FFFFFF' }}>र</span>
+                  <span style={{ color: '#128807' }}>त</span>
+                </h2>
+
+                {/* Graffiti splatters and glows */}
+                <div className="absolute -inset-10 -z-10 overflow-visible pointer-events-none">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] 
+                    bg-studio-pink/20 blur-[80px] rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-studio-neon/20 blur-[60px] rounded-full" />
+                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-studio-blue/20 blur-[70px] rounded-full" />
+                </div>
+              </div>
+
+              {/* Verified Trust Signal */}
+              <div className="mt-4 flex items-center gap-4 opacity-30 group-hover:opacity-60 transition-opacity">
+                <div className="h-[1px] w-12 bg-white" />
+                <span className="text-[10px] font-black uppercase tracking-[0.5em] italic">Original Heritage</span>
+                <div className="h-[1px] w-12 bg-white" />
+              </div>
             </div>
           </div>
           

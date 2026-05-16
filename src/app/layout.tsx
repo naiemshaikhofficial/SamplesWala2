@@ -1,4 +1,4 @@
-import { Permanent_Marker, Luckiest_Guy } from 'next/font/google'
+import { Permanent_Marker, Luckiest_Guy, Kalam } from 'next/font/google'
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -12,6 +12,12 @@ const luckiestGuy = Luckiest_Guy({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-luckiest-guy',
+})
+
+const kalam = Kalam({
+  weight: ['300', '400', '700'],
+  subsets: ['devanagari', 'latin'],
+  variable: '--font-kalam',
 })
 import { generatePageMetadata } from "@/lib/seo/metadata";
 
@@ -87,7 +93,7 @@ export default async function RootLayout({
           strategy="afterInteractive" 
         />
       </head>
-      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} antialiased min-h-screen flex flex-col text-white`}>
+      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} antialiased min-h-screen flex flex-col text-white`}>
         <CartProvider>
           <BackgroundMural />
           <ContentProtection />
