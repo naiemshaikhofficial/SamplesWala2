@@ -3,7 +3,7 @@ import { ShoppingBag, Check } from 'lucide-react'
 import { useCart, CartItem } from '@/context/CartContext'
 import { useState } from 'react'
 
-export function AddToCartButton({ item, compact = false }: { item: CartItem, compact?: boolean }) {
+export function AddToCartButton({ item, compact = false, label }: { item: CartItem, compact?: boolean, label?: string }) {
   const { addItem, items, setSidebarOpen } = useCart()
   const [added, setAdded] = useState(false)
   
@@ -41,7 +41,7 @@ export function AddToCartButton({ item, compact = false }: { item: CartItem, com
       ) : (
         <>
           <ShoppingBag size={compact ? 14 : 20} />
-          <span>Add to Cart</span>
+          <span>{label || "Add to Cart"}</span>
         </>
       )}
     </button>

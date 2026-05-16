@@ -81,8 +81,8 @@ export function HomePacks({ packs }: { packs: any[] }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
             {!pack.is_downloadable && (
-              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3 py-1 border border-white/10 rounded-full">
-                <span className="text-[8px] font-black uppercase tracking-widest text-studio-yellow">Coming Soon</span>
+              <div className="absolute top-4 left-4 bg-studio-neon/90 backdrop-blur-md px-3 py-1 border border-black rounded-sm shadow-[4px_4px_0px_black] -rotate-3">
+                <span className="text-[8px] font-black uppercase tracking-widest text-black">Pre-order Offer</span>
               </div>
             )}
 
@@ -111,54 +111,58 @@ export function HomePacks({ packs }: { packs: any[] }) {
                   </div>
                   
                   {/* Discount Badge - Yellow for more punch */}
-                  <div className="bg-studio-red px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
-                    <span className="text-[9px] font-black text-white uppercase italic">
-                      {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
-                    </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="bg-studio-red px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
+                      <span className="text-[9px] font-black text-white uppercase italic">
+                        {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
+                      </span>
+                    </div>
+                    {!pack.is_downloadable && (
+                      <span className="text-[7px] font-black bg-studio-neon text-black uppercase tracking-tighter px-1 rounded-sm text-center">Pre-order Offer</span>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Limited Offer Tag - Blue for variety */}
-              <div className="flex items-center gap-1.5 mt-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-studio-red animate-pulse shadow-[0_0_8px_#E50914]" />
-                <span className="text-[8px] font-black text-studio-red uppercase tracking-widest">Limited Offer</span>
+              <div className="flex items-center gap-1.5 mt-2 px-2 py-1 bg-studio-red border-2 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-sm w-fit rotate-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <span className="text-[8px] font-black text-white uppercase tracking-widest">Limited Offer</span>
               </div>
             </div>
 
-            {pack.is_downloadable && (
-              <div className="flex flex-row gap-3 pt-2 relative">
-                <AnimatePresence>
-                  {addedPackId === pack.id && (
-                    <motion.div
-                      initial={{ scale: 0, rotate: -20, opacity: 0 }}
-                      animate={{ scale: 1.1, rotate: 12, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -top-12 left-0 right-0 z-50 flex justify-center pointer-events-none"
-                    >
-                      <div className="bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-[4px_4px_0px_black] relative">
-                        ADDED!
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+            <div className="flex flex-row gap-3 pt-2 relative">
+              <AnimatePresence>
+                {addedPackId === pack.id && (
+                  <motion.div
+                    initial={{ scale: 0, rotate: -20, opacity: 0 }}
+                    animate={{ scale: 1.1, rotate: 12, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    className="absolute -top-12 left-0 right-0 z-50 flex justify-center pointer-events-none"
+                  >
+                    <div className="bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-[4px_4px_0px_black] relative">
+                      {!pack.is_downloadable ? 'RESERVED!' : 'ADDED!'}
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-                <button
-                  onClick={() => handleAddToCart(pack)}
-                  className="flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center gap-2"
-                >
-                  <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
-                  Cart
-                </button>
-                <button
-                  onClick={() => handleBuyNow(pack)}
-                  className="flex-1 h-11 bg-studio-pink text-white text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none"
-                >
-                  Get
-                </button>
-              </div>
-            )}
+              <button
+                onClick={() => handleAddToCart(pack)}
+                className="flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center gap-2"
+                title={!pack.is_downloadable ? "Pre-order" : "Add to Cart"}
+              >
+                <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
+                {!pack.is_downloadable ? 'Pre' : 'Cart'}
+              </button>
+              <button
+                onClick={() => handleBuyNow(pack)}
+                className={`flex-1 h-11 ${!pack.is_downloadable ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'} text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center`}
+              >
+                {!pack.is_downloadable ? 'Pre' : 'Get'}
+              </button>
+            </div>
           </div>
         </motion.div>
       ))}

@@ -112,47 +112,65 @@ export function PackDetailClient({ initialPack, owned, user }: { initialPack: an
                     ₹{pack.price_inr}
                   </p>
                 </div>
-                <div className="bg-studio-yellow px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2">
-                  <span className="text-[11px] font-black text-black uppercase italic">
+                <div className="bg-studio-red px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2 flex flex-col items-center">
+                  <span className="text-[11px] font-black text-white uppercase italic">
                     {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
                   </span>
+                  {!pack.is_downloadable && (
+                    <span className="text-[7px] font-black bg-white text-studio-red uppercase tracking-tighter px-2 rounded-sm mt-0.5">Pre-order Offer</span>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="pt-2">
-              {!pack.is_downloadable ? (
-                <div className="w-full h-14 bg-white/5 border border-dashed border-white/20 rounded-sm flex items-center justify-center">
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 animate-pulse">Coming Soon</span>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {owned ? (
+              <div className="flex flex-col gap-3">
+                {owned ? (
+                  pack.is_downloadable ? (
                     <DownloadButton itemId={pack.id} />
                   ) : (
-                    <div className="flex flex-col gap-3">
-                      <AddToCartButton 
-                        item={{
-                          id: pack.id,
-                          name: pack.name,
-                          price: Number(pack.price_inr),
-                          slug: pack.slug,
-                          cover_url: pack.cover_url || undefined,
-                          type: 'pack'
-                        }} 
-                      />
-                      <PaymentButton 
-                        packId={pack.id} 
-                        packName={pack.name} 
-                        price={Number(pack.price_inr)} 
-                        slug={pack.slug}
-                        cover_url={pack.cover_url || ''}
-                        userId={user?.id}
-                      />
+                    <div className="w-full p-8 bg-studio-neon/5 border-2 border-studio-neon/20 border-dashed rounded-sm text-center space-y-3 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-2 opacity-10">
+                        <Zap size={40} className="text-studio-neon" />
+                      </div>
+                      <p className="text-[12px] font-black uppercase tracking-[0.2em] text-studio-neon italic">Pre-ordered Successfully!</p>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
+                        This pack is currently in production.<br/>We will notify you via email once it's available for download.
+                      </p>
                     </div>
-                  )}
-                </div>
-              )}
+                  )
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {!pack.is_downloadable && (
+                      <div className="bg-studio-red p-3 rounded-sm mb-1 border-2 border-black shadow-[4px_4px_0px_black] rotate-1">
+                        <p className="text-[9px] font-black text-white uppercase tracking-[0.2em] animate-pulse text-center">
+                          🔥 PRE-ORDER OFFER: SECURE THIS PRICE NOW!
+                        </p>
+                      </div>
+                    )}
+                    <AddToCartButton 
+                      label={!pack.is_downloadable ? "Pre-order" : undefined}
+                      item={{
+                        id: pack.id,
+                        name: pack.name,
+                        price: Number(pack.price_inr),
+                        slug: pack.slug,
+                        cover_url: pack.cover_url || undefined,
+                        type: 'pack'
+                      }} 
+                    />
+                    <PaymentButton 
+                      label={!pack.is_downloadable ? `PRE-ORDER NOW — ₹${pack.price_inr}` : undefined}
+                      packId={pack.id} 
+                      packName={pack.name} 
+                      price={Number(pack.price_inr)} 
+                      slug={pack.slug}
+                      cover_url={pack.cover_url || ''}
+                      userId={user?.id}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

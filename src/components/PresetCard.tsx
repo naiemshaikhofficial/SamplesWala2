@@ -115,9 +115,9 @@ export function PresetCard({ preset }: PresetCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 mt-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-studio-red animate-pulse shadow-[0_0_8px_#E50914]" />
-            <span className="text-[8px] font-black text-studio-red uppercase tracking-widest">Limited Offer</span>
+          <div className="flex items-center gap-1.5 mt-2 px-2 py-1 bg-studio-red border-2 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-sm w-fit rotate-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <span className="text-[8px] font-black text-white uppercase tracking-widest">Limited Offer</span>
           </div>
         </div>
 

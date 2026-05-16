@@ -110,13 +110,30 @@ export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                   <DownloadButton itemId={item.id} type={item.type} />
-                   <Link 
-                     href={item.type === 'pack' ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`}
-                     className="h-14 w-14 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all group/link"
-                   >
-                     <ArrowRight size={18} className="text-white/20 group-hover/link:text-white transition-colors" />
-                   </Link>
+                   {item.is_downloadable ? (
+                     <>
+                       <DownloadButton itemId={item.id} type={item.type} />
+                       <Link 
+                         href={item.type === 'pack' ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`}
+                         className="h-14 w-14 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all group/link"
+                       >
+                         <ArrowRight size={18} className="text-white/20 group-hover/link:text-white transition-colors" />
+                       </Link>
+                     </>
+                   ) : (
+                     <div className="w-full bg-studio-neon/5 border border-studio-neon/20 p-4 rounded-sm flex items-center justify-between group/pre">
+                       <div className="space-y-0.5">
+                         <p className="text-[10px] font-black text-studio-neon uppercase tracking-widest italic">Pre-ordered</p>
+                         <p className="text-[7px] font-bold text-white/40 uppercase tracking-tighter">Notification will be sent once available</p>
+                       </div>
+                       <Link 
+                         href={item.type === 'pack' ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`}
+                         className="h-10 w-10 bg-studio-neon/10 border border-studio-neon/20 flex items-center justify-center hover:bg-studio-neon hover:border-black transition-all group-hover/pre:rotate-12"
+                       >
+                         <ArrowRight size={14} className="text-studio-neon group-hover/pre:text-black" />
+                       </Link>
+                     </div>
+                   )}
                 </div>
               </div>
             </div>

@@ -75,8 +75,8 @@ export function PresetDetailClient({ preset, isOwned, isFree, vId }: PresetDetai
                   </p>
                 </div>
                 {preset.mrp_inr && preset.price_inr > 0 && (
-                  <div className="bg-studio-yellow px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2">
-                    <span className="text-[11px] font-black text-black uppercase italic">
+                  <div className="bg-studio-red px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2">
+                    <span className="text-[11px] font-black text-white uppercase italic">
                       {Math.round((1 - (Number(preset.price_inr) / Number(preset.mrp_inr))) * 100)}% OFF
                     </span>
                   </div>

@@ -62,8 +62,8 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
             
              {!pack.is_downloadable && (
-               <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3 py-1 border border-white/10 rounded-full">
-                 <span className="text-[8px] font-black uppercase tracking-widest text-studio-yellow">Coming Soon</span>
+               <div className="absolute top-4 left-4 bg-studio-neon/90 backdrop-blur-md px-3 py-1 border border-black rounded-sm shadow-[4px_4px_0px_black] -rotate-3">
+                 <span className="text-[8px] font-black uppercase tracking-widest text-black">Pre-order Offer</span>
                </div>
              )}
           </Link>
@@ -89,46 +89,49 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
                     </p>
                   </div>
                   
-                  <div className="bg-studio-red px-1.5 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
-                    <span className="text-[8px] font-black text-white uppercase italic">
-                      {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
-                    </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="bg-studio-red px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
+                      <span className="text-[9px] font-black text-white uppercase italic">
+                        {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
+                      </span>
+                    </div>
+                    {!pack.is_downloadable && (
+                      <span className="text-[7px] font-black bg-studio-neon text-black uppercase tracking-tighter px-1 rounded-sm text-center">Pre-order Offer</span>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Limited Offer Tag */}
-              <div className="flex items-center gap-1.5 mt-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-studio-red animate-pulse shadow-[0_0_8px_#E50914]" />
-                <span className="text-[7px] font-black text-studio-red uppercase tracking-widest">Limited Offer</span>
+              <div className="flex items-center gap-1.5 mt-2 px-2 py-1 bg-studio-red border-2 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-sm w-fit rotate-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <span className="text-[8px] font-black text-white uppercase tracking-widest">Limited Offer</span>
               </div>
             </div>
 
-            {pack.is_downloadable && (
-                <div className="flex gap-2 pt-2">
-                   <button 
-                    onClick={() => addItem({
-                      id: pack.id,
-                      name: pack.name,
-                      price: Number(pack.price_inr),
-                      slug: pack.slug,
-                      cover_url: pack.cover_url || undefined,
-                      type: 'pack'
-                    })}
-                    className="flex-1 h-10 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
-                    title="Add to Cart"
-                  >
-                    <Image src="/cart-bag.png" alt="Cart" width={12} height={12} className="brightness-0" />
-                    Cart
-                  </button>
-                  <button 
-                    onClick={() => handleBuyNow(pack)}
-                    className="flex-1 h-10 bg-studio-pink text-white text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center"
-                  >
-                    Buy
-                  </button>
-                </div>
-            )}
+            <div className="flex gap-2 pt-2">
+               <button 
+                onClick={() => addItem({
+                  id: pack.id,
+                  name: pack.name,
+                  price: Number(pack.price_inr),
+                  slug: pack.slug,
+                  cover_url: pack.cover_url || undefined,
+                  type: 'pack'
+                })}
+                className="flex-1 h-10 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
+                title={!pack.is_downloadable ? "Pre-order" : "Add to Cart"}
+              >
+                <Image src="/cart-bag.png" alt="Cart" width={12} height={12} className="brightness-0" />
+                {!pack.is_downloadable ? 'Pre' : 'Cart'}
+              </button>
+              <button 
+                onClick={() => handleBuyNow(pack)}
+                className={`flex-1 h-10 ${!pack.is_downloadable ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'} text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center`}
+              >
+                {!pack.is_downloadable ? 'Pre' : 'Buy'}
+              </button>
+            </div>
           </div>
         </div>
       ))}

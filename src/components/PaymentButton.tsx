@@ -12,9 +12,10 @@ interface PaymentButtonProps {
   cover_url: string
   userId?: string
   type?: 'pack' | 'preset'
+  label?: string
 }
 
-export function PaymentButton({ packId, packName, price, slug, cover_url, userId, type = 'pack' }: PaymentButtonProps) {
+export function PaymentButton({ packId, packName, price, slug, cover_url, userId, type = 'pack', label }: PaymentButtonProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { addItem, items, setSidebarOpen } = useCart()
@@ -51,7 +52,7 @@ export function PaymentButton({ packId, packName, price, slug, cover_url, userId
       ) : (
         <>
           <CreditCard size={20} />
-          <span>BUY NOW — ₹{price}</span>
+          <span>{label || `BUY NOW — ₹${price}`}</span>
         </>
       )}
     </button>
