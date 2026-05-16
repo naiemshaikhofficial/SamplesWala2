@@ -362,3 +362,33 @@ export async function getPresetsByCategory(categoryId: string) {
   )()
 }
 
+export async function getRelatedPresets(type: string, excludeId: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = getAdminClient()
+      const { data, error } = await supabase
+        .from('presets')
+        .select('id, name, slug, type, price_inr, mrp_inr, cover_url, daws, plugins_used, created_at')
+        .eq('type', type)
+        .neq('id', excludeId)
+        .limit(4)
+      
+      if (error) return []
+      return (data || []).map((preset: any) => ({
+        id: preset.id,
+        name: preset.name,
+        slug: preset.slug,
+        type: preset.type,
+        price_inr: preset.price_inr,
+        mrp_inr: preset.mrp_inr,
+        cover_url: preset.cover_url,
+        daws: preset.daws,
+        plugins_used: preset.plugins_used,
+        created_at: preset.created_at
+      }))
+    },
+    [`related-presets-${type}-${excludeId}`],
+    { revalidate: 300, tags: ['presets'] }
+  )()
+}
+
