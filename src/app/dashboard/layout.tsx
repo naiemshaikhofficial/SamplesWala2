@@ -24,7 +24,10 @@ export default async function DashboardLayout({
   const { data: { user } } = await getUser();
 
   if (!user) {
-    redirect('/auth/login');
+    const loginUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://sampleswala.com/auth/login' 
+      : '/auth/login';
+    redirect(loginUrl);
   }
 
   // Strict Access Control: Check if user is an Artist or Admin

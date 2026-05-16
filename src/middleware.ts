@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
     pathname.includes('.');
 
   if (isDashboardSubdomain) {
-    // 1. If it's a system/auth path, DO NOT rewrite at all. Just let it through.
+    // 1. If it's a reserved path, let it through (Next.js will find root pages)
     if (isReservedPath) {
         return NextResponse.next();
     }
