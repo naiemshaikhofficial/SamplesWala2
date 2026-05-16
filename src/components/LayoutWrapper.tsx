@@ -111,20 +111,19 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
                   Made In
                 </div>
 
-                {/* भारत - Main massive text in Hindi */}
+                {/* भारत - Main massive text in Hindi with Flag Colors */}
                 <h2 className="text-[100px] md:text-[180px] font-kalam font-bold leading-none tracking-tight
-                  bg-gradient-to-b from-[#FFD700] via-[#FFA500] to-[#FF4500] bg-clip-text text-transparent
                   drop-shadow-[10px_10px_0px_#000] drop-shadow-[10px_10px_20px_rgba(0,0,0,0.5)]
-                  filter saturate-150 relative z-10">
-                  भारत
+                  relative z-10 flex items-center">
+                  <span className="text-[#FF9933]">भा</span>
+                  <span className="text-white">र</span>
+                  <span className="text-[#128807]">त</span>
                 </h2>
 
-                {/* Graffiti splatters and glows */}
-                <div className="absolute -inset-10 -z-10 overflow-visible pointer-events-none">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] 
-                    bg-studio-pink/20 blur-[80px] rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-studio-neon/20 blur-[60px] rounded-full" />
-                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-studio-blue/20 blur-[70px] rounded-full" />
+                {/* Decorative background elements (No Glow) */}
+                <div className="absolute -inset-10 -z-10 overflow-visible pointer-events-none opacity-20">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-[60px] rounded-full" />
+                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 blur-[70px] rounded-full" />
                 </div>
               </div>
 

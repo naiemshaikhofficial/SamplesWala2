@@ -159,7 +159,7 @@ export function BillingHistory({ items, profile, email }: {
           </div>
 
           <div class="footer">
-            <div class="made-in">MADE IN <span class="font-kalam" style="color: #FF9933;">भा</span><span class="font-kalam" style="color: #666;">र</span><span class="font-kalam" style="color: #128807;">त</span></div>
+            <div class="made-in">MADE IN <span class="font-kalam" style="color: #FF9933;">भा</span><span class="font-kalam" style="color: #FFFFFF;">र</span><span class="font-kalam" style="color: #128807;">त</span></div>
             <div class="help-box">
               <img src="https://img.icons8.com/ios-filled/50/000000/mail.png" width="14" style="vertical-align: middle;">
               NEED HELP? SUPPORT@SAMPLESWALA.COM
