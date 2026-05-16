@@ -3,8 +3,8 @@ import { getPresetBySlug } from '../../actions'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, Youtube, Download, ShieldCheck, Zap, Music, ShoppingBag, CheckCircle2 } from 'lucide-react'
-import { generatePageMetadata } from '@/lib/seo/metadata'
+import { ArrowLeft, Youtube, Download, ShieldCheck, Zap, Music, ShoppingBag, CheckCircle2, Layout } from 'lucide-react'
+import { generatePageMetadata, generatePresetMetadata } from '@/lib/seo/metadata'
 import { generateBreadcrumbData, generatePresetStructuredData } from '@/lib/seo/structuredData'
 import { createClient } from '@/lib/supabase/server'
 import { AddToCartButton } from '@/components/AddToCartButton'
@@ -37,22 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const preset = await getPresetBySlug(slug)
   if (!preset) return { title: 'Preset Not Found' }
 
-  const dawList = preset.daws?.join(', ') || 'FL Studio, Ableton, Logic Pro'
-
-  return generatePageMetadata({
-    title: `${preset.name} | ${preset.type} Preset for ${preset.daws?.[0] || 'FL Studio'}`,
-    description: `Download ${preset.name}, a professional ${preset.type} preset chain for ${dawList}. 100% royalty-free. Includes vocal chains, master presets, and more.`,
-    keywords: [
-      `${preset.name} preset`,
-      `${preset.type} preset`,
-      `${preset.daws?.[0] || 'FL Studio'} vocal presets`,
-      'Indian vocal presets',
-      'Samples Wala presets',
-      ...preset.daws || []
-    ],
-    path: `/browse/presets/${preset.slug}`,
-    image: preset.cover_url
-  })
+  return generatePresetMetadata(preset)
 }
 
 export default async function PresetDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -132,15 +117,34 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
               </div>
            )}
 
-           {/* Desktop Only Tips */}
-           <div className="hidden lg:grid grid-cols-2 gap-8 pt-8">
-              <div className="space-y-4 p-6 bg-black/40 border border-white/10 rounded-sm">
-                 <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-pink">Pro Tip</h3>
-                 <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider">
-                    For best results, make sure you have the latest version of your DAW and all required stock plugins installed.
-                 </p>
-              </div>
-           </div>
+           {/* Plugins Used Section */}
+           {preset.plugins_used && preset.plugins_used.flat().length > 0 && (
+             <div className="space-y-6 pt-8 border-t border-white/5">
+                <div className="flex items-center gap-3">
+                   <div className="h-6 w-1 bg-studio-neon shadow-[0_0_10px_#a6e22e]" />
+                   <h2 className="text-lg font-black uppercase tracking-tighter italic">Plugins Used</h2>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                   {preset.plugins_used.flat().map((plugin: string, i: number) => {
+                      const colors = [
+                        { bg: 'bg-studio-neon', shadow: 'shadow-[4px_4px_0px_#a6e22e]', text: 'text-black' },
+                        { bg: 'bg-studio-pink', shadow: 'shadow-[4px_4px_0px_#ff0080]', text: 'text-white' },
+                        { bg: 'bg-studio-yellow', shadow: 'shadow-[4px_4px_0px_#ffc800]', text: 'text-black' }
+                      ];
+                      const style = colors[i % colors.length];
+                      return (
+                        <div 
+                          key={plugin} 
+                          className={`p-4 ${style.bg} border-4 border-black ${style.shadow} flex flex-col gap-1 transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0px_black] active:translate-x-0 active:translate-y-0 active:shadow-none`}
+                        >
+                           <span className={`text-[10px] font-black uppercase ${style.text} tracking-widest leading-tight`}>{plugin}</span>
+                           <span className={`text-[7px] font-black ${style.text} opacity-40 uppercase tracking-tighter`}>Required Plugin</span>
+                        </div>
+                      );
+                   })}
+                </div>
+             </div>
+           )}
         </div>
 
         {/* Mobile: 2. Info & Actions | Desktop: Left Column */}
@@ -153,9 +157,23 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
                 {preset.name}
               </h1>
               <div className="flex items-center gap-4">
-                <p className="text-3xl font-black text-studio-neon uppercase italic tracking-widest">
-                  {preset.price_inr === 0 ? 'FREE' : `₹${preset.price_inr}`}
-                </p>
+                <div className="flex flex-col">
+                  {preset.mrp_inr && (
+                    <span className="text-sm text-white/40 line-through font-bold">
+                      ₹{preset.mrp_inr}
+                    </span>
+                  )}
+                  <p className="text-3xl font-black text-studio-neon uppercase italic tracking-widest">
+                    {preset.price_inr === 0 ? 'FREE' : `₹${preset.price_inr}`}
+                  </p>
+                </div>
+                {preset.mrp_inr && preset.price_inr > 0 && (
+                  <div className="bg-studio-yellow px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2">
+                    <span className="text-[11px] font-black text-black uppercase italic">
+                      {Math.round((1 - (Number(preset.price_inr) / Number(preset.mrp_inr))) * 100)}% OFF
+                    </span>
+                  </div>
+                )}
                 {preset.price_inr === 0 && (
                    <div className="px-3 py-1 bg-studio-yellow text-black text-[10px] font-black uppercase tracking-widest jagged-border rotate-2">
                       COMMUNITY GIFT
@@ -244,8 +262,8 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
                { q: "Are these presets royalty-free?", a: "Yes, 100%. You can use these presets in your commercial projects, songs, and background scores without any additional payments or attribution." },
-               { q: "What if I use a different DAW?", a: `This specific pack is optimized for ${preset.daws.join(' & ')}. While you might be able to replicate settings, we recommend using the supported DAWs for the best experience.` },
-               { q: "Do I need external plugins?", a: "Most of our presets use stock plugins to ensure everyone can use them. If any external plugins are required, they will be listed in the product description." },
+               { q: "What if I use a different DAW?", a: `Presets are DAW-specific. If you use a different DAW than ${preset.daws.join(' & ')}, the files will not work. We strongly suggest checking compatibility before purchasing to ensure the presets work for you.` },
+               { q: "Do I need external plugins?", a: "Yes, you might need external plugins depending on the preset. You'll be able to see the full list of required plugins once you drag and drop or apply the preset in your DAW." },
                { q: "How do I get the files after purchase?", a: "Immediately after your payment is successful, you'll receive an email with a download link. You can also access all your purchases in 'Your Library'." }
             ].map((faq, i) => (
                <div key={i} className="p-6 bg-studio-charcoal border-2 border-black shadow-[4px_4px_0px_black] space-y-2">
@@ -264,7 +282,7 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
                <h3 className="text-[12px] font-black uppercase tracking-widest text-studio-pink">Pro Tip</h3>
             </div>
             <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">
-               For best results, make sure you have the latest version of your DAW and all required stock plugins installed. Always check your gain staging before applying vocal chains.
+               For best results, make sure you have the latest versions of both stock and external plugins installed. Always check your gain staging before applying vocal chains.
             </p>
          </div>
          <div className="space-y-4 p-8 bg-black/40 border border-white/10 rounded-sm">
@@ -274,9 +292,10 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
             </div>
             <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">
                1. Extract the downloaded ZIP file.<br />
-               2. Copy the preset files (.fst, .adg, etc.)<br />
-               3. Paste them into your DAW's User Preset folder.<br />
-               4. Refresh your plugin database or restart your DAW.
+               2. Drag and drop the preset file directly onto your mixer bus.<br />
+               3. The preset will be applied automatically.<br />
+               4. Ensure you have the required plugins installed as mentioned.<br />
+               5. Start creating!
             </p>
          </div>
       </section>

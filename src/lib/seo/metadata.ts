@@ -170,3 +170,42 @@ export function generatePackMetadata(pack: any): Metadata {
     path: `/packs/${pack.slug}`
   })
 }
+
+export function generatePresetMetadata(preset: any): Metadata {
+  const dawName = preset.daws?.[0] || 'FL Studio'
+  const siteTitle = "Samples Wala"
+  
+  const description = preset.description || `${preset.name} - A professional ${preset.type} preset for ${dawName} by Samples Wala. 100% royalty-free, high-quality mixing chains and templates for modern music production.`
+
+  const keywords = [
+    `${preset.name} preset`,
+    `${preset.name} ${dawName}`,
+    `${preset.type} preset`,
+    ...preset.daws.map((d: string) => `${d} presets`),
+    'Indian vocal presets',
+    'professional mixing chains',
+    'royalty free presets',
+    'FL Studio vocal presets',
+    'Ableton producer kits'
+  ]
+
+  // Construct Dynamic OG Image URL
+  const ogUrl = new URL('https://sampleswala.com/api/og')
+  ogUrl.searchParams.set('title', preset.name)
+  ogUrl.searchParams.set('category', `${preset.type} Preset`)
+  ogUrl.searchParams.set('price', preset.price_inr?.toString() || '0')
+  if (preset.cover_url) {
+    const fullCoverUrl = preset.cover_url.startsWith('http') 
+      ? preset.cover_url 
+      : `https://sampleswala.com${preset.cover_url}`
+    ogUrl.searchParams.set('image', fullCoverUrl)
+  }
+
+  return generatePageMetadata({
+    title: `${preset.name} | ${preset.type} Preset for ${dawName}`,
+    description: description.slice(0, 160),
+    image: ogUrl.toString(),
+    keywords,
+    path: `/browse/presets/${preset.slug}`
+  })
+}
