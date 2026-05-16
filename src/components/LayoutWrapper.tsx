@@ -101,7 +101,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
             </div>
             
             {/* ULTRA MASSIVE Made In Bharat Badge */}
-            <div className="relative h-64 w-[600px] cursor-default -mt-20 -mb-10">
+            <div className="relative h-48 md:h-64 w-full max-w-[600px] cursor-default -mt-10 md:-mt-20 -mb-10 mx-auto md:mx-0">
                <Image 
                  src="/made-in-bharat.png" 
                  alt="Made In Bharat" 

@@ -105,8 +105,46 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        {/* Left Column: Info & Action */}
-        <div className="lg:col-span-5 space-y-8">
+        {/* Mobile: 1. Video Preview | Desktop: Right Column */}
+        <div className="lg:col-span-7 lg:order-2 space-y-8">
+           {vId ? (
+              <div className="space-y-6">
+                 <div className="flex items-center gap-3">
+                    <div className="h-6 w-1 bg-studio-pink shadow-[0_0_10px_#ff0080]" />
+                    <h2 className="text-lg font-black uppercase tracking-tighter italic">Preset Demo</h2>
+                 </div>
+                 <div className="aspect-video rounded-sm overflow-hidden border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] bg-black">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={`https://www.youtube.com/embed/${vId}?rel=0&modestbranding=1`}
+                      title={`${preset.name} Demo`}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                 </div>
+              </div>
+           ) : (
+              <div className="aspect-video rounded-sm border-4 border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/10">
+                 <Music size={64} strokeWidth={1} />
+                 <p className="text-xs font-black uppercase tracking-[0.4em]">Audio preview coming soon</p>
+              </div>
+           )}
+
+           {/* Desktop Only Tips */}
+           <div className="hidden lg:grid grid-cols-2 gap-8 pt-8">
+              <div className="space-y-4 p-6 bg-black/40 border border-white/10 rounded-sm">
+                 <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-pink">Pro Tip</h3>
+                 <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider">
+                    For best results, make sure you have the latest version of your DAW and all required stock plugins installed.
+                 </p>
+              </div>
+           </div>
+        </div>
+
+        {/* Mobile: 2. Info & Actions | Desktop: Left Column */}
+        <div className="lg:col-span-5 lg:order-1 space-y-8">
            <div className="space-y-4">
               <div className="inline-block px-3 py-1 bg-studio-pink text-white text-[10px] font-black uppercase tracking-widest jagged-border -rotate-2">
                 {preset.type}
@@ -126,10 +164,7 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
               </div>
            </div>
 
-           <p className="text-xs text-white/60 leading-relaxed font-medium bg-black/40 backdrop-blur-md p-6 border border-white/10 rounded-sm">
-              {preset.description || `Take your sound to the next level with ${preset.name}. Professionally crafted for high-quality music production.`}
-           </p>
-
+           {/* Compatibility */}
            <div className="space-y-4">
               <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-neon">Compatibility</h3>
               <div className="flex flex-wrap gap-3">
@@ -146,6 +181,7 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
               </div>
            </div>
 
+           {/* Purchase Buttons */}
            <div className="pt-4">
               {isOwned ? (
                  <div className="space-y-4">
@@ -182,6 +218,10 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
                </div>
            </div>
 
+           <p className="text-xs text-white/60 leading-relaxed font-medium bg-black/40 backdrop-blur-md p-6 border border-white/10 rounded-sm">
+              {preset.description || `Take your sound to the next level with ${preset.name}. Professionally crafted for high-quality music production.`}
+           </p>
+
            <div className="flex items-center justify-center gap-6 py-4 border-t border-white/5">
               <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
                 <ShieldCheck size={14} className="text-studio-neon" />
@@ -193,50 +233,53 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
               </div>
            </div>
         </div>
-
-        {/* Right Column: Video Preview */}
-        <div className="lg:col-span-7 space-y-8">
-           {vId ? (
-              <div className="space-y-6">
-                 <div className="flex items-center gap-3">
-                    <div className="h-6 w-1 bg-studio-pink shadow-[0_0_10px_#ff0080]" />
-                    <h2 className="text-lg font-black uppercase tracking-tighter italic">Preset Demo</h2>
-                 </div>
-                 <div className="aspect-video rounded-sm overflow-hidden border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] bg-black">
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={`https://www.youtube.com/embed/${vId}?rel=0&modestbranding=1`}
-                      title={`${preset.name} Demo`}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                 </div>
-              </div>
-           ) : (
-              <div className="aspect-video rounded-sm border-4 border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/10">
-                 <Music size={64} strokeWidth={1} />
-                 <p className="text-xs font-black uppercase tracking-[0.4em]">Audio preview coming soon</p>
-              </div>
-           )}
-
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8">
-              <div className="space-y-4 p-6 bg-black/40 border border-white/10 rounded-sm">
-                 <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-pink">Pro Tip</h3>
-                 <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider">
-                    For best results, make sure you have the latest version of your DAW and all required stock plugins installed.
-                 </p>
-              </div>
-              <div className="space-y-4 p-6 bg-black/40 border border-white/10 rounded-sm">
-                 <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-yellow">Installation</h3>
-                 <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider">
-                    Extract the downloaded file and move the preset files into your DAW's respective preset directory.
-                 </p>
-              </div>
-           </div>
-        </div>
       </div>
+
+      {/* FAQ Section */}
+      <section className="pt-12 border-t border-white/5">
+         <div className="flex items-center gap-3 mb-8">
+            <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_10px_#FFE600]" />
+            <h2 className="text-xl font-black uppercase tracking-tighter italic">Common Questions</h2>
+         </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+               { q: "Are these presets royalty-free?", a: "Yes, 100%. You can use these presets in your commercial projects, songs, and background scores without any additional payments or attribution." },
+               { q: "What if I use a different DAW?", a: `This specific pack is optimized for ${preset.daws.join(' & ')}. While you might be able to replicate settings, we recommend using the supported DAWs for the best experience.` },
+               { q: "Do I need external plugins?", a: "Most of our presets use stock plugins to ensure everyone can use them. If any external plugins are required, they will be listed in the product description." },
+               { q: "How do I get the files after purchase?", a: "Immediately after your payment is successful, you'll receive an email with a download link. You can also access all your purchases in 'Your Library'." }
+            ].map((faq, i) => (
+               <div key={i} className="p-6 bg-studio-charcoal border-2 border-black shadow-[4px_4px_0px_black] space-y-2">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-studio-neon">{faq.q}</h4>
+                  <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider">{faq.a}</p>
+               </div>
+            ))}
+         </div>
+      </section>
+
+      {/* Installation Guide - ABSOLUTE BOTTOM */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-12 border-t border-white/5 pb-12">
+         <div className="space-y-4 p-8 bg-black/40 border border-white/10 rounded-sm">
+            <div className="flex items-center gap-3 mb-2">
+               <ShieldCheck className="text-studio-pink" size={20} />
+               <h3 className="text-[12px] font-black uppercase tracking-widest text-studio-pink">Pro Tip</h3>
+            </div>
+            <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">
+               For best results, make sure you have the latest version of your DAW and all required stock plugins installed. Always check your gain staging before applying vocal chains.
+            </p>
+         </div>
+         <div className="space-y-4 p-8 bg-black/40 border border-white/10 rounded-sm">
+            <div className="flex items-center gap-3 mb-2">
+               <Download className="text-studio-yellow" size={20} />
+               <h3 className="text-[12px] font-black uppercase tracking-widest text-studio-yellow">Installation Guide</h3>
+            </div>
+            <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">
+               1. Extract the downloaded ZIP file.<br />
+               2. Copy the preset files (.fst, .adg, etc.)<br />
+               3. Paste them into your DAW's User Preset folder.<br />
+               4. Refresh your plugin database or restart your DAW.
+            </p>
+         </div>
+      </section>
     </div>
   )
 }

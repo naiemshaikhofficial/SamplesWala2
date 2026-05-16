@@ -1,10 +1,11 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Play, Download, Youtube, ExternalLink, Zap } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { AddToCartButton } from './AddToCartButton'
+import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useCart } from '@/context/CartContext'
+import { getOptimizedImageUrl } from '@/lib/images'
 
 interface PresetCardProps {
   preset: {
@@ -17,99 +18,139 @@ interface PresetCardProps {
     drive_url: string
     price_inr: number
     cover_url?: string
+    mrp_inr?: number
   }
 }
 
-const DAW_LOGOS: Record<string, string> = {
-  'FL Studio': '/logos/Fl-Studio.png',
-  // Add other DAW logos here as needed
-}
-
 export function PresetCard({ preset }: PresetCardProps) {
-  const isFree = preset.price_inr === 0
+  const { addItem } = useCart()
+  const router = useRouter()
+  const [isAdded, setIsAdded] = useState(false)
+
+  const handleAddToCart = () => {
+    addItem({
+      id: preset.id,
+      name: preset.name,
+      price: Number(preset.price_inr),
+      slug: preset.slug,
+      cover_url: preset.cover_url || undefined,
+      type: 'preset'
+    })
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 1200)
+  }
+
+  const handleBuyNow = () => {
+    addItem({
+      id: preset.id,
+      name: preset.name,
+      price: Number(preset.price_inr),
+      slug: preset.slug,
+      cover_url: preset.cover_url || undefined,
+      type: 'preset'
+    })
+    router.push('/checkout')
+  }
+
+  const item = {
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
+    show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 200, damping: 15 } }
+  } as const
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+    <motion.div
+      variants={item}
+      initial="hidden"
+      whileInView="show"
       viewport={{ once: true }}
-      className="group relative bg-black border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[12px_12px_0px_#E50914] transition-all overflow-hidden"
+      className="group flex flex-col space-y-4"
     >
-      {/* Link wrapper for the main card area */}
-      <Link href={`/browse/presets/${preset.slug}`} className="block">
+      <Link
+        href={`/browse/presets/${preset.slug}`} // Presets are under /browse/presets/
+        prefetch={false}
+        className="comic-panel aspect-square block group-hover:border-studio-pink transition-all group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[14px_14px_0px_black]"
+      >
+        <Image
+          src={getOptimizedImageUrl(preset.cover_url || '/placeholder.jpg', 600, 80)}
+          alt={`${preset.name} - ${preset.type} Preset | SamplesWala`}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+          className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+
         {/* Type Badge */}
-        <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-studio-red text-white text-[8px] font-black uppercase tracking-widest jagged-border -rotate-2 border-2 border-black">
-          {preset.type}
-        </div>
-
-        {/* Cover Image - SQUARE */}
-        <div className="aspect-square relative overflow-hidden bg-zinc-900 border-b-4 border-black">
-          {preset.cover_url ? (
-            <Image 
-              src={preset.cover_url} 
-              alt={`${preset.name} - ${preset.type} Preset | SamplesWala`}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-white/10 italic font-black text-2xl -rotate-12">
-              PRESET
-            </div>
-          )}
-          
-          {/* Hover Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-             <span className="text-[9px] font-black uppercase tracking-widest text-studio-neon">View Details</span>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-4 space-y-3">
-          <div className="flex justify-between items-start gap-4">
-            <h3 className="text-base font-black uppercase tracking-tighter leading-tight italic group-hover:text-studio-pink transition-colors">
-              {preset.name}
-            </h3>
-            <div className="bg-black text-studio-neon px-2 py-0.5 border-2 border-black font-black text-xs italic rotate-3 shrink-0">
-              {isFree ? 'FREE' : `₹${preset.price_inr}`}
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-2">
-            {preset.daws.slice(0, 2).map(daw => (
-              <div key={daw} className="flex items-center gap-1.5 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-sm">
-                {DAW_LOGOS[daw] && (
-                  <div className="relative w-3 h-3">
-                    <Image src={DAW_LOGOS[daw]} alt={daw} fill className="object-contain" />
-                  </div>
-                )}
-                <span className="text-[7px] font-bold text-white/40 uppercase">{daw}</span>
-              </div>
-            ))}
-          </div>
+        <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3 py-1 border border-white/10 rounded-full">
+          <span className="text-[8px] font-black uppercase tracking-widest text-studio-yellow">{preset.type || 'Preset'}</span>
         </div>
       </Link>
 
-      {/* Actions - Outside the link */}
-      <div className="px-4 pb-4">
-        <div className="grid grid-cols-2 gap-2">
-          <AddToCartButton 
-            item={{
-              id: preset.id,
-              name: preset.name,
-              price: Number(preset.price_inr),
-              slug: preset.slug,
-              cover_url: preset.cover_url || undefined,
-              type: 'preset'
-            }}
-            compact={true}
-          />
-          <Link 
-            href={`/checkout?direct=${preset.id}&type=preset`}
-            className="h-9 bg-studio-neon text-black font-black uppercase tracking-widest text-[9px] flex items-center justify-center gap-2 border-2 border-black hover:bg-white transition-all shadow-[4px_4px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
-          >
-            <Zap size={14} fill="currentColor" />
-            {isFree ? 'GET FREE' : 'BUY'}
+      <div className="space-y-4 px-1">
+        <div className="space-y-1">
+          <Link href={`/browse/presets/${preset.slug}`} prefetch={false}>
+            <h3 className="text-[14px] font-black uppercase truncate hover:text-studio-neon transition-colors tracking-tighter italic">
+              {preset.name}
+            </h3>
           </Link>
+          <div className="flex flex-col gap-1">
+            <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
+              {preset.daws?.join(' & ') || 'Universal'}
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col">
+                <span className="text-[10px] text-white/50 line-through font-bold">
+                  ₹{preset.mrp_inr || (Number(preset.price_inr) * 3)}
+                </span>
+                <p className="text-[16px] font-black text-studio-neon italic leading-none">
+                  ₹{preset.price_inr}
+                </p>
+              </div>
+              
+              {/* Discount Badge */}
+              <div className="bg-studio-red px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
+                <span className="text-[9px] font-black text-white uppercase italic">
+                  {Math.round((1 - (Number(preset.price_inr) / (preset.mrp_inr || (Number(preset.price_inr) * 3)))) * 100)}% OFF
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 mt-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-studio-red animate-pulse shadow-[0_0_8px_#E50914]" />
+            <span className="text-[8px] font-black text-studio-red uppercase tracking-widest">Limited Offer</span>
+          </div>
+        </div>
+
+        <div className="flex flex-row gap-3 pt-2 relative">
+          <AnimatePresence>
+            {isAdded && (
+              <motion.div
+                initial={{ scale: 0, rotate: -20, opacity: 0 }}
+                animate={{ scale: 1.1, rotate: 12, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="absolute -top-12 left-0 right-0 z-50 flex justify-center pointer-events-none"
+              >
+                <div className="bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-[4px_4px_0px_black] relative">
+                  ADDED!
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 h-11 bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-studio-neon transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center gap-2"
+          >
+            <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
+            Cart
+          </button>
+          <button
+            onClick={handleBuyNow}
+            className="flex-1 h-11 bg-studio-pink text-white text-[9px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            Get
+          </button>
         </div>
       </div>
     </motion.div>

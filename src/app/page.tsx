@@ -28,7 +28,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden border-b border-white/5 bg-black">
+      <section className="relative min-h-[90dvh] flex items-center overflow-hidden border-b border-white/5 bg-black">
         {/* Background Gradients */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-studio-yellow/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 z-0" />
         <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-studio-neon/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4 z-0" />
@@ -172,7 +172,7 @@ export default async function HomePage() {
             <div className="h-2 bg-studio-neon w-24 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
           </div>
 
-          <div className="flex flex-row md:grid md:grid-cols-3 gap-3 md:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
             <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-4 md:p-8 bg-studio-red border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group">
               <div className="h-8 w-8 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[3px_3px_0px_black]">
                 <ShieldCheck className="text-black" size={16} />

@@ -22,7 +22,7 @@ export function TrustpilotBadge() {
 
   return (
     <div className="flex justify-center pt-16">
-      <div className="bg-white p-4 border-4 border-black shadow-[10px_10px_0px_rgba(0,0,0,1)] -rotate-1 max-w-sm w-full transition-transform hover:scale-105">
+      <div className="bg-white p-4 border-4 border-black shadow-[10px_10px_0px_rgba(0,0,0,1)] -rotate-1 max-w-sm w-full transition-transform hover:scale-105 min-h-[110px]">
         <div className="text-[8px] font-black uppercase tracking-[0.4em] text-black/40 mb-3 text-center">Industry Verified</div>
         <div 
           ref={ref}
