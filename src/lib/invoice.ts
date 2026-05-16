@@ -150,18 +150,27 @@ export async function generateInvoicePDF(orderData: {
   page.drawText('3. Digital product access is delivered via email and the user vault.', { x: 50, y: legalY - 35, size: 7, font })
   page.drawText('4. GST is not applicable as the supplier is currently under the exemption limit.', { x: 50, y: legalY - 45, size: 7, font: boldFont, color: rgb(1, 0, 0.5) })
 
-  // Footer / Branding
+  // Footer / Branding (Brutalist Made in Bharat)
+  const brandingY = 60
+  page.drawRectangle({
+    x: width / 2 - 80,
+    y: brandingY - 10,
+    width: 160,
+    height: 35,
+    color: rgb(0, 0, 0),
+  })
+  
   page.drawText('MADE IN BHARAT', {
-    x: width / 2 - 40,
-    y: 60,
-    size: 12,
+    x: width / 2 - 65,
+    y: brandingY + 3,
+    size: 14,
     font: boldFont,
-    color: rgb(0.2, 0.2, 0.2),
+    color: rgb(1, 1, 1),
   })
 
   page.drawText('SUPPORT: Support@sampleswala.com', {
     x: width / 2 - 70,
-    y: 40,
+    y: 25,
     size: 8,
     font: font,
     color: rgb(0.5, 0.5, 0.5),
