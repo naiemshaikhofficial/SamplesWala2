@@ -102,12 +102,12 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
             
             {/* ULTRA MASSIVE Made In Bharat Text Badge */}
             <div className="relative w-full max-w-[600px] flex flex-col items-center md:items-end justify-center py-10 md:py-16 group select-none">
-              <div className="relative z-10 transform -rotate-3 transition-all duration-500 group-hover:rotate-0 group-hover:scale-105">
+              <div className="relative z-10 transform -rotate-3 transition-all duration-500">
                 {/* MADE IN - Small brutalist tag */}
                 <div className="absolute -top-8 left-4 md:left-auto md:-right-4 z-20 
                   bg-white text-black px-4 py-1 font-black text-sm md:text-xl uppercase italic 
                   border-4 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] 
-                  skew-x-[-12deg] group-hover:skew-x-0 transition-transform">
+                  skew-x-[-12deg] transition-transform">
                   Made In
                 </div>
 
@@ -120,18 +120,11 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
                   <span className="text-[#128807]">त</span>
                 </h2>
 
-                {/* Decorative background elements (No Glow) */}
+                {/* Decorative background elements (Static) */}
                 <div className="absolute -inset-10 -z-10 overflow-visible pointer-events-none opacity-20">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-[60px] rounded-full" />
                   <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 blur-[70px] rounded-full" />
                 </div>
-              </div>
-
-              {/* Verified Trust Signal */}
-              <div className="mt-4 flex items-center gap-4 opacity-30 group-hover:opacity-60 transition-opacity">
-                <div className="h-[1px] w-12 bg-white" />
-                <span className="text-[10px] font-black uppercase tracking-[0.5em] italic">Original Heritage</span>
-                <div className="h-[1px] w-12 bg-white" />
               </div>
             </div>
           </div>
