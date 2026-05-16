@@ -36,11 +36,17 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/auth/login', request.url));
     }
 
-    // 3. Rewrite to /dashboard folder
+    // 3. Rewrite to /dashboard folder with cookies preserved
     if (!pathname.startsWith('/dashboard')) {
         const url = request.nextUrl.clone();
         url.pathname = `/dashboard${pathname === '/' ? '' : pathname}`;
-        return NextResponse.rewrite(url);
+        
+        // IMPORTANT: We must merge the supabaseResponse (with cookies) into the rewrite
+        const rewriteResponse = NextResponse.rewrite(url);
+        supabaseResponse.headers.forEach((value, key) => {
+            rewriteResponse.headers.set(key, value);
+        });
+        return rewriteResponse;
     }
   }
 

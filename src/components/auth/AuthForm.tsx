@@ -8,9 +8,9 @@ import { signIn, signUp, signInWithGoogle, forgotPassword } from '@/app/auth/act
 
 type AuthMode = 'login' | 'signup' | 'forgot'
 
-export function AuthForm({ allowSignup = true }: { allowSignup?: boolean }) {
+export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignup?: boolean, next?: string }) {
   const searchParams = useSearchParams()
-  const next = searchParams.get('next') || '/browse'
+  const next = defaultNext || searchParams.get('next') || '/browse'
   
   const [mode, setMode] = useState<AuthMode>('login')
   const [loading, setLoading] = useState(false)

@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 
 async function verifyTurnstile(token: string | null) {
   if (!token) return false
@@ -47,11 +48,16 @@ export async function signUp(formData: FormData) {
   const fullName = formData.get('fullName') as string
   const supabase = await createClient()
 
+  const headerList = await headers();
+  const host = headerList.get('host');
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const currentOrigin = `${protocol}://${host}`;
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      emailRedirectTo: `${currentOrigin}/auth/callback`,
       data: {
         full_name: fullName,
       }
@@ -70,10 +76,15 @@ export async function signOut() {
 
 export async function signInWithGoogle(next: string = '/browse') {
   const supabase = await createClient()
+  const headerList = await headers();
+  const host = headerList.get('host');
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const currentOrigin = `${protocol}://${host}`;
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${next}`,
+      redirectTo: `${currentOrigin}/auth/callback?next=${next}`,
     },
   })
 
@@ -93,8 +104,13 @@ export async function forgotPassword(formData: FormData) {
   const email = formData.get('email') as string
   const supabase = await createClient()
 
+  const headerList = await headers();
+  const host = headerList.get('host');
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const currentOrigin = `${protocol}://${host}`;
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset`,
+    redirectTo: `${currentOrigin}/auth/reset`,
   })
 
   if (error) return { error: error.message }
