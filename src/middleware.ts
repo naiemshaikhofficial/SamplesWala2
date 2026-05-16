@@ -12,15 +12,42 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/browse/packs', request.url), 301);
   }
 
-  // 2. Performance Optimization: Only update session for critical routes
-  // This drastically reduces Supabase API calls and improves latency for public pages
+  // 2. Subdomain Routing Logic
+  const hostname = request.headers.get('host') || '';
+  const isDashboardSubdomain = hostname.startsWith('dashboard.');
+  
+  // Paths that should ALWAYS be served from the root (not rewritten)
+  const isReservedPath = 
+    pathname.startsWith('/auth') || 
+    pathname.startsWith('/api') || 
+    pathname.startsWith('/_next') || 
+    pathname.startsWith('/images') ||
+    pathname.includes('.');
+
+  if (isDashboardSubdomain) {
+    // 1. If it's a system/auth path, DO NOT rewrite at all. Just let it through.
+    if (isReservedPath) {
+        return NextResponse.next();
+    }
+    
+    // 2. Rewrite everything else to the /dashboard folder
+    if (!pathname.startsWith('/dashboard')) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/dashboard${pathname === '/' ? '' : pathname}`;
+        return NextResponse.rewrite(url);
+    }
+  }
+
+  // 3. Performance Optimization: Only update session for critical routes
   const isCriticalRoute = 
     pathname.startsWith('/api/') || 
     pathname.startsWith('/auth/') || 
     pathname.startsWith('/checkout') || 
     pathname.startsWith('/library') ||
     pathname.startsWith('/account') ||
-    request.cookies.has('sb-access-token'); // If they have a session cookie, refresh it
+    pathname.startsWith('/dashboard') ||
+    isDashboardSubdomain ||
+    request.cookies.has('sb-access-token');
 
   let response = NextResponse.next({
     request,
@@ -30,7 +57,7 @@ export async function middleware(request: NextRequest) {
     response = await updateSession(request)
   }
 
-  // 3. Security Headers
+  // 4. Security Headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');

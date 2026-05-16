@@ -9,10 +9,11 @@ import { Instagram, Youtube, Twitter } from "lucide-react";
 export function LayoutWrapper({ children, user }: { children: React.ReactNode, user: any }) {
   const pathname = usePathname()
   const isAuthPage = pathname?.startsWith('/auth')
+  const isDashboardPage = pathname?.startsWith('/dashboard')
 
-  if (isAuthPage) {
+  if (isAuthPage || isDashboardPage) {
     return (
-      <main className="flex-grow">
+      <main className="flex-grow flex flex-col">
         {children}
       </main>
     )
