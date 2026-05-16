@@ -111,13 +111,12 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
                   Made In
                 </div>
 
-                {/* भारत - Indian Flag Colors */}
+                {/* भारत - Main massive text in Hindi */}
                 <h2 className="text-[100px] md:text-[180px] font-kalam font-bold leading-none tracking-tight
+                  bg-gradient-to-b from-[#FFD700] via-[#FFA500] to-[#FF4500] bg-clip-text text-transparent
                   drop-shadow-[10px_10px_0px_#000] drop-shadow-[10px_10px_20px_rgba(0,0,0,0.5)]
-                  filter saturate-150 relative z-10 flex items-center justify-center md:justify-end">
-                  <span style={{ color: '#FF9933' }}>भा</span>
-                  <span style={{ color: '#FFFFFF' }}>र</span>
-                  <span style={{ color: '#128807' }}>त</span>
+                  filter saturate-150 relative z-10">
+                  भारत
                 </h2>
 
                 {/* Graffiti splatters and glows */}
