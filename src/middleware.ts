@@ -5,8 +5,10 @@ import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const { supabaseResponse, user } = await updateSession(request)
 
   // 1. Redirect Dead/Removed Pages
+// ... rest of redirects ...
   const deadLinks = ['/free', '/samples', '/vst-plugins', '/vocal-packs'];
   if (deadLinks.includes(pathname)) {
     return NextResponse.redirect(new URL('/browse/packs', request.url), 301);
@@ -16,21 +18,25 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const isDashboardSubdomain = hostname.startsWith('dashboard.');
   
-  // Paths that should ALWAYS be served from the root (not rewritten)
-  const isReservedPath = 
-    pathname.startsWith('/auth') || 
+  // Paths that should NEVER be rewritten to /dashboard
+  const isSystemPath = 
     pathname.startsWith('/api') || 
     pathname.startsWith('/_next') || 
     pathname.startsWith('/images') ||
     pathname.includes('.');
 
   if (isDashboardSubdomain) {
-    // 1. If it's a reserved path, let it through (Next.js will find root pages)
-    if (isReservedPath) {
-        return NextResponse.next();
-    }
+    // 1. System paths stay at the root
+    if (isSystemPath) return supabaseResponse;
     
-    // 2. Rewrite everything else to the /dashboard folder
+    // 2. Auth Check for Dashboard
+    const isAuthPage = pathname.startsWith('/auth');
+
+    if (!user && !isAuthPage) {
+        return NextResponse.redirect(new URL('/auth/login', request.url));
+    }
+
+    // 3. Rewrite to /dashboard folder
     if (!pathname.startsWith('/dashboard')) {
         const url = request.nextUrl.clone();
         url.pathname = `/dashboard${pathname === '/' ? '' : pathname}`;
@@ -38,24 +44,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3. Performance Optimization: Only update session for critical routes
-  const isCriticalRoute = 
-    pathname.startsWith('/api/') || 
-    pathname.startsWith('/auth/') || 
-    pathname.startsWith('/checkout') || 
-    pathname.startsWith('/library') ||
-    pathname.startsWith('/account') ||
-    pathname.startsWith('/dashboard') ||
-    isDashboardSubdomain ||
-    request.cookies.has('sb-access-token');
-
-  let response = NextResponse.next({
-    request,
-  })
-
-  if (isCriticalRoute) {
-    response = await updateSession(request)
-  }
+  // 3. Finalize Response
+  let response = supabaseResponse;
 
   // 4. Security Headers
   response.headers.set('X-Frame-Options', 'DENY');

@@ -37,8 +37,8 @@ import { ContentProtection } from "@/components/ContentProtection";
 import { CartSidebar } from "@/components/CartSidebar";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { getUser } from "@/lib/supabase/server";
-
 import Script from "next/script";
+import { getAdminClient } from "@/lib/supabase/admin";
 
 export default async function RootLayout({
   children,
@@ -46,6 +46,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { data: { user } } = await getUser();
+  
+  // Check if user is Artist or Admin for Header link
+  let isArtist = false;
+  if (user) {
+    const adminClient = getAdminClient();
+    const [artistRes, adminRes] = await Promise.all([
+      adminClient.from('artist_collaborations').select('id').eq('artist_id', user.id).limit(1),
+      adminClient.from('admins').select('user_id').eq('user_id', user.id).limit(1)
+    ]);
+    isArtist = (artistRes.data && artistRes.data.length > 0) || (adminRes.data && adminRes.data.length > 0);
+  }
 
   const organizationLd = {
     "@context": "https://schema.org",
@@ -99,7 +110,7 @@ export default async function RootLayout({
           <ContentProtection />
           <ServiceWorkerRegistration />
           <CartSidebar initialUser={user} />
-          <LayoutWrapper user={user}>
+          <LayoutWrapper user={user} isArtist={isArtist}>
             {children}
           </LayoutWrapper>
         </CartProvider>

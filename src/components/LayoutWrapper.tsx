@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Youtube, Twitter } from "lucide-react";
 
-export function LayoutWrapper({ children, user }: { children: React.ReactNode, user: any }) {
+export function LayoutWrapper({ children, user, isArtist }: { children: React.ReactNode, user: any, isArtist?: boolean }) {
   const pathname = usePathname()
   const isAuthPage = pathname?.startsWith('/auth')
   const isDashboardPage = pathname?.startsWith('/dashboard')
@@ -22,7 +22,7 @@ export function LayoutWrapper({ children, user }: { children: React.ReactNode, u
   return (
     <>
       <LaunchOffer />
-      <Header user={user} />
+      <Header user={user} isArtist={isArtist} />
       
       <main className="flex-grow">
         {children}

@@ -7,8 +7,12 @@ import { HeaderCartIcon } from './HeaderCartIcon'
 import { LogoutButton } from './LogoutButton'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export function Header({ user }: { user: any }) {
+export function Header({ user, isArtist }: { user: any, isArtist?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  
+  const dashboardUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://dashboard.sampleswala.com' 
+    : 'http://dashboard.localhost:3000';
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
@@ -35,6 +39,15 @@ export function Header({ user }: { user: any }) {
       <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Sample Packs</Link>
       <Link href="/browse/presets" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
       <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
+      
+      {isArtist && (
+        <a 
+          href={dashboardUrl} 
+          className="px-3 py-1 bg-studio-neon text-black font-black italic hover:bg-white transition-colors skew-x-[-10deg]"
+        >
+          DASHBOARD
+        </a>
+      )}
 
       <div className="flex items-center gap-4">
         <HeaderCartIcon />
@@ -132,19 +145,24 @@ export function Header({ user }: { user: any }) {
                 { name: 'Browse Packs', href: '/browse/packs' },
                 { name: 'Producer Presets', href: '/browse/presets' },
                 { name: 'Your Library', href: '/library' },
+                ...(isArtist ? [{ name: 'ARTIST DASHBOARD', href: dashboardUrl }] : []),
                 { name: 'Production Blog', href: '/blog' },
                 { name: 'About Us', href: '/about' },
                 { name: 'Help Center', href: '/help' },
               ].map((link) => (
-                <Link
+                <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="group flex items-center justify-between p-4 bg-studio-charcoal border-4 border-black shadow-[6px_6px_0px_black] hover:-translate-y-1 hover:bg-studio-pink transition-all text-white italic"
+                  className={`group flex items-center justify-between p-4 border-4 border-black shadow-[6px_6px_0px_black] hover:-translate-y-1 transition-all italic ${
+                    link.name === 'ARTIST DASHBOARD' 
+                    ? 'bg-studio-neon text-black font-black' 
+                    : 'bg-studio-charcoal text-white hover:bg-studio-pink'
+                  }`}
                 >
                   <span>{link.name}</span>
                   <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
-                </Link>
+                </a>
               ))}
 
               <div className="pt-8">
