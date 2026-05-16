@@ -21,12 +21,45 @@ export const metadata = generatePageMetadata({
 
 export default async function HomePage() {
   const [packs, presets] = await Promise.all([
-    getPacks(),
-    getPresets()
+    getPacks(4),
+    getPresets(4)
   ])
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Samples Wala",
+    "url": "https://sampleswala.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://sampleswala.com/browse?query={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Samples Wala",
+    "url": "https://sampleswala.com",
+    "logo": "https://sampleswala.com/logo.png",
+    "sameAs": [
+      "https://instagram.com/sampleswala",
+      "https://youtube.com/sampleswala"
+    ]
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+
       {/* Hero Section */}
       <section className="relative min-h-[90dvh] flex items-center overflow-hidden border-b border-white/5 bg-black">
         {/* Background Gradients */}
@@ -95,6 +128,7 @@ export default async function HomePage() {
                       src={pack.cover_url || '/placeholder.jpg'}
                       alt={pack.name}
                       fill
+                      priority={index === 1}
                       sizes="256px"
                       className="object-cover transition-all duration-500"
                     />
@@ -115,11 +149,12 @@ export default async function HomePage() {
       <section className="py-24 container mx-auto px-4">
         <div className="flex items-end justify-between mb-12 border-b border-white/5 pb-8">
           <div className="space-y-2">
-            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter">Trending Collections</h2>
+            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic">Trending <span className="text-studio-neon">Collections</span></h2>
             <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Top rated by industry veterans</p>
           </div>
-          <Link href="/browse" className="text-[10px] font-black text-white/40 uppercase hover:text-studio-neon transition-colors">
-            View All Packs
+          <Link href="/browse" className="text-[10px] font-black text-white/40 uppercase hover:text-studio-neon transition-colors flex items-center gap-2">
+            View All
+            <ArrowRight size={12} />
           </Link>
         </div>
 

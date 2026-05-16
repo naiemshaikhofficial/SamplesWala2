@@ -6,33 +6,49 @@ import { generateAudioSignal, getDriveFileId } from '@/lib/audio/signal'
 
 // Internal function to fetch all packs
 // We use getAdminClient here to avoid 'cookies()' access inside unstable_cache
-async function fetchAllPacks() {
+async function fetchAllPacks(limit?: number) {
   const supabase = getAdminClient()
-  const { data, error } = await supabase
+  let query = supabase
     .from('sample_packs')
     .select('id, name, slug, cover_url, price_inr, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
     .order('created_at', { ascending: false })
+  
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
   
   if (error) {
     console.error('[GET_PACKS_ERROR]', error)
     return []
   }
 
-  // Transform to hide sensitive URLs completely
-  return data.map(pack => {
-    const { full_pack_download_url, ...safePack } = pack
-    return {
-      ...safePack,
-      is_downloadable: !!full_pack_download_url
-    }
-  })
+  // Transform to explicitly ONLY include safe fields
+  return data.map(pack => ({
+    id: pack.id,
+    name: pack.name,
+    slug: pack.slug,
+    cover_url: pack.cover_url,
+    price_inr: pack.price_inr,
+    mrp_inr: pack.mrp_inr,
+    created_at: pack.created_at,
+    updated_at: pack.updated_at,
+    categories: pack.categories,
+    melody_count: pack.melody_count,
+    loop_count: pack.loop_count,
+    one_shot_count: pack.one_shot_count,
+    preset_count: pack.preset_count,
+    total_contents_summary: pack.total_contents_summary,
+    is_downloadable: !!pack.full_pack_download_url
+  }))
 }
 
 // Exported cached version (24h)
-export async function getPacks() {
+export async function getPacks(limit?: number) {
   return unstable_cache(
-    async () => fetchAllPacks(),
-    ['all-packs-list'],
+    async () => fetchAllPacks(limit),
+    [limit ? `packs-limit-${limit}` : 'all-packs-list'],
     { revalidate: 300, tags: ['packs'] }
   )()
 }
@@ -97,11 +113,24 @@ async function fetchPackBySlug(slug: string) {
     return null
   }
 
-  // Hide the URL completely but provide a flag
-  const { full_pack_download_url, ...safeData } = data
+  // Explicit safe mapping for single pack
   return {
-    ...safeData,
-    is_downloadable: !!full_pack_download_url
+    id: data.id,
+    name: data.name,
+    slug: data.slug,
+    description: data.description,
+    video_url: data.video_url,
+    cover_url: data.cover_url,
+    price_inr: data.price_inr,
+    mrp_inr: data.mrp_inr,
+    created_at: data.created_at,
+    categories: data.categories,
+    melody_count: data.melody_count,
+    loop_count: data.loop_count,
+    one_shot_count: data.one_shot_count,
+    preset_count: data.preset_count,
+    total_contents_summary: data.total_contents_summary,
+    is_downloadable: !!data.full_pack_download_url
   }
 }
 
@@ -202,13 +231,17 @@ export async function getPacksByCategorySlug(slug: string) {
         return []
       }
 
-      return data.map(pack => {
-        const { full_pack_download_url, ...safePack } = pack
-        return {
-          ...safePack,
-          is_downloadable: !!full_pack_download_url
-        }
-      })
+       return data.map(pack => ({
+        id: pack.id,
+        name: pack.name,
+        slug: pack.slug,
+        cover_url: pack.cover_url,
+        price_inr: pack.price_inr,
+        mrp_inr: pack.mrp_inr,
+        created_at: pack.created_at,
+        categories: pack.categories,
+        is_downloadable: !!pack.full_pack_download_url
+      }))
     },
     [`packs-genre-${slug}`],
     { revalidate: 300, tags: ['packs', 'categories'] }
@@ -231,24 +264,42 @@ export async function getAllCategories() {
 }
 
 // Preset Actions
-async function fetchPresets() {
+async function fetchPresets(limit?: number) {
   const supabase = getAdminClient()
-  const { data, error } = await supabase
+  let query = supabase
     .from('presets')
-    .select('*')
+    .select('id, name, slug, description, type, price_inr, mrp_inr, youtube_url, cover_url, daws, plugins_used, created_at')
     .order('created_at', { ascending: false })
+  
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
   
   if (error) {
     console.error('[GET_PRESETS_ERROR]', error)
     return []
   }
-  return data
+
+  return (data || []).map((preset: any) => ({
+    id: preset.id,
+    name: preset.name,
+    slug: preset.slug,
+    type: preset.type,
+    price_inr: preset.price_inr,
+    mrp_inr: preset.mrp_inr,
+    cover_url: preset.cover_url,
+    daws: preset.daws,
+    plugins_used: preset.plugins_used,
+    created_at: preset.created_at
+  }))
 }
 
-export async function getPresets() {
+export async function getPresets(limit?: number) {
   return unstable_cache(
-    async () => fetchPresets(),
-    ['all-presets-list'],
+    async () => fetchPresets(limit),
+    [limit ? `presets-limit-${limit}` : 'all-presets-list'],
     { revalidate: 300, tags: ['presets'] }
   )()
 }
@@ -257,15 +308,29 @@ async function fetchPresetBySlug(slug: string) {
   const supabase = getAdminClient()
   const { data, error } = await supabase
     .from('presets')
-    .select('*')
+    .select('id, name, slug, description, type, price_inr, mrp_inr, youtube_url, cover_url, daws, plugins_used, created_at')
     .eq('slug', slug)
     .single()
   
-  if (error) {
+   if (error) {
     console.error('[GET_PRESET_ERROR]', error)
     return null
   }
-  return data
+  
+  return {
+    id: data.id,
+    name: data.name,
+    slug: data.slug,
+    description: data.description,
+    type: data.type,
+    price_inr: data.price_inr,
+    mrp_inr: data.mrp_inr,
+    youtube_url: data.youtube_url,
+    cover_url: data.cover_url,
+    daws: data.daws,
+    plugins_used: data.plugins_used,
+    created_at: data.created_at
+  }
 }
 
 export async function getPresetBySlug(slug: string) {
