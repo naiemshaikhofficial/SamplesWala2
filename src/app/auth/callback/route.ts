@@ -11,10 +11,12 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      const response = NextResponse.redirect(`${origin}${next}`)
+      // Cookies are already handled by the server client's setAll via next/headers
+      return response
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth?error=auth-callback-failed`)
+  // return the user to the login page with error
+  return NextResponse.redirect(`${origin}/auth/login?error=auth-callback-failed`)
 }
