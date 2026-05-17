@@ -3,13 +3,14 @@ import React, { useState } from 'react'
 import { Shield, Loader2, ArrowRight, Mail, Lock, Chrome, User, Eye, EyeOff } from 'lucide-react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { signIn, signUp, signInWithGoogle, forgotPassword } from '@/app/auth/actions'
 
 type AuthMode = 'login' | 'signup' | 'forgot'
 
 export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignup?: boolean, next?: string }) {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const next = defaultNext || searchParams.get('next') || '/browse'
   
   const [mode, setMode] = useState<AuthMode>('login')
@@ -57,9 +58,14 @@ export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignu
     if (result?.error) {
       setError(result.error)
       setLoading(false)
-    } else if (result?.success) {
-      setMessage(result.success)
-      setLoading(false)
+    } else if (result && 'success' in result) {
+      setMessage((result as any).success)
+      if ((result as any).redirect) {
+        router.refresh()
+        router.push((result as any).redirect)
+      } else {
+        setLoading(false)
+      }
     }
   }
 

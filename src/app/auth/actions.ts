@@ -35,7 +35,7 @@ export async function signIn(formData: FormData) {
   
   revalidatePath('/', 'layout')
   const next = formData.get('next') as string || '/browse'
-  redirect(next)
+  return { success: "Logged in successfully.", redirect: next }
 }
 
 
