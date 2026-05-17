@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
+import { revalidatePath } from 'next/cache'
 
 async function verifyTurnstile(token: string | null) {
   if (!token) return false
@@ -32,6 +33,7 @@ export async function signIn(formData: FormData) {
 
   if (error) return { error: error.message }
   
+  revalidatePath('/', 'layout')
   const next = formData.get('next') as string || '/browse'
   redirect(next)
 }
@@ -71,6 +73,7 @@ export async function signUp(formData: FormData) {
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
   redirect('/auth')
 }
 
