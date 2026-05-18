@@ -41,7 +41,7 @@ export function LayoutWrapper({ children, user, isArtist }: { children: React.Re
                 alt="Samples Wala Logo"
                 width={180}
                 height={45}
-                className="h-9 w-auto grayscale opacity-50"
+                className="h-16 md:h-20 w-auto opacity-80 hover:opacity-100 transition-opacity"
               />
               <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest leading-relaxed max-w-sm">
                 Premium sound design for the modern producer. Industry standard sample packs, loops, and tools for Indian music production.

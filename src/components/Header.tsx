@@ -9,9 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export function Header({ user, isArtist }: { user: any, isArtist?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  
-  const dashboardUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://dashboard.sampleswala.com' 
+
+  const dashboardUrl = process.env.NODE_ENV === 'production'
+    ? 'https://dashboard.sampleswala.com'
     : 'http://dashboard.localhost:3000';
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
@@ -39,10 +39,10 @@ export function Header({ user, isArtist }: { user: any, isArtist?: boolean }) {
       <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Sample Packs</Link>
       <Link href="/browse/presets" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
       <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
-      
+
       {isArtist && (
-        <a 
-          href={dashboardUrl} 
+        <a
+          href={dashboardUrl}
           className="px-3 py-1 bg-studio-neon text-black font-black italic hover:bg-white transition-colors skew-x-[-10deg]"
         >
           DASHBOARD
@@ -85,7 +85,7 @@ export function Header({ user, isArtist }: { user: any, isArtist?: boolean }) {
               width={300}
               height={100}
               priority
-              className="h-12 md:h-16 w-auto transition-all"
+              className="h-8 md:h-10 w-auto transition-all"
             />
           </motion.div>
         </Link>
@@ -154,11 +154,10 @@ export function Header({ user, isArtist }: { user: any, isArtist?: boolean }) {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`group flex items-center justify-between p-4 border-4 border-black shadow-[6px_6px_0px_black] hover:-translate-y-1 transition-all italic ${
-                    link.name === 'ARTIST DASHBOARD' 
-                    ? 'bg-studio-neon text-black font-black' 
+                  className={`group flex items-center justify-between p-4 border-4 border-black shadow-[6px_6px_0px_black] hover:-translate-y-1 transition-all italic ${link.name === 'ARTIST DASHBOARD'
+                    ? 'bg-studio-neon text-black font-black'
                     : 'bg-studio-charcoal text-white hover:bg-studio-pink'
-                  }`}
+                    }`}
                 >
                   <span>{link.name}</span>
                   <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
