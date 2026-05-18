@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 
-const NOTES = ['♩', '♪', '♫', '♬', '♭', '♮', '♯', '𝄞', '𝄢', '𝄡']
+const NOTES = ['♩', '♪', '♫', '♬']
 const COLORS = [
   'text-studio-pink',
   'text-studio-blue',
@@ -29,14 +29,14 @@ export function FloatingMusicNotes() {
     // Disable floating notes completely on mobile or if reduced motion is preferred
     const isMobile = window.innerWidth < 768
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    
+
     if (isMobile || prefersReducedMotion) {
       setNotes([])
       return
     }
 
-    // Generate 35 floating musical symbols across the background for desktop
-    const newNotes = Array.from({ length: 35 }).map((_, i) => {
+    // Generate 25 floating musical symbols across the background for desktop
+    const newNotes = Array.from({ length: 25 }).map((_, i) => {
       const sizeRandom = Math.random()
       const size = sizeRandom < 0.25 ? 'text-sm' : sizeRandom < 0.6 ? 'text-xl' : sizeRandom < 0.85 ? 'text-3xl' : 'text-5xl'
       return {
@@ -53,11 +53,11 @@ export function FloatingMusicNotes() {
   }, [])
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[1] overflow-hidden select-none opacity-25">
+    <div className="fixed inset-0 pointer-events-none z-[1] overflow-hidden select-none opacity-10">
       {notes.map((note) => (
         <span
           key={note.id}
-          className={`absolute bottom-[-60px] font-black ${note.color} ${note.size} animate-float-note`}
+          className={`absolute bottom-[-60px] font-noto-music font-normal ${note.color} ${note.size} animate-float-note`}
           style={{
             left: note.left,
             animationDelay: note.delay,
