@@ -15,7 +15,8 @@ export function LayoutWrapper({ children, user, isArtist }: { children: React.Re
 
   if (isAuthPage || isDashboardPage) {
     return (
-      <main className="flex-grow flex flex-col">
+      <main className="flex-grow flex flex-col relative">
+        <FloatingMusicNotes />
         {children}
       </main>
     )
