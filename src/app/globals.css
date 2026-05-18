@@ -59,6 +59,10 @@ html, body {
     -ms-user-select: none;
     font-family: var(--font-mono);
     animation: fadeIn 0.5s ease-in-out;
+    background-image: 
+      linear-gradient(to right, rgba(255, 0, 128, 0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 191, 255, 0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
   }
 
   body::before {

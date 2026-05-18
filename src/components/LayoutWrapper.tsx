@@ -6,6 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Youtube, Twitter } from "lucide-react";
 
+import { FloatingMusicNotes } from '@/components/FloatingMusicNotes'
+
 export function LayoutWrapper({ children, user, isArtist }: { children: React.ReactNode, user: any, isArtist?: boolean }) {
   const pathname = usePathname()
   const isAuthPage = pathname?.startsWith('/auth')
@@ -21,6 +23,7 @@ export function LayoutWrapper({ children, user, isArtist }: { children: React.Re
 
   return (
     <>
+      <FloatingMusicNotes />
       <LaunchOffer />
       <Header user={user} isArtist={isArtist} />
       
