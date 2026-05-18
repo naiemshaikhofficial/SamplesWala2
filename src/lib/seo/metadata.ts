@@ -131,6 +131,11 @@ export function generatePageMetadata({
     description,
     keywords: [...new Set([...DEFAULT_KEYWORDS, ...keywords])],
     metadataBase: new URL('https://sampleswala.com'),
+    authors: [{ name: "Samples Wala", url: "https://sampleswala.com" }],
+    creator: "Samples Wala",
+    publisher: "Samples Wala",
+    category: "Music",
+    classification: "Music Production, Hip Hop, Sample Packs, Royalty Free Loops",
     openGraph: {
       title: fullTitle,
       description,

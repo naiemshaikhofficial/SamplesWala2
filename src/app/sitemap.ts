@@ -8,26 +8,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = getAdminClient()
 
   // 1. Fetch all packs for dynamic routes
-  const packs = await getPacks()
-  const packEntries = packs.map((pack) => ({
-    url: `${baseUrl}/packs/${pack.slug}`,
-    lastModified: new Date(pack.updated_at || new Date()),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }))
+  let packEntries: any[] = []
+  try {
+    const packs = await getPacks()
+    packEntries = packs.map((pack) => ({
+      url: `${baseUrl}/packs/${pack.slug}`,
+      lastModified: new Date(pack.updated_at || new Date()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
+  } catch (error) {
+    console.error('Sitemap: Failed to fetch packs', error)
+  }
 
   // 2. Fetch all software products
-  const { data: software } = await supabase
-    .from('software_products')
-    .select('slug, updated_at')
-    .eq('is_active', true)
-  
-  const softwareEntries = (software || []).map((item) => ({
-    url: `${baseUrl}/software/${item.slug}`,
-    lastModified: new Date(item.updated_at || new Date()),
-    changeFrequency: 'monthly' as const,
-    priority: 0.9,
-  }))
+  let softwareEntries: any[] = []
+  try {
+    const { data: software } = await supabase
+      .from('software_products')
+      .select('slug, updated_at')
+      .eq('is_active', true)
+    
+    if (software) {
+      softwareEntries = software.map((item) => ({
+        url: `${baseUrl}/software/${item.slug}`,
+        lastModified: new Date(item.updated_at || new Date()),
+        changeFrequency: 'monthly' as const,
+        priority: 0.9,
+      }))
+    }
+  } catch (error) {
+    console.error('Sitemap: Failed to fetch software products', error)
+  }
 
   // 3. Blog Posts (Currently hardcoded in blog/page.tsx, but mapping them here)
   const blogSlugs = [
@@ -44,29 +56,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   // 4. Genres
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('slug, created_at')
-  
-  const genreEntries = (categories || []).map((cat) => ({
-    url: `${baseUrl}/browse/genre/${cat.slug}`,
-    lastModified: new Date(cat.created_at || new Date()),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }))
+  let genreEntries: any[] = []
+  try {
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('slug, created_at')
+    
+    if (categories) {
+      genreEntries = categories.map((cat) => ({
+        url: `${baseUrl}/browse/genre/${cat.slug}`,
+        lastModified: new Date(cat.created_at || new Date()),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }))
+    }
+  } catch (error) {
+    console.error('Sitemap: Failed to fetch categories/genres', error)
+  }
 
   // 5. Presets
-  const { data: presets } = await supabase
-    .from('presets')
-    .select('slug, updated_at')
-    .eq('is_active', true)
-  
-  const presetEntries = (presets || []).map((item) => ({
-    url: `${baseUrl}/browse/presets/${item.slug}`,
-    lastModified: new Date(item.updated_at || new Date()),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }))
+  let presetEntries: any[] = []
+  try {
+    const { data: presets } = await supabase
+      .from('presets')
+      .select('slug, updated_at')
+      .eq('is_active', true)
+    
+    if (presets) {
+      presetEntries = presets.map((item) => ({
+        url: `${baseUrl}/browse/presets/${item.slug}`,
+        lastModified: new Date(item.updated_at || new Date()),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }))
+    }
+  } catch (error) {
+    console.error('Sitemap: Failed to fetch presets', error)
+  }
 
   // 6. Static routes
   const staticRoutes = [

@@ -91,9 +91,50 @@ export default async function RootLayout({
     <html lang="en" className="dark">
       <head>
         <link rel="icon" href="/Favicon.ico" sizes="any" />
+        
+        {/* PWA Manifest & iOS Mobile Optimization */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Samples Wala" />
+        <link rel="apple-touch-icon" href="/Logo.png" />
+
+        {/* DNS Preconnects & Prefetching for Core Web Vitals */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet" />
+
+        {/* Supabase Connection Preconnection */}
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
+          <>
+            <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
+            <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
+          </>
+        )}
+
+        {/* Payment Gateways & Media CDNs Preconnection */}
+        <link rel="dns-prefetch" href="https://api.razorpay.com" />
+        <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+
+        {/* Geographic Targeting (Local SEO) */}
+        <meta name="geo.region" content="IN" />
+        <meta name="geo.placename" content="Mumbai, India" />
+        <meta name="geo.position" content="19.0760;72.8777" />
+        <meta name="ICBM" content="19.0760, 72.8777" />
+
+        {/* Crawler Directives */}
+        <meta name="rating" content="general" />
+        <meta name="distribution" content="global" />
+        <meta name="revisit-after" content="1 day" />
+
+        {/* Music-Specific Meta Categorization */}
+        <meta name="subject" content="Music Production, Indian Sample Packs, Loops, Bollywood Beats" />
+        <meta name="topic" content="Music Production and Beat Making" />
+        <meta name="summary" content="Samples Wala - Premium Indian sample packs, loops, software presets, and audio libraries. 100% royalty-free for music producers." />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
