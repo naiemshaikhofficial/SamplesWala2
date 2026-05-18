@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
+// Broad, brand/site-level keywords for global pages (to avoid keyword stuffing)
 const DEFAULT_KEYWORDS = [
-  // --- CORE BRANDING & VARIATIONS ---
   'sample packs',
   'samples',
   'loops',
@@ -13,249 +13,46 @@ const DEFAULT_KEYWORDS = [
   'samples-wala',
   'samplewala.com',
   'sampleswala.com',
-  'sample walla',
-  'samples walla',
-  'sampel wala',
-  'sampelwala',
-  'smples',
-  'smples wala',
-  'smple wala',
-  'smple',
-  'smplewala',
-  'samples vaala',
-  'sample vaala',
-  'music sample',
-  'music samples',
-
-  // --- PRODUCER SEARCH TERMS ---
-  'beat samples',
-  'beat loops',
-  'producer sample pack',
-  'type beat samples',
-  'type beat loops',
-  'drum loops',
-  'drum kits',
-  '808 samples',
-  '808 loops',
-  '808 kit',
-  'trap drum kit',
-  'lofi drum kit',
-  'hip hop drum kit',
-  'producer toolkit',
-  'studio quality samples',
-  'premium drum kit',
-  'free drum kit',
-  'free sample pack',
-  'free indian samples',
-
-  // --- DAW RELATED ---
-  'ableton samples',
-  'fl studio samples',
-  'logic pro samples',
-  'cubase samples',
-  'studio one samples',
-  'reaper samples',
-  'maschine samples',
-  'garageband samples',
-  'ableton loops',
-  'fl studio loops',
-  'logic pro loops',
-  'fl studio indian loops',
-  'ableton live packs',
-  'logic pro sound kits',
-  'best indian sample library',
-
-  // --- INDIAN MUSIC & LOCAL KEYWORDS ---
-  'Indian percussion loops',
-  'sitar samples',
-  'tabla loops',
-  'tabla loops for fl studio',
-  'dholak loops',
-  'dhol loops',
-  'indian vocal samples',
-  'bhojpuri vocal samples',
-  'hindi vocals',
-  'sitar samples for ableton',
-  'flute bansuri loops',
-  'sarangi samples',
-  'indian transition sound effects',
-  'bollywood loops',
-  'bollywood vocals',
-  'indian trap samples',
-  'indian drill samples',
-  'indian hip hop samples',
-  'desi samples',
-  'desi loops',
-  'desi vocal samples',
-  'punjabi loops',
-  'punjabi drill samples',
-  'punjabi trap loops',
-  'hindi sample pack',
-  'hindi loops',
-  'indian trap loops',
-  'indian melodies',
-  'indian melody loops',
-  'desi melody loops',
-  'mumbai samples',
-  'indian producer sounds',
-
-  // --- VOCAL KEYWORDS ---
-  'vocal chops',
-  'vocal loops',
-  'female vocal samples',
-  'male vocal samples',
-  'vocal textures',
-  'vocal one shots',
-  'vocal fx',
-  'vocal sample pack',
-  'vocal presets',
-
-  // --- SOUND DESIGN ---
-  'cinematic sounds',
-  'ambient textures',
-  'sound effects',
-  'transition fx',
-  'risers and impacts',
-  'whoosh effects',
-  'foley sounds',
-  'sound design toolkit',
-
-  // --- SEARCH INTENT KEYWORDS ---
-  'best sample packs',
-  'best indian sample packs',
-  'best loops for rap',
-  'best loops for hip hop',
-  'royalty free indian loops',
-  'download sample packs',
-  'wav sample pack',
-  'premium loops',
-  'high quality loops',
-  'professional sample library',
-  'music producer resources',
-  'beatmaking tools',
-  'professional wav loops',
-  'high definition audio samples',
-  'daw ready sounds',
-
-  // --- COMPETITOR INTENT & ALTS ---
-  'free splice',
-  'splice alternative india',
-  'better than splice',
-  'best splice alternative',
-  'indian splice',
-  'splice',
-  'splice alternative',
-  'splice sounds',
-  'splice india',
-  'splice vocal samples',
-  'splice indian loops',
-  'splice vs sampleswala',
-  'kshmr',
-  'kshmr sample pack',
-  'kshmr samples',
-  'kshmr vol 4',
-  'kshmr indian loops',
-  'kshmr sounds',
-  'splice kshmr',
-  'dharma worldwide',
-  'cymatics',
-  'cymatics alternative',
-  'cymatics indian samples',
-  'loopmasters',
-  'loopmasters alternative',
-  'loopmasters indian loops',
-  'loopcloud',
-  'loopcloud alternative',
-  'arcade output',
-  'output arcade',
-  'arcade by output alternative',
-  'splice coupon code',
-  'free splice alternatives',
-  'best indian samples splice',
-  'cymatics loops',
-  'output arcade samples',
-  'looperman alternative',
-  'free looperman samples',
-
-  // --- TRENDING GENRES ---
-  'jersey club samples',
-  'phonk samples',
-  'phonk loops',
-  'hyperpop samples',
-  'uk drill samples',
-  'melodic drill loops',
-  'pluggnb samples',
-  'rage beat loops',
-  'new jazz samples',
-  'rnb',
-  'r&b',
-  'rhythm and blues',
-  'rnb loops',
-  'r&b loops',
-  'rnb sample pack',
-  'rnb samples',
-  'trap',
-  'drill',
-  'lofi',
-  'edm',
-  'house',
-  'techno',
-  'afrobeats',
-  'amapiano',
-  'reggae',
-  'dancehall',
-  'future bass',
-  'synthwave',
-  'dubstep',
-  'cinematic',
-  'ambient',
-  'soul',
-  'funk',
-  'jazz',
-  'acoustic',
-  'rock',
-  'latin',
-  'reggaeton',
-  'world music',
-  'indian pop',
-  'sufi',
-  'ghazal',
-  'bhajan',
-  'classical',
-  'hindustani',
-  'carnatic',
-  'punjabi',
-  'bhojpuri',
-  'garba',
-  'bollywood',
-
-  // --- FILE FORMAT KEYWORDS ---
-  'wav loops',
-  'midi files',
-  'midi loops',
-  'stems',
-  'audio stems',
-  '24bit wav',
-  '48khz samples',
-  'lossless samples',
-  'zip sample pack',
-  'vst plugins',
-  'au plugins',
-  'music production software',
-  'contact instruments india',
-  'professional music production samples',
-  'indian music theory',
-  'world music samples',
-  'music tools',
-  'free vst tools',
-  'premium sounds',
-  'digital audio workstation',
-  'music creator tools',
-  'audio production gear',
-  'music production assets',
-  'sound kits india',
-  'music producer essentials'
+  'free sample packs',
+  'royalty free samples',
+  'best indian sample library'
 ]
+
+// --- Category Specific Keywords ---
+const CATEGORY_KEYWORDS = {
+  trap: [
+    'beat samples', 'beat loops', 'type beat samples', 'type beat loops',
+    'drum loops', 'drum kits', '808 samples', '808 loops', '808 kit',
+    'trap drum kit', 'best loops for rap', 'best loops for hip hop',
+    'uk drill samples', 'melodic drill loops', 'phonk loops', 'jersey club samples',
+    'trap', 'drill', 'hip hop', 'hip hop drum kit', 'rap loops', 'trap loops'
+  ],
+  bollywood: [
+    'bollywood loops', 'bollywood vocals', 'indian vocal samples',
+    'bhojpuri vocal samples', 'hindi vocals', 'sitar samples',
+    'tabla loops', 'dholak loops', 'dhol loops', 'desi samples',
+    'desi loops', 'desi vocal samples', 'punjabi loops', 'punjabi drill samples',
+    'hindi sample pack', 'hindi loops', 'indian trap loops', 'indian melodies',
+    'indian melody loops', 'desi melody loops', 'mumbai samples', 'indian producer sounds',
+    'Indian percussion loops', 'sitar samples for ableton', 'flute bansuri loops',
+    'sarangi samples', 'sufi', 'ghazal', 'bhajan', 'garba', 'bollywood'
+  ],
+  vocal: [
+    'vocal chops', 'vocal loops', 'female vocal samples', 'male vocal samples',
+    'vocal textures', 'vocal one shots', 'vocal fx', 'vocal sample pack',
+    'vocal presets', 'hindi vocals', 'desi vocal samples', 'bollywood vocals'
+  ],
+  rnb: [
+    'rnb', 'r&b', 'rhythm and blues', 'rnb loops', 'r&b loops',
+    'rnb sample pack', 'rnb samples', 'soul', 'funk', 'jazz',
+    'acoustic', 'r&b chord progressions'
+  ],
+  edm: [
+    'edm', 'house', 'techno', 'afrobeats', 'amapiano', 'reggae',
+    'dancehall', 'future bass', 'synthwave', 'dubstep', 'ambient',
+    'synth loops', 'keyboard loops'
+  ]
+}
 
 export function generatePageMetadata({
   title,
@@ -274,16 +71,12 @@ export function generatePageMetadata({
 }): Metadata {
   const siteTitle = "Samples Wala"
   const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`
-
-  // Use Vercel's Dynamic OG API by default
+  
   let imageUrl = image;
   if (!image.startsWith('http')) {
     const ogUrl = new URL('/api/og', 'https://sampleswala.com')
     ogUrl.searchParams.set('title', title)
     ogUrl.searchParams.set('category', 'Premium Samples')
-
-    // If it's a specific image path but not absolute, we could pass it to the OG API
-    // but for now, let's just use the dynamic generator for everything that's not a full URL
     imageUrl = ogUrl.pathname + ogUrl.search
   }
 
@@ -322,22 +115,26 @@ export function generatePageMetadata({
     } : undefined
   }
 }
+
 export function generatePackMetadata(pack: any): Metadata {
   const categoryName = pack.categories?.[0]?.name || 'Samples'
   const siteTitle = "Samples Wala"
-
-  // Create a rich, SEO-optimized description
+  
   const contentSummary = pack.total_contents_summary || 'Includes professional loops and samples'
   const counts = []
   if (pack.melody_count > 0) counts.push(`${pack.melody_count} Melodies`)
   if (pack.loop_count > 0) counts.push(`${pack.loop_count} Loops`)
   if (pack.one_shot_count > 0) counts.push(`${pack.one_shot_count} One-shots`)
   if (pack.preset_count > 0) counts.push(`${pack.preset_count} Presets`)
-
+  
   const countString = counts.length > 0 ? ` featuring ${counts.join(', ')}` : ''
   const description = pack.description || `${pack.name} - A premium ${categoryName} sample pack by Samples Wala. ${contentSummary}${countString}. Professional quality, 100% royalty-free for your music production.`
 
-  const keywords = [
+  // 1. Gather dynamic niche keywords based on category & name
+  const categoryLower = categoryName.toLowerCase()
+  const nameLower = pack.name.toLowerCase()
+  
+  const focusedKeywords: string[] = [
     `${pack.name} sample pack`,
     `${pack.name} loops`,
     `${pack.name} sounds`,
@@ -345,10 +142,27 @@ export function generatePackMetadata(pack: any): Metadata {
     `Indian ${categoryName}`,
     'professional sample pack',
     'royalty free loops',
-    'music production',
-    'DAW ready',
-    'high quality wav'
+    'wav loops',
+    'stems',
+    'zip sample pack'
   ]
+
+  // Inject only related niche keywords
+  if (categoryLower.includes('trap') || categoryLower.includes('hip') || categoryLower.includes('drill') || nameLower.includes('trap') || nameLower.includes('drill') || nameLower.includes('808')) {
+    focusedKeywords.push(...CATEGORY_KEYWORDS.trap)
+  }
+  if (categoryLower.includes('bollywood') || categoryLower.includes('indian') || categoryLower.includes('desi') || categoryLower.includes('tabla') || categoryLower.includes('sitar') || categoryLower.includes('vocal') || nameLower.includes('bollywood') || nameLower.includes('tabla') || nameLower.includes('sitar') || nameLower.includes('dholak') || nameLower.includes('vocal')) {
+    focusedKeywords.push(...CATEGORY_KEYWORDS.bollywood)
+  }
+  if (categoryLower.includes('vocal') || nameLower.includes('vocal') || nameLower.includes('singing') || nameLower.includes('acapella')) {
+    focusedKeywords.push(...CATEGORY_KEYWORDS.vocal)
+  }
+  if (categoryLower.includes('rnb') || nameLower.includes('rnb') || nameLower.includes('r&b') || nameLower.includes('soul') || nameLower.includes('chill')) {
+    focusedKeywords.push(...CATEGORY_KEYWORDS.rnb)
+  }
+  if (categoryLower.includes('edm') || categoryLower.includes('house') || categoryLower.includes('lofi') || nameLower.includes('edm') || nameLower.includes('house') || nameLower.includes('lofi') || nameLower.includes('synth')) {
+    focusedKeywords.push(...CATEGORY_KEYWORDS.edm)
+  }
 
   // Construct Dynamic OG Image URL
   const ogUrl = new URL('https://sampleswala.com/api/og')
@@ -356,8 +170,8 @@ export function generatePackMetadata(pack: any): Metadata {
   ogUrl.searchParams.set('category', categoryName)
   ogUrl.searchParams.set('price', pack.price_inr?.toString() || '')
   if (pack.cover_url) {
-    const fullCoverUrl = pack.cover_url.startsWith('http')
-      ? pack.cover_url
+    const fullCoverUrl = pack.cover_url.startsWith('http') 
+      ? pack.cover_url 
       : `https://sampleswala.com${pack.cover_url}`
     ogUrl.searchParams.set('image', fullCoverUrl)
   }
@@ -366,7 +180,7 @@ export function generatePackMetadata(pack: any): Metadata {
     title: `${pack.name} - Premium ${categoryName} Pack`,
     description: description.slice(0, 160),
     image: ogUrl.toString(),
-    keywords,
+    keywords: [...new Set(focusedKeywords)],
     path: `/packs/${pack.slug}`
   })
 }
@@ -374,20 +188,29 @@ export function generatePackMetadata(pack: any): Metadata {
 export function generatePresetMetadata(preset: any): Metadata {
   const dawName = preset.daws?.[0] || 'FL Studio'
   const siteTitle = "Samples Wala"
-
+  
   const description = preset.description || `${preset.name} - A professional ${preset.type} preset for ${dawName} by Samples Wala. 100% royalty-free, high-quality mixing chains and templates for modern music production.`
 
-  const keywords = [
+  const typeLower = preset.type?.toLowerCase() || ''
+  const nameLower = preset.name.toLowerCase()
+  const daws = preset.daws || []
+
+  const focusedKeywords = [
     `${preset.name} preset`,
     `${preset.name} ${dawName}`,
     `${preset.type} preset`,
-    ...preset.daws.map((d: string) => `${d} presets`),
-    'Indian vocal presets',
+    ...daws.map((d: string) => `${d.toLowerCase()} presets`),
+    ...daws.map((d: string) => `best presets for ${d.toLowerCase()}`),
     'professional mixing chains',
-    'royalty free presets',
-    'FL Studio vocal presets',
-    'Ableton producer kits'
+    'royalty free presets'
   ]
+
+  if (typeLower.includes('vocal') || nameLower.includes('vocal')) {
+    focusedKeywords.push('vocal presets', 'fl studio vocal presets', 'vocal mixing chain', 'indian vocal presets', 'preset pack')
+  }
+  if (typeLower.includes('master') || typeLower.includes('mixing') || nameLower.includes('mastering') || nameLower.includes('mix') || nameLower.includes('chain')) {
+    focusedKeywords.push('mastering presets', 'mixing chains', 'professional mixing chains', 'fl studio mastering')
+  }
 
   // Construct Dynamic OG Image URL
   const ogUrl = new URL('https://sampleswala.com/api/og')
@@ -395,8 +218,8 @@ export function generatePresetMetadata(preset: any): Metadata {
   ogUrl.searchParams.set('category', `${preset.type} Preset`)
   ogUrl.searchParams.set('price', preset.price_inr?.toString() || '0')
   if (preset.cover_url) {
-    const fullCoverUrl = preset.cover_url.startsWith('http')
-      ? preset.cover_url
+    const fullCoverUrl = preset.cover_url.startsWith('http') 
+      ? preset.cover_url 
       : `https://sampleswala.com${preset.cover_url}`
     ogUrl.searchParams.set('image', fullCoverUrl)
   }
@@ -405,7 +228,7 @@ export function generatePresetMetadata(preset: any): Metadata {
     title: `${preset.name} | ${preset.type} Preset for ${dawName}`,
     description: description.slice(0, 160),
     image: ogUrl.toString(),
-    keywords,
+    keywords: [...new Set(focusedKeywords)],
     path: `/browse/presets/${preset.slug}`
   })
 }
