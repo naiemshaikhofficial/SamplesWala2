@@ -1,11 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ShieldAlert, FileText, Mail, Gavel } from 'lucide-react'
+import { generatePageMetadata } from '@/lib/seo/metadata'
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: 'DMCA Policy | Samples Wala',
   description: 'Digital Millennium Copyright Act compliance and copyright notice policy.',
-}
+  path: '/dmca'
+})
 
 export default function DMCAPage() {
   return (

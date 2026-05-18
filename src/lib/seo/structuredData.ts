@@ -93,3 +93,44 @@ export function generateBreadcrumbData(items: { name: string, item: string }[]) 
     }))
   }
 }
+
+export function generateBlogStructuredData(post: any, slug: string) {
+  const imageUrl = post.image?.startsWith('http')
+    ? post.image
+    : `https://sampleswala.com${post.image || '/og-image.jpg'}`
+
+  let datePublished = new Date().toISOString()
+  try {
+    if (post.date) {
+      datePublished = new Date(post.date).toISOString()
+    }
+  } catch (e) {
+    // Fallback if parsing fails
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.description || post.excerpt || post.title,
+    "image": [imageUrl],
+    "datePublished": datePublished,
+    "dateModified": new Date().toISOString(),
+    "author": {
+      "@type": "Person",
+      "name": post.author || "Samples Wala Team"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Samples Wala",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://sampleswala.com/Logo.png"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://sampleswala.com/blog/${slug}`
+    }
+  }
+}

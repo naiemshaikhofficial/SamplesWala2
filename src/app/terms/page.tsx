@@ -1,11 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ShieldCheck, Scale, FileText, AlertCircle } from 'lucide-react'
+import { generatePageMetadata } from '@/lib/seo/metadata'
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: 'Terms & Conditions | Samples Wala',
   description: 'Simple and easy to understand terms for using Samples Wala sounds.',
-}
+  path: '/terms'
+})
 
 export default function TermsPage() {
   return (

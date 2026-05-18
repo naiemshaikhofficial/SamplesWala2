@@ -1,11 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft, RefreshCw, XCircle, CheckCircle2, MessageSquare } from 'lucide-react'
+import { generatePageMetadata } from '@/lib/seo/metadata'
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: 'Refund & Cancellation | Samples Wala',
   description: 'Simple refund and cancellation rules for our digital sound packs.',
-}
+  path: '/refund-policy'
+})
 
 export default function RefundPage() {
   return (

@@ -1,11 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Shield, Lock, EyeOff, Globe } from 'lucide-react'
+import { generatePageMetadata } from '@/lib/seo/metadata'
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: 'Privacy Policy | Samples Wala',
   description: 'Easy to understand privacy policy. We protect your data.',
-}
+  path: '/privacy'
+})
 
 export default function PrivacyPage() {
   return (

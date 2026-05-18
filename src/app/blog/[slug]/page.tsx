@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar, User, Share2, Facebook, Twitter, Instagram } from 'lucide-react'
 import { generatePageMetadata } from '@/lib/seo/metadata'
+import { generateBlogStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
 
 // Mock database of blog posts
 const blogPosts: Record<string, any> = {
@@ -112,8 +113,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     notFound()
   }
 
+  const breadcrumbs = generateBreadcrumbData([
+    { name: 'Home', item: 'https://sampleswala.com' },
+    { name: 'Blog', item: 'https://sampleswala.com/blog' },
+    { name: post.title, item: `https://sampleswala.com/blog/${slug}` }
+  ])
+
+  const blogSchema = generateBlogStructuredData(post, slug)
+
   return (
     <article className="min-h-screen pt-24 pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
+      />
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Back Link */}
         <Link 
