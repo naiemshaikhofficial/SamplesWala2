@@ -6,6 +6,7 @@ import { Menu, X, ShoppingBag, ChevronRight } from 'lucide-react'
 import { HeaderCartIcon } from './HeaderCartIcon'
 import { LogoutButton } from './LogoutButton'
 import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatedLogo } from './AnimatedLogo'
 
 export function Header({ user, isArtist }: { user: any, isArtist?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -69,26 +70,7 @@ export function Header({ user, isArtist }: { user: any, isArtist?: boolean }) {
   return (
     <header className={`${isMenuOpen ? 'fixed top-0' : 'sticky top-0'} z-[100] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)] w-full`}>
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full relative z-[110]">
-        <Link href="/" className="flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
-          <motion.div
-            whileHover={{
-              scale: 1.1,
-              rotate: [0, -2, 2, -2, 0],
-              transition: { duration: 0.3 }
-            }}
-            whileTap={{ scale: 0.9 }}
-            className="relative"
-          >
-            <Image
-              src="/Logo.png"
-              alt="Samples Wala Logo"
-              width={300}
-              height={100}
-              priority
-              className="h-8 md:h-10 w-auto transition-all"
-            />
-          </motion.div>
-        </Link>
+        <AnimatedLogo onClick={() => setIsMenuOpen(false)} />
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] italic">

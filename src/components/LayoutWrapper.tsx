@@ -4,6 +4,7 @@ import { Header } from '@/components/Header'
 import { LaunchOffer } from '@/components/LaunchOffer'
 import Link from "next/link";
 import Image from "next/image";
+import { AnimatedLogo } from '@/components/AnimatedLogo'
 import { Instagram, Youtube, Twitter } from "lucide-react";
 
 import { FloatingMusicNotes } from '@/components/FloatingMusicNotes'
@@ -36,13 +37,7 @@ export function LayoutWrapper({ children, user, isArtist }: { children: React.Re
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 md:mb-20">
             <div className="col-span-1 md:col-span-1 space-y-6">
-              <Image
-                src="/Logo.png"
-                alt="Samples Wala Logo"
-                width={180}
-                height={45}
-                className="h-16 md:h-20 w-auto opacity-80 hover:opacity-100 transition-opacity"
-              />
+              <AnimatedLogo className="opacity-80 hover:opacity-100 transition-all" />
               <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest leading-relaxed max-w-sm">
                 Premium sound design for the modern producer. Industry standard sample packs, loops, and tools for Indian music production.
               </p>

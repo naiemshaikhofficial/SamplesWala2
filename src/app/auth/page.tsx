@@ -7,8 +7,7 @@ import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { signIn, signUp, signInWithGoogle, forgotPassword } from './actions'
 
-type AuthMode = 'login' | 'signup' | 'forgot'
-
+import { AnimatedLogo } from '@/components/AnimatedLogo'
 import { AuthForm } from '@/components/auth/AuthForm'
 
 export default function AuthPage() {
@@ -17,17 +16,9 @@ export default function AuthPage() {
   
   return (
     <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center space-y-8">
-      <Link href="/" className="mb-6 block">
-        <Image 
-          src="/Logo.png" 
-          alt="Samples Wala Logo" 
-          width={400} 
-          height={100} 
-          className="h-20 md:h-24 w-auto"
-          priority
-          draggable={false}
-        />
-      </Link>
+      <div className="mb-6 scale-125">
+        <AnimatedLogo />
+      </div>
       
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
