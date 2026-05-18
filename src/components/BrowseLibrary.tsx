@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext'
 import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
 import { ShoppingCart, Eye } from 'lucide-react'
+import { cleanSearchQuery } from '@/lib/search/queryHelper'
 
 export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any[], searchQuery?: string }) {
   const { addItem } = useCart()
@@ -28,11 +29,17 @@ export function BrowseLibrary({ initialPacks, searchQuery }: { initialPacks: any
     let currentPacks = initialPacks || []
 
     if (searchQuery) {
-      const q = searchQuery.toLowerCase()
-      currentPacks = currentPacks.filter(p => 
-        p.name.toLowerCase().includes(q) || 
-        p.categories?.name?.toLowerCase().includes(q)
-      )
+      const cleaned = cleanSearchQuery(searchQuery)
+      if (cleaned) {
+        const searchWords = cleaned.split(/\s+/)
+        currentPacks = currentPacks.filter(p => {
+          const nameLower = p.name.toLowerCase()
+          const categoryLower = (p.categories?.name || '').toLowerCase()
+          return searchWords.every(word => 
+            nameLower.includes(word) || categoryLower.includes(word)
+          )
+        })
+      }
     }
     return currentPacks
   }, [initialPacks, searchQuery])

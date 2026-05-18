@@ -2,20 +2,28 @@ import { Metadata } from 'next'
 
 const DEFAULT_KEYWORDS = [
   'sample packs',
-  'samples', 
+  'samples',
   'Indian samples',
-  'South Indian samples', 
-  'loops', 
-  'Bollywood samples', 
-  'hip hop sample pack', 
-  'lofi samples', 
-  'royalty free samples', 
-  'music production tools', 
+  'South Indian samples',
+  'loops',
+  'Bollywood samples',
+  'hip hop sample pack',
+  'lofi samples',
+  'royalty free samples',
+  'music production tools',
   'Samples Wala',
   'Sample Wala',
   'Samplewala',
   'sampleswala',
   'samples-wala',
+  'smple',
+  'smples',
+  'sample wala',
+  'samples wala',
+  'music sample',
+  'music samples',
+  'smple wala',
+  'smplewala',
 
   'Indian percussion loops',
   'sitar samples',
@@ -23,6 +31,7 @@ const DEFAULT_KEYWORDS = [
   'tabla loops for fl studio',
   'dholak loops',
   'dhol loops',
+
   'indian vocal samples',
   'bhojpuri vocal samples',
   'hindi vocals',
@@ -45,7 +54,7 @@ const DEFAULT_KEYWORDS = [
   'professional music production samples',
   'indian music theory',
   'world music samples',
-  
+
   'music tools',
   'free vst tools',
   'premium sounds',
@@ -74,14 +83,14 @@ export function generatePageMetadata({
 }): Metadata {
   const siteTitle = "Samples Wala"
   const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`
-  
+
   // Use Vercel's Dynamic OG API by default
   let imageUrl = image;
   if (!image.startsWith('http')) {
     const ogUrl = new URL('/api/og', 'https://sampleswala.com')
     ogUrl.searchParams.set('title', title)
     ogUrl.searchParams.set('category', 'Premium Samples')
-    
+
     // If it's a specific image path but not absolute, we could pass it to the OG API
     // but for now, let's just use the dynamic generator for everything that's not a full URL
     imageUrl = ogUrl.pathname + ogUrl.search
@@ -125,7 +134,7 @@ export function generatePageMetadata({
 export function generatePackMetadata(pack: any): Metadata {
   const categoryName = pack.categories?.[0]?.name || 'Samples'
   const siteTitle = "Samples Wala"
-  
+
   // Create a rich, SEO-optimized description
   const contentSummary = pack.total_contents_summary || 'Includes professional loops and samples'
   const counts = []
@@ -133,7 +142,7 @@ export function generatePackMetadata(pack: any): Metadata {
   if (pack.loop_count > 0) counts.push(`${pack.loop_count} Loops`)
   if (pack.one_shot_count > 0) counts.push(`${pack.one_shot_count} One-shots`)
   if (pack.preset_count > 0) counts.push(`${pack.preset_count} Presets`)
-  
+
   const countString = counts.length > 0 ? ` featuring ${counts.join(', ')}` : ''
   const description = pack.description || `${pack.name} - A premium ${categoryName} sample pack by Samples Wala. ${contentSummary}${countString}. Professional quality, 100% royalty-free for your music production.`
 
@@ -156,8 +165,8 @@ export function generatePackMetadata(pack: any): Metadata {
   ogUrl.searchParams.set('category', categoryName)
   ogUrl.searchParams.set('price', pack.price_inr?.toString() || '')
   if (pack.cover_url) {
-    const fullCoverUrl = pack.cover_url.startsWith('http') 
-      ? pack.cover_url 
+    const fullCoverUrl = pack.cover_url.startsWith('http')
+      ? pack.cover_url
       : `https://sampleswala.com${pack.cover_url}`
     ogUrl.searchParams.set('image', fullCoverUrl)
   }
@@ -174,7 +183,7 @@ export function generatePackMetadata(pack: any): Metadata {
 export function generatePresetMetadata(preset: any): Metadata {
   const dawName = preset.daws?.[0] || 'FL Studio'
   const siteTitle = "Samples Wala"
-  
+
   const description = preset.description || `${preset.name} - A professional ${preset.type} preset for ${dawName} by Samples Wala. 100% royalty-free, high-quality mixing chains and templates for modern music production.`
 
   const keywords = [
@@ -195,8 +204,8 @@ export function generatePresetMetadata(preset: any): Metadata {
   ogUrl.searchParams.set('category', `${preset.type} Preset`)
   ogUrl.searchParams.set('price', preset.price_inr?.toString() || '0')
   if (preset.cover_url) {
-    const fullCoverUrl = preset.cover_url.startsWith('http') 
-      ? preset.cover_url 
+    const fullCoverUrl = preset.cover_url.startsWith('http')
+      ? preset.cover_url
       : `https://sampleswala.com${preset.cover_url}`
     ogUrl.searchParams.set('image', fullCoverUrl)
   }

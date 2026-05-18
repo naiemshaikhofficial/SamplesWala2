@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { unstable_cache } from 'next/cache'
 import { generateAudioSignal, getDriveFileId } from '@/lib/audio/signal'
+import { cleanSearchQuery } from '@/lib/search/queryHelper'
 
 // Internal function to fetch all packs
 // We use getAdminClient here to avoid 'cookies()' access inside unstable_cache
@@ -164,12 +165,21 @@ export async function getRelatedPacks(category: string, excludeId: string) {
 export async function getSearchSuggestions(query: string) {
   if (!query || query.length < 2) return []
   
+  const cleaned = cleanSearchQuery(query)
   const supabase = getAdminClient()
-  const { data, error } = await supabase
+  
+  let queryBuilder = supabase
     .from('sample_packs')
     .select('id, name, slug, cover_url, price_inr, mrp_inr')
-    .ilike('name', `%${query}%`)
-    .limit(5)
+  
+  if (cleaned) {
+    queryBuilder = queryBuilder.ilike('name', `%${cleaned}%`)
+  } else {
+    // If query is generic (e.g. "sample", "smple", "sample wala"), return latest 5 packs
+    queryBuilder = queryBuilder.order('created_at', { ascending: false })
+  }
+  
+  const { data, error } = await queryBuilder.limit(5)
     
   if (error) {
     console.error('[SUGGESTIONS_ERROR]', error)
