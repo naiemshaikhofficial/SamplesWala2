@@ -150,18 +150,23 @@ export function generatePackMetadata(pack: any): Metadata {
   // Inject only related niche keywords
   if (categoryLower.includes('trap') || categoryLower.includes('hip') || categoryLower.includes('drill') || nameLower.includes('trap') || nameLower.includes('drill') || nameLower.includes('808')) {
     focusedKeywords.push(...CATEGORY_KEYWORDS.trap)
+    focusedKeywords.push('cymatics loops', 'cymatics alternative', 'looperman alternative', 'free looperman samples', 'splice alternative')
   }
   if (categoryLower.includes('bollywood') || categoryLower.includes('indian') || categoryLower.includes('desi') || categoryLower.includes('tabla') || categoryLower.includes('sitar') || categoryLower.includes('vocal') || nameLower.includes('bollywood') || nameLower.includes('tabla') || nameLower.includes('sitar') || nameLower.includes('dholak') || nameLower.includes('vocal')) {
     focusedKeywords.push(...CATEGORY_KEYWORDS.bollywood)
+    focusedKeywords.push('kshmr indian loops', 'splice indian loops', 'cymatics indian samples', 'loopmasters indian loops', 'best splice alternative', 'indian splice')
   }
   if (categoryLower.includes('vocal') || nameLower.includes('vocal') || nameLower.includes('singing') || nameLower.includes('acapella')) {
     focusedKeywords.push(...CATEGORY_KEYWORDS.vocal)
+    focusedKeywords.push('splice vocal samples', 'best indian samples splice', 'splice alternative', 'output arcade samples', 'arcade by output alternative')
   }
   if (categoryLower.includes('rnb') || nameLower.includes('rnb') || nameLower.includes('r&b') || nameLower.includes('soul') || nameLower.includes('chill')) {
     focusedKeywords.push(...CATEGORY_KEYWORDS.rnb)
+    focusedKeywords.push('splice alternative', 'better than splice', 'best splice alternative', 'loopmasters alternative')
   }
   if (categoryLower.includes('edm') || categoryLower.includes('house') || categoryLower.includes('lofi') || nameLower.includes('edm') || nameLower.includes('house') || nameLower.includes('lofi') || nameLower.includes('synth')) {
     focusedKeywords.push(...CATEGORY_KEYWORDS.edm)
+    focusedKeywords.push('splice alternative', 'best splice alternative', 'better than splice', 'loopmasters alternative', 'loopcloud alternative')
   }
 
   // Construct Dynamic OG Image URL
@@ -206,10 +211,10 @@ export function generatePresetMetadata(preset: any): Metadata {
   ]
 
   if (typeLower.includes('vocal') || nameLower.includes('vocal')) {
-    focusedKeywords.push('vocal presets', 'fl studio vocal presets', 'vocal mixing chain', 'indian vocal presets', 'preset pack')
+    focusedKeywords.push('vocal presets', 'fl studio vocal presets', 'vocal mixing chain', 'indian vocal presets', 'preset pack', 'output arcade samples', 'arcade by output alternative')
   }
   if (typeLower.includes('master') || typeLower.includes('mixing') || nameLower.includes('mastering') || nameLower.includes('mix') || nameLower.includes('chain')) {
-    focusedKeywords.push('mastering presets', 'mixing chains', 'professional mixing chains', 'fl studio mastering')
+    focusedKeywords.push('mastering presets', 'mixing chains', 'professional mixing chains', 'fl studio mastering', 'splice alternative', 'better than splice')
   }
 
   // Construct Dynamic OG Image URL
