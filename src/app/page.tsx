@@ -9,6 +9,7 @@ import { HomePacks } from '@/components/HomePacks'
 import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
 import { PresetCard } from '@/components/PresetCard'
+import { HeroSlider } from '@/components/HeroSlider'
 
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
@@ -60,90 +61,38 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
 
-      {/* Hero Section */}
-      <section className="relative min-h-[90dvh] flex items-center overflow-hidden border-b border-white/5 bg-black">
+      {/* Epic Hero Section */}
+      <section className="relative min-h-[90dvh] flex flex-col justify-center overflow-hidden border-b border-white/5 bg-black pt-28 pb-16">
         {/* Background Gradients */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-studio-yellow/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 z-0" />
         <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-studio-neon/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4 z-0" />
 
-        <div className="container mx-auto px-4 relative z-30 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center pt-20">
-          <div className="space-y-6 md:space-y-8 text-center lg:text-left relative">
-            {/* Splatter Backdrop */}
-            <div className="splatter-effect bg-studio-pink/30 -top-10 -left-10 animate-pulse" />
-
-            <div className="inline-block px-4 py-1 bg-studio-red text-white font-black uppercase text-[10px] tracking-[0.3em] jagged-border mb-4 rotate-[-2deg]">
-              OFFICIALLY LAUNCHED!
-            </div>
-
-            <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] font-black uppercase tracking-tighter leading-[0.8] md:leading-[0.75] text-white comic-text break-words">
-              SAMPLES<br />
-              <span className="text-studio-yellow italic">WALA</span>
-            </h1>
-            <p className="text-xs md:text-lg text-white/60 max-w-xl mx-auto lg:mx-0 uppercase font-bold tracking-widest leading-relaxed border-l-4 border-studio-blue pl-4">
-              Premium Indian sample packs, presets & plugin sounds. <br className="hidden md:block" /> Built for the creative community. 100% Royalty Free.
-            </p>
-
-              <div className="flex justify-center lg:justify-start pt-4">
-                <div 
-                  className="relative flex flex-wrap gap-x-4 gap-y-2 select-none"
-                  style={{ fontFamily: 'var(--font-luckiest-guy), cursive' }}
-                >
-                  <span className="text-3xl md:text-6xl text-studio-neon comic-text -rotate-3 hover:rotate-0 transition-transform">BY</span>
-                  <span className="text-3xl md:text-6xl text-studio-pink comic-text rotate-2 hover:rotate-0 transition-transform">ARTIST</span>
-                  <span className="text-3xl md:text-6xl text-studio-yellow comic-text -rotate-1 hover:rotate-0 transition-transform">FOR</span>
-                  <span className="text-3xl md:text-6xl text-studio-blue comic-text rotate-3 hover:rotate-0 transition-transform">ARTIST</span>
-                  
-                  {/* Decorative Comic Elements */}
-                  <div className="absolute -top-4 -right-4 text-studio-red animate-pulse">
-                    <Sparkles size={24} fill="currentColor" />
-                  </div>
-                </div>
+        <div className="container mx-auto px-4 relative z-30 space-y-10">
+          
+          {/* Epic-Style Header Row */}
+          <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
+            <div className="space-y-3 text-center lg:text-left relative">
+              <div className="inline-block px-4 py-1 bg-studio-red text-white font-black uppercase text-[9px] tracking-[0.3em] shadow-[3px_3px_0px_black] border-2 border-black rotate-[-1.5deg] mb-1">
+                OFFICIALLY LAUNCHED!
               </div>
-
+              <h1 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tighter leading-none text-white comic-text">
+                SAMPLES<span className="text-studio-yellow italic">WALA</span>
+              </h1>
+              <p className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] md:tracking-[0.3em] max-w-xl leading-normal border-l-2 border-studio-blue pl-3">
+                Premium Indian sample packs, presets & synthesizers. Built for the creative community.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
               <HeroSearch />
-
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
-                <Link
-                  href="/browse"
-                  className="w-full sm:w-auto h-14 px-12 bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-studio-red hover:text-white transition-all border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-                >
-                  BROWSE ALL PACKS
-                </Link>
-              </div>
-            </div>
-
-            {/* Hero Packs Showcase */}
-            <div className="relative h-[500px] hidden lg:flex items-center justify-center">
-              {packs.slice(0, 3).map((pack: any, index: number) => (
-                <div
-                  key={pack.id}
-                  className="absolute transition-all duration-700 hover:z-50 hover:scale-110 cursor-pointer group"
-                  style={{
-                    transform: `translateX(${(index - 1) * 140}px) rotate(${(index - 1) * 12}deg) translateY(${Math.abs(index - 1) * 40}px)`,
-                    zIndex: 3 - Math.abs(index - 1)
-                  }}
-                >
-                  <div className="w-64 aspect-square relative border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-all group-hover:border-studio-pink group-hover:-translate-y-4">
-                    <Image
-                      src={pack.cover_url || '/placeholder.jpg'}
-                      alt={pack.name}
-                      fill
-                      priority={index === 1}
-                      sizes="256px"
-                      className="object-cover transition-all duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-40 group-hover:opacity-0 transition-opacity" />
-                    <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                      <Link href={`/packs/${pack.slug}`} className="block w-full py-3 bg-white text-black text-[10px] font-black uppercase text-center tracking-widest border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)]">
-                        GET THIS PACK
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
-        </section>
+
+          {/* Custom Interactive Epic Games Slider */}
+          <HeroSlider packs={packs} />
+
+        </div>
+      </section>
 
       {/* Featured Packs */}
       <section className="py-24 container mx-auto px-4">
