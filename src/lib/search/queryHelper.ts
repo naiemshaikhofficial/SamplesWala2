@@ -46,7 +46,15 @@ const SYNONYM_MAP: Record<string, string> = {
   'pop loops': 'pop',
   'hiphop loops': 'hip hop',
   'hip hop loops': 'hip hop',
-  'hophop loops': 'hip hop'
+  'hophop loops': 'hip hop',
+  'r&b': 'rnb',
+  'r and b': 'rnb',
+  'rhythm and blues': 'rnb',
+  'rhythm & blues': 'rnb',
+  'rnb loops': 'rnb',
+  'r&b loops': 'rnb',
+  'rnb loop': 'rnb',
+  'r&b loop': 'rnb'
 }
 
 /**
