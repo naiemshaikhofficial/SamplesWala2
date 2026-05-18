@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar, User, Share2, Facebook, Twitter, Instagram } from 'lucide-react'
-import { generatePageMetadata } from '@/lib/seo/metadata'
+import { generatePageMetadata, generateSmartKeywords } from '@/lib/seo/metadata'
 import { generateBlogStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
 
 // Mock database of blog posts
@@ -96,12 +96,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   if (!post) return {}
 
+  const keywords = generateSmartKeywords(post.title, post.category)
+
   return generatePageMetadata({
     title: post.title,
     description: post.description,
     image: post.image,
     path: `/blog/${slug}`,
-    keywords: [post.category, 'Indian music production', 'music tutorial']
+    keywords
   })
 }
 

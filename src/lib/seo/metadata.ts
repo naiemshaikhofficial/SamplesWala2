@@ -1,57 +1,103 @@
 import { Metadata } from 'next'
 
-// Broad, brand/site-level keywords for global pages (to avoid keyword stuffing)
+// Short, highly-focused brand/site-level keywords for global pages (prevents keyword stuffing)
 const DEFAULT_KEYWORDS = [
   'sample packs',
-  'samples',
-  'loops',
-  'music production tools',
+  'music samples',
+  'Indian samples',
+  'royalty free loops',
   'Samples Wala',
   'Sample Wala',
   'Samplewala',
   'sampleswala',
-  'samples-wala',
-  'samplewala.com',
-  'sampleswala.com',
-  'free sample packs',
-  'royalty free samples',
-  'best indian sample library'
+  'sampleswala.com'
 ]
 
-// --- Category Specific Keywords ---
-const CATEGORY_KEYWORDS = {
+// --- Dynamic Niche Keyword Resource Dictionary ---
+const NICHE_KEYWORDS = {
   trap: [
-    'beat samples', 'beat loops', 'type beat samples', 'type beat loops',
-    'drum loops', 'drum kits', '808 samples', '808 loops', '808 kit',
-    'trap drum kit', 'best loops for rap', 'best loops for hip hop',
-    'uk drill samples', 'melodic drill loops', 'phonk loops', 'jersey club samples',
-    'trap', 'drill', 'hip hop', 'hip hop drum kit', 'rap loops', 'trap loops'
+    'trap loops', 'trap samples', 'drum loops', '808 samples', '808 loops', '808 kit',
+    'trap drum kit', 'best loops for rap', 'best loops for hip hop', 'cymatics loops',
+    'cymatics alternative', 'looperman alternative', 'free looperman samples', 'splice alternative'
   ],
   bollywood: [
-    'bollywood loops', 'bollywood vocals', 'indian vocal samples',
-    'bhojpuri vocal samples', 'hindi vocals', 'sitar samples',
-    'tabla loops', 'dholak loops', 'dhol loops', 'desi samples',
-    'desi loops', 'desi vocal samples', 'punjabi loops', 'punjabi drill samples',
+    'bollywood loops', 'bollywood vocals', 'indian vocal samples', 'desi loops',
+    'desi samples', 'punjabi loops', 'punjabi drill samples', 'punjabi trap loops',
     'hindi sample pack', 'hindi loops', 'indian trap loops', 'indian melodies',
     'indian melody loops', 'desi melody loops', 'mumbai samples', 'indian producer sounds',
-    'Indian percussion loops', 'sitar samples for ableton', 'flute bansuri loops',
-    'sarangi samples', 'sufi', 'ghazal', 'bhajan', 'garba', 'bollywood'
+    'kshmr indian loops', 'splice indian loops', 'cymatics indian samples', 'loopmasters indian loops',
+    'best splice alternative', 'indian splice'
   ],
   vocal: [
     'vocal chops', 'vocal loops', 'female vocal samples', 'male vocal samples',
-    'vocal textures', 'vocal one shots', 'vocal fx', 'vocal sample pack',
-    'vocal presets', 'hindi vocals', 'desi vocal samples', 'bollywood vocals'
+    'vocal textures', 'vocal fx', 'vocal sample pack', 'vocal presets',
+    'splice vocal samples', 'best indian samples splice', 'output arcade samples', 'arcade by output alternative'
   ],
   rnb: [
-    'rnb', 'r&b', 'rhythm and blues', 'rnb loops', 'r&b loops',
-    'rnb sample pack', 'rnb samples', 'soul', 'funk', 'jazz',
-    'acoustic', 'r&b chord progressions'
+    'rnb', 'r&b', 'rnb loops', 'r&b loops', 'rnb sample pack', 'rnb samples',
+    'soul loops', 'funk loops', 'lofi loops', 'splice alternative', 'best splice alternative'
   ],
   edm: [
-    'edm', 'house', 'techno', 'afrobeats', 'amapiano', 'reggae',
-    'dancehall', 'future bass', 'synthwave', 'dubstep', 'ambient',
-    'synth loops', 'keyboard loops'
+    'edm', 'house', 'techno', 'afrobeats', 'amapiano', 'future bass', 'synthwave',
+    'dubstep', 'synth loops', 'splice alternative', 'better than splice', 'loopcloud alternative'
   ]
+}
+
+/**
+ * Generates super-focused dynamic keywords using natural language title-parsing.
+ * Generates precise phrase variations of the product name + target niche keywords,
+ * while strictly excluding completely unrelated keywords (e.g. no "bhajan" on a Trap page).
+ */
+export function generateSmartKeywords(title: string, category: string): string[] {
+  const titleClean = title.replace(/[^\w\s-]/gi, '').toLowerCase()
+  const words = titleClean.split(/\s+/).filter(w => w.length > 2 && !['pack', 'vol', 'volume', 'essentials', 'sample', 'loops', 'preset', 'presets', 'wav'].includes(w))
+  
+  const categoryClean = category.replace(/[^\w\s-]/gi, '').toLowerCase()
+  const catWords = categoryClean.split(/\s+/).filter(w => w.length > 2 && !['pack', 'samples', 'loops'].includes(w))
+
+  const generated: string[] = []
+
+  // 1. Generate exact phrase matching variations based on title words
+  if (words.length > 0) {
+    words.forEach(word => {
+      generated.push(`${word} loops`)
+      generated.push(`${word} samples`)
+      generated.push(`${word} sample pack`)
+    })
+
+    if (words.length >= 2) {
+      const phrase = words.slice(0, 2).join(' ')
+      generated.push(`${phrase} loops`)
+      generated.push(`${phrase} samples`)
+      generated.push(`${phrase} sample pack`)
+      generated.push(`${phrase} kit`)
+    }
+  }
+
+  // 2. Scan content categories and dynamically match correct niche keyword blocks
+  const combinedText = `${titleClean} ${categoryClean}`
+  
+  if (combinedText.includes('trap') || combinedText.includes('drill') || combinedText.includes('808') || combinedText.includes('hip') || combinedText.includes('rap') || combinedText.includes('beat')) {
+    generated.push(...NICHE_KEYWORDS.trap)
+  }
+  
+  if (combinedText.includes('bollywood') || combinedText.includes('indian') || combinedText.includes('desi') || combinedText.includes('punjabi') || combinedText.includes('tabla') || combinedText.includes('sitar') || combinedText.includes('dholak') || combinedText.includes('sarangi') || combinedText.includes('flute')) {
+    generated.push(...NICHE_KEYWORDS.bollywood)
+  }
+  
+  if (combinedText.includes('vocal') || combinedText.includes('sing') || combinedText.includes('choir') || combinedText.includes('acapella') || combinedText.includes('vocal chops')) {
+    generated.push(...NICHE_KEYWORDS.vocal)
+  }
+  
+  if (combinedText.includes('rnb') || combinedText.includes('r&b') || combinedText.includes('soul') || combinedText.includes('chill') || combinedText.includes('lofi') || combinedText.includes('jazz')) {
+    generated.push(...NICHE_KEYWORDS.rnb)
+  }
+  
+  if (combinedText.includes('edm') || combinedText.includes('house') || combinedText.includes('techno') || combinedText.includes('synth') || combinedText.includes('future') || combinedText.includes('bass') || combinedText.includes('dance')) {
+    generated.push(...NICHE_KEYWORDS.edm)
+  }
+
+  return [...new Set(generated)]
 }
 
 export function generatePageMetadata({
@@ -130,44 +176,8 @@ export function generatePackMetadata(pack: any): Metadata {
   const countString = counts.length > 0 ? ` featuring ${counts.join(', ')}` : ''
   const description = pack.description || `${pack.name} - A premium ${categoryName} sample pack by Samples Wala. ${contentSummary}${countString}. Professional quality, 100% royalty-free for your music production.`
 
-  // 1. Gather dynamic niche keywords based on category & name
-  const categoryLower = categoryName.toLowerCase()
-  const nameLower = pack.name.toLowerCase()
-  
-  const focusedKeywords: string[] = [
-    `${pack.name} sample pack`,
-    `${pack.name} loops`,
-    `${pack.name} sounds`,
-    `${categoryName} samples`,
-    `Indian ${categoryName}`,
-    'professional sample pack',
-    'royalty free loops',
-    'wav loops',
-    'stems',
-    'zip sample pack'
-  ]
-
-  // Inject only related niche keywords
-  if (categoryLower.includes('trap') || categoryLower.includes('hip') || categoryLower.includes('drill') || nameLower.includes('trap') || nameLower.includes('drill') || nameLower.includes('808')) {
-    focusedKeywords.push(...CATEGORY_KEYWORDS.trap)
-    focusedKeywords.push('cymatics loops', 'cymatics alternative', 'looperman alternative', 'free looperman samples', 'splice alternative')
-  }
-  if (categoryLower.includes('bollywood') || categoryLower.includes('indian') || categoryLower.includes('desi') || categoryLower.includes('tabla') || categoryLower.includes('sitar') || categoryLower.includes('vocal') || nameLower.includes('bollywood') || nameLower.includes('tabla') || nameLower.includes('sitar') || nameLower.includes('dholak') || nameLower.includes('vocal')) {
-    focusedKeywords.push(...CATEGORY_KEYWORDS.bollywood)
-    focusedKeywords.push('kshmr indian loops', 'splice indian loops', 'cymatics indian samples', 'loopmasters indian loops', 'best splice alternative', 'indian splice')
-  }
-  if (categoryLower.includes('vocal') || nameLower.includes('vocal') || nameLower.includes('singing') || nameLower.includes('acapella')) {
-    focusedKeywords.push(...CATEGORY_KEYWORDS.vocal)
-    focusedKeywords.push('splice vocal samples', 'best indian samples splice', 'splice alternative', 'output arcade samples', 'arcade by output alternative')
-  }
-  if (categoryLower.includes('rnb') || nameLower.includes('rnb') || nameLower.includes('r&b') || nameLower.includes('soul') || nameLower.includes('chill')) {
-    focusedKeywords.push(...CATEGORY_KEYWORDS.rnb)
-    focusedKeywords.push('splice alternative', 'better than splice', 'best splice alternative', 'loopmasters alternative')
-  }
-  if (categoryLower.includes('edm') || categoryLower.includes('house') || categoryLower.includes('lofi') || nameLower.includes('edm') || nameLower.includes('house') || nameLower.includes('lofi') || nameLower.includes('synth')) {
-    focusedKeywords.push(...CATEGORY_KEYWORDS.edm)
-    focusedKeywords.push('splice alternative', 'best splice alternative', 'better than splice', 'loopmasters alternative', 'loopcloud alternative')
-  }
+  // Dynamically extract super-focused exact phrase keywords
+  const focusedKeywords = generateSmartKeywords(pack.name, categoryName)
 
   // Construct Dynamic OG Image URL
   const ogUrl = new URL('https://sampleswala.com/api/og')
@@ -185,7 +195,7 @@ export function generatePackMetadata(pack: any): Metadata {
     title: `${pack.name} - Premium ${categoryName} Pack`,
     description: description.slice(0, 160),
     image: ogUrl.toString(),
-    keywords: [...new Set(focusedKeywords)],
+    keywords: focusedKeywords,
     path: `/packs/${pack.slug}`
   })
 }
@@ -196,26 +206,8 @@ export function generatePresetMetadata(preset: any): Metadata {
   
   const description = preset.description || `${preset.name} - A professional ${preset.type} preset for ${dawName} by Samples Wala. 100% royalty-free, high-quality mixing chains and templates for modern music production.`
 
-  const typeLower = preset.type?.toLowerCase() || ''
-  const nameLower = preset.name.toLowerCase()
-  const daws = preset.daws || []
-
-  const focusedKeywords = [
-    `${preset.name} preset`,
-    `${preset.name} ${dawName}`,
-    `${preset.type} preset`,
-    ...daws.map((d: string) => `${d.toLowerCase()} presets`),
-    ...daws.map((d: string) => `best presets for ${d.toLowerCase()}`),
-    'professional mixing chains',
-    'royalty free presets'
-  ]
-
-  if (typeLower.includes('vocal') || nameLower.includes('vocal')) {
-    focusedKeywords.push('vocal presets', 'fl studio vocal presets', 'vocal mixing chain', 'indian vocal presets', 'preset pack', 'output arcade samples', 'arcade by output alternative')
-  }
-  if (typeLower.includes('master') || typeLower.includes('mixing') || nameLower.includes('mastering') || nameLower.includes('mix') || nameLower.includes('chain')) {
-    focusedKeywords.push('mastering presets', 'mixing chains', 'professional mixing chains', 'fl studio mastering', 'splice alternative', 'better than splice')
-  }
+  // Dynamically extract super-focused exact phrase keywords
+  const focusedKeywords = generateSmartKeywords(preset.name, `${preset.type} preset ${dawName}`)
 
   // Construct Dynamic OG Image URL
   const ogUrl = new URL('https://sampleswala.com/api/og')
@@ -233,7 +225,7 @@ export function generatePresetMetadata(preset: any): Metadata {
     title: `${preset.name} | ${preset.type} Preset for ${dawName}`,
     description: description.slice(0, 160),
     image: ogUrl.toString(),
-    keywords: [...new Set(focusedKeywords)],
+    keywords: focusedKeywords,
     path: `/browse/presets/${preset.slug}`
   })
 }

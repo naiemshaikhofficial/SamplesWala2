@@ -3,7 +3,7 @@ import { getPacksByCategorySlug, getCategoryBySlug, getAllCategories, getPresets
 import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { PresetCard } from '@/components/PresetCard'
 import Link from 'next/link'
-import { generatePageMetadata } from '@/lib/seo/metadata'
+import { generatePageMetadata, generateSmartKeywords } from '@/lib/seo/metadata'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
@@ -20,9 +20,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!category) return {}
 
+  const keywords = generateSmartKeywords(category.name, category.name)
+
   return generatePageMetadata({
     title: `Best ${category.name} Sample Packs & Presets | SamplesWala`,
     description: `Download premium ${category.name} sample packs, loops, and curated sound kits. 100% royalty-free ${category.name} sounds for music producers.`,
+    keywords,
     path: `/browse/genre/${slug}`
   })
 }
