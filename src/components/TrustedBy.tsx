@@ -37,6 +37,7 @@ export default function TrustedBy() {
             ease: "linear", 
             repeat: Infinity 
           }}
+          style={{ willChange: 'transform' }}
           className="flex whitespace-nowrap py-4 items-center"
         >
           {/* Use 2 sets for perfect -50% loop */}

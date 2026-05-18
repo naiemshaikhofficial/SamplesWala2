@@ -26,7 +26,16 @@ export function FloatingMusicNotes() {
   const [notes, setNotes] = useState<NoteInstance[]>([])
 
   useEffect(() => {
-    // Generate 35 floating musical symbols across the background
+    // Disable floating notes completely on mobile or if reduced motion is preferred
+    const isMobile = window.innerWidth < 768
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    
+    if (isMobile || prefersReducedMotion) {
+      setNotes([])
+      return
+    }
+
+    // Generate 35 floating musical symbols across the background for desktop
     const newNotes = Array.from({ length: 35 }).map((_, i) => {
       const sizeRandom = Math.random()
       const size = sizeRandom < 0.25 ? 'text-sm' : sizeRandom < 0.6 ? 'text-xl' : sizeRandom < 0.85 ? 'text-3xl' : 'text-5xl'
