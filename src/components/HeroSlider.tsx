@@ -115,10 +115,6 @@ export function HeroSlider({ packs }: { packs: any[] }) {
         <div className="lg:col-span-3 flex flex-col">
           <div className="w-full h-[580px] sm:h-[520px] md:h-[500px] bg-studio-charcoal border-4 border-black shadow-premium p-6 md:p-10 relative overflow-hidden flex flex-col justify-between group">
             
-            {/* Parallax Background Glow Layer */}
-            <div className="absolute top-0 right-0 w-[60%] h-[120%] bg-gradient-to-l from-white/[0.02] via-transparent to-transparent pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-studio-neon/[0.04] blur-[80px] rounded-full pointer-events-none" />
-            
             <AnimatePresence mode="wait">
               <motion.div
                 key={activePack.id}
@@ -128,6 +124,25 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                 transition={{ duration: 0.25 }}
                 className="w-full h-full flex flex-col justify-between flex-1 gap-6"
               >
+                {/* Dynamic Poster Backdrop (Epic Games Style) */}
+                <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0 rounded-sm">
+                  {/* The dynamic background image with slow parallax zoom on hover */}
+                  <div className="absolute inset-0 w-full h-full transform scale-105 group-hover:scale-100 transition-transform duration-[10s] ease-out">
+                    <Image
+                      src={getOptimizedImageUrl(activePack.cover_url, 800, 80)}
+                      alt=""
+                      fill
+                      className="object-cover object-right opacity-50 filter brightness-[0.5]"
+                      priority
+                    />
+                  </div>
+                  {/* Left-to-Right Dark Gradient Mask for perfect text contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-studio-charcoal via-studio-charcoal/80 to-transparent w-full md:w-[70%]" />
+                  {/* Bottom Dark Gradient Mask */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-studio-charcoal via-studio-charcoal/60 to-transparent" />
+                  {/* Overall Subtle Dark Overlay */}
+                  <div className="absolute inset-0 bg-black/10" />
+                </div>
                 
                 {/* Top Row: Tags & Badges */}
                 <div className="flex items-center justify-between relative z-10">
