@@ -9,23 +9,23 @@ interface AnimatedLogoProps {
 }
 
 const samplesLetters = [
-  { char: 'S', color: 'text-studio-red' },
-  { char: 'A', color: 'text-studio-orange' },
-  { char: 'M', color: 'text-studio-yellow' },
-  { char: 'P', color: 'text-studio-neon' },
-  { char: 'L', color: 'text-studio-pink' },
-  { char: 'E', color: 'text-studio-blue' },
-  { char: 'S', color: 'text-studio-purple' },
+  { char: 'S', color: 'text-studio-red', glow: 'rgba(255, 49, 49, 0.6)' },
+  { char: 'A', color: 'text-studio-orange', glow: 'rgba(255, 92, 0, 0.6)' },
+  { char: 'M', color: 'text-studio-yellow', glow: 'rgba(255, 230, 0, 0.6)' },
+  { char: 'P', color: 'text-studio-neon', glow: 'rgba(0, 255, 148, 0.6)' },
+  { char: 'L', color: 'text-studio-pink', glow: 'rgba(0, 191, 255, 0.6)' },
+  { char: 'E', color: 'text-studio-blue', glow: 'rgba(255, 0, 128, 0.6)' },
+  { char: 'S', color: 'text-studio-purple', glow: 'rgba(191, 0, 255, 0.6)' },
 ]
 
 const walaLetters = [
-  { char: 'W', color: 'text-black' },
-  { char: 'A', color: 'text-black' },
-  { char: 'L', color: 'text-black' },
-  { char: 'A', color: 'text-black' },
+  { char: 'W' },
+  { char: 'A' },
+  { char: 'L' },
+  { char: 'A' },
 ]
 
-// Container variants to coordinate stagger
+// Staggered Container
 const containerVariants = {
   hidden: {},
   visible: {
@@ -35,13 +35,13 @@ const containerVariants = {
   }
 }
 
-// Individual letter variants for the juggling pop
+// Extreme Elastic Drop variant for entrance
 const letterVariants = {
   hidden: { 
-    y: -35, 
+    y: -90, 
     opacity: 0, 
-    scale: 0.3, 
-    rotate: -20 
+    scale: 0.1, 
+    rotate: -45 
   },
   visible: { 
     y: 0, 
@@ -50,8 +50,8 @@ const letterVariants = {
     rotate: 0,
     transition: {
       type: "spring",
-      stiffness: 300,
-      damping: 12
+      stiffness: 450,
+      damping: 8, // Super bouncy! Damping under 10 creates highly elastic bounce
     }
   }
 }
@@ -63,22 +63,22 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex items-center font-luckiest-guy tracking-tight relative py-2"
+        className="flex items-center font-luckiest-guy tracking-tight relative py-3"
       >
-        {/* Floating animated music notes above the logo */}
-        <div className="absolute top-0 right-16 pointer-events-none flex gap-1 z-10">
+        {/* Extreme Asynchronous Dancing music notes */}
+        <div className="absolute top-0 right-14 pointer-events-none flex gap-1.5 z-10">
           <motion.svg
             animate={{
-              y: [0, -3, 0],
-              rotate: [0, -10, 0],
-              scale: [1, 1.05, 1]
+              y: [0, -6, 2, -6, 0],
+              rotate: [0, 45, -35, 45, 0],
+              scale: [1, 1.25, 0.85, 1.2, 1]
             }}
             transition={{
-              duration: 2,
+              duration: 2.8,
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="w-3.5 h-3.5 text-studio-neon fill-current"
+            className="w-4 h-4 text-studio-neon fill-current drop-shadow-[0_0_8px_rgba(0,255,148,0.5)]"
             viewBox="0 0 24 24"
           >
             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-8z"/>
@@ -86,17 +86,17 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
           
           <motion.svg
             animate={{
-              y: [0, -4, 0],
-              rotate: [0, 10, 0],
-              scale: [1, 1.1, 1]
+              y: [0, -8, 1, -7, 0],
+              rotate: [0, -45, 30, -35, 0],
+              scale: [1, 0.8, 1.3, 0.9, 1]
             }}
             transition={{
-              duration: 2.4,
+              duration: 3.2,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: 0.4
+              delay: 0.5
             }}
-            className="w-3.5 h-3.5 text-studio-pink fill-current"
+            className="w-3.5 h-3.5 text-studio-pink fill-current drop-shadow-[0_0_8px_rgba(255,0,128,0.5)]"
             viewBox="0 0 24 24"
           >
             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-8z"/>
@@ -104,17 +104,31 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
         </div>
 
         {/* Word 1: SAMPLES */}
-        <div className="flex gap-0.5 md:gap-1 text-2xl md:text-3xl mr-2 md:mr-3">
+        <div className="flex gap-0.5 md:gap-1 text-2.5xl md:text-3.5xl mr-2.5 md:mr-3.5">
           {samplesLetters.map((item, idx) => (
             <motion.span
               key={`s-${idx}`}
               variants={letterVariants}
-              whileHover={{ 
-                y: -6, 
-                scale: 1.15, 
-                rotate: idx % 2 === 0 ? 5 : -5,
-                transition: { type: "spring", stiffness: 450 }
+              // Active micro-wave float when idle (continuous ripple wave)
+              animate={{
+                y: [0, -4, 0],
               }}
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: idx * 0.15
+              }}
+              // Extreme Interactive Pop-glow on Hover
+              whileHover={{ 
+                y: -18, 
+                scale: 1.35, 
+                rotate: idx % 2 === 0 ? 15 : -15,
+                zIndex: 50,
+                textShadow: `0 0 20px ${item.glow}, 0 0 30px ${item.glow}`,
+                transition: { type: "spring", stiffness: 500, damping: 10 }
+              }}
+              whileTap={{ scale: 0.85, rotate: idx % 2 === 0 ? -10 : 10 }}
               className={`inline-block ${item.color} comic-text leading-none select-none cursor-pointer`}
             >
               {item.char}
@@ -122,24 +136,39 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
           ))}
         </div>
 
-        {/* Word 2: WALA in a retro bold badge */}
+        {/* Word 2: WALA in a retro squash & stretch badge */}
         <motion.div 
           variants={letterVariants}
-          whileHover={{
-            scale: 1.05,
-            rotate: -3,
-            transition: { type: "spring", stiffness: 400 }
+          // Continuous gentle rocking animation
+          animate={{
+            rotate: [-2, 1, -2],
+            y: [-1, 1, -1]
           }}
-          className="flex items-center bg-studio-yellow px-1.5 py-0.5 md:py-1 border-3 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] rounded-none rotate-[-2deg] translate-y-[-1px]"
+          transition={{
+            duration: 2.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.8
+          }}
+          // Squash and stretch elastic bounce on hover
+          whileHover={{
+            scale: [1, 1.25, 0.85, 1.15, 1.05],
+            rotate: 4,
+            zIndex: 50,
+            boxShadow: "0 0 15px rgba(255, 230, 0, 0.6)",
+            transition: { duration: 0.6, ease: "easeInOut" }
+          }}
+          className="flex items-center bg-studio-yellow px-2 py-0.5 md:py-1 border-3 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-none rotate-[-2deg]"
         >
           <div className="flex gap-0.5 text-sm md:text-base">
             {walaLetters.map((item, idx) => (
               <motion.span
                 key={`w-${idx}`}
                 whileHover={{ 
-                  y: -2, 
-                  scale: 1.1,
-                  transition: { type: "spring", stiffness: 500 }
+                  y: -3, 
+                  scale: 1.25,
+                  rotate: idx % 2 === 0 ? 10 : -10,
+                  transition: { type: "spring", stiffness: 600 }
                 }}
                 className="inline-block text-black font-black leading-none select-none cursor-pointer"
               >
