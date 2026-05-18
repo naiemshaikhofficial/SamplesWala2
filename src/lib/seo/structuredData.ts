@@ -1,5 +1,14 @@
 // Structured Data utilities for SEO (Splice-style)
 
+function getStableReviewCount(seed: string, base: number, range: number): number {
+  let hash = 0
+  const str = seed || 'default'
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return base + (Math.abs(hash) % range)
+}
+
 export function generatePackStructuredData(pack: any) {
   const categoryName = pack.categories?.[0]?.name || 'Samples'
   const imageUrl = pack.cover_url?.startsWith('http') 
@@ -30,7 +39,7 @@ export function generatePackStructuredData(pack: any) {
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
-      "reviewCount": Math.floor(Math.random() * 100) + 150
+      "reviewCount": getStableReviewCount(pack.slug || pack.id || 'pack', 150, 100)
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
@@ -70,7 +79,7 @@ export function generatePresetStructuredData(preset: any) {
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "5.0",
-      "reviewCount": Math.floor(Math.random() * 50) + 40
+      "reviewCount": getStableReviewCount(preset.slug || preset.id || 'preset', 40, 50)
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
