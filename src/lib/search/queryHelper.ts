@@ -37,6 +37,18 @@ const GENERIC_WORDS = [
   'kits'
 ]
 
+// Synonym / Misspelling mappings
+const SYNONYM_MAP: Record<string, string> = {
+  'hophop': 'hip hop',
+  'hiphop': 'hip hop',
+  'hophops': 'hip hop',
+  'pop loop': 'pop',
+  'pop loops': 'pop',
+  'hiphop loops': 'hip hop',
+  'hip hop loops': 'hip hop',
+  'hophop loops': 'hip hop'
+}
+
 /**
  * Cleans and normalizes a search query by removing generic noise terms.
  * If the query only consists of generic/synonym words, it returns an empty string,
@@ -48,12 +60,17 @@ export function cleanSearchQuery(query: string): string {
   // Lowercase and trim extra spacing
   let q = query.toLowerCase().trim()
   
-  // 1. Remove multi-word generic phrases
+  // 1. Replace synonyms/misspellings first
+  for (const [key, value] of Object.entries(SYNONYM_MAP)) {
+    q = q.replace(new RegExp(key, 'g'), value)
+  }
+  
+  // 2. Remove multi-word generic phrases
   for (const phrase of GENERIC_PHRASES) {
     q = q.replace(phrase, '')
   }
   
-  // 2. Split by whitespace and remove single-word generic terms
+  // 3. Split by whitespace and remove single-word generic terms
   const words = q.split(/\s+/)
   const filteredWords = words.filter(word => {
     // Only keep words that aren't generic/noise terms and are non-empty
