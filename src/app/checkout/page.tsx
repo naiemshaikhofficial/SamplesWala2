@@ -442,9 +442,17 @@ export default function CheckoutPage() {
         </div>
         <h1 className="text-4xl font-black uppercase italic tracking-tighter">Payment Successful!</h1>
         <p className="text-white/40 font-bold uppercase tracking-widest text-xs">Your sounds are being added to your library...</p>
-        <Link href="/library" className="px-8 py-4 bg-[#FFC800] text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all">
-          Go to Library
-        </Link>
+        <div className="flex flex-col items-center gap-4">
+          <Link href="/library" className="px-8 py-4 bg-[#FFC800] text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all">
+            Go to Library
+          </Link>
+          <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-2">
+            Need help? Contact support at{' '}
+            <a href="mailto:support@sampleswala.com" className="text-studio-yellow hover:text-white transition-colors underline">
+              support@sampleswala.com
+            </a>
+          </p>
+        </div>
       </div>
     )
   }
