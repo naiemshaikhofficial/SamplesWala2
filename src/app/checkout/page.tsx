@@ -458,6 +458,15 @@ export default function CheckoutPage() {
           <p className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-relaxed">
             An order confirmation and tax invoice have been dispatched to your email. Please check your inbox (and spam folder) to verify the details.
           </p>
+          <div className="pt-2 border-t border-white/5">
+            <p className="text-[9px] text-white/40 font-bold uppercase tracking-[0.05em] leading-normal">
+              ℹ️ You can also find your Invoice and License details inside your{' '}
+              <Link href="/library" className="text-studio-yellow hover:text-white transition-colors underline">
+                Vault / Library
+              </Link>{' '}
+              at any time.
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-col items-center gap-4">
