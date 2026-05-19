@@ -466,7 +466,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       <MusicalNotesBackground />
       
-      <div className="container mx-auto px-4 py-20 relative z-10">
+      <div className="container mx-auto px-4 pt-20 pb-32 lg:pb-20 relative z-10">
         <div className="flex flex-col items-center mb-16 text-center">
           <div className="h-1 bg-studio-yellow w-24 mb-6 shadow-[0_0_20px_#FFC800]" />
           <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
@@ -717,20 +717,24 @@ export default function CheckoutPage() {
                   </p>
                 </div>
               )}
-              <button 
-                onClick={handleCheckout}
-                disabled={loading || paymentStatus === 'processing'}
-                className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
-              >
-                {loading ? (
-                  <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Zap size={20} className="group-hover:rotate-12 transition-transform" />
-                    <span>{total === 0 ? 'GET FOR FREE' : 'COMPLETE PAYMENT'}</span>
-                  </>
-                )}
-              </button>
+              <div className="fixed bottom-0 left-0 right-0 p-4 bg-black/95 backdrop-blur-md border-t border-white/10 z-50 lg:relative lg:p-0 lg:bg-transparent lg:border-t-0 lg:z-auto">
+                <div className="max-w-md mx-auto lg:max-w-none">
+                  <button 
+                    onClick={handleCheckout}
+                    disabled={loading || paymentStatus === 'processing'}
+                    className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
+                  >
+                    {loading ? (
+                      <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Zap size={20} className="group-hover:rotate-12 transition-transform" />
+                        <span>{total === 0 ? 'GET FOR FREE' : `COMPLETE PAYMENT — ₹${discountedTotal}`}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
 
               <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.2em] leading-relaxed text-center px-4">
                 By purchasing, you agree to our <Link href="/terms" className="text-white/40 hover:text-studio-yellow underline">Terms</Link>, <Link href="/refund-policy" className="text-white/40 hover:text-studio-yellow underline">Refund</Link>, <Link href="/privacy" className="text-white/40 hover:text-studio-yellow underline">Privacy</Link> & <Link href="/terms" className="text-white/40 hover:text-studio-yellow underline">EULA</Link>.
