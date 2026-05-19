@@ -440,8 +440,26 @@ export default function CheckoutPage() {
         <div className="w-20 h-20 bg-studio-neon/20 rounded-full flex items-center justify-center text-studio-neon animate-bounce">
           <CheckCircle2 size={48} />
         </div>
-        <h1 className="text-4xl font-black uppercase italic tracking-tighter">Payment Successful!</h1>
-        <p className="text-white/40 font-bold uppercase tracking-widest text-xs">Your sounds are being added to your library...</p>
+        
+        <div className="space-y-2">
+          <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter">
+            Payment Successful!
+          </h1>
+          <p className="text-white/40 font-bold uppercase tracking-widest text-xs">
+            Your sounds are being added to your library...
+          </p>
+        </div>
+
+        <div className="max-w-md p-6 bg-white/5 border border-white/10 rounded-sm space-y-3 my-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio-neon/10 border border-studio-neon/20 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-studio-neon animate-pulse" />
+            <span className="text-[9px] font-black text-studio-neon uppercase tracking-widest">INVOICE & ORDER EMAIL SENT</span>
+          </div>
+          <p className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-relaxed">
+            An order confirmation and tax invoice have been dispatched to your email. Please check your inbox (and spam folder) to verify the details.
+          </p>
+        </div>
+
         <div className="flex flex-col items-center gap-4">
           <Link href="/library" className="px-8 py-4 bg-[#FFC800] text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all">
             Go to Library
