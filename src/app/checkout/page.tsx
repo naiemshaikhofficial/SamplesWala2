@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
-import { ShoppingBag, Trash2, Tag, ArrowRight, Loader2, CheckCircle2, ShieldCheck, Zap } from 'lucide-react'
+import { ShoppingBag, Trash2, Tag, ArrowRight, Loader2, CheckCircle2, ShieldCheck, Zap, PartyPopper } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { validateCoupon } from './actions'
@@ -92,6 +92,97 @@ const MusicalNotesBackground = () => {
           {data.note}
         </span>
       ))}
+    </div>
+  );
+};
+
+// --- BRANDED CONFETTI & COMIC EFFECT ---
+const ConfettiEffect = () => {
+  const [pieces, setPieces] = React.useState<{ id: number; left: string; top: string; size: string; color: string; delay: string; tx: string; ty: string; rot: string }[]>([]);
+
+  React.useEffect(() => {
+    const colors = ['#FFE600', '#FF0080', '#00BFFF', '#FF5C00', '#BF00FF'];
+    const newPieces = Array.from({ length: 120 }).map((_, i) => {
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = Math.random() * 320 + 160; // shoot outward
+      const tx = `${Math.cos(angle) * velocity}px`;
+      const ty = `${Math.sin(angle) * velocity + 450}px`; // fall down under gravity
+      const size = `${Math.random() * 8 + 6}px`;
+      return {
+        id: i,
+        left: '50%',
+        top: '40%',
+        size,
+        color: colors[i % colors.length],
+        delay: `${Math.random() * 0.15}s`,
+        tx,
+        ty,
+        rot: `${Math.random() * 720}deg`
+      };
+    });
+    setPieces(newPieces);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+      {pieces.map((p) => (
+        <div
+          key={p.id}
+          className="absolute rounded-sm animate-confetti-burst"
+          style={{
+            left: p.left,
+            top: p.top,
+            width: p.size,
+            height: p.size,
+            backgroundColor: p.color,
+            animationDelay: p.delay,
+            '--tx': p.tx,
+            '--ty': p.ty,
+            '--rot': p.rot
+          } as any}
+        />
+      ))}
+      <style>{`
+        @keyframes confettiBurst {
+          0% {
+            transform: translate(-50%, -50%) scale(0) rotate(0deg);
+            opacity: 1;
+          }
+          25% {
+            transform: translate(calc(-50% + var(--tx) * 0.4), calc(-50% + var(--ty) * 0.2)) scale(1.3) rotate(180deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.4) rotate(var(--rot));
+            opacity: 0;
+          }
+        }
+        .animate-confetti-burst {
+          animation: confettiBurst 2.8s cubic-bezier(0.1, 0.8, 0.25, 1) forwards;
+        }
+        @keyframes comicPop {
+          0% { transform: scale(0) rotate(-15deg); }
+          70% { transform: scale(1.15) rotate(10deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-8deg); }
+          50% { transform: rotate(8deg); }
+        }
+        @keyframes bounceSlow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-12px); }
+        }
+        .animate-comic-pop {
+          animation: comicPop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .animate-wiggle {
+          animation: wiggle 0.6s ease-in-out infinite;
+        }
+        .animate-bounce-slow {
+          animation: bounceSlow 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };
@@ -436,32 +527,58 @@ export default function CheckoutPage() {
 
   if (paymentStatus === 'success') {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-6 text-center px-4">
-        <div className="w-20 h-20 bg-studio-neon/20 rounded-full flex items-center justify-center text-studio-neon animate-bounce">
-          <CheckCircle2 size={48} />
+      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-6 text-center px-4 relative z-10">
+        <ConfettiEffect />
+        
+        <div className="relative mb-4 flex items-center justify-center">
+          {/* Animated Glow Backdrops */}
+          <div className="absolute w-32 h-32 bg-[#FFC800]/10 rounded-full blur-2xl animate-pulse" />
+          <div className="absolute w-24 h-24 bg-[#FF0080]/10 rounded-full blur-xl animate-pulse delay-75" />
+
+          {/* Left Popper */}
+          <div className="absolute -left-12 top-2 text-[#FF0080] animate-bounce-slow -rotate-12">
+            <PartyPopper size={36} className="drop-shadow-[0_0_15px_#FF0080]" />
+          </div>
+
+          {/* Right Popper */}
+          <div className="absolute -right-12 top-2 text-[#00BFFF] animate-bounce-slow rotate-12 [animation-delay:0.5s]">
+            <PartyPopper size={36} className="drop-shadow-[0_0_15px_#00BFFF]" />
+          </div>
+
+          {/* Center Branded Comic Badge */}
+          <div className="relative w-24 h-24 bg-black border-4 border-[#FFC800] flex items-center justify-center text-[#FFC800] shadow-[8px_8px_0px_#FF0080] animate-comic-pop rounded-md">
+            <PartyPopper size={48} className="animate-wiggle" />
+            
+            {/* Comic Floating 🎉 bubble */}
+            <div className="absolute -top-3 -right-3 bg-[#FF5C00] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-xs border border-white rotate-12 shadow-sm animate-bounce">
+              BOOM!
+            </div>
+          </div>
         </div>
         
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter">
+        <div className="space-y-3">
+          <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-white">
             Payment Successful!
           </h1>
-          <p className="text-white/40 font-bold uppercase tracking-widest text-xs">
+          <p className="text-white/80 font-black uppercase tracking-widest text-xs max-w-md mx-auto">
             Your sounds are being added to your library...
           </p>
         </div>
 
-        <div className="max-w-md p-6 bg-white/5 border border-white/10 rounded-sm space-y-3 my-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio-neon/10 border border-studio-neon/20 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-studio-neon animate-pulse" />
-            <span className="text-[9px] font-black text-studio-neon uppercase tracking-widest">INVOICE & ORDER EMAIL SENT</span>
+        <div className="max-w-md w-full p-8 bg-black/95 backdrop-blur-xl border border-white/10 rounded-sm space-y-4 my-4 shadow-[0_0_60px_rgba(0,0,0,0.8)]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio-yellow/10 border border-studio-yellow/20 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-studio-yellow animate-pulse" />
+            <span className="text-[9px] font-black text-studio-yellow uppercase tracking-widest">INVOICE & ORDER EMAIL SENT</span>
           </div>
-          <p className="text-[10px] text-white/60 font-bold uppercase tracking-wider leading-relaxed">
-            An order confirmation and tax invoice have been dispatched to your email. Please check your inbox (and spam folder) to verify the details.
+          
+          <p className="text-xs text-white font-bold uppercase tracking-wider leading-relaxed">
+            An order confirmation and tax invoice have been sent to your email. Please check your inbox (and spam folder) to verify the details.
           </p>
-          <div className="pt-2 border-t border-white/5">
-            <p className="text-[9px] text-white/40 font-bold uppercase tracking-[0.05em] leading-normal">
+          
+          <div className="pt-4 border-t border-white/10">
+            <p className="text-[10px] text-white/70 font-bold uppercase tracking-wider leading-relaxed">
               ℹ️ You can also find your Invoice and License details inside your{' '}
-              <Link href="/library" className="text-studio-yellow hover:text-white transition-colors underline">
+              <Link href="/library" className="text-[#FFC800] hover:text-white transition-colors underline font-black">
                 Vault / Library
               </Link>{' '}
               at any time.
@@ -470,12 +587,12 @@ export default function CheckoutPage() {
         </div>
 
         <div className="flex flex-col items-center gap-4">
-          <Link href="/library" className="px-8 py-4 bg-[#FFC800] text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all">
+          <Link href="/library" className="px-10 py-4 bg-[#FFC800] text-black font-black uppercase text-xs tracking-widest hover:bg-white hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,200,0,0.2)]">
             Go to Library
           </Link>
-          <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-2">
+          <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mt-2">
             Need help? Contact support at{' '}
-            <a href="mailto:support@sampleswala.com" className="text-studio-yellow hover:text-white transition-colors underline">
+            <a href="mailto:support@sampleswala.com" className="text-[#FFC800] hover:text-white transition-colors underline">
               support@sampleswala.com
             </a>
           </p>
