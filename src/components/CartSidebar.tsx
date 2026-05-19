@@ -176,7 +176,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                 {items.map((item) => (
                 <div key={item.id} className="flex gap-6 group animate-in fade-in slide-in-from-right-4 duration-300">
                   <div className="w-20 h-20 relative border-2 border-black flex-shrink-0 bg-studio-charcoal group-hover:-translate-y-1 transition-all">
-                    <Image src={item.cover_url || '/placeholder.jpg'} alt={item.name} fill className="object-cover" />
+                    <Image src={item.cover_url || '/placeholder.jpg'} alt={item.name} fill sizes="80px" className="object-cover" />
                   </div>
                   <div className="flex-grow min-w-0 py-1 flex flex-col justify-between">
                     <div className="space-y-1.5">

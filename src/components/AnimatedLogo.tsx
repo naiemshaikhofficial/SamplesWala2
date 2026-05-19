@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, Variants } from 'framer-motion'
 import Link from 'next/link'
 
 interface AnimatedLogoProps {
@@ -26,7 +26,7 @@ const walaLetters = [
 ]
 
 // Staggered Container
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -36,7 +36,7 @@ const containerVariants = {
 }
 
 // Extreme Elastic Drop variant for entrance
-const letterVariants = {
+const letterVariants: Variants = {
   hidden: { 
     y: -90, 
     opacity: 0, 

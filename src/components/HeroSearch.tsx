@@ -101,6 +101,7 @@ export function HeroSearch() {
                       src={pack.cover_url || '/placeholder.jpg'} 
                       alt={pack.name} 
                       fill 
+                      sizes="48px"
                       className="object-cover"
                     />
                   </div>

@@ -197,6 +197,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
              alt={post.title} 
              fill 
              priority
+             sizes="(max-width: 768px) 100vw, 896px"
              className="object-cover"
            />
         </div>

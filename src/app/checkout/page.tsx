@@ -483,7 +483,7 @@ export default function CheckoutPage() {
           {items.map((item) => (
             <div key={item.id} className="flex items-center gap-6 p-4 bg-white/5 border border-white/5 rounded-sm group hover:border-white/10 transition-all">
               <div className="w-20 h-20 relative rounded-sm overflow-hidden flex-shrink-0">
-                <Image src={item.cover_url || '/placeholder.jpg'} alt={item.name} fill className="object-cover" />
+                <Image src={item.cover_url || '/placeholder.jpg'} alt={item.name} fill sizes="80px" className="object-cover" />
               </div>
               <div className="flex-grow">
                 <h3 className="font-black uppercase tracking-tight text-lg">{item.name}</h3>
@@ -791,7 +791,7 @@ export default function CheckoutPage() {
                 {upsellPacks.map((pack) => (
                   <div key={pack.id} className="flex gap-4 items-center group">
                     <div className="w-12 h-12 relative rounded-sm overflow-hidden flex-shrink-0 border border-white/5">
-                      <Image src={pack.cover_url || '/placeholder.jpg'} alt={pack.name} fill className="object-cover" />
+                      <Image src={pack.cover_url || '/placeholder.jpg'} alt={pack.name} fill sizes="48px" className="object-cover" />
                     </div>
                     <div className="flex-grow">
                       <h4 className="text-[9px] font-black uppercase tracking-tight line-clamp-1">{pack.name}</h4>

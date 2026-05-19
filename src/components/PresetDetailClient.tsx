@@ -97,7 +97,7 @@ export function PresetDetailClient({ preset, isOwned, isFree, vId }: PresetDetai
                     <div key={daw} className="px-4 py-2 bg-white/5 border-2 border-black shadow-[4px_4px_0px_black] rounded-sm flex items-center gap-2">
                        {daw === 'FL Studio' && (
                           <div className="relative w-4 h-4">
-                             <Image src="/logos/Fl-Studio.png" alt="FL Studio" fill className="object-contain" />
+                             <Image src="/logos/Fl-Studio.png" alt="FL Studio" fill sizes="16px" className="object-contain" />
                           </div>
                        )}
                        <span className="text-[10px] font-black uppercase">{daw}</span>

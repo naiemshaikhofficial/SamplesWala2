@@ -132,6 +132,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       src={getOptimizedImageUrl(activePack.cover_url, 800, 80)}
                       alt=""
                       fill
+                      sizes="(max-width: 1200px) 100vw, 80vw"
                       className="object-cover object-right opacity-50 filter brightness-[0.5]"
                       priority
                     />
