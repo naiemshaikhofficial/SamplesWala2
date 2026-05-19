@@ -214,6 +214,7 @@ export default function CheckoutPage() {
     country: 'India'
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [newsletterOptIn, setNewsletterOptIn] = useState(true)
   const router = useRouter()
   const supabase = createClient()
 
@@ -423,6 +424,14 @@ export default function CheckoutPage() {
         })
 
         if (verifyRes.ok) {
+          try {
+            await supabase
+              .from('user_accounts')
+              .update({ newsletter: newsletterOptIn })
+              .eq('user_id', user.id)
+          } catch (e) {
+            console.error('Failed to update newsletter status:', e)
+          }
           clearCart()
           router.push('/library?success=true')
         } else {
@@ -496,6 +505,15 @@ export default function CheckoutPage() {
                   country: billingDetails.country
                 }
               })
+
+              try {
+                await supabase
+                  .from('user_accounts')
+                  .update({ newsletter: newsletterOptIn })
+                  .eq('user_id', user.id)
+              } catch (e) {
+                console.error('Failed to update newsletter status:', e)
+              }
 
               setPaymentStatus('success')
               clearCart()
@@ -805,6 +823,19 @@ export default function CheckoutPage() {
               </div>
             </div>
             
+            <div className="flex items-start gap-3 p-4 bg-white/5 border border-white/10 rounded-sm">
+              <input 
+                id="checkout-newsletter"
+                type="checkbox" 
+                checked={newsletterOptIn}
+                onChange={(e) => setNewsletterOptIn(e.target.checked)}
+                className="w-4 h-4 mt-0.5 bg-white/5 border border-white/10 rounded text-studio-neon focus:ring-0 focus:ring-offset-0 focus:outline-none accent-studio-neon cursor-pointer"
+              />
+              <label htmlFor="checkout-newsletter" className="text-[9px] font-bold text-white/70 uppercase tracking-wider leading-relaxed cursor-pointer select-none">
+                Subscribe to our newsletter for free sound drops, special offers, and product updates. (Opt-out anytime)
+              </label>
+            </div>
+
             <div className="p-4 bg-studio-yellow/5 border border-studio-yellow/10 rounded-sm">
               <p className="text-[9px] font-medium text-studio-yellow uppercase tracking-widest leading-relaxed">
                 Note: This information is used for billing and tax compliance purposes. All samples remain digital and will be added to your account instantly.

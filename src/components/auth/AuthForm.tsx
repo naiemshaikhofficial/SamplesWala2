@@ -229,6 +229,21 @@ export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignu
               </div>
             </div>
           )}
+
+          {mode === 'signup' && (
+            <div className="flex items-start gap-3 pt-2">
+              <input 
+                id="signup-newsletter"
+                name="newsletter"
+                type="checkbox" 
+                defaultChecked
+                className="w-4 h-4 mt-1 bg-white/5 border border-white/10 rounded text-studio-neon focus:ring-0 focus:ring-offset-0 focus:outline-none accent-studio-neon cursor-pointer"
+              />
+              <label htmlFor="signup-newsletter" className="text-xs text-white/75 leading-relaxed cursor-pointer select-none">
+                Subscribe to our newsletter for free sound drops, special offers, and product updates. (Opt-out anytime)
+              </label>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-center py-2">

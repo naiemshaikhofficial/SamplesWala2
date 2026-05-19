@@ -48,6 +48,7 @@ export async function signUp(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const fullName = formData.get('fullName') as string
+  const newsletterChecked = formData.get('newsletter') === 'on'
   const supabase = await createClient()
 
   const headerList = await headers();
@@ -62,6 +63,7 @@ export async function signUp(formData: FormData) {
       emailRedirectTo: `${currentOrigin}/auth/callback`,
       data: {
         full_name: fullName,
+        newsletter: newsletterChecked
       }
     },
   })
