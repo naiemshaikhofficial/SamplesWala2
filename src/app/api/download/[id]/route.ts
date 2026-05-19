@@ -7,6 +7,27 @@ import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
+function isIpInSameSubnet(ip1: string, ip2: string): boolean {
+  if (ip1 === 'unknown' || ip2 === 'unknown') return true
+  if (ip1 === ip2) return true
+
+  // IPv4 - check if first 3 octets match (e.g. 192.168.1.X)
+  if (ip1.includes('.') && ip2.includes('.')) {
+    const p1 = ip1.split('.')
+    const p2 = ip2.split('.')
+    return p1[0] === p2[0] && p1[1] === p2[1] && p1[2] === p2[2]
+  }
+
+  // IPv6 - check if first 3 blocks match (/48 routing prefix)
+  if (ip1.includes(':') && ip2.includes(':')) {
+    const p1 = ip1.split(':')
+    const p2 = ip2.split(':')
+    return p1[0] === p2[0] && p1[1] === p2[1] && p1[2] === p2[2]
+  }
+
+  return false
+}
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: token } = await params
@@ -23,9 +44,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const headerList = await headers()
     const currentIp = headerList.get("x-forwarded-for")?.split(',')[0] || "unknown"
     
-    if (payload.ip !== currentIp && process.env.NODE_ENV !== 'development') {
+    if (!isIpInSameSubnet(payload.ip, currentIp) && process.env.NODE_ENV !== 'development') {
         console.warn(`[IP_MISMATCH] Token IP: ${payload.ip}, Current IP: ${currentIp}`)
-        // return new NextResponse("IP Address Mismatch. Use the same device/network.", { status: 403 })
+        return new NextResponse("IP Address Mismatch. Use the same device/network.", { status: 403 })
     }
 
     const itemId = payload.pid
