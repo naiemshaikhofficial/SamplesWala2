@@ -54,6 +54,56 @@ export async function getPacks(limit?: number) {
   )()
 }
 
+// Internal function to fetch packs belonging to a specific series
+async function fetchPacksBySeries(seriesName: string, limit?: number) {
+  const supabase = getAdminClient()
+  let query = supabase
+    .from('sample_packs')
+    .select('id, name, slug, cover_url, price_inr, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary, series')
+    .eq('series', seriesName)
+    .order('created_at', { ascending: false })
+  
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
+  
+  if (error) {
+    console.error('[GET_PACKS_BY_SERIES_ERROR]', error)
+    return []
+  }
+
+  // Transform to explicitly ONLY include safe fields
+  return data.map(pack => ({
+    id: pack.id,
+    name: pack.name,
+    slug: pack.slug,
+    cover_url: pack.cover_url,
+    price_inr: pack.price_inr,
+    mrp_inr: pack.mrp_inr,
+    created_at: pack.created_at,
+    updated_at: pack.updated_at,
+    categories: pack.categories,
+    melody_count: pack.melody_count,
+    loop_count: pack.loop_count,
+    one_shot_count: pack.one_shot_count,
+    preset_count: pack.preset_count,
+    total_contents_summary: pack.total_contents_summary,
+    is_downloadable: !!pack.full_pack_download_url,
+    series: pack.series
+  }))
+}
+
+// Cached version for fetching packs by series
+export async function getPacksBySeries(seriesName: string, limit?: number) {
+  return unstable_cache(
+    async () => fetchPacksBySeries(seriesName, limit),
+    [limit ? `packs-series-${seriesName.replace(/\s+/g, '-').toLowerCase()}-limit-${limit}` : `packs-series-${seriesName.replace(/\s+/g, '-').toLowerCase()}`],
+    { revalidate: 300, tags: ['packs'] }
+  )()
+}
+
 export const getSamples = async (filters: { 
   query?: string, 
   category?: string, 
