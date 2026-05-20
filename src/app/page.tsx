@@ -188,10 +188,10 @@ export default async function HomePage() {
             .train-vibe {
               animation: trainChug var(--chug-dur) ease-in-out infinite;
             }
-            .sm1 { animation: smokeTrail1 1.2s ease-out infinite; }
-            .sm2 { animation: smokeTrail2 1.6s ease-out infinite 0.4s; }
-            .sm3 { animation: smokeTrail1 2.0s ease-out infinite 0.8s; }
-            .sm4 { animation: smokeTrail2 2.4s ease-out infinite 1.2s; }
+            .sm1 { animation: smokeTrail1 1.2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+            .sm2 { animation: smokeTrail2 1.6s ease-out infinite 0.4s; transform-box: fill-box; transform-origin: center; }
+            .sm3 { animation: smokeTrail1 2.0s ease-out infinite 0.8s; transform-box: fill-box; transform-origin: center; }
+            .sm4 { animation: smokeTrail2 2.4s ease-out infinite 1.2s; transform-box: fill-box; transform-origin: center; }
             
             .scenery-scroll-far {
               animation: sceneryMove var(--scenery-far-dur) linear infinite;
@@ -267,6 +267,29 @@ export default async function HomePage() {
                   <ellipse cx="70" cy="4" rx="3" ry="2.2" fill="#c3b59a"/>
                 </g>
 
+                {/* Samples Wala Station (Classic Platform, Clock Tower, Yellow Signboard) */}
+                <g transform="translate(580, 0)">
+                  {/* Station building */}
+                  <rect x="0" y="16" width="70" height="20" fill="#d2c4aa"/>
+                  {/* Arched entrance cutouts */}
+                  <rect x="8" y="22" width="10" height="14" rx="2" fill="#c3b59a"/>
+                  <rect x="24" y="22" width="10" height="14" rx="2" fill="#c3b59a"/>
+                  <rect x="52" y="22" width="10" height="14" rx="2" fill="#c3b59a"/>
+                  {/* Slanted canopy */}
+                  <polygon points="-5,16 75,16 70,12 0,12" fill="#c3b59a"/>
+                  {/* Central clock tower */}
+                  <rect x="38" y="4" width="14" height="12" fill="#d2c4aa"/>
+                  <path d="M38,4 L45,0 L52,4 Z" fill="#b5a68c"/>
+                  <circle cx="45" cy="7" r="2.2" fill="#e1d4be" stroke="#d2c4aa" strokeWidth="0.5"/>
+                  {/* Station Signboard */}
+                  <line x1="78" y1="20" x2="78" y2="36" stroke="#b5a68c" strokeWidth="0.8" />
+                  <line x1="102" y1="20" x2="102" y2="36" stroke="#b5a68c" strokeWidth="0.8" />
+                  <rect x="74" y="15" width="32" height="9" rx="1" fill="#ffe477" stroke="#ca9800" strokeWidth="0.6" />
+                  {/* Black border inside yellow sign */}
+                  <rect x="75" y="16" width="30" height="7" rx="0.5" fill="none" stroke="#222" strokeWidth="0.3" />
+                  <text x="90" y="21.5" textAnchor="middle" fill="#000" fontSize="3.8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.2">SAMPLES WALA</text>
+                </g>
+
                 {/* Urban Cityscape */}
                 <rect x="740" y="12" width="16" height="24" fill="#d2c4aa"/>
                 <rect x="758" y="16" width="14" height="20" fill="#c3b59a"/>
@@ -317,6 +340,29 @@ export default async function HomePage() {
                   <ellipse cx="10" cy="4" rx="3" ry="2.2" fill="#c3b59a"/>
                   <rect x="68" y="4" width="4" height="24" fill="#d2c4aa"/>
                   <ellipse cx="70" cy="4" rx="3" ry="2.2" fill="#c3b59a"/>
+                </g>
+
+                {/* Samples Wala Station (Classic Platform, Clock Tower, Yellow Signboard) */}
+                <g transform="translate(580, 0)">
+                  {/* Station building */}
+                  <rect x="0" y="16" width="70" height="20" fill="#d2c4aa"/>
+                  {/* Arched entrance cutouts */}
+                  <rect x="8" y="22" width="10" height="14" rx="2" fill="#c3b59a"/>
+                  <rect x="24" y="22" width="10" height="14" rx="2" fill="#c3b59a"/>
+                  <rect x="52" y="22" width="10" height="14" rx="2" fill="#c3b59a"/>
+                  {/* Slanted canopy */}
+                  <polygon points="-5,16 75,16 70,12 0,12" fill="#c3b59a"/>
+                  {/* Central clock tower */}
+                  <rect x="38" y="4" width="14" height="12" fill="#d2c4aa"/>
+                  <path d="M38,4 L45,0 L52,4 Z" fill="#b5a68c"/>
+                  <circle cx="45" cy="7" r="2.2" fill="#e1d4be" stroke="#d2c4aa" strokeWidth="0.5"/>
+                  {/* Station Signboard */}
+                  <line x1="78" y1="20" x2="78" y2="36" stroke="#b5a68c" strokeWidth="0.8" />
+                  <line x1="102" y1="20" x2="102" y2="36" stroke="#b5a68c" strokeWidth="0.8" />
+                  <rect x="74" y="15" width="32" height="9" rx="1" fill="#ffe477" stroke="#ca9800" strokeWidth="0.6" />
+                  {/* Black border inside yellow sign */}
+                  <rect x="75" y="16" width="30" height="7" rx="0.5" fill="none" stroke="#222" strokeWidth="0.3" />
+                  <text x="90" y="21.5" textAnchor="middle" fill="#000" fontSize="3.8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.2">SAMPLES WALA</text>
                 </g>
 
                 <rect x="740" y="12" width="16" height="24" fill="#d2c4aa"/>
@@ -461,7 +507,7 @@ export default async function HomePage() {
             <div className="absolute bottom-[3px] left-[8%] md:left-[18%] z-20 train-vibe" style={{ willChange: 'transform' }}>
 
               {/* Smoke trailing behind (to the left) */}
-              <svg className="absolute" style={{ top: '-36px', left: '110px' }} width="120" height="42" viewBox="0 0 120 42" fill="none">
+              <svg className="absolute overflow-visible" style={{ top: '-36px', left: '110px' }} width="120" height="42" viewBox="0 0 120 42" fill="none">
                 <circle className="sm1" cx="65" cy="38" r="4.5" fill="#eeeeee" />
                 <circle className="sm2" cx="65" cy="38" r="5.5" fill="#e6e6e6" />
                 <circle className="sm3" cx="65" cy="38" r="7.0" fill="#dddddd" />
