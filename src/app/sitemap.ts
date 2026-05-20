@@ -116,8 +116,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1.0 : 0.7,
   }))
 
+  // 7. Series pages (high-priority collection pages for SEO)
+  const seriesEntries = [
+    {
+      url: `${baseUrl}/series/india-journey`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    },
+  ]
+
   return [
     ...staticRoutes, 
+    ...seriesEntries,
     ...packEntries, 
     ...softwareEntries, 
     ...blogEntries, 
