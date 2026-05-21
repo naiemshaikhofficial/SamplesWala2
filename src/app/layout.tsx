@@ -90,7 +90,8 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="icon" href="/Favicon.ico" sizes="any" />
+        <link rel="icon" href="/Favicon.ico?v=3" sizes="any" />
+        <link rel="icon" href="/icon.png?v=3" type="image/png" sizes="192x192" />
         
         {/* PWA Manifest & iOS Mobile Optimization */}
         <link rel="manifest" href="/manifest.json" />
