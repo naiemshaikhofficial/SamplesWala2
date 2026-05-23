@@ -67,76 +67,76 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
 
-            <div className="space-y-6 text-center md:text-left">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-blue italic">Socials</h4>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-white/40">
+            <div className="space-y-6 text-center">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 italic">Follow Us</h4>
+              <div className="flex flex-wrap items-center justify-center gap-4 text-white/40">
                 {/* YouTube */}
-                <a 
-                  href="https://youtube.com/@sampleswala" 
-                  target="_blank" 
+                <a
+                  href="https://youtube.com/@sampleswala"
+                  target="_blank"
                   data-social="youtube"
                   style={{ '--social-color': '#FF0000' } as React.CSSProperties}
-                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
                   title="YouTube"
                 >
                   <Youtube className="w-5 h-5" strokeWidth={2.2} />
                 </a>
 
                 {/* Instagram */}
-                <a 
-                  href="https://instagram.com/sampleswala" 
-                  target="_blank" 
+                <a
+                  href="https://instagram.com/sampleswala"
+                  target="_blank"
                   data-social="instagram"
                   style={{ '--social-color': '#E1306C' } as React.CSSProperties}
-                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
                   title="Instagram"
                 >
                   <Instagram className="w-5 h-5" strokeWidth={2.2} />
                 </a>
 
                 {/* Facebook */}
-                <a 
-                  href="https://facebook.com/sampleswala" 
-                  target="_blank" 
+                <a
+                  href="https://facebook.com/sampleswala"
+                  target="_blank"
                   data-social="facebook"
                   style={{ '--social-color': '#1877F2' } as React.CSSProperties}
-                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
                   title="Facebook"
                 >
                   <Facebook className="w-5 h-5" strokeWidth={2.2} />
                 </a>
 
                 {/* Twitter / X */}
-                <a 
-                  href="https://twitter.com/sampleswala" 
-                  target="_blank" 
+                <a
+                  href="https://twitter.com/sampleswala"
+                  target="_blank"
                   data-social="twitter"
                   style={{ '--social-color': '#ffffff' } as React.CSSProperties}
-                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
                   title="Twitter / X"
                 >
                   <Twitter className="w-5 h-5" strokeWidth={2.2} />
                 </a>
 
                 {/* Telegram */}
-                <a 
-                  href="https://t.me/sampleswala" 
-                  target="_blank" 
+                <a
+                  href="https://t.me/sampleswala"
+                  target="_blank"
                   data-social="telegram"
                   style={{ '--social-color': '#0088cc' } as React.CSSProperties}
-                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
                   title="Telegram"
                 >
                   <Send className="w-5 h-5" strokeWidth={2.2} />
                 </a>
 
                 {/* LinkedIn */}
-                <a 
-                  href="https://linkedin.com/company/sampleswala" 
-                  target="_blank" 
+                <a
+                  href="https://linkedin.com/company/sampleswala"
+                  target="_blank"
                   data-social="linkedin"
                   style={{ '--social-color': '#0A66C2' } as React.CSSProperties}
-                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
                   title="LinkedIn"
                 >
                   <Linkedin className="w-5 h-5" strokeWidth={2.2} />
