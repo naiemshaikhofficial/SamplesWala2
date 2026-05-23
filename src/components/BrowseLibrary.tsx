@@ -52,7 +52,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
         return (
           <div 
             key={pack.id} 
-            className="group flex flex-col space-y-4"
+            className="group flex flex-col justify-between h-full space-y-4"
           >
             <Link 
               href={`/packs/${pack.slug}`} 
@@ -84,7 +84,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
               )}
             </Link>
 
-            <div className="space-y-4 px-1">
+            <div className="flex flex-col flex-grow justify-between px-1 mt-2">
               <div className="space-y-1">
                 <Link href={`/packs/${pack.slug}`} prefetch={false}>
                   <h3 className={`text-[13px] font-black uppercase truncate transition-colors tracking-tight ${
@@ -135,7 +135,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2 mt-auto pt-4">
                 <button 
                   onClick={() => addItem({
                     id: pack.id,

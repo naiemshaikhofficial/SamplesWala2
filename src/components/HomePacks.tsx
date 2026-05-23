@@ -66,7 +66,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
           <motion.div
             key={pack.id}
             variants={item}
-            className="group flex flex-col space-y-4"
+            className="group flex flex-col justify-between h-full space-y-4"
           >
             <Link
               href={`/packs/${pack.slug}`}
@@ -98,7 +98,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
 
             </Link>
 
-            <div className="space-y-4 px-1">
+            <div className="flex flex-col flex-grow justify-between px-1 mt-2">
               <div className="space-y-1">
                 <Link href={`/packs/${pack.slug}`} prefetch={false}>
                   <h3 className={`text-[14px] font-black uppercase truncate transition-colors tracking-tighter italic ${
@@ -148,7 +148,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 </div>
               </div>
 
-              <div className="flex flex-row gap-3 pt-2 relative">
+              <div className="flex flex-row gap-3 mt-auto pt-4 relative">
                 <AnimatePresence>
                   {addedPackId === pack.id && (
                     <motion.div

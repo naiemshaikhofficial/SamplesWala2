@@ -109,15 +109,15 @@ export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-3 pt-2 items-start">
                    {item.is_downloadable ? (
                      <>
                        <DownloadButton itemId={item.id} type={item.type} />
                        <Link 
                          href={item.type === 'pack' ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`}
-                         className="h-14 w-14 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all group/link"
+                         className="h-16 w-16 border-4 border-black bg-white/5 shadow-[6px_6px_0px_black] flex-shrink-0 flex items-center justify-center hover:bg-white/10 transition-all group/link active:translate-x-1 active:translate-y-1 active:shadow-none"
                        >
-                         <ArrowRight size={18} className="text-white/20 group-hover/link:text-white transition-colors" />
+                         <ArrowRight size={18} className="text-white/40 group-hover/link:text-white transition-colors" />
                        </Link>
                      </>
                    ) : (
