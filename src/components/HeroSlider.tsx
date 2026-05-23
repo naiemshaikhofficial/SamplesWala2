@@ -113,7 +113,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
         
         {/* LEFT COLUMN: Main Showcase Slider Panel (Grid column 3/4 span) */}
         <div className="lg:col-span-3 flex flex-col">
-          <div className="w-full h-[580px] sm:h-[520px] md:h-[500px] bg-studio-charcoal border-4 border-black shadow-premium p-6 md:p-10 relative overflow-hidden flex flex-col justify-between group">
+          <div className="w-full h-auto min-h-[580px] lg:h-[500px] bg-studio-charcoal border-4 border-black shadow-premium p-6 md:p-10 relative overflow-hidden flex flex-col justify-between group">
             
             <AnimatePresence mode="wait">
               <motion.div
@@ -225,17 +225,17 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                 </div>
 
                 {/* Bottom Actions Row */}
-                <div className="flex flex-col sm:flex-row items-center gap-4 relative z-10 pt-4 border-t border-white/5">
+                <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 relative z-10 pt-4 border-t border-white/5">
                   
                   {/* Cart added animation popover */}
-                  <div className="relative w-full sm:w-auto">
+                  <div className="relative flex-1 sm:flex-none">
                     <AnimatePresence>
                       {addedId === activePack.id && (
                         <motion.div
                           initial={{ scale: 0, y: 10, opacity: 0 }}
                           animate={{ scale: 1, y: 0, opacity: 1 }}
                           exit={{ scale: 0, opacity: 0 }}
-                          className="absolute -top-16 left-1/2 -translate-x-1/2 z-50 bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-premium"
+                          className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 z-50 bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-premium whitespace-nowrap"
                         >
                           {!activePack.is_downloadable ? 'RESERVED!' : 'ADDED TO CART!'}
                           <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
@@ -245,25 +245,25 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                     <button
                       onClick={(e) => handleAddToCart(e, activePack)}
-                      className="w-full sm:w-auto h-14 px-8 bg-white text-black font-black uppercase tracking-[0.2em] text-[11px] hover:bg-studio-neon hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-3"
+                      className="w-full sm:w-auto h-11 sm:h-14 px-3 sm:px-8 bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] hover:bg-studio-neon hover:text-black transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-2 sm:gap-3"
                     >
-                      <Image src="/cart-bag.png" alt="Cart" width={16} height={16} className="brightness-0" />
-                      {!activePack.is_downloadable ? 'PRE-ORDER NOW' : 'ADD TO CART'}
+                      <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
+                      {!activePack.is_downloadable ? 'PRE-ORDER' : 'ADD TO CART'}
                     </button>
                   </div>
 
                   <button
                     onClick={(e) => handleBuyNow(e, activePack)}
-                    className={`w-full sm:w-auto h-14 px-10 ${!activePack.is_downloadable ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'} font-black uppercase tracking-[0.2em] text-[11px] hover:bg-white hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center`}
+                    className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 ${!activePack.is_downloadable ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'} font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] hover:bg-white hover:text-black transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center`}
                   >
-                    {!activePack.is_downloadable ? 'CLAIM PRE-ORDER' : 'GET IT NOW'}
+                    {!activePack.is_downloadable ? 'PRE-ORDER NOW' : 'BUY NOW'}
                   </button>
                   
                   <Link
                     href={`/packs/${activePack.slug}`}
-                    className="w-full sm:w-auto h-14 px-6 border-2 border-white/10 hover:border-studio-blue hover:text-studio-blue text-[10px] font-black uppercase tracking-widest flex items-center justify-center transition-all"
+                    className="w-full sm:w-auto h-11 sm:h-14 px-4 sm:px-6 border-2 border-white/10 hover:border-studio-blue hover:text-studio-blue text-[9px] sm:text-[10px] font-black uppercase tracking-widest flex items-center justify-center transition-all"
                   >
-                    View Pack Details
+                    View Details
                   </Link>
                 </div>
 
