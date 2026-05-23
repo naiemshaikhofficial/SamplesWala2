@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { ArrowLeft, PlayCircle, ShieldCheck, Zap, CheckCircle2, Headphones, HelpCircle, Plus, Download } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,10 +9,26 @@ import { AddToCartButton } from '@/components/AddToCartButton'
 import { ShareButton } from '@/components/ShareButton'
 import Link from 'next/link'
 import { getOptimizedImageUrl } from '@/lib/images'
+import { createClient } from '@/lib/supabase/client'
 
-export function PackDetailClient({ initialPack, owned, user }: { initialPack: any, owned: boolean, user: any }) {
+export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const pack = initialPack
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
+  const [owned, setOwned] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user)
+        fetch(`/api/auth/ownership?itemId=${pack.id}`)
+          .then(res => res.ok ? res.json() : { owned: false })
+          .then(data => setOwned(data.owned))
+          .catch(() => setOwned(false))
+      }
+    })
+  }, [pack.id])
 
   const vId = React.useMemo(() => {
     if (!pack.video_url) return null;

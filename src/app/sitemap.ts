@@ -3,6 +3,10 @@ import { getPacks } from '@/app/browse/actions'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 
+// 🟢 CPU OPTIMIZATION: Cache sitemap for 24 hours instead of regenerating on every crawler visit
+export const revalidate = 86400
+
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://sampleswala.com'
   const supabase = getAdminClient()

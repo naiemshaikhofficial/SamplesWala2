@@ -1,10 +1,19 @@
 import React from 'react'
-import { getPackBySlug, getRelatedPacks } from '@/app/browse/actions'
+import { getPackBySlug, getRelatedPacks, getPacks } from '@/app/browse/actions'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
-import { createClient, getUser } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { generatePackStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
+
+// 🟢 CPU OPTIMIZATION: Revalidate pack pages every 1 hour instead of SSR on every visit
+export const revalidate = 3600
+
+// 🟢 CPU OPTIMIZATION: Pre-render all pack pages at build time as static HTML.
+// This eliminates server CPU usage for the most visited product pages.
+export async function generateStaticParams() {
+  const packs = await getPacks()
+  return packs.map((pack: any) => ({ slug: pack.slug }))
+}
 
 import { generatePageMetadata, generatePackMetadata } from '@/lib/seo/metadata'
 import { PackDetailClient } from '@/components/PackDetailClient'
@@ -17,51 +26,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return generatePackMetadata(pack)
 }
 
-async function checkOwnership(packId: string) {
-  try {
-    const authResponse = await getUser()
-    const user = authResponse?.data?.user
-    
-    if (!user) return { user: null, owned: false }
-
-    const supabase = await createClient()
-
-    // 1. Check vault ownership
-    const { data: vaultRecord } = await supabase
-      .from('user_vault')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('item_id', packId)
-      .maybeSingle()
-
-    if (vaultRecord) return { user, owned: true }
-
-    // 2. Check admin status (using user_accounts for consistency)
-    const { data: accountRecord } = await supabase
-      .from('user_accounts')
-      .select('is_admin')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    return { user, owned: !!accountRecord?.is_admin }
-  } catch (error) {
-    console.error('[OWNERSHIP_CHECK_ERROR]', error)
-    return { user: null, owned: false }
-  }
-}
-
 export default async function PackDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const pack = await getPackBySlug(slug)
   if (!pack) notFound()
 
-  // Run independent checks in parallel
-  const [ownershipData, relatedPacks] = await Promise.all([
-    checkOwnership(pack.id),
-    getRelatedPacks((pack as any).categories?.[0]?.name || 'Samples', pack.id)
-  ])
+  const relatedPacks = await getRelatedPacks((pack as any).categories?.[0]?.name || 'Samples', pack.id)
 
-  const { user, owned } = ownershipData
   const categoryName = (pack as any).categories?.[0]?.name || 'Samples'
   const jsonLd = generatePackStructuredData(pack)
   const breadcrumbs = generateBreadcrumbData([
@@ -81,7 +52,7 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
       <div className="flex-grow">
-        <PackDetailClient initialPack={pack} owned={owned} user={user} />
+        <PackDetailClient initialPack={pack} />
       </div>
 
       {/* Related Packs Section */}

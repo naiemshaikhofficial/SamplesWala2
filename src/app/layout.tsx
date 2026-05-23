@@ -27,7 +27,6 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 
-import { createClient } from "@/lib/supabase/server";
 import { CartProvider } from "@/context/CartContext";
 import { HeaderCartIcon } from "@/components/HeaderCartIcon";
 import { Instagram, Youtube, Twitter } from "lucide-react";
@@ -36,27 +35,18 @@ import { LayoutWrapper } from "@/components/LayoutWrapper";
 import { ContentProtection } from "@/components/ContentProtection";
 import { CartSidebar } from "@/components/CartSidebar";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
-import { getUser } from "@/lib/supabase/server";
+import { ArtistStatusProvider } from "@/components/ArtistStatusProvider";
 import Script from "next/script";
-import { getAdminClient } from "@/lib/supabase/admin";
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { data: { user } } = await getUser();
-  
-  // Check if user is Artist or Admin for Header link
-  let isArtist = false;
-  if (user) {
-    const adminClient = getAdminClient();
-    const [artistRes, adminRes] = await Promise.all([
-      adminClient.from('artist_collaborations').select('id').eq('artist_id', user.id).limit(1),
-      adminClient.from('admins').select('user_id').eq('user_id', user.id).limit(1)
-    ]);
-    isArtist = (artistRes.data && artistRes.data.length > 0) || (adminRes.data && adminRes.data.length > 0);
-  }
+  // 🟢 CPU OPTIMIZATION: All user session checks and artist status checking
+  // are now lazy-loaded client-side inside their respective components.
+  // This removes all server-side database/auth lookups from the layout,
+  // allowing the root shell to be statically pre-rendered (SSG).
 
   const organizationLd = {
     "@context": "https://schema.org",
@@ -151,14 +141,17 @@ export default async function RootLayout({
       </head>
       <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} antialiased min-h-screen flex flex-col text-white`}>
         <CartProvider>
-          <BackgroundMural />
-          <ContentProtection />
-          <ServiceWorkerRegistration />
-          <CartSidebar initialUser={user} />
-          <LayoutWrapper user={user} isArtist={isArtist}>
-            {children}
-          </LayoutWrapper>
+          <ArtistStatusProvider>
+            <BackgroundMural />
+            <ContentProtection />
+            <ServiceWorkerRegistration />
+            <CartSidebar />
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
+          </ArtistStatusProvider>
         </CartProvider>
+
       </body>
     </html>
   );

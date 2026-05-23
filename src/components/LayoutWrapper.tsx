@@ -9,7 +9,7 @@ import { Instagram, Youtube, Twitter } from "lucide-react";
 
 import { FloatingMusicNotes } from '@/components/FloatingMusicNotes'
 
-export function LayoutWrapper({ children, user, isArtist }: { children: React.ReactNode, user: any, isArtist?: boolean }) {
+export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAuthPage = pathname?.startsWith('/auth')
   const isDashboardPage = pathname?.startsWith('/dashboard')
@@ -27,7 +27,7 @@ export function LayoutWrapper({ children, user, isArtist }: { children: React.Re
     <>
       <FloatingMusicNotes />
       <LaunchOffer />
-      <Header user={user} isArtist={isArtist} />
+      <Header />
       
       <main className="flex-grow">
         {children}

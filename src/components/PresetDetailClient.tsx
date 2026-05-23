@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, Youtube, Download, ShieldCheck, Zap, Music, ShoppingBag, CheckCircle2, Layout, HelpCircle, Plus } from 'lucide-react'
@@ -7,16 +7,29 @@ import { AddToCartButton } from '@/components/AddToCartButton'
 import { ShareButton } from '@/components/ShareButton'
 import { DownloadButton } from '@/components/DownloadButton'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createClient } from '@/lib/supabase/client'
 
 interface PresetDetailClientProps {
   preset: any
-  isOwned: boolean
   isFree: boolean
   vId: string | null
 }
 
-export function PresetDetailClient({ preset, isOwned, isFree, vId }: PresetDetailClientProps) {
+export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientProps) {
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
+  const [isOwned, setIsOwned] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        fetch(`/api/auth/ownership?itemId=${preset.id}`)
+          .then(res => res.ok ? res.json() : { owned: false })
+          .then(data => setIsOwned(data.owned))
+          .catch(() => setIsOwned(false))
+      }
+    })
+  }, [preset.id])
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">

@@ -9,6 +9,15 @@ import { notFound } from 'next/navigation'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 import { Music, Sparkles, ChevronLeft } from 'lucide-react'
 
+// 🟢 CPU OPTIMIZATION: Revalidate genre pages every 1 hour
+export const revalidate = 3600
+
+// 🟢 CPU OPTIMIZATION: Pre-render all genre pages at build time as static HTML.
+export async function generateStaticParams() {
+  const categories = await getAllCategories()
+  return categories.map((cat: any) => ({ slug: cat.slug }))
+}
+
 interface Props {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ type?: string }>

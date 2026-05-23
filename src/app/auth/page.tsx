@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import { Shield, Loader2, ArrowRight, Mail, Lock, Chrome, User, Check, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import Link from 'next/link'
@@ -10,7 +10,7 @@ import { signIn, signUp, signInWithGoogle, forgotPassword } from './actions'
 import { AnimatedLogo } from '@/components/AnimatedLogo'
 import { AuthForm } from '@/components/auth/AuthForm'
 
-export default function AuthPage() {
+function AuthPageContent() {
   const searchParams = useSearchParams()
   const mode = searchParams.get('mode') as 'login' | 'signup' | 'forgot' || 'login'
   
@@ -41,5 +41,17 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin text-studio-neon" size={32} />
+      </div>
+    }>
+      <AuthPageContent />
+    </Suspense>
   )
 }

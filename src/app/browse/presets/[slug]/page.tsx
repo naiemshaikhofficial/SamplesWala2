@@ -1,32 +1,19 @@
- import React from 'react'
-import { getPresetBySlug, getRelatedPresets } from '../../actions'
+import React from 'react'
+import { getPresetBySlug, getRelatedPresets, getPresets } from '../../actions'
 import { notFound } from 'next/navigation'
 import { generatePageMetadata, generatePresetMetadata } from '@/lib/seo/metadata'
 import { generateBreadcrumbData, generatePresetStructuredData } from '@/lib/seo/structuredData'
-import { createClient } from '@/lib/supabase/server'
 import { PresetDetailClient } from '@/components/PresetDetailClient'
 import Link from 'next/link'
 import Image from 'next/image'
 
-async function checkOwnership(presetId: string) {
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) return false
+// 🟢 CPU OPTIMIZATION: Revalidate preset pages every 1 hour instead of SSR on every visit
+export const revalidate = 3600
 
-    const { data, error } = await supabase
-      .from('user_vault')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('item_id', presetId)
-      .maybeSingle()
-
-    if (error) return false
-    return !!data
-  } catch (e) {
-    return false
-  }
+// 🟢 CPU OPTIMIZATION: Pre-render all preset pages at build time as static HTML.
+export async function generateStaticParams() {
+  const presets = await getPresets()
+  return presets.map((preset: any) => ({ slug: preset.slug }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -42,11 +29,7 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
   const preset = await getPresetBySlug(slug)
   if (!preset) notFound()
 
-  // Run independent checks in parallel
-  const [isOwned, relatedPresets] = await Promise.all([
-    checkOwnership(preset.id),
-    getRelatedPresets(preset.type, preset.id)
-  ])
+  const relatedPresets = await getRelatedPresets(preset.type, preset.id)
 
   const isFree = preset.price_inr === 0
 
@@ -88,7 +71,6 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
       <div className="flex-grow">
         <PresetDetailClient 
           preset={preset} 
-          isOwned={isOwned} 
           isFree={isFree} 
           vId={vId} 
         />
