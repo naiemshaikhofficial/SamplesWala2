@@ -12,6 +12,8 @@
     "@marsidev/react-turnstile": "^1.5.2",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.46.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "browserslist": "^4.28.2",
     "caniuse-lite": "^1.0.30001791",
     "framer-motion": "^12.38.0",
