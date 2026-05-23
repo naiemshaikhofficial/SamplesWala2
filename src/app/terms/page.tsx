@@ -1,17 +1,17 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ShieldCheck, Scale, FileText, AlertCircle } from 'lucide-react'
+import { ArrowLeft, ShieldCheck, Scale, FileText, AlertTriangle, ShieldAlert, Gavel, FileCheck, Lock } from 'lucide-react'
 import { generatePageMetadata } from '@/lib/seo/metadata'
 
 export const metadata = generatePageMetadata({
-  title: 'Terms & Conditions | Samples Wala',
-  description: 'Simple and easy to understand terms for using Samples Wala sounds.',
+  title: 'Terms & Conditions & EULA | Samples Wala',
+  description: 'Comprehensive legal terms, End-User License Agreement (EULA), and anti-piracy framework under Indian and International law.',
   path: '/terms'
 })
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black selection:bg-studio-yellow selection:text-black">
       <div className="container mx-auto px-4 py-20 max-w-4xl">
         <Link href="/" className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-studio-yellow transition-colors mb-16 group">
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -19,133 +19,249 @@ export default function TermsPage() {
         </Link>
 
         <div className="space-y-16">
+          {/* Header */}
           <div className="space-y-6">
             <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-studio-yellow/10 border border-studio-yellow/20">
               <Scale size={12} className="text-studio-yellow" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-studio-yellow font-mono">Our Rules</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-studio-yellow font-mono">Legal Agreement</span>
             </div>
-            <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none italic">Terms & <br /><span className="text-white/20">Conditions.</span></h1>
-            <div className="flex items-center gap-6 pt-4">
-              <p className="text-[10px] font-black text-white/40 uppercase tracking-widest italic">Easy to Read Version</p>
-              <div className="h-1 w-1 rounded-full bg-white/20" />
+            <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none italic">
+              Terms & <br /><span className="text-white/20">Conditions.</span>
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 pt-4 border-b border-white/5 pb-8">
+              <p className="text-[10px] font-black text-white/40 uppercase tracking-widest italic">Official EULA & Anti-Piracy Framework</p>
+              <div className="h-1 w-1 rounded-full bg-white/20 hidden sm:block" />
               <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Updated: May 2026</p>
+              <div className="h-1 w-1 rounded-full bg-white/20 hidden sm:block" />
+              <p className="text-[10px] font-black text-red-500 uppercase tracking-widest animate-pulse">Strict Anti-Piracy Notice</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 border-t border-white/5 pt-16">
-            <div className="md:col-span-4 space-y-4 text-left">
-              <h3 className="text-xs font-black uppercase tracking-widest text-studio-yellow italic">The Basics</h3>
-              <p className="text-[10px] font-bold text-white/30 uppercase leading-relaxed tracking-widest">
-                By using Samples Wala, you agree to these rules. All original sound designs and branding are owned by Samples Wala.
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pt-4">
+            {/* Sidebar basics */}
+            <div className="md:col-span-4 space-y-6">
+              <div className="p-6 bg-white/[0.02] border border-white/5 rounded-sm">
+                <FileText className="text-studio-yellow mb-4" size={24} />
+                <h3 className="text-xs font-black uppercase tracking-widest text-white mb-2 italic">The Foundation</h3>
+                <p className="text-[10px] font-bold text-white/40 uppercase leading-relaxed tracking-widest">
+                  By accessing Samples Wala, purchasing sound kits, or downloading content, you enter a legally binding contract. If you do not agree to these terms, you are prohibited from using the platform.
+                </p>
+              </div>
+
+              <div className="p-6 bg-red-500/5 border border-red-500/10 rounded-sm">
+                <ShieldAlert className="text-red-500 mb-4" size={24} />
+                <h3 className="text-xs font-black uppercase tracking-widest text-red-500 mb-2 italic">Piracy Warning</h3>
+                <p className="text-[10px] font-bold text-red-500/60 uppercase leading-relaxed tracking-widest">
+                  Unauthorized sharing, reselling, or cracked distribution of our premium samples will result in severe civil liabilities, criminal prosecution under Indian & international laws, and immediate account forfeiture.
+                </p>
+              </div>
             </div>
             
+            {/* Main content sections */}
             <div className="md:col-span-8 space-y-12">
+              
+              {/* Section 01: License and EULA */}
               <section className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-studio-neon font-mono">01</span>
-                  <h2 className="text-xl font-black uppercase tracking-tight italic">Using Our Sounds</h2>
+                  <span className="text-xs font-black text-studio-yellow font-mono">01</span>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic">End-User License Agreement (EULA)</h2>
                 </div>
                 <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
                   <p>
-                    When you buy a pack, you get a "Non-exclusive, Non-transferable License." This means you can use the sounds in your songs forever without paying us again. 
+                    All sound libraries, loops, presets, samples, one-shots, and audio kits purchased or downloaded from Samples Wala are licensed, not sold, to you. Upon a valid purchase, you receive a <strong>non-exclusive, non-transferable, worldwide, perpetual royalty-free license</strong> to integrate our sounds into your commercial and non-commercial musical recordings.
                   </p>
-                  <ul className="space-y-2 list-none text-[11px] font-bold uppercase tracking-widest text-white/40">
-                    <li>• You can release your songs on Spotify, YouTube, etc.</li>
-                    <li>• You can use them in Beats you sell to artists.</li>
-                    <li>• You keep 100% of your royalties.</li>
-                  </ul>
+                  
+                  <div className="p-6 bg-white/[0.02] border border-white/5 rounded-sm space-y-4">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-white italic flex items-center gap-2">
+                      <FileCheck size={14} className="text-studio-yellow" />
+                      What You Are Permitted To Do:
+                    </h4>
+                    <ul className="space-y-3 list-none text-[11px] font-bold uppercase tracking-widest text-white/40">
+                      <li className="flex items-start gap-2">
+                        <span className="text-studio-yellow">•</span>
+                        <span>Use the sounds in your own musical compositions, songs, beats, and audio-visual projects.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-studio-yellow">•</span>
+                        <span>Release songs containing our samples on digital platforms like Spotify, Apple Music, YouTube, and SoundCloud.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-studio-yellow">•</span>
+                        <span>Sell beat licenses to independent or major artists containing our loops/one-shots.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-studio-yellow">•</span>
+                        <span>Keep 100% of the royalties, publishing rights, and sync fees generated from your new musical compositions.</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </section>
 
+              {/* Section 02: Anti-Piracy, Stealing & Abuse (Extremely Detailed Legal Section) */}
               <section className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-studio-yellow font-mono">02</span>
-                  <h2 className="text-xl font-black uppercase tracking-tight italic">What is Not Allowed</h2>
+                  <span className="text-xs font-black text-red-500 font-mono">02</span>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic text-red-500">Strict Restrictions & Piracy Consequences</h2>
                 </div>
                 <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
                   <p>
-                    We work hard on these sounds. To protect our work, there are a few things you cannot do:
+                    We protect our intellectual property aggressively. Under no circumstances are you permitted to resell, repackage, distribute, or pirate our sound content. The license granted is strictly for a <strong>single, individual creator</strong>.
                   </p>
-                  <div className="p-6 bg-white/[0.02] border border-white/5 rounded-sm space-y-3">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle size={16} className="text-red-500 mt-1 flex-shrink-0" />
-                      <p className="text-xs font-bold text-white/80 uppercase tracking-wide leading-relaxed">
-                        You cannot re-sell the raw sounds or give them to friends for free.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <AlertCircle size={16} className="text-red-500 mt-1 flex-shrink-0" />
-                      <p className="text-xs font-bold text-white/80 uppercase tracking-wide leading-relaxed">
-                        You cannot upload our sounds to other websites as your own "Sample Pack."
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <AlertCircle size={16} className="text-red-500 mt-1 flex-shrink-0" />
-                      <p className="text-xs font-bold text-white/80 uppercase tracking-wide leading-relaxed">
-                        You cannot sell your account or give it to someone else. Each account is for one person only.
-                      </p>
+
+                  <div className="p-6 bg-red-950/20 border border-red-500/20 rounded-sm space-y-4">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-red-500 flex items-center gap-2">
+                      <AlertTriangle size={14} className="text-red-500" />
+                      Strictly Prohibited Actions:
+                    </h4>
+                    <ul className="space-y-3 list-none text-[11px] font-bold uppercase tracking-widest text-white/40">
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500 font-black">•</span>
+                        <span><strong>NO RESELLING OR LEASING:</strong> You cannot resell, lease, sublicense, or distribute raw samples, loops, or presets in their original form or as part of any other sample library.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500 font-black">•</span>
+                        <span><strong>NO SHARED DRIVES OR P2P:</strong> You are strictly forbidden from uploading our content to Google Drive, Mega, Dropbox, Torrent trackers, or sharing files in Telegram channels, Discord servers, or Facebook groups.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500 font-black">•</span>
+                        <span><strong>NO DERIVATIVE SOUNDBANKS:</strong> You cannot use our samples to create new soundbanks, sample packs, multi-sample instruments, or loops for commercial sale or public distribution.</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500 font-black">•</span>
+                        <span><strong>NO CREDENTIAL SHARING:</strong> Sharing your account login, allowing others to download from your library, or executing "group buys" is a violation of the EULA and will result in immediate termination.</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-4 pt-4">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2 italic">
+                      <Gavel size={16} className="text-studio-yellow" />
+                      Applicable Legal Actions and Penalties
+                    </h3>
+                    <p>
+                      If you engage in piracy, digital theft, bypass security blocks, or distribute our sample packs without authorization, you will be liable to the fullest extent under the following laws:
+                    </p>
+
+                    <div className="space-y-4 pl-4 border-l-2 border-studio-yellow/20">
+                      <div>
+                        <h4 className="text-xs font-black uppercase tracking-wide text-white">Under Indian Law:</h4>
+                        <ul className="space-y-2 list-none text-[11px] font-bold uppercase tracking-widest text-white/40 mt-2">
+                          <li className="flex items-start gap-2 leading-relaxed">
+                            <span className="text-studio-yellow font-mono">1.</span>
+                            <span><strong>The Copyright Act, 1957 (Sections 51 & 63):</strong> Copyright infringement of sound recordings is a <strong>cognizable and non-bailable criminal offense</strong>. Section 63 prescribes a mandatory minimum imprisonment of <strong>6 months, extending up to 3 years</strong>, along with a fine between <strong>₹50,000 and ₹2,00,000</strong>.</span>
+                          </li>
+                          <li className="flex items-start gap-2 leading-relaxed">
+                            <span className="text-studio-yellow font-mono">2.</span>
+                            <span><strong>Copyright Act, 1957 (Section 64):</strong> Gives police officers of the rank of Sub-Inspector or above the power to <strong>seize all infringing copies, computer systems, and storage devices</strong> without a warrant.</span>
+                          </li>
+                          <li className="flex items-start gap-2 leading-relaxed">
+                            <span className="text-studio-yellow font-mono">3.</span>
+                            <span><strong>Information Technology Act, 2000 (Section 43 & 66):</strong> Hacking, scraping, or downloading paid sample packs using automated scripts or site vulnerabilities carries a penalty of <strong>imprisonment up to 3 years</strong> or a **fine up to ₹5,00,000**, as it constitutes unauthorized access to a computer system.</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="pt-2">
+                        <h4 className="text-xs font-black uppercase tracking-wide text-white">Under International Law:</h4>
+                        <ul className="space-y-2 list-none text-[11px] font-bold uppercase tracking-widest text-white/40 mt-2">
+                          <li className="flex items-start gap-2 leading-relaxed">
+                            <span className="text-studio-yellow font-mono">1.</span>
+                            <span><strong>US Copyright Act (Title 17, US Code):</strong> Section 504 authorizes civil statutory damages of **up to $150,000 per sample pack** for willful copyright infringement, in addition to our legal attorney fees. Section 506 and 18 U.S.C. § 2319 outline federal criminal charges for commercial copyright distribution.</span>
+                          </li>
+                          <li className="flex items-start gap-2 leading-relaxed">
+                            <span className="text-studio-yellow font-mono">2.</span>
+                            <span><strong>The Berne Convention:</strong> An international treaty signed by 180+ countries (including India, the USA, UK, Canada, the European Union, and Japan), which ensures that copyright protection is automatically valid and legally enforceable across all member nations globally.</span>
+                          </li>
+                          <li className="flex items-start gap-2 leading-relaxed">
+                            <span className="text-studio-yellow font-mono">3.</span>
+                            <span><strong>DMCA (Section 1201):</strong> Bypassing security firewalls, anti-right-click protection, or digital rights management (DRM) to steal content is illegal under international law.</span>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
               </section>
 
+              {/* Section 03: Account Security, Scraping & Automated Access */}
               <section className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-studio-neon font-mono">03</span>
-                  <h2 className="text-xl font-black uppercase tracking-tight italic">Your Account</h2>
+                  <span className="text-xs font-black text-studio-yellow font-mono">03</span>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic">Account Security & Automated Abuse</h2>
                 </div>
                 <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
                   <p>
-                    Your account is for your personal use only. You are not allowed to share your login details, sell your account, or give it to someone else. If we find that many people are using the same account, we may block it to protect our sounds.
+                    Your user account is restricted to your own personal usage. You are fully responsible for maintaining the confidentiality of your login credentials.
                   </p>
+                  <p>
+                    <strong>Security Tracking:</strong> To prevent account sharing, bulk automated scraping, or bot-based asset theft, our systems track login patterns, active IP sessions, and user agent signatures. If our system detects multi-location simultaneous logins, bulk downloads in short durations, or script usage:
+                  </p>
+                  <div className="p-4 bg-white/5 rounded-sm border border-white/5 space-y-2 text-[11px] font-bold uppercase tracking-widest text-white/40">
+                    <p className="text-white">• Your account will be immediately and permanently locked.</p>
+                    <p className="text-white">• All downloaded licenses will be revoked instantly.</p>
+                    <p className="text-white">• No refunds or credits will be provided under any circumstances.</p>
+                    <p className="text-red-500 animate-pulse">• We will submit your IP addresses, transaction history, and registration logs to the relevant Cyber Crime Department for investigation.</p>
+                  </div>
                 </div>
               </section>
 
+              {/* Section 04: Secure Payments & Razorpay */}
               <section className="space-y-6">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-black text-studio-yellow font-mono">04</span>
-                  <h2 className="text-xl font-black uppercase tracking-tight italic">Payments</h2>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic">Billing & Transactions</h2>
                 </div>
                 <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
                   <p>
-                    All payments are securely processed via **Razorpay**. We do not store your credit card or sensitive payment details on our servers.
+                    All credit, debit, net-banking, and UPI transactions on Samples Wala are securely processed via <strong>Razorpay</strong> and international payment gateways (such as PayPal).
                   </p>
+                  <div className="flex items-center gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-sm">
+                    <Lock className="text-studio-yellow flex-shrink-0" size={18} />
+                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
+                      We do not capture, record, or store any sensitive payment card details or credentials on our servers. All financial data transfers occur on encrypted PCI-DSS compliant networks.
+                    </p>
+                  </div>
                 </div>
               </section>
 
+              {/* Section 05: Intellectual Property Ownership */}
               <section className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-black text-studio-neon font-mono">05</span>
-                  <h2 className="text-xl font-black uppercase tracking-tight italic">Intellectual Property</h2>
+                  <span className="text-xs font-black text-studio-yellow font-mono">05</span>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic">Intellectual Property Ownership</h2>
                 </div>
                 <div className="space-y-4 text-sm text-white/60 leading-relaxed font-medium">
                   <p>
-                    All content on this website, including sound samples, graphics, and text, is the property of Samples Wala and protected by copyright laws.
+                    The Samples Wala brand, domain, logo, website design, UI artwork, marketing media, code assets, and raw sound recordings are the exclusive intellectual property of Samples Wala. No copyright, ownership, or brand representation rights are transferred to you at any point; you are solely granted a limited-use audio production license in accordance with our EULA.
                   </p>
                 </div>
               </section>
 
+              {/* Section 06: Indemnification */}
               <section className="space-y-6 pt-12 border-t border-white/5">
                 <div className="flex items-center gap-4">
-                  <ShieldCheck className="text-studio-neon" size={24} />
+                  <ShieldCheck className="text-studio-yellow" size={24} />
                   <div>
-                    <h4 className="text-xs font-black uppercase tracking-widest italic">Simple Agreement</h4>
-                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">By buying our sounds, you agree to these simple terms.</p>
+                    <h4 className="text-xs font-black uppercase tracking-widest italic text-white">Royalty-Free Guarantee</h4>
+                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
+                      We guarantee that all our sound packs are 100% original and legally cleared. You will never face copyright royalty claims from our end.
+                    </p>
                   </div>
                 </div>
               </section>
             </div>
           </div>
 
+          {/* Contact action box */}
           <div className="bg-studio-yellow p-12 text-black text-center space-y-4 rounded-sm">
-            <h2 className="text-2xl font-black uppercase italic tracking-tighter">Need help?</h2>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 max-w-md mx-auto">
-              If you don't understand something, just send us an email. We are here to help.
+            <h2 className="text-3xl font-black uppercase italic tracking-tighter">Have any legal questions?</h2>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 max-w-lg mx-auto leading-relaxed">
+              If you require a custom corporate license, need clarification on the EULA, or want to report an active piracy case, please reach out to our legal department.
             </p>
             <div className="pt-4">
               <Link href="/contact" className="px-8 py-4 bg-black text-white font-black uppercase text-[10px] tracking-widest hover:scale-105 transition-transform inline-block">
-                Contact Support
+                Contact Legal Dept
               </Link>
             </div>
           </div>
