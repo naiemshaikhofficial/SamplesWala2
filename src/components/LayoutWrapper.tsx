@@ -67,9 +67,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6 text-center md:text-left">
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-blue italic">Socials</h4>
-              <div className="flex flex-wrap items-center gap-4 text-white/40">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-white/40">
                 {/* YouTube */}
                 <a 
                   href="https://youtube.com/@sampleswala" 
