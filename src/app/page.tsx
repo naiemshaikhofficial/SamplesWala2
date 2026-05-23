@@ -72,15 +72,20 @@ export default async function HomePage() {
           
           {/* Epic-Style Header Row */}
           <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
-            <div className="space-y-3 text-center lg:text-left relative">
-              <div className="inline-block px-4 py-1 bg-studio-red text-white font-black uppercase text-[9px] tracking-[0.3em] shadow-[3px_3px_0px_black] border-2 border-black rotate-[-1.5deg] mb-1">
+            <div className="space-y-4 text-center lg:text-left relative">
+              {/* Sticker Tag */}
+              <div className="street-sticker px-4 py-1.5 text-[10px] tracking-[0.25em] mb-2 select-none">
                 OFFICIALLY LAUNCHED!
               </div>
-              <h1 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tighter leading-none text-white comic-text">
+              
+              {/* Premium Graffiti Title */}
+              <h1 className="text-5xl sm:text-7xl md:text-8xl font-black uppercase leading-none text-white graffiti-title-text select-none">
                 SAMPLES<span className="text-studio-yellow italic">WALA</span>
               </h1>
-              <p className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] md:tracking-[0.3em] max-w-xl leading-normal border-l-2 border-studio-blue pl-3">
-                Premium Indian sample packs, presets & synthesizers. Built for the creative community.
+              
+              {/* Street Accent Subtitle */}
+              <p className="text-xs font-bold text-white/70 uppercase tracking-[0.15em] md:tracking-[0.25em] max-w-xl leading-normal border-l-4 border-studio-pink pl-4 select-none">
+                Premium Indian sample packs, presets &amp; synthesizers. Built for the creative community.
               </p>
             </div>
             

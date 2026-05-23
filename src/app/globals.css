@@ -32,6 +32,7 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-luckiest-guy: var(--font-luckiest-guy);
   --font-kalam: var(--font-kalam);
+  --font-permanent-marker: var(--font-permanent-marker);
   --font-noto-music: "Noto Music", sans-serif;
 
   --radius-sm: 0px;
@@ -178,6 +179,59 @@ body {
     -webkit-text-stroke: 2px black;
     paint-order: stroke fill;
     text-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+  }
+
+  .graffiti-title-text {
+    font-family: var(--font-permanent-marker), cursive;
+    -webkit-text-stroke: 2px black;
+    paint-order: stroke fill;
+    text-shadow: 
+      3px 3px 0px black, 
+      6px 6px 0px var(--color-studio-pink), 
+      10px 10px 0px var(--color-studio-blue);
+    letter-spacing: -0.02em;
+  }
+
+  @media (min-width: 768px) {
+    .graffiti-title-text {
+      -webkit-text-stroke: 3.5px black;
+      text-shadow: 
+        4px 4px 0px black, 
+        8px 8px 0px var(--color-studio-pink), 
+        12px 12px 0px var(--color-studio-blue);
+      letter-spacing: -0.03em;
+    }
+  }
+
+  .street-sticker {
+    font-family: var(--font-permanent-marker), cursive;
+    background-color: var(--color-studio-red);
+    color: white;
+    font-weight: 900;
+    text-transform: uppercase;
+    border: 3.5px solid white;
+    outline: 3px solid black;
+    box-shadow: 5px 5px 0px black;
+    transform: rotate(-3deg);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: inline-block;
+  }
+
+  .street-sticker:hover {
+    transform: scale(1.08) rotate(1deg);
+    box-shadow: 7px 7px 0px black;
+  }
+
+  .graffiti-input-box {
+    border: 4px solid black;
+    background-color: var(--color-studio-charcoal);
+    box-shadow: 6px 6px 0px var(--color-studio-pink);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .graffiti-input-box:focus-within {
+    box-shadow: 8px 8px 0px var(--color-studio-yellow);
+    transform: translate(-2px, -2px);
   }
 
   .neon-border {

@@ -51,33 +51,33 @@ export function HeroSearch() {
 
   return (
     <div ref={searchRef} className="relative w-full max-w-md mx-auto lg:mx-0 z-50">
-      <form onSubmit={handleSearch} className="relative border-4 border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] overflow-hidden bg-studio-charcoal">
+      <form onSubmit={handleSearch} className="relative graffiti-input-box overflow-hidden">
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20">
-           <Search size={16} />
+          <Search size={16} />
         </div>
-        <input 
-          type="text" 
+        <input
+          type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setIsOpen(true)}
-          placeholder="SEARCH SAMPLES..." 
+          placeholder="SEARCH SAMPLES..."
           className="w-full h-14 bg-transparent pl-12 pr-12 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:bg-white/5 transition-all placeholder:text-white/20 text-white"
         />
         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
           {query && (
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => { setQuery(''); setSuggestions([]); }}
               className="text-white/20 hover:text-white"
             >
               <X size={16} />
             </button>
           )}
-          <button 
+          <button
             type="submit"
             className="text-white/40 hover:text-studio-yellow transition-colors"
           >
-             <ArrowRight size={18} />
+            <ArrowRight size={18} />
           </button>
         </div>
       </form>
@@ -90,17 +90,17 @@ export function HeroSearch() {
           ) : (
             <div className="divide-y-2 divide-black">
               {suggestions.map((pack) => (
-                <Link 
+                <Link
                   key={pack.id}
                   href={`/packs/${pack.slug}`}
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-4 p-3 hover:bg-white/5 transition-colors group"
                 >
                   <div className="w-12 h-12 relative flex-shrink-0 border-2 border-black">
-                    <Image 
-                      src={pack.cover_url || '/placeholder.jpg'} 
-                      alt={pack.name} 
-                      fill 
+                    <Image
+                      src={pack.cover_url || '/placeholder.jpg'}
+                      alt={pack.name}
+                      fill
                       sizes="48px"
                       className="object-cover"
                     />
@@ -121,7 +121,7 @@ export function HeroSearch() {
                   <ArrowRight size={12} className="text-white/10 group-hover:text-studio-neon -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all" />
                 </Link>
               ))}
-              <button 
+              <button
                 onClick={handleSearch}
                 className="w-full p-3 bg-black/40 text-[8px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-studio-yellow text-left"
               >
