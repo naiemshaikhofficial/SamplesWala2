@@ -6,6 +6,13 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  // 🟢 CPU OPTIMIZATION: If the visitor has no Supabase auth cookies (guest or bot), 
+  // we can completely bypass expensive auth requests, saving massive serverless CPU hours!
+  const hasSessionCookie = request.cookies.getAll().some(c => c.name.startsWith('sb-') || c.name.includes('-auth-token'))
+  if (!hasSessionCookie) {
+    return { supabaseResponse, user: null }
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

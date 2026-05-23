@@ -29,6 +29,14 @@ export const createClient = cache(async () => {
 })
 
 export const getUser = cache(async () => {
+  const cookieStore = await cookies()
+  
+  // 🟢 CPU OPTIMIZATION: Bypass calling expensive supabase auth server requests if the user has no session cookies
+  const hasSessionCookie = cookieStore.getAll().some(c => c.name.startsWith('sb-') || c.name.includes('-auth-token'))
+  if (!hasSessionCookie) {
+    return { data: { user: null }, error: null }
+  }
+
   const supabase = await createClient()
   return await supabase.auth.getUser()
 })
