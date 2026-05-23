@@ -24,6 +24,13 @@
   --color-studio-grey: #1e1e1e;
   --color-studio-charcoal: #0a0a0a;
 
+  /* Social Brand Colors */
+  --color-social-youtube: #FF0000;
+  --color-social-instagram: #E1306C;
+  --color-social-facebook: #1877F2;
+  --color-social-telegram: #0088cc;
+  --color-social-linkedin: #0A66C2;
+
   /* Graffiti UI Tokens */
   --color-glass-white: rgba(255, 255, 255, 0.03);
   --color-glass-border: rgba(255, 255, 255, 0.1);
@@ -46,6 +53,11 @@
 
 @utility graffiti-text {
   text-shadow: 4px 4px 0px black, 8px 8px 0px var(--color-studio-pink);
+}
+
+/* Social Icon Hover Colors */
+a[data-social]:hover {
+  color: var(--social-color) !important;
 }
 
 

@@ -5,7 +5,7 @@ import { LaunchOffer } from '@/components/LaunchOffer'
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatedLogo } from '@/components/AnimatedLogo'
-import { Instagram, Youtube, Twitter } from "lucide-react";
+import { Instagram, Youtube, Twitter, Facebook, Linkedin, Send, MessageSquare, Music } from "lucide-react";
 
 import { FloatingMusicNotes } from '@/components/FloatingMusicNotes'
 
@@ -28,7 +28,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       <FloatingMusicNotes />
       <LaunchOffer />
       <Header />
-      
+
       <main className="flex-grow">
         {children}
       </main>
@@ -69,26 +69,79 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
             <div className="space-y-6">
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-blue italic">Socials</h4>
-              <ul className="space-y-3 text-[10px] font-bold text-white/40 uppercase tracking-widest">
-                <li>
-                  <a href="https://instagram.com/sampleswala" target="_blank" className="flex items-center gap-3 hover:text-white transition-colors">
-                    <Instagram size={14} />
-                    Instagram
-                  </a>
-                </li>
-                <li>
-                  <a href="https://youtube.com/@sampleswala" target="_blank" className="flex items-center gap-3 hover:text-white transition-colors">
-                    <Youtube size={14} />
-                    YouTube
-                  </a>
-                </li>
-                <li>
-                  <a href="https://twitter.com/sampleswala" target="_blank" className="flex items-center gap-3 hover:text-white transition-colors">
-                    <Twitter size={14} />
-                    Twitter
-                  </a>
-                </li>
-              </ul>
+              <div className="flex flex-wrap items-center gap-4 text-white/40">
+                {/* YouTube */}
+                <a 
+                  href="https://youtube.com/@sampleswala" 
+                  target="_blank" 
+                  data-social="youtube"
+                  style={{ '--social-color': '#FF0000' } as React.CSSProperties}
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  title="YouTube"
+                >
+                  <Youtube className="w-5 h-5" strokeWidth={2.2} />
+                </a>
+
+                {/* Instagram */}
+                <a 
+                  href="https://instagram.com/sampleswala" 
+                  target="_blank" 
+                  data-social="instagram"
+                  style={{ '--social-color': '#E1306C' } as React.CSSProperties}
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  title="Instagram"
+                >
+                  <Instagram className="w-5 h-5" strokeWidth={2.2} />
+                </a>
+
+                {/* Facebook */}
+                <a 
+                  href="https://facebook.com/sampleswala" 
+                  target="_blank" 
+                  data-social="facebook"
+                  style={{ '--social-color': '#1877F2' } as React.CSSProperties}
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  title="Facebook"
+                >
+                  <Facebook className="w-5 h-5" strokeWidth={2.2} />
+                </a>
+
+                {/* Twitter / X */}
+                <a 
+                  href="https://twitter.com/sampleswala" 
+                  target="_blank" 
+                  data-social="twitter"
+                  style={{ '--social-color': '#ffffff' } as React.CSSProperties}
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  title="Twitter / X"
+                >
+                  <Twitter className="w-5 h-5" strokeWidth={2.2} />
+                </a>
+
+                {/* Telegram */}
+                <a 
+                  href="https://t.me/sampleswala" 
+                  target="_blank" 
+                  data-social="telegram"
+                  style={{ '--social-color': '#0088cc' } as React.CSSProperties}
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  title="Telegram"
+                >
+                  <Send className="w-5 h-5" strokeWidth={2.2} />
+                </a>
+
+                {/* LinkedIn */}
+                <a 
+                  href="https://linkedin.com/company/sampleswala" 
+                  target="_blank" 
+                  data-social="linkedin"
+                  style={{ '--social-color': '#0A66C2' } as React.CSSProperties}
+                  className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40" 
+                  title="LinkedIn"
+                >
+                  <Linkedin className="w-5 h-5" strokeWidth={2.2} />
+                </a>
+              </div>
             </div>
           </div>
 
@@ -99,7 +152,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
               <Link href="/refund-policy" className="hover:text-white transition-colors">Refund & Cancellation</Link>
               <Link href="/dmca" className="hover:text-white transition-colors">DMCA</Link>
             </div>
-            
+
             {/* ULTRA MASSIVE Made In Bharat Text Badge */}
             <div className="relative w-full max-w-[600px] flex flex-col items-center md:items-end justify-center py-10 md:py-16 group select-none">
               <div className="relative z-10 transform -rotate-3 transition-all duration-500">
@@ -128,7 +181,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-8 text-center pb-8">
             <p className="text-[7px] font-bold text-white/5 uppercase tracking-[0.5em] leading-relaxed max-w-2xl mx-auto">
               ©Samples Wala 2026. All rights reserved.
