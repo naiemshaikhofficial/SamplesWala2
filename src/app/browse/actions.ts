@@ -50,7 +50,7 @@ export async function getPacks(limit?: number) {
   return unstable_cache(
     async () => fetchAllPacks(limit),
     [limit ? `packs-limit-${limit}` : 'all-packs-list'],
-    { revalidate: 300, tags: ['packs'] }
+    { revalidate: 3600, tags: ['packs'] }
   )()
 }
 
@@ -100,7 +100,7 @@ export async function getPacksBySeries(seriesName: string, limit?: number) {
   return unstable_cache(
     async () => fetchPacksBySeries(seriesName, limit),
     [limit ? `packs-series-${seriesName.replace(/\s+/g, '-').toLowerCase()}-limit-${limit}` : `packs-series-${seriesName.replace(/\s+/g, '-').toLowerCase()}`],
-    { revalidate: 300, tags: ['packs'] }
+    { revalidate: 3600, tags: ['packs'] }
   )()
 }
 
@@ -190,7 +190,7 @@ export async function getPackBySlug(slug: string) {
   return unstable_cache(
     async () => fetchPackBySlug(slug),
     [`pack-${slug}`],
-    { revalidate: 300, tags: [`pack-${slug}`] }
+    { revalidate: 3600, tags: [`pack-${slug}`] }
   )()
 }
 
@@ -208,7 +208,7 @@ export async function getRelatedPacks(category: string, excludeId: string) {
       return data || []
     },
     [`related-${category}-${excludeId}`],
-    { revalidate: 300, tags: ['packs'] }
+    { revalidate: 3600, tags: ['packs'] }
   )()
 }
 
@@ -304,7 +304,7 @@ export async function getPacksByCategorySlug(slug: string) {
       }))
     },
     [`packs-genre-${slug}`],
-    { revalidate: 300, tags: ['packs', 'categories'] }
+    { revalidate: 3600, tags: ['packs', 'categories'] }
   )()
 }
 
@@ -360,7 +360,7 @@ export async function getPresets(limit?: number) {
   return unstable_cache(
     async () => fetchPresets(limit),
     [limit ? `presets-limit-${limit}` : 'all-presets-list'],
-    { revalidate: 300, tags: ['presets'] }
+    { revalidate: 3600, tags: ['presets'] }
   )()
 }
 
@@ -397,7 +397,7 @@ export async function getPresetBySlug(slug: string) {
   return unstable_cache(
     async () => fetchPresetBySlug(slug),
     [`preset-${slug}`],
-    { revalidate: 300, tags: [`preset-${slug}`] }
+    { revalidate: 3600, tags: [`preset-${slug}`] }
   )()
 }
 
@@ -418,7 +418,7 @@ export async function getPresetsByCategory(categoryId: string) {
       return data
     },
     [`presets-category-${categoryId}`],
-    { revalidate: 300, tags: ['presets', 'categories'] }
+    { revalidate: 3600, tags: ['presets', 'categories'] }
   )()
 }
 
@@ -448,7 +448,7 @@ export async function getRelatedPresets(type: string, excludeId: string) {
       }))
     },
     [`related-presets-${type}-${excludeId}`],
-    { revalidate: 300, tags: ['presets'] }
+    { revalidate: 3600, tags: ['presets'] }
   )()
 }
 
