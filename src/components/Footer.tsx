@@ -2,7 +2,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { AnimatedLogo } from '@/components/AnimatedLogo'
-import { Instagram, Youtube, Twitter, Facebook, Send, Linkedin } from 'lucide-react'
+import { Instagram, Youtube, Facebook, Send, Linkedin } from 'lucide-react'
 
 export function Footer() {
   const dashboardUrl = process.env.NODE_ENV === 'production'
@@ -159,7 +159,7 @@ export function Footer() {
 
               {/* Twitter / X */}
               <a
-                href="https://twitter.com/sampleswala"
+                href="https://x.com/sampleswala"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-social="twitter"
@@ -167,7 +167,9 @@ export function Footer() {
                 className="w-10 h-10 bg-black/40 border-2 border-black flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 text-white/40 hover:shadow-[4px_4px_0px_#ffffff] hover:border-[#ffffff] rounded-sm"
                 title="Twitter / X"
               >
-                <Twitter className="w-5 h-5" strokeWidth={2.2} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
               </a>
 
               {/* Telegram */}
