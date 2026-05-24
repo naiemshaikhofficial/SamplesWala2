@@ -1,4 +1,4 @@
-import { Permanent_Marker, Luckiest_Guy, Kalam } from 'next/font/google'
+import { Permanent_Marker, Luckiest_Guy, Kalam, Noto_Music } from 'next/font/google'
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -18,6 +18,12 @@ const kalam = Kalam({
   weight: ['300', '400', '700'],
   subsets: ['devanagari', 'latin'],
   variable: '--font-kalam',
+})
+
+const notoMusic = Noto_Music({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-noto-music',
 })
 import { generatePageMetadata } from "@/lib/seo/metadata";
 
@@ -92,12 +98,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Samples Wala" />
         <link rel="apple-touch-icon" href="/Logo.png" />
 
-        {/* DNS Preconnects & Prefetching for Core Web Vitals */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet" />
+        {/* All Google fonts are self-hosted via next/font/google at build time for optimal performance */}
 
         {/* Supabase Connection Preconnection */}
         {process.env.NEXT_PUBLIC_SUPABASE_URL && (
@@ -141,7 +142,7 @@ export default async function RootLayout({
           strategy="afterInteractive" 
         />
       </head>
-      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} antialiased min-h-screen flex flex-col text-white`}>
+      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} ${notoMusic.variable} antialiased min-h-screen flex flex-col text-white`}>
         <CartProvider>
           <ArtistStatusProvider>
             <BackgroundMural />

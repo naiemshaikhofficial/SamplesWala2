@@ -74,6 +74,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 <a
                   href="https://youtube.com/@sampleswala"
                   target="_blank"
+                  rel="noopener noreferrer"
                   data-social="youtube"
                   style={{ '--social-color': '#FF0000' } as React.CSSProperties}
                   className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
@@ -86,6 +87,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 <a
                   href="https://instagram.com/sampleswala"
                   target="_blank"
+                  rel="noopener noreferrer"
                   data-social="instagram"
                   style={{ '--social-color': '#E1306C' } as React.CSSProperties}
                   className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
@@ -98,6 +100,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 <a
                   href="https://facebook.com/sampleswala"
                   target="_blank"
+                  rel="noopener noreferrer"
                   data-social="facebook"
                   style={{ '--social-color': '#1877F2' } as React.CSSProperties}
                   className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
@@ -110,6 +113,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 <a
                   href="https://twitter.com/sampleswala"
                   target="_blank"
+                  rel="noopener noreferrer"
                   data-social="twitter"
                   style={{ '--social-color': '#ffffff' } as React.CSSProperties}
                   className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
@@ -122,6 +126,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 <a
                   href="https://t.me/sampleswala"
                   target="_blank"
+                  rel="noopener noreferrer"
                   data-social="telegram"
                   style={{ '--social-color': '#0088cc' } as React.CSSProperties}
                   className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
@@ -134,6 +139,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 <a
                   href="https://linkedin.com/company/sampleswala"
                   target="_blank"
+                  rel="noopener noreferrer"
                   data-social="linkedin"
                   style={{ '--social-color': '#0A66C2' } as React.CSSProperties}
                   className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-all duration-200 text-white/40"
