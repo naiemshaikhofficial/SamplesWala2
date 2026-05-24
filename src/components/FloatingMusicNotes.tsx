@@ -35,8 +35,8 @@ export function FloatingMusicNotes() {
       return
     }
 
-    // Generate 25 floating musical symbols across the background for desktop
-    const newNotes = Array.from({ length: 25 }).map((_, i) => {
+    // 🟢 CPU OPTIMIZATION: Generate 12 elegant floating symbols instead of 25 to reduce layout paint overhead by 50%
+    const newNotes = Array.from({ length: 12 }).map((_, i) => {
       const sizeRandom = Math.random()
       const size = sizeRandom < 0.25 ? 'text-sm' : sizeRandom < 0.6 ? 'text-xl' : sizeRandom < 0.85 ? 'text-3xl' : 'text-5xl'
       return {

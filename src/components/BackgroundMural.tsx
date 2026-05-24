@@ -11,7 +11,7 @@ export function BackgroundMural() {
   const smoothY = useSpring(scrollY, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.01
+    restDelta: 1.0 // 🟢 CPU OPTIMIZATION: Relax physics computations much faster as scroll settles
   })
 
   const [isMobile, setIsMobile] = useState(false)
