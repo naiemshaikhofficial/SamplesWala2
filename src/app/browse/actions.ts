@@ -15,8 +15,7 @@ async function fetchAllPacks(limit?: number) {
     .order('created_at', { ascending: false })
 
   if (limit) {
-    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      query = query.limit(limit)
+    query = query.limit(limit)
   }
 
   const { data, error } = await query
