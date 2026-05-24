@@ -5,6 +5,8 @@ import { generatePageMetadata } from '@/lib/seo/metadata'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 import Link from 'next/link'
 
+export const revalidate = false
+
 export const metadata = generatePageMetadata({
   title: 'Premium Sample Packs & Loops | SamplesWala',
   description: 'Download high-quality Indian sample packs, vocal stacks, and curated collections for Bollywood, Hip-Hop, and Electronic music. 100% royalty-free.',

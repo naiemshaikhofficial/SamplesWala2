@@ -5,6 +5,8 @@ import { generatePageMetadata } from '@/lib/seo/metadata'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 import Link from 'next/link'
 
+export const revalidate = false
+
 export const metadata = generatePageMetadata({
   title: 'Indian Producer Presets | FL Studio & Ableton Kits',
   description: 'Free and premium vocal presets, mixing templates, and VST sound banks for Indian music production. Compatible with FL Studio, Ableton, and Logic Pro.',
