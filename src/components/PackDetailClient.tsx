@@ -16,6 +16,13 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [owned, setOwned] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    isExpired: boolean;
+  } | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -29,6 +36,78 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
       }
     })
   }, [pack.id])
+
+  useEffect(() => {
+    if (pack.is_downloadable || !pack.created_at) return
+
+    const calculateTimeLeft = () => {
+      const parseDbDate = (dateStr: string) => {
+        const str = String(dateStr).trim()
+        const direct = new Date(str)
+        if (!isNaN(direct.getTime())) return direct.getTime()
+        
+        // Convert "YYYY-MM-DD HH:mm:ss..." to "YYYY-MM-DDT...Z"
+        let formatted = str.replace(' ', 'T')
+        
+        // Handle postgres +00 timezone format to +00:00 or append Z
+        if (formatted.match(/[+-]\d{2}$/)) {
+          formatted = formatted + ':00'
+        } else if (!formatted.includes('Z') && !formatted.includes('+') && !formatted.includes('-')) {
+          formatted = formatted + 'Z'
+        }
+        
+        const secondTry = new Date(formatted)
+        if (!isNaN(secondTry.getTime())) return secondTry.getTime()
+        
+        // Fallback: manual parsing
+        const match = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/)
+        if (match) {
+          return Date.UTC(
+            parseInt(match[1], 10),
+            parseInt(match[2], 10) - 1,
+            parseInt(match[3], 10),
+            parseInt(match[4], 10),
+            parseInt(match[5], 10),
+            parseInt(match[6], 10)
+          )
+        }
+        return 0
+      }
+
+      const launchDate = parseDbDate(pack.created_at)
+      if (launchDate === 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true }
+      }
+
+      const expiryDate = launchDate + 10 * 24 * 60 * 60 * 1000 // 10 days in ms
+      const now = new Date().getTime()
+      const difference = expiryDate - now
+
+      if (difference <= 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true }
+      }
+
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+        isExpired: false
+      }
+    }
+
+    setTimeLeft(calculateTimeLeft())
+
+    const timer = setInterval(() => {
+      const calculated = calculateTimeLeft()
+      setTimeLeft(calculated)
+      if (calculated.isExpired) {
+        clearInterval(timer)
+      }
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [pack.created_at, pack.is_downloadable])
 
   const vId = React.useMemo(() => {
     if (!pack.video_url) return null;
@@ -133,7 +212,9 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                     {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
                   </span>
                   {!pack.is_downloadable && (
-                    <span className="text-[7px] font-black bg-white text-studio-red uppercase tracking-tighter px-2 rounded-sm mt-0.5">Pre-order Offer</span>
+                    <span className={`text-[7px] font-black uppercase tracking-tighter px-2 rounded-sm mt-0.5 ${timeLeft?.isExpired ? 'bg-studio-red text-white' : 'bg-white text-studio-red'}`}>
+                      {timeLeft?.isExpired ? 'Pre-Order Ended' : 'Pre-order Offer'}
+                    </span>
                   )}
                 </div>
               </div>
@@ -155,6 +236,16 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       </p>
                     </div>
                   )
+                ) : timeLeft?.isExpired ? (
+                  <div className="w-full p-6 bg-studio-red/5 border-2 border-studio-red/20 border-dashed rounded-sm text-center space-y-3 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-2 opacity-10">
+                      <Zap size={40} className="text-studio-red animate-pulse" />
+                    </div>
+                    <p className="text-[12px] font-black uppercase tracking-[0.2em] text-studio-red italic">PRE-ORDER OFFER EXPIRED</p>
+                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
+                      This exclusive pre-order offer has ended.<br/>Sign up or stay tuned for the official release!
+                    </p>
+                  </div>
                 ) : (
                   <div className="flex flex-col gap-3">
                     {!pack.is_downloadable && (
@@ -162,6 +253,32 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                         <p className="text-[9px] font-black text-white uppercase tracking-[0.2em] animate-pulse text-center">
                           🔥 PRE-ORDER OFFER: SECURE THIS PRICE NOW!
                         </p>
+                      </div>
+                    )}
+                    {timeLeft && !timeLeft.isExpired && (
+                      <div className="p-4 rounded-sm border-2 border-black shadow-[4px_4px_0px_black] bg-studio-neon/10 text-studio-neon border-studio-neon mb-1">
+                        <div className="flex items-center gap-2 mb-2 justify-center">
+                          <Zap size={14} className="text-studio-neon animate-pulse" />
+                          <span className="text-[9px] font-black uppercase tracking-widest text-white">Pre-Order Offer Ends In:</span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 text-center font-mono text-white">
+                          <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
+                            <span className="text-base font-black block leading-none">{String(timeLeft.days).padStart(2, '0')}</span>
+                            <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Days</span>
+                          </div>
+                          <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
+                            <span className="text-base font-black block leading-none">{String(timeLeft.hours).padStart(2, '0')}</span>
+                            <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Hours</span>
+                          </div>
+                          <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
+                            <span className="text-base font-black block leading-none">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                            <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Mins</span>
+                          </div>
+                          <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
+                            <span className="text-base font-black block leading-none">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                            <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Secs</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                     <AddToCartButton 

@@ -7,6 +7,36 @@ import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
+function parseDbDate(dateStr: string | undefined | null) {
+  if (!dateStr) return 0
+  const str = String(dateStr).trim()
+  const direct = new Date(str)
+  if (!isNaN(direct.getTime())) return direct.getTime()
+  
+  let formatted = str.replace(' ', 'T')
+  if (formatted.match(/[+-]\d{2}$/)) {
+    formatted = formatted + ':00'
+  } else if (!formatted.includes('Z') && !formatted.includes('+') && !formatted.includes('-')) {
+    formatted = formatted + 'Z'
+  }
+  
+  const secondTry = new Date(formatted)
+  if (!isNaN(secondTry.getTime())) return secondTry.getTime()
+  
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/)
+  if (match) {
+    return Date.UTC(
+      parseInt(match[1], 10),
+      parseInt(match[2], 10) - 1,
+      parseInt(match[3], 10),
+      parseInt(match[4], 10),
+      parseInt(match[5], 10),
+      parseInt(match[6], 10)
+    )
+  }
+  return 0
+}
+
 export function HomePacks({ packs }: { packs: any[] }) {
   const { addItem } = useCart()
   const router = useRouter()
@@ -62,6 +92,11 @@ export function HomePacks({ packs }: { packs: any[] }) {
     >
       {packs.map((pack: any) => {
         const isIndia = pack.series === 'India Journey'
+        const isPreorder = !pack.is_downloadable
+        const launchDate = parseDbDate(pack.created_at)
+        const expiryDate = launchDate + 10 * 24 * 60 * 60 * 1000 // 10 days
+        const isExpired = isPreorder && launchDate > 0 && Date.now() > expiryDate
+
         return (
           <motion.div
             key={pack.id}
@@ -87,12 +122,16 @@ export function HomePacks({ packs }: { packs: any[] }) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
               {!pack.is_downloadable && (
-                <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 border border-black rounded-sm -rotate-3 ${
-                  isIndia 
-                    ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807] border-2 font-black' 
-                    : 'bg-studio-neon/90 text-black shadow-[4px_4px_0px_black]'
+                <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 border border-black rounded-sm -rotate-3 z-10 ${
+                  isExpired
+                    ? 'bg-studio-red text-white shadow-[4px_4px_0px_black]'
+                    : (isIndia 
+                        ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807] border-2 font-black' 
+                        : 'bg-studio-neon/90 text-black shadow-[4px_4px_0px_black]')
                 }`}>
-                  <span className="text-[8px] font-black uppercase tracking-widest">Pre-order Offer</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest">
+                    {isExpired ? 'Offer Ended' : 'Pre-order Offer'}
+                  </span>
                 </div>
               )}
 
@@ -133,18 +172,26 @@ export function HomePacks({ packs }: { packs: any[] }) {
                       </div>
                       {!pack.is_downloadable && (
                         <span className={`text-[7px] font-black uppercase tracking-tighter px-1 rounded-sm text-center ${
-                          isIndia ? 'bg-[#FF9933] text-white border border-black' : 'bg-studio-neon text-black'
-                        }`}>Pre-order Offer</span>
+                          isExpired
+                            ? 'bg-studio-red text-white border border-black'
+                            : (isIndia ? 'bg-[#FF9933] text-white border border-black' : 'bg-studio-neon text-black')
+                        }`}>
+                          {isExpired ? 'Pre-Order Ended' : 'Pre-order Offer'}
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
 
                 <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 border-2 border-black rounded-sm w-fit rotate-1 ${
-                  isIndia ? 'bg-[#128807] shadow-[3px_3px_0px_#FF9933]' : 'bg-studio-red shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+                  isExpired
+                    ? 'bg-studio-charcoal text-white/40 shadow-[3px_3px_0px_black]'
+                    : (isIndia ? 'bg-[#128807] shadow-[3px_3px_0px_#FF9933]' : 'bg-studio-red shadow-[3px_3px_0px_rgba(0,0,0,1)]')
                 }`}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                  <span className="text-[8px] font-black text-white uppercase tracking-widest">Limited Offer</span>
+                  <div className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-white/20' : 'bg-white animate-pulse'}`} />
+                  <span className="text-[8px] font-black text-white uppercase tracking-widest">
+                    {isExpired ? 'Offer Ended' : 'Limited Offer'}
+                  </span>
                 </div>
               </div>
 
@@ -172,24 +219,36 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 </AnimatePresence>
 
                 <button
+                  disabled={isExpired}
                   onClick={() => handleAddToCart(pack)}
-                  className={`flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 ${
-                    isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon'
+                  className={`flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 ${
+                    isExpired
+                      ? 'opacity-40 cursor-not-allowed'
+                      : 'active:translate-x-1 active:translate-y-1 active:shadow-none ' + (isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon')
                   }`}
-                  title={!pack.is_downloadable ? "Pre-order" : "Add to Cart"}
+                  title={isExpired ? "Pre-order Ended" : (!pack.is_downloadable ? "Pre-order" : "Add to Cart")}
                 >
-                  <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
-                  {!pack.is_downloadable ? 'Pre' : 'Cart'}
+                  {isExpired ? (
+                    'Closed'
+                  ) : (
+                    <>
+                      <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
+                      {!pack.is_downloadable ? 'Pre' : 'Cart'}
+                    </>
+                  )}
                 </button>
                 <button
+                  disabled={isExpired}
                   onClick={() => handleBuyNow(pack)}
-                  className={`flex-1 h-11 text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_black] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center justify-center ${
-                    isIndia 
-                      ? (!pack.is_downloadable ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
-                      : (!pack.is_downloadable ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white')
+                  className={`flex-1 h-11 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center ${
+                    isExpired
+                      ? 'bg-studio-charcoal text-white/30 border-black shadow-none opacity-40 cursor-not-allowed'
+                      : 'hover:bg-white hover:text-black active:translate-x-1 active:translate-y-1 active:shadow-none ' + (isIndia 
+                          ? (!pack.is_downloadable ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
+                          : (!pack.is_downloadable ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'))
                   }`}
                 >
-                  {!pack.is_downloadable ? 'Pre' : 'Get'}
+                  {isExpired ? 'Ended' : (!pack.is_downloadable ? 'Pre' : 'Get')}
                 </button>
               </div>
             </div>
