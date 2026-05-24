@@ -78,6 +78,12 @@ function checkRateLimit(ip: string, isSensitive: boolean): { allowed: boolean; r
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // 🟢 CPU OPTIMIZATION: Immediate redirect for dead pages to bypass expensive rate limiting or DB session checks.
+  const deadLinks = ['/free', '/samples', '/vst-plugins', '/vocal-packs'];
+  if (deadLinks.includes(pathname)) {
+    return NextResponse.redirect(new URL('/browse/packs', request.url), 301);
+  }
+
   // 1. IP & API/Action Rate Limiting
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
@@ -130,13 +136,7 @@ export async function middleware(request: NextRequest) {
   // 3. Supabase Session Sync
   const { supabaseResponse, user } = await updateSession(request)
 
-  // 4. Redirect Dead/Removed Pages
-  const deadLinks = ['/free', '/samples', '/vst-plugins', '/vocal-packs'];
-  if (deadLinks.includes(pathname)) {
-    return NextResponse.redirect(new URL('/browse/packs', request.url), 301);
-  }
-
-  // 5. Return response
+  // 4. Return response
   // 🟢 CPU OPTIMIZATION: Security headers & CSP are now handled by next.config.ts headers()
   // instead of being computed here on every request. This saves ~10-30ms per request.
   return supabaseResponse;
@@ -149,8 +149,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - images/assets (svg, png, etc)
+     * - images/assets (svg, png, etc, including all other common static assets like woff, json, etc)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|mp3|wav|pdf|json|txt|webmanifest)$).*)',
   ],
 }
