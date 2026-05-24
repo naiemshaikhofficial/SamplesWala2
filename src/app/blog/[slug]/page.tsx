@@ -90,6 +90,11 @@ const blogPosts: Record<string, any> = {
   }
 }
 
+// 🟢 CDN CACHING: Pre-render all blog pages as static HTML at build time
+export async function generateStaticParams() {
+  return Object.keys(blogPosts).map((slug) => ({ slug }))
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = blogPosts[slug]

@@ -14,6 +14,9 @@ import { HeroSlider } from '@/components/HeroSlider'
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
 
+// 🟢 CDN CACHING: Revalidate the homepage every 1 hour (ISR) instead of serving infinite stale html
+export const revalidate = 3600
+
 export const metadata = generatePageMetadata({
   title: "Samples Wala | Premium Indian Sample Packs & Loops",
   description: "Download high-quality Indian sample packs, loops, and curated collections for Bollywood, Hip-Hop, and Electronic music. 100% royalty-free.",

@@ -9,6 +9,15 @@ import { notFound } from 'next/navigation'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 import { Music, ChevronLeft } from 'lucide-react'
 
+// 🟢 CDN CACHING: Cache series pages for 24 hours and generate statically at build time
+export const revalidate = 86400
+
+export async function generateStaticParams() {
+  return [
+    { slug: 'india-journey' }
+  ]
+}
+
 interface Props {
   params: Promise<{ slug: string }>
 }
