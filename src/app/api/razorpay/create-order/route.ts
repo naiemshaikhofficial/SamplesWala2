@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
 import { createClient } from '@/lib/supabase/server'
 
-import { getPackPriceDetails } from '@/lib/pricing'
+import { getPackPriceDetails } from '../../../../lib/pricing'
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,

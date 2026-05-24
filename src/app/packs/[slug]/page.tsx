@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { generatePackStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
+import { getPackPriceDetails } from '@/lib/pricing'
 
 // 🟢 CPU OPTIMIZATION: Infinite cache (until dynamic on-demand revalidation triggers via webhook).
 export const revalidate = false
@@ -23,7 +24,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const pack = await getPackBySlug(slug)
   if (!pack) return { title: 'Pack Not Found' }
 
-  return generatePackMetadata(pack)
+  const priceDetails = getPackPriceDetails(pack)
+  const dynamicPack = {
+    ...pack,
+    price_inr: priceDetails.priceInr,
+    price_usd: priceDetails.priceUsd
+  }
+
+  return generatePackMetadata(dynamicPack)
 }
 
 export default async function PackDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -31,10 +39,17 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
   const pack = await getPackBySlug(slug)
   if (!pack) notFound()
 
+  const priceDetails = getPackPriceDetails(pack)
+  const dynamicPack = {
+    ...pack,
+    price_inr: priceDetails.priceInr,
+    price_usd: priceDetails.priceUsd
+  }
+
   const relatedPacks = await getRelatedPacks((pack as any).categories?.[0]?.name || 'Samples', pack.id)
 
   const categoryName = (pack as any).categories?.[0]?.name || 'Samples'
-  const jsonLd = generatePackStructuredData(pack)
+  const jsonLd = generatePackStructuredData(dynamicPack)
   const breadcrumbs = generateBreadcrumbData([
     { name: 'Home', item: 'https://sampleswala.com' },
     { name: 'Library', item: 'https://sampleswala.com/browse' },

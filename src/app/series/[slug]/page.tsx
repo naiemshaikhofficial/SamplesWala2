@@ -8,6 +8,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 import { Music, ChevronLeft } from 'lucide-react'
+import { getPackPriceDetails } from '@/lib/pricing'
 
 // 🟢 CDN CACHING: Infinite static cache (cleared on-demand via database webhook only)
 export const revalidate = false
@@ -77,11 +78,21 @@ export default async function SeriesPage({ params }: Props) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
 
-  const packs = await getPacksBySeries(seriesName)
+  const rawPacks = await getPacksBySeries(seriesName)
 
-  if (!packs || packs.length === 0) {
+  if (!rawPacks || rawPacks.length === 0) {
     notFound()
   }
+
+  // Resolve dynamic prices and status for the whole series list
+  const packs = rawPacks.map((p: any) => {
+    const priceDetails = getPackPriceDetails(p)
+    return {
+      ...p,
+      price_inr: priceDetails.priceInr,
+      price_usd: priceDetails.priceUsd
+    }
+  })
 
   const isIndiaJourney = slug === 'india-journey'
 
