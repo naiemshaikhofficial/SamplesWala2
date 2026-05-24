@@ -41,6 +41,14 @@ export function HomePacks({ packs }: { packs: any[] }) {
   const { addItem } = useCart()
   const router = useRouter()
   const [addedPackId, setAddedPackId] = React.useState<string | null>(null)
+  const [now, setNow] = React.useState(Date.now())
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   const handleAddToCart = (pack: any) => {
     addItem({
@@ -95,7 +103,13 @@ export function HomePacks({ packs }: { packs: any[] }) {
         const isPreorder = !pack.is_downloadable
         const launchDate = parseDbDate(pack.created_at)
         const expiryDate = launchDate + 10 * 24 * 60 * 60 * 1000 // 10 days
-        const isExpired = isPreorder && launchDate > 0 && Date.now() > expiryDate
+        const difference = expiryDate - now
+        const isExpired = isPreorder && launchDate > 0 && difference <= 0
+
+        const days = Math.max(0, Math.floor(difference / (1000 * 60 * 60 * 24)))
+        const hours = Math.max(0, Math.floor((difference / (1000 * 60 * 60)) % 24))
+        const minutes = Math.max(0, Math.floor((difference / 1000 / 60) % 60))
+        const seconds = Math.max(0, Math.floor((difference / 1000) % 60))
 
         return (
           <motion.div
@@ -183,16 +197,50 @@ export function HomePacks({ packs }: { packs: any[] }) {
                   </div>
                 </div>
 
-                <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 border-2 border-black rounded-sm w-fit rotate-1 ${
-                  isExpired
-                    ? 'bg-studio-charcoal text-white/40 shadow-[3px_3px_0px_black]'
-                    : (isIndia ? 'bg-[#128807] shadow-[3px_3px_0px_#FF9933]' : 'bg-studio-red shadow-[3px_3px_0px_rgba(0,0,0,1)]')
-                }`}>
-                  <div className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-white/20' : 'bg-white animate-pulse'}`} />
-                  <span className="text-[8px] font-black text-white uppercase tracking-widest">
-                    {isExpired ? 'Offer Ended' : 'Limited Offer'}
-                  </span>
-                </div>
+                {isPreorder && !isExpired ? (
+                  <div className={`mt-2 p-2 rounded-sm border-2 flex items-center justify-between gap-1 text-white rotate-[-0.5deg] ${
+                    isIndia 
+                      ? 'border-[#FF9933] shadow-[3px_3px_0px_#128807] bg-black/60' 
+                      : 'border-black shadow-[3px_3px_0px_#a6e22e] bg-studio-charcoal'
+                  }`}>
+                    <div className="flex items-center gap-1">
+                      <div className={`w-1.5 h-1.5 rounded-full bg-white animate-pulse`} />
+                      <span className="text-[8px] font-black uppercase tracking-wider text-white">Ends In:</span>
+                    </div>
+                    <div className="flex gap-0.5 font-mono text-[9px] font-black">
+                      <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
+                        <span>{String(days).padStart(2, '0')}</span>
+                        <span className="text-[4px] text-white/40 uppercase font-sans">d</span>
+                      </div>
+                      <span className="text-white/20 self-center">:</span>
+                      <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
+                        <span>{String(hours).padStart(2, '0')}</span>
+                        <span className="text-[4px] text-white/40 uppercase font-sans">h</span>
+                      </div>
+                      <span className="text-white/20 self-center">:</span>
+                      <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
+                        <span>{String(minutes).padStart(2, '0')}</span>
+                        <span className="text-[4px] text-white/40 uppercase font-sans">m</span>
+                      </div>
+                      <span className="text-white/20 self-center">:</span>
+                      <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
+                        <span className={isIndia ? 'text-[#FF9933]' : 'text-studio-neon animate-pulse'}>{String(seconds).padStart(2, '0')}</span>
+                        <span className="text-[4px] text-white/40 uppercase font-sans">s</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 border-2 border-black rounded-sm w-fit rotate-1 ${
+                    isExpired
+                      ? 'bg-studio-charcoal text-white/40 shadow-[3px_3px_0px_black]'
+                      : (isIndia ? 'bg-[#128807] shadow-[3px_3px_0px_#FF9933]' : 'bg-studio-red shadow-[3px_3px_0px_rgba(0,0,0,1)]')
+                  }`}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-white/20' : 'bg-white animate-pulse'}`} />
+                    <span className="text-[8px] font-black text-white uppercase tracking-widest">
+                      {isExpired ? 'Offer Ended' : 'Limited Offer'}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-row gap-3 mt-auto pt-4 relative">
