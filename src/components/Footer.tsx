@@ -29,10 +29,14 @@ export function Footer() {
             <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed max-w-sm">
               Premium sound design for the modern producer. Industry standard sample packs, loops, and tools for Indian music production.
             </p>
-            {/* Status Indicator */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/5 rounded-sm select-none">
-              <span className="w-2 h-2 rounded-full bg-studio-neon animate-pulse shadow-[0_0_8px_#00ff94]" />
-              <span className="text-[8px] font-black text-white/50 uppercase tracking-widest">All Systems Operational</span>
+            {/* ⚡ Value Proposition Sticker Badges (Highly stylized comic style) */}
+            <div className="flex flex-col gap-3 pt-2">
+              <div className="inline-block w-fit px-4 py-2 bg-studio-blue text-white text-[9px] font-black uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_black] -rotate-2 select-none hover:rotate-0 hover:scale-105 transition-all duration-300">
+                🛡️ 100% ROYALTY-FREE
+              </div>
+              <div className="inline-block w-fit px-4 py-2 bg-studio-yellow text-black text-[9px] font-black uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_black] rotate-1 select-none hover:rotate-0 hover:scale-105 transition-all duration-300">
+                ⚡ INSTANT DOWNLOAD
+              </div>
             </div>
           </div>
 
