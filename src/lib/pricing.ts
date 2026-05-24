@@ -14,11 +14,14 @@ export function getPackPriceDetails(pack: {
   price_usd?: any;
   created_at: string;
   full_pack_download_url?: string | null;
+  is_downloadable?: boolean;
 }): PackPriceDetails {
   const basePriceInr = Number(pack.price_inr);
   const basePriceUsd = Number(pack.price_usd || 10);
   
-  const isPreorder = !pack.full_pack_download_url;
+  const isPreorder = pack.is_downloadable !== undefined
+    ? !pack.is_downloadable
+    : !pack.full_pack_download_url;
   if (!isPreorder || !pack.created_at) {
     return {
       priceInr: basePriceInr,

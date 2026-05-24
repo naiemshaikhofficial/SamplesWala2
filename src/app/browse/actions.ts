@@ -13,13 +13,14 @@ async function fetchAllPacks(limit?: number) {
     .from('sample_packs')
     .select('id, name, slug, cover_url, price_inr, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
     .order('created_at', { ascending: false })
-  
+
   if (limit) {
-    query = query.limit(limit)
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      query = query.limit(limit)
   }
 
   const { data, error } = await query
-  
+
   if (error) {
     console.error('[GET_PACKS_ERROR]', error)
     return []
@@ -62,13 +63,13 @@ async function fetchPacksBySeries(seriesName: string, limit?: number) {
     .select('id, name, slug, cover_url, price_inr, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary, series')
     .eq('series', seriesName)
     .order('created_at', { ascending: false })
-  
+
   if (limit) {
     query = query.limit(limit)
   }
 
   const { data, error } = await query
-  
+
   if (error) {
     console.error('[GET_PACKS_BY_SERIES_ERROR]', error)
     return []
@@ -104,11 +105,11 @@ export async function getPacksBySeries(seriesName: string, limit?: number) {
   )()
 }
 
-export const getSamples = async (filters: { 
-  query?: string, 
-  category?: string, 
-  page?: number, 
-  limit?: number 
+export const getSamples = async (filters: {
+  query?: string,
+  category?: string,
+  page?: number,
+  limit?: number
 }) => {
   const supabase = await createClient()
   const page = filters.page || 1
@@ -137,7 +138,7 @@ export const getSamples = async (filters: {
   const enrichedSamples = await Promise.all((data || []).map(async (s: any) => {
     const driveId = getDriveFileId(s.audio_url);
     const signal = driveId ? await generateAudioSignal(driveId, s.name) : null;
-    
+
     // Create safe object without audio_url
     const { audio_url, ...safeSample } = s;
     return {
@@ -158,7 +159,7 @@ async function fetchPackBySlug(slug: string) {
     .select('id, name, slug, description, video_url, cover_url, price_inr, mrp_inr, created_at, full_pack_download_url, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
     .eq('slug', slug)
     .single()
-  
+
   if (error) {
     console.error('[GET_PACK_ERROR]', error)
     return null
@@ -204,7 +205,7 @@ export async function getRelatedPacks(category: string, excludeId: string) {
         .eq('categories.name', category)
         .neq('id', excludeId)
         .limit(4)
-      
+
       return data || []
     },
     [`related-${category}-${excludeId}`],
@@ -214,23 +215,23 @@ export async function getRelatedPacks(category: string, excludeId: string) {
 
 export async function getSearchSuggestions(query: string) {
   if (!query || query.length < 2) return []
-  
+
   const cleaned = cleanSearchQuery(query)
   const supabase = getAdminClient()
-  
+
   let queryBuilder = supabase
     .from('sample_packs')
     .select('id, name, slug, cover_url, price_inr, mrp_inr')
-  
+
   if (cleaned) {
     queryBuilder = queryBuilder.ilike('name', `%${cleaned}%`)
   } else {
     // If query is generic (e.g. "sample", "smple", "sample wala"), return latest 5 packs
     queryBuilder = queryBuilder.order('created_at', { ascending: false })
   }
-  
+
   const { data, error } = await queryBuilder.limit(5)
-    
+
   if (error) {
     console.error('[SUGGESTIONS_ERROR]', error)
     return []
@@ -247,7 +248,7 @@ export async function getCategoryBySlug(slug: string) {
         .select('*')
         .eq('slug', slug)
         .single()
-      
+
       if (error) {
         // PGRST116 is the code for '0 rows returned' which is expected if slug is wrong
         if (error.code !== 'PGRST116') {
@@ -285,13 +286,13 @@ export async function getPacksByCategorySlug(slug: string) {
         .select('id, name, slug, cover_url, price_inr, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
         .eq('category_id', category.id)
         .order('created_at', { ascending: false })
-      
+
       if (error) {
         console.error('[GET_GENRE_PACKS_ERROR]', error)
         return []
       }
 
-       return data.map(pack => ({
+      return data.map(pack => ({
         id: pack.id,
         name: pack.name,
         slug: pack.slug,
@@ -330,13 +331,13 @@ async function fetchPresets(limit?: number) {
     .from('presets')
     .select('id, name, slug, description, type, price_inr, mrp_inr, youtube_url, cover_url, daws, plugins_used, created_at')
     .order('created_at', { ascending: false })
-  
+
   if (limit) {
     query = query.limit(limit)
   }
 
   const { data, error } = await query
-  
+
   if (error) {
     console.error('[GET_PRESETS_ERROR]', error)
     return []
@@ -371,12 +372,12 @@ async function fetchPresetBySlug(slug: string) {
     .select('id, name, slug, description, type, price_inr, mrp_inr, youtube_url, cover_url, daws, plugins_used, created_at')
     .eq('slug', slug)
     .single()
-  
-   if (error) {
+
+  if (error) {
     console.error('[GET_PRESET_ERROR]', error)
     return null
   }
-  
+
   return {
     id: data.id,
     name: data.name,
@@ -410,7 +411,7 @@ export async function getPresetsByCategory(categoryId: string) {
         .select('*')
         .eq('category_id', categoryId)
         .order('created_at', { ascending: false })
-      
+
       if (error) {
         console.error('[GET_CATEGORY_PRESETS_ERROR]', error)
         return []
@@ -432,7 +433,7 @@ export async function getRelatedPresets(type: string, excludeId: string) {
         .eq('type', type)
         .neq('id', excludeId)
         .limit(4)
-      
+
       if (error) return []
       return (data || []).map((preset: any) => ({
         id: preset.id,
