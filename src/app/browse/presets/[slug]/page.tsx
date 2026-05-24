@@ -7,8 +7,8 @@ import { PresetDetailClient } from '@/components/PresetDetailClient'
 import Link from 'next/link'
 import Image from 'next/image'
 
-// 🟢 CPU OPTIMIZATION: Revalidate preset pages every 1 hour instead of SSR on every visit
-export const revalidate = 3600
+// 🟢 CPU OPTIMIZATION: Infinite cache (until manual or database webhook revalidation triggers).
+export const revalidate = false
 
 // 🟢 CPU OPTIMIZATION: Pre-render all preset pages at build time as static HTML.
 export async function generateStaticParams() {

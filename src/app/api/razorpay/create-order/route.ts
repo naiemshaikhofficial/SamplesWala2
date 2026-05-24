@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
 import { createClient } from '@/lib/supabase/server'
 
+import { getPackPriceDetails } from '@/lib/pricing'
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
   key_secret: process.env.RAZORPAY_KEY_SECRET!,
@@ -17,16 +19,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Please login to purchase' }, { status: 401 })
     }
 
-    // 1. Fetch prices from both tables
+    // 1. Fetch prices from both tables (with created_at and full_pack_download_url for dynamic pricing checks)
     const packIds = items.filter((i: any) => i.type === 'pack').map((i: any) => i.id)
     const presetIds = items.filter((i: any) => i.type === 'preset').map((i: any) => i.id)
 
     const [packsRes, presetsRes] = await Promise.all([
-      packIds.length > 0 ? supabase.from('sample_packs').select('id, name, price_inr').in('id', packIds) : { data: [] },
+      packIds.length > 0 ? supabase.from('sample_packs').select('id, name, price_inr, created_at, full_pack_download_url').in('id', packIds) : { data: [] },
       presetIds.length > 0 ? supabase.from('presets').select('id, name, price_inr').in('id', presetIds) : { data: [] }
     ])
 
-    const allItems = [...(packsRes.data || []), ...(presetsRes.data || [])]
+    // Securely calculate dynamic prices for packs
+    const resolvedPacks = (packsRes.data || []).map((pack: any) => {
+      const priceDetails = getPackPriceDetails(pack)
+      return {
+        ...pack,
+        price_inr: priceDetails.priceInr
+      }
+    })
+
+    const allItems = [...resolvedPacks, ...(presetsRes.data || [])]
 
     if (allItems.length === 0) {
       return NextResponse.json({ error: 'Items not found' }, { status: 404 })

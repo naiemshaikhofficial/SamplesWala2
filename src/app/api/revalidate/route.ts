@@ -1,23 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
+import { NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
-  const secret = request.nextUrl.searchParams.get('secret')
-  const tag = request.nextUrl.searchParams.get('tag')
-
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ message: 'Invalid secret' }, { status: 401 })
-  }
-
-  if (!tag) {
-    return NextResponse.json({ message: 'Tag is required' }, { status: 400 })
-  }
-
+export async function POST(req: Request) {
   try {
-    revalidateTag(tag, { expire: 0 })
-    console.log(`[REVALIDATE] Tag "${tag}" revalidated successfully`)
-    return NextResponse.json({ revalidated: true, now: Date.now() })
-  } catch (err) {
-    return NextResponse.json({ message: 'Error revalidating' }, { status: 500 })
+    const { searchParams } = new URL(req.url)
+    const secret = searchParams.get('secret')
+
+    // Secure validation using environment variable
+    const token = process.env.REVALIDATION_TOKEN || 'sampleswala_cache_bypass_token_2026'
+    if (secret !== token) {
+      return NextResponse.json({ error: 'Unauthorized: Invalid revalidation token' }, { status: 401 })
+    }
+
+    // Force revalidation of primary listing and detail routes
+    revalidatePath('/')
+    revalidatePath('/browse')
+    revalidatePath('/library')
+    
+    // We can also revalidate dynamic paths. Next.js App Router revalidatePath
+    // allows clearing everything under dynamic layouts.
+    revalidatePath('/packs/[slug]', 'page')
+    revalidatePath('/series/[slug]', 'page')
+    revalidatePath('/browse/genre/[slug]', 'page')
+    revalidatePath('/browse/presets/[slug]', 'page')
+
+    return NextResponse.json({ 
+      revalidated: true, 
+      timestamp: Date.now(),
+      message: 'Next.js cache cleared successfully for listing & detail routes.' 
+    })
+  } catch (err: any) {
+    console.error('[REVALIDATE_ERROR]', err)
+    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 })
   }
+}
+
+// Support GET requests as well for easy manual triggers or simple webhook setups
+export async function GET(req: Request) {
+  return POST(req)
 }

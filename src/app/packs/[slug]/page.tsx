@@ -5,8 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { generatePackStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
 
-// 🟢 CPU OPTIMIZATION: Revalidate pack pages every 1 hour instead of SSR on every visit
-export const revalidate = 3600
+// 🟢 CPU OPTIMIZATION: Infinite cache (until dynamic on-demand revalidation triggers via webhook).
+export const revalidate = false
 
 // 🟢 CPU OPTIMIZATION: Pre-render all pack pages at build time as static HTML.
 // This eliminates server CPU usage for the most visited product pages.

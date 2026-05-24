@@ -9,8 +9,8 @@ import { notFound } from 'next/navigation'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 import { Music, ChevronLeft } from 'lucide-react'
 
-// 🟢 CDN CACHING: Cache series pages for 24 hours and generate statically at build time
-export const revalidate = 86400
+// 🟢 CDN CACHING: Infinite static cache (cleared on-demand via database webhook only)
+export const revalidate = false
 
 export async function generateStaticParams() {
   return [

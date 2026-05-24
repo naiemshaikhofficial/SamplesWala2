@@ -9,8 +9,8 @@ import { notFound } from 'next/navigation'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 import { Music, Sparkles, ChevronLeft } from 'lucide-react'
 
-// 🟢 CPU OPTIMIZATION: Revalidate genre pages every 1 hour
-export const revalidate = 3600
+// 🟢 CPU OPTIMIZATION: Infinite cache (until manual or database webhook revalidation triggers).
+export const revalidate = false
 
 // 🟢 CPU OPTIMIZATION: Pre-render all genre pages at build time as static HTML.
 export async function generateStaticParams() {

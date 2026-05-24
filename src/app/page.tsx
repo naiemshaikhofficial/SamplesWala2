@@ -14,8 +14,9 @@ import { HeroSlider } from '@/components/HeroSlider'
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
 
-// 🟢 CDN CACHING: Revalidate the homepage every 1 hour (ISR) instead of serving infinite stale html
-export const revalidate = 3600
+// 🟢 CDN CACHING: Infinite cache (until manual or on-demand revalidation triggers via webhook).
+// This secures 0 DB hits and 0 serverless executions under normal traffic.
+export const revalidate = false
 
 export const metadata = generatePageMetadata({
   title: "Samples Wala | Premium Indian Sample Packs & Loops",

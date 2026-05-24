@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext'
 import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { getPackPriceDetails } from '@/lib/pricing'
 
 function parseDbDate(dateStr: string | undefined | null) {
   if (!dateStr) return 0
@@ -50,11 +51,11 @@ export function HomePacks({ packs }: { packs: any[] }) {
     return () => clearInterval(timer)
   }, [])
 
-  const handleAddToCart = (pack: any) => {
+  const handleAddToCart = (pack: any, currentPrice: number) => {
     addItem({
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr),
+      price: currentPrice,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack'
@@ -63,11 +64,11 @@ export function HomePacks({ packs }: { packs: any[] }) {
     setTimeout(() => setAddedPackId(null), 1200)
   }
 
-  const handleBuyNow = (pack: any) => {
+  const handleBuyNow = (pack: any, currentPrice: number) => {
     addItem({
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr),
+      price: currentPrice,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack'
@@ -100,16 +101,17 @@ export function HomePacks({ packs }: { packs: any[] }) {
     >
       {packs.map((pack: any) => {
         const isIndia = pack.series === 'India Journey'
-        const isPreorder = !pack.is_downloadable
-        const launchDate = parseDbDate(pack.created_at)
-        const expiryDate = launchDate + 10 * 24 * 60 * 60 * 1000 // 10 days
-        const difference = expiryDate - now
-        const isExpired = isPreorder && launchDate > 0 && difference <= 0
+        
+        // Calculate dynamic pricing and pre-order state
+        const priceDetails = getPackPriceDetails(pack)
+        const currentPrice = priceDetails.priceInr
+        const isPreorderActive = priceDetails.isPreorderActive
+        const isExpired = priceDetails.isExpired
 
-        const days = Math.max(0, Math.floor(difference / (1000 * 60 * 60 * 24)))
-        const hours = Math.max(0, Math.floor((difference / (1000 * 60 * 60)) % 24))
-        const minutes = Math.max(0, Math.floor((difference / 1000 / 60) % 60))
-        const seconds = Math.max(0, Math.floor((difference / 1000) % 60))
+        const days = priceDetails.daysLeft
+        const hours = priceDetails.hoursLeft
+        const minutes = priceDetails.minutesLeft
+        const seconds = priceDetails.secondsLeft
 
         return (
           <motion.div
@@ -144,7 +146,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                         : 'bg-studio-neon/90 text-black shadow-[4px_4px_0px_black]')
                 }`}>
                   <span className="text-[8px] font-black uppercase tracking-widest">
-                    {isExpired ? 'Offer Ended' : 'Pre-order Offer'}
+                    {isExpired ? 'Regular Price' : 'Pre-order Offer'}
                   </span>
                 </div>
               )}
@@ -162,17 +164,17 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 </Link>
                 <div className="flex flex-col gap-1">
                   <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
-                    {pack.categories?.name || 'Artifacts'}
+                    {pack.categories?.name || 'Sound Kits'}
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
                       <span className="text-[10px] text-white/50 line-through font-bold">
-                        ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
+                        ₹{pack.mrp_inr || (currentPrice * 3)}
                       </span>
                       <p className={`text-[16px] font-black italic leading-none ${
                         isIndia ? 'text-[#FF9933]' : 'text-studio-neon'
                       }`}>
-                        ₹{pack.price_inr}
+                        ₹{currentPrice}
                       </p>
                     </div>
                     
@@ -181,23 +183,23 @@ export function HomePacks({ packs }: { packs: any[] }) {
                         isIndia ? 'bg-[#128807] text-white font-black' : 'bg-studio-red text-white'
                       }`}>
                         <span className="text-[9px] font-black uppercase italic">
-                          {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
+                          {Math.round((1 - (currentPrice / (pack.mrp_inr || (currentPrice * 3)))) * 100)}% OFF
                         </span>
                       </div>
                       {!pack.is_downloadable && (
                         <span className={`text-[7px] font-black uppercase tracking-tighter px-1 rounded-sm text-center ${
                           isExpired
-                            ? 'bg-studio-red text-white border border-black'
+                            ? 'bg-studio-charcoal text-white/40 border border-black/20'
                             : (isIndia ? 'bg-[#FF9933] text-white border border-black' : 'bg-studio-neon text-black')
                         }`}>
-                          {isExpired ? 'Pre-Order Ended' : 'Pre-order Offer'}
+                          {isExpired ? 'Direct Purchase' : 'Pre-order Offer'}
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {isPreorder && !isExpired ? (
+                {!pack.is_downloadable && isPreorderActive ? (
                   <div className={`mt-2 p-2 rounded-sm border-2 flex items-center justify-between gap-1 text-white rotate-[-0.5deg] ${
                     isIndia 
                       ? 'border-[#FF9933] shadow-[3px_3px_0px_#128807] bg-black/60' 
@@ -232,12 +234,12 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 ) : (
                   <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 border-2 border-black rounded-sm w-fit rotate-1 ${
                     isExpired
-                      ? 'bg-studio-charcoal text-white/40 shadow-[3px_3px_0px_black]'
+                      ? 'bg-studio-charcoal text-white/80 shadow-[3px_3px_0px_black]'
                       : (isIndia ? 'bg-[#128807] shadow-[3px_3px_0px_#FF9933]' : 'bg-studio-red shadow-[3px_3px_0px_rgba(0,0,0,1)]')
                   }`}>
-                    <div className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-white/20' : 'bg-white animate-pulse'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-studio-neon animate-pulse' : 'bg-white animate-pulse'}`} />
                     <span className="text-[8px] font-black text-white uppercase tracking-widest">
-                      {isExpired ? 'Offer Ended' : 'Limited Offer'}
+                      {isExpired ? 'In Stock / Ready' : 'Limited Offer'}
                     </span>
                   </div>
                 )}
@@ -257,7 +259,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                           ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807]' 
                           : 'bg-studio-neon text-black shadow-[4px_4px_0px_black]'
                       }`}>
-                        {!pack.is_downloadable ? 'RESERVED!' : 'ADDED!'}
+                        {isPreorderActive ? 'RESERVED!' : 'ADDED!'}
                         <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 border-r-4 border-b-4 border-black rotate-45 ${
                           isIndia ? 'bg-[#FF9933]' : 'bg-studio-neon'
                         }`} />
@@ -267,36 +269,24 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 </AnimatePresence>
 
                 <button
-                  disabled={isExpired}
-                  onClick={() => handleAddToCart(pack)}
-                  className={`flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 ${
-                    isExpired
-                      ? 'opacity-40 cursor-not-allowed'
-                      : 'active:translate-x-1 active:translate-y-1 active:shadow-none ' + (isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon')
+                  onClick={() => handleAddToCart(pack, currentPrice)}
+                  className={`flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                    isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon'
                   }`}
-                  title={isExpired ? "Pre-order Ended" : (!pack.is_downloadable ? "Pre-order" : "Add to Cart")}
+                  title={isPreorderActive ? "Pre-order" : "Add to Cart"}
                 >
-                  {isExpired ? (
-                    'Closed'
-                  ) : (
-                    <>
-                      <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
-                      {!pack.is_downloadable ? 'Pre' : 'Cart'}
-                    </>
-                  )}
+                  <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
+                  {isPreorderActive ? 'Pre' : 'Cart'}
                 </button>
                 <button
-                  disabled={isExpired}
-                  onClick={() => handleBuyNow(pack)}
-                  className={`flex-1 h-11 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center ${
-                    isExpired
-                      ? 'bg-studio-charcoal text-white/30 border-black shadow-none opacity-40 cursor-not-allowed'
-                      : 'hover:bg-white hover:text-black active:translate-x-1 active:translate-y-1 active:shadow-none ' + (isIndia 
-                          ? (!pack.is_downloadable ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
-                          : (!pack.is_downloadable ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'))
+                  onClick={() => handleBuyNow(pack, currentPrice)}
+                  className={`flex-1 h-11 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center hover:bg-white hover:text-black active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                    isIndia 
+                      ? (isPreorderActive ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
+                      : (isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white')
                   }`}
                 >
-                  {isExpired ? 'Ended' : (!pack.is_downloadable ? 'Pre' : 'Get')}
+                  {isPreorderActive ? 'Pre' : 'Get'}
                 </button>
               </div>
             </div>

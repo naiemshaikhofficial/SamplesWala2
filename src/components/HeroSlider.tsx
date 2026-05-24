@@ -7,36 +7,7 @@ import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, ShieldCheck } from 'lucide-react'
-
-function parseDbDate(dateStr: string | undefined | null) {
-  if (!dateStr) return 0
-  const str = String(dateStr).trim()
-  const direct = new Date(str)
-  if (!isNaN(direct.getTime())) return direct.getTime()
-  
-  let formatted = str.replace(' ', 'T')
-  if (formatted.match(/[+-]\d{2}$/)) {
-    formatted = formatted + ':00'
-  } else if (!formatted.includes('Z') && !formatted.includes('+') && !formatted.includes('-')) {
-    formatted = formatted + 'Z'
-  }
-  
-  const secondTry = new Date(formatted)
-  if (!isNaN(secondTry.getTime())) return secondTry.getTime()
-  
-  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/)
-  if (match) {
-    return Date.UTC(
-      parseInt(match[1], 10),
-      parseInt(match[2], 10) - 1,
-      parseInt(match[3], 10),
-      parseInt(match[4], 10),
-      parseInt(match[5], 10),
-      parseInt(match[6], 10)
-    )
-  }
-  return 0
-}
+import { getPackPriceDetails } from '@/lib/pricing'
 
 export function HeroSlider({ packs }: { packs: any[] }) {
   const { addItem } = useCart()
@@ -53,10 +24,15 @@ export function HeroSlider({ packs }: { packs: any[] }) {
   // Active Pack Data
   const activePack = packs[activeIndex] || packs[0]
 
-  const isPreorder = activePack && !activePack.is_downloadable
-  const launchDate = parseDbDate(activePack?.created_at)
-  const expiryDate = launchDate + 10 * 24 * 60 * 60 * 1000 // 10 days in ms
-  const isExpired = isPreorder && launchDate > 0 && Date.now() > expiryDate
+  // Calculate dynamic pricing details
+  const priceDetails = React.useMemo(() => {
+    if (!activePack) return null
+    return getPackPriceDetails(activePack)
+  }, [activePack])
+
+  const currentPrice = priceDetails ? priceDetails.priceInr : Number(activePack?.price_inr || 0)
+  const isPreorderActive = priceDetails ? priceDetails.isPreorderActive : false
+  const isExpired = priceDetails ? priceDetails.isExpired : false
 
   useEffect(() => {
     if (!packs || packs.length === 0) return
@@ -99,13 +75,13 @@ export function HeroSlider({ packs }: { packs: any[] }) {
     setProgress(0)
   }
 
-  const handleAddToCart = (e: React.MouseEvent, pack: any) => {
+  const handleAddToCart = (e: React.MouseEvent, pack: any, price: number) => {
     e.preventDefault()
     e.stopPropagation()
     addItem({
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr),
+      price: price,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack'
@@ -114,13 +90,13 @@ export function HeroSlider({ packs }: { packs: any[] }) {
     setTimeout(() => setAddedId(null), 1200)
   }
 
-  const handleBuyNow = (e: React.MouseEvent, pack: any) => {
+  const handleBuyNow = (e: React.MouseEvent, pack: any, price: number) => {
     e.preventDefault()
     e.stopPropagation()
     addItem({
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr),
+      price: price,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack'
@@ -214,16 +190,16 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                     <div className="flex items-center gap-4 pt-2">
                       <div className="flex flex-col">
                         <span className="text-[11px] text-white/40 line-through font-black">
-                          ₹{activePack.mrp_inr || (Number(activePack.price_inr) * 3)}
+                          ₹{activePack.mrp_inr || (currentPrice * 3)}
                         </span>
                         <span className="text-3xl md:text-4xl font-black text-studio-yellow italic leading-none comic-text">
-                          ₹{activePack.price_inr}
+                          ₹{currentPrice}
                         </span>
                       </div>
                       
                       <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
                         <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
-                          {Math.round((1 - (Number(activePack.price_inr) / (activePack.mrp_inr || (Number(activePack.price_inr) * 3)))) * 100)}% OFF
+                          {Math.round((1 - (currentPrice / (activePack.mrp_inr || (currentPrice * 3)))) * 100)}% OFF
                         </span>
                       </div>
 
@@ -231,7 +207,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${
                           isExpired ? 'bg-studio-red text-white' : 'bg-studio-neon text-black'
                         }`}>
-                          {isExpired ? 'Offer Ended' : 'Pre-Order Offer'}
+                          {isExpired ? 'Regular Price' : 'Pre-Order Offer'}
                         </div>
                       )}
                     </div>
@@ -274,42 +250,28 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                           exit={{ scale: 0, opacity: 0 }}
                           className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 z-50 bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-premium whitespace-nowrap"
                         >
-                          {isExpired ? 'Pre-Order Closed' : (!activePack.is_downloadable ? 'RESERVED!' : 'ADDED TO CART!')}
+                          {isPreorderActive ? 'RESERVED!' : 'ADDED TO CART!'}
                           <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
                         </motion.div>
                       )}
                     </AnimatePresence>
 
                     <button
-                      disabled={isExpired}
-                      onClick={(e) => handleAddToCart(e, activePack)}
-                      className={`w-full sm:w-auto h-11 sm:h-14 px-3 sm:px-8 bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 sm:gap-3 ${
-                        isExpired
-                          ? 'opacity-40 cursor-not-allowed'
-                          : 'hover:bg-studio-neon hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'
-                      }`}
+                      onClick={(e) => handleAddToCart(e, activePack, currentPrice)}
+                      className={`w-full sm:w-auto h-11 sm:h-14 px-3 sm:px-8 bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 sm:gap-3 hover:bg-studio-neon hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none`}
                     >
-                      {isExpired ? (
-                        'Closed'
-                      ) : (
-                        <>
-                          <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
-                          {!activePack.is_downloadable ? 'PRE-ORDER' : 'ADD TO CART'}
-                        </>
-                      )}
+                      <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
+                      {isPreorderActive ? 'PRE-ORDER' : 'ADD TO CART'}
                     </button>
                   </div>
 
                   <button
-                    disabled={isExpired}
-                    onClick={(e) => handleBuyNow(e, activePack)}
-                    className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 ${
-                      isExpired
-                        ? 'bg-studio-charcoal text-white/30 border-black shadow-none opacity-40 cursor-not-allowed'
-                        : 'hover:bg-white hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ' + (!activePack.is_downloadable ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white')
+                    onClick={(e) => handleBuyNow(e, activePack, currentPrice)}
+                    className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 hover:bg-white hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+                      isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'
                     } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
                   >
-                    {isExpired ? 'Ended' : (!activePack.is_downloadable ? 'PRE-ORDER NOW' : 'BUY NOW')}
+                    {isPreorderActive ? 'PRE-ORDER NOW' : 'BUY NOW'}
                   </button>
                   
                   <Link

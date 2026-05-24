@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { ArrowLeft, PlayCircle, ShieldCheck, Zap, CheckCircle2, Headphones, HelpCircle, Plus, Download } from 'lucide-react'
+import { ArrowLeft, PlayCircle, ShieldCheck, Zap, HelpCircle, Plus, Download } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DownloadButton } from '@/components/DownloadButton'
 import { PaymentButton } from '@/components/PaymentButton'
@@ -10,19 +10,21 @@ import { ShareButton } from '@/components/ShareButton'
 import Link from 'next/link'
 import { getOptimizedImageUrl } from '@/lib/images'
 import { createClient } from '@/lib/supabase/client'
+import { getPackPriceDetails } from '@/lib/pricing'
 
 export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const pack = initialPack
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [owned, setOwned] = useState(false)
   const [user, setUser] = useState<any>(null)
-  const [timeLeft, setTimeLeft] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-    isExpired: boolean;
-  } | null>(null)
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const supabase = createClient()
@@ -37,77 +39,18 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
     })
   }, [pack.id])
 
-  useEffect(() => {
-    if (pack.is_downloadable || !pack.created_at) return
+  const priceDetails = React.useMemo(() => {
+    return getPackPriceDetails(pack)
+  }, [pack, now])
 
-    const calculateTimeLeft = () => {
-      const parseDbDate = (dateStr: string) => {
-        const str = String(dateStr).trim()
-        const direct = new Date(str)
-        if (!isNaN(direct.getTime())) return direct.getTime()
-        
-        // Convert "YYYY-MM-DD HH:mm:ss..." to "YYYY-MM-DDT...Z"
-        let formatted = str.replace(' ', 'T')
-        
-        // Handle postgres +00 timezone format to +00:00 or append Z
-        if (formatted.match(/[+-]\d{2}$/)) {
-          formatted = formatted + ':00'
-        } else if (!formatted.includes('Z') && !formatted.includes('+') && !formatted.includes('-')) {
-          formatted = formatted + 'Z'
-        }
-        
-        const secondTry = new Date(formatted)
-        if (!isNaN(secondTry.getTime())) return secondTry.getTime()
-        
-        // Fallback: manual parsing
-        const match = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/)
-        if (match) {
-          return Date.UTC(
-            parseInt(match[1], 10),
-            parseInt(match[2], 10) - 1,
-            parseInt(match[3], 10),
-            parseInt(match[4], 10),
-            parseInt(match[5], 10),
-            parseInt(match[6], 10)
-          )
-        }
-        return 0
-      }
+  const currentPrice = priceDetails.priceInr
+  const isPreorderActive = priceDetails.isPreorderActive
+  const isExpired = priceDetails.isExpired
 
-      const launchDate = parseDbDate(pack.created_at)
-      if (launchDate === 0) {
-        return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true }
-      }
-
-      const expiryDate = launchDate + 10 * 24 * 60 * 60 * 1000 // 10 days in ms
-      const now = new Date().getTime()
-      const difference = expiryDate - now
-
-      if (difference <= 0) {
-        return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true }
-      }
-
-      return {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-        isExpired: false
-      }
-    }
-
-    setTimeLeft(calculateTimeLeft())
-
-    const timer = setInterval(() => {
-      const calculated = calculateTimeLeft()
-      setTimeLeft(calculated)
-      if (calculated.isExpired) {
-        clearInterval(timer)
-      }
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [pack.created_at, pack.is_downloadable])
+  const days = priceDetails.daysLeft
+  const hours = priceDetails.hoursLeft
+  const minutes = priceDetails.minutesLeft
+  const seconds = priceDetails.secondsLeft
 
   const vId = React.useMemo(() => {
     if (!pack.video_url) return null;
@@ -201,19 +144,19 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex flex-col">
                   <span className="text-[12px] text-white/50 line-through font-bold">
-                    ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
+                    ₹{pack.mrp_inr || (currentPrice * 3)}
                   </span>
                   <p className="text-3xl font-black text-studio-neon uppercase italic tracking-widest leading-none">
-                    ₹{pack.price_inr}
+                    ₹{currentPrice}
                   </p>
                 </div>
                 <div className="bg-studio-red px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2 flex flex-col items-center">
                   <span className="text-[11px] font-black text-white uppercase italic">
-                    {Math.round((1 - (Number(pack.price_inr) / (pack.mrp_inr || (Number(pack.price_inr) * 3)))) * 100)}% OFF
+                    {Math.round((1 - (currentPrice / (pack.mrp_inr || (currentPrice * 3)))) * 100)}% OFF
                   </span>
                   {!pack.is_downloadable && (
-                    <span className={`text-[7px] font-black uppercase tracking-tighter px-2 rounded-sm mt-0.5 ${timeLeft?.isExpired ? 'bg-studio-red text-white' : 'bg-white text-studio-red'}`}>
-                      {timeLeft?.isExpired ? 'Pre-Order Ended' : 'Pre-order Offer'}
+                    <span className={`text-[7px] font-black uppercase tracking-tighter px-2 rounded-sm mt-0.5 ${isExpired ? 'bg-studio-charcoal text-white' : 'bg-white text-studio-red'}`}>
+                      {isExpired ? 'Regular Price' : 'Pre-order Offer'}
                     </span>
                   )}
                 </div>
@@ -236,26 +179,16 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       </p>
                     </div>
                   )
-                ) : timeLeft?.isExpired ? (
-                  <div className="w-full p-6 bg-studio-red/5 border-2 border-studio-red/20 border-dashed rounded-sm text-center space-y-3 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-2 opacity-10">
-                      <Zap size={40} className="text-studio-red animate-pulse" />
-                    </div>
-                    <p className="text-[12px] font-black uppercase tracking-[0.2em] text-studio-red italic">PRE-ORDER OFFER EXPIRED</p>
-                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
-                      This exclusive pre-order offer has ended.<br/>Sign up or stay tuned for the official release!
-                    </p>
-                  </div>
                 ) : (
                   <div className="flex flex-col gap-3">
-                    {!pack.is_downloadable && (
+                    {!pack.is_downloadable && isPreorderActive && (
                       <div className="bg-studio-red p-3 rounded-sm mb-1 border-2 border-black shadow-[4px_4px_0px_black] rotate-1">
                         <p className="text-[9px] font-black text-white uppercase tracking-[0.2em] animate-pulse text-center">
                           🔥 PRE-ORDER OFFER: SECURE THIS PRICE NOW!
                         </p>
                       </div>
                     )}
-                    {timeLeft && !timeLeft.isExpired && (
+                    {!pack.is_downloadable && isPreorderActive && (
                       <div className="p-4 rounded-sm border-2 border-black shadow-[4px_4px_0px_black] bg-studio-neon/10 text-studio-neon border-studio-neon mb-1">
                         <div className="flex items-center gap-2 mb-2 justify-center">
                           <Zap size={14} className="text-studio-neon animate-pulse" />
@@ -263,40 +196,40 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                         </div>
                         <div className="grid grid-cols-4 gap-2 text-center font-mono text-white">
                           <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{String(timeLeft.days).padStart(2, '0')}</span>
+                            <span className="text-base font-black block leading-none">{String(days).padStart(2, '0')}</span>
                             <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Days</span>
                           </div>
                           <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{String(timeLeft.hours).padStart(2, '0')}</span>
+                            <span className="text-base font-black block leading-none">{String(hours).padStart(2, '0')}</span>
                             <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Hours</span>
                           </div>
                           <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                            <span className="text-base font-black block leading-none">{String(minutes).padStart(2, '0')}</span>
                             <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Mins</span>
                           </div>
                           <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                            <span className="text-base font-black block leading-none">{String(seconds).padStart(2, '0')}</span>
                             <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Secs</span>
                           </div>
                         </div>
                       </div>
                     )}
                     <AddToCartButton 
-                      label={!pack.is_downloadable ? "Pre-order" : undefined}
+                      label={isPreorderActive ? "Pre-order" : "Add to Cart"}
                       item={{
                         id: pack.id,
                         name: pack.name,
-                        price: Number(pack.price_inr),
+                        price: currentPrice,
                         slug: pack.slug,
                         cover_url: pack.cover_url || undefined,
                         type: 'pack'
                       }} 
                     />
                     <PaymentButton 
-                      label={!pack.is_downloadable ? `PRE-ORDER NOW — ₹${pack.price_inr}` : undefined}
+                      label={isPreorderActive ? `PRE-ORDER NOW — ₹${currentPrice}` : `BUY NOW — ₹${currentPrice}`}
                       packId={pack.id} 
                       packName={pack.name} 
-                      price={Number(pack.price_inr)} 
+                      price={currentPrice} 
                       slug={pack.slug}
                       cover_url={pack.cover_url || ''}
                       userId={user?.id}
@@ -320,7 +253,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-black/30 backdrop-blur-md border border-white/10 rounded-sm space-y-1">
                 <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Type</span>
-                <p className="text-[10px] font-bold uppercase text-white">{pack.categories?.[0]?.name || 'Artifacts'}</p>
+                <p className="text-[10px] font-bold uppercase text-white">{pack.categories?.[0]?.name || 'Sound Kits'}</p>
               </div>
               <div className="p-4 bg-black/30 backdrop-blur-md border border-white/10 rounded-sm space-y-1">
                 <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Quality</span>
