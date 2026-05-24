@@ -91,12 +91,9 @@ export default async function RootLayout({
         <link rel="icon" href="/Favicon.ico?v=5" sizes="any" />
         <link rel="icon" href="/icon.png?v=5" type="image/png" sizes="192x192" />
         
-        {/* PWA Manifest & iOS Mobile Optimization */}
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Samples Wala" />
-        <link rel="apple-touch-icon" href="/Logo.png" />
+        {/* Mobile Viewport & Optimization */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+
 
         {/* All Google fonts are self-hosted via next/font/google at build time for optimal performance */}
 
