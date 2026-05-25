@@ -45,8 +45,8 @@ const testimonials = [
     name: "David Gifson",
     role: "Music Director / Producer",
     image: "/david-gifson.jpg",
-    pack: "THE BOLLYWOOD",
-    quote: "SamplesWala is a total game-changer. The loops and one-shots have incredible warmth and clarity, meaning I barely have to do any mixing. The Bollywood elements are super authentic and sit perfectly in the production.",
+    pack: "SAMBALPUR RHYTHM",
+    quote: "Finding authentic Odia and Sambalpuri folk elements of this quality is nearly impossible. The rhythms and percussions in this pack are incredibly rich and pristine. They give an instant organic energy to my production.",
     instagram: "https://www.instagram.com/davidgifson/"
   }
 ]
