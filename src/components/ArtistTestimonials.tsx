@@ -43,7 +43,7 @@ const testimonials = [
   },
   {
     name: "David Gifson",
-    role: "Music Director / Producer",
+    role: "Producer",
     image: "/david-gifson.jpg",
     pack: "SAMBALPUR RHYTHM",
     quote: "Finding authentic Odia and Sambalpuri folk elements of this quality is nearly impossible. The rhythms and percussions in this pack are incredibly rich and pristine. They give an instant organic energy to my production.",
