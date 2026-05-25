@@ -6,6 +6,7 @@ import Link from 'next/link'
 interface AnimatedLogoProps {
   className?: string
   onClick?: () => void
+  isHero?: boolean
 }
 
 const samplesLetters = [
@@ -56,7 +57,7 @@ const letterVariants: Variants = {
   }
 }
 
-export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
+export function AnimatedLogo({ className = '', onClick, isHero = false }: AnimatedLogoProps) {
   return (
     <Link href="/" className={`flex items-center select-none ${className}`} onClick={onClick}>
       <motion.div
@@ -66,7 +67,9 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
         className="flex items-center font-luckiest-guy tracking-tight relative py-3"
       >
         {/* Extreme Asynchronous Dancing music notes */}
-        <div className="absolute top-0 right-14 pointer-events-none flex gap-1.5 z-10">
+        <div className={`absolute pointer-events-none flex gap-1.5 z-10 ${
+          isHero ? 'top-[-10px] right-24 scale-150 sm:scale-175' : 'top-0 right-14'
+        }`}>
           <motion.svg
             animate={{
               y: [0, -6, 2, -6, 0],
@@ -104,12 +107,15 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
         </div>
 
         {/* Word 1: SAMPLES */}
-        <div className="flex gap-0.5 md:gap-1 text-2.5xl md:text-3.5xl mr-2.5 md:mr-3.5">
+        <div className={`flex gap-0.5 md:gap-1.5 ${
+          isHero 
+            ? 'text-4xl sm:text-6xl md:text-8xl mr-4 md:mr-6' 
+            : 'text-2.5xl md:text-3.5xl mr-2.5 md:mr-3.5'
+        }`}>
           {samplesLetters.map((item, idx) => (
             <motion.span
               key={`s-${idx}`}
               variants={letterVariants}
-              // Active micro-wave float when idle (continuous ripple wave)
               animate={{
                 y: [0, -4, 0],
               }}
@@ -119,13 +125,12 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
                 ease: "easeInOut",
                 delay: idx * 0.15
               }}
-              // Extreme Interactive Pop-glow on Hover
               whileHover={{ 
-                y: -18, 
+                y: isHero ? -32 : -18, 
                 scale: 1.35, 
                 rotate: idx % 2 === 0 ? 15 : -15,
                 zIndex: 50,
-                textShadow: `0 0 20px ${item.glow}, 0 0 30px ${item.glow}`,
+                textShadow: `0 0 25px ${item.glow}, 0 0 45px ${item.glow}`,
                 transition: { type: "spring", stiffness: 500, damping: 10 }
               }}
               whileTap={{ scale: 0.85, rotate: idx % 2 === 0 ? -10 : 10 }}
@@ -136,10 +141,9 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
           ))}
         </div>
 
-        {/* Word 2: WALA in a retro squash & stretch badge */}
+        {/* Word 2: WALA */}
         <motion.div 
           variants={letterVariants}
-          // Continuous gentle rocking animation
           animate={{
             rotate: [-2, 1, -2],
             y: [-1, 1, -1]
@@ -150,17 +154,22 @@ export function AnimatedLogo({ className = '', onClick }: AnimatedLogoProps) {
             ease: "easeInOut",
             delay: 0.8
           }}
-          // Squash and stretch elastic bounce on hover
           whileHover={{
             scale: [1, 1.25, 0.85, 1.15, 1.05],
             rotate: 4,
             zIndex: 50,
-            boxShadow: "0 0 15px rgba(255, 230, 0, 0.6)",
+            boxShadow: "0 0 20px rgba(255, 230, 0, 0.8)",
             transition: { duration: 0.6, ease: "easeInOut" }
           }}
-          className="flex items-center bg-studio-yellow px-2 py-0.5 md:py-1 border-3 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-none rotate-[-2deg]"
+          className={`flex items-center bg-studio-yellow border-black rounded-none rotate-[-2deg] ${
+            isHero 
+              ? 'px-4 py-1.5 md:py-3 border-4 md:border-6 shadow-[6px_6px_0px_black]' 
+              : 'px-2 py-0.5 md:py-1 border-3 shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+          }`}
         >
-          <div className="flex gap-0.5 text-sm md:text-base">
+          <div className={`flex gap-0.5 ${
+            isHero ? 'text-2xl sm:text-4xl md:text-5xl' : 'text-sm md:text-base'
+          }`}>
             {walaLetters.map((item, idx) => (
               <motion.span
                 key={`w-${idx}`}

@@ -10,6 +10,7 @@ import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
 import { PresetCard } from '@/components/PresetCard'
 import { HeroSlider } from '@/components/HeroSlider'
+import { AnimatedLogo } from '@/components/AnimatedLogo'
 
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
@@ -67,7 +68,7 @@ export default async function HomePage() {
       />
 
       {/* Epic Hero Section */}
-      <section className="relative min-h-[90dvh] flex flex-col justify-center overflow-hidden border-b border-white/5 bg-black pt-28 pb-16">
+      <section className="relative min-h-[90dvh] flex flex-col justify-center overflow-hidden border-b border-white/5 bg-black pt-10 pb-16">
         {/* Background Gradients */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-studio-yellow/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 z-0" />
         <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-studio-neon/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4 z-0" />
@@ -77,15 +78,18 @@ export default async function HomePage() {
           {/* Epic-Style Header Row */}
           <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
             <div className="space-y-4 text-center lg:text-left relative">
-              {/* Sticker Tag */}
-              <div className="street-sticker px-4 py-1.5 text-[10px] tracking-[0.25em] mb-2 select-none">
-                OFFICIALLY LAUNCHED!
-              </div>
               
-              {/* Premium Graffiti Title */}
-              <h1 className="text-5xl sm:text-7xl md:text-8xl font-black uppercase leading-none text-white graffiti-title-text select-none">
-                SAMPLES<span className="text-studio-yellow italic">WALA</span>
-              </h1>
+              {/* Premium Logo Image */}
+              <div className="relative w-[340px] sm:w-[500px] md:w-[620px] h-[80px] sm:h-[118px] md:h-[145px] select-none pointer-events-none mx-auto lg:mx-0 mb-4">
+                <Image 
+                  src="/Logo.png" 
+                  alt="SamplesWala Logo" 
+                  fill 
+                  priority
+                  sizes="(max-width: 768px) 340px, 620px"
+                  className="object-contain object-center lg:object-left"
+                />
+              </div>
               
               {/* Street Accent Subtitle */}
               <p className="text-xs font-bold text-white/70 uppercase tracking-[0.15em] md:tracking-[0.25em] max-w-xl leading-normal border-l-4 border-studio-pink pl-4 select-none">
