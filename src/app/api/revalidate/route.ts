@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -12,10 +12,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized: Invalid revalidation token' }, { status: 401 })
     }
 
-    // Force revalidation of primary listing and detail routes
+    // 1. Clear the data caches for Supabase queries
+    revalidateTag('packs')
+    revalidateTag('categories')
+    revalidateTag('presets')
+
+    // 2. Force revalidation of primary listing and detail routes
     revalidatePath('/')
     revalidatePath('/browse')
     revalidatePath('/library')
+    revalidatePath('/sitemap.xml')
+    revalidatePath('/sitemap')
     
     // We can also revalidate dynamic paths. Next.js App Router revalidatePath
     // allows clearing everything under dynamic layouts.
