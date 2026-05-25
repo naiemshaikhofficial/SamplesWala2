@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, MessageSquare } from 'lucide-react';
+import { Mail, MessageSquare, Instagram, Clock } from 'lucide-react';
 import { generatePageMetadata } from '@/lib/seo/metadata';
 import ContactForm from './ContactForm';
 
@@ -12,74 +12,94 @@ export default function ContactPage() {
   return (
     <div className="flex flex-col min-h-screen bg-black selection:bg-studio-yellow selection:text-black">
       {/* Header Section */}
-      <section className="relative pt-32 pb-20 border-b border-white/5 step-grid">
-        <div className="container mx-auto px-4 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-studio-yellow/10 border border-studio-yellow/20">
-            <Mail size={12} className="text-studio-yellow" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-studio-yellow">Get In Touch</span>
+      <section className="relative pt-32 pb-20 border-b-4 border-black bg-zinc-950">
+        <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none" />
+        <div className="container mx-auto px-4 text-center space-y-6 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm bg-studio-yellow/10 border-2 border-studio-yellow text-studio-yellow rotate-[-1deg] shadow-[2px_2px_0px_black]">
+            <Mail size={12} className="text-studio-yellow animate-bounce" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Get In Touch</span>
           </div>
-          <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter italic">
+          <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none italic comic-text drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
             CONTACT <span className="text-studio-yellow">US.</span>
           </h1>
-          <p className="max-w-xl mx-auto text-sm font-bold text-white/40 uppercase tracking-widest leading-relaxed">
+          <p className="max-w-xl mx-auto text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-[0.25em] leading-relaxed">
             Have a question? We're here to help you make better music.
           </p>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-24">
+      <section className="py-24 bg-black">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
-            {/* Contact Info */}
-            <div className="space-y-12">
+            {/* Contact Info (5 Cols) */}
+            <div className="lg:col-span-5 space-y-12">
               <div className="space-y-8">
-                <h2 className="text-3xl font-black uppercase italic tracking-tighter">Reach Out Directly</h2>
+                <h2 className="text-3xl font-black uppercase italic tracking-tighter comic-text">Reach Out Directly</h2>
+                
                 <div className="grid gap-6">
-                  <div className="flex items-start gap-6 p-6 studio-panel rounded-sm group hover:border-studio-yellow/30 transition-all">
-                    <div className="p-4 bg-studio-yellow/10 rounded-sm text-studio-yellow group-hover:bg-studio-yellow group-hover:text-black transition-colors">
+                  {/* Email Card */}
+                  <a 
+                    href="mailto:contact@sampleswala.com" 
+                    className="comic-panel p-6 flex items-start gap-6 group hover:-translate-y-1 hover:shadow-[12px_12px_0px_#FFE600] border-4 border-black transition-all cursor-pointer"
+                  >
+                    <div className="p-4 bg-[#FFE600] text-black border-2 border-black -rotate-3 group-hover:rotate-3 transition-transform flex-shrink-0">
                       <Mail size={24} />
                     </div>
-                    <div>
-                      <h4 className="text-xs font-black uppercase tracking-widest text-white/40 mb-1">Email Us</h4>
-                      <p className="text-lg font-bold">contact@sampleswala.com</p>
+                    <div className="min-w-0">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Email Us</h4>
+                      <p className="text-lg font-black text-white group-hover:text-[#FFE600] transition-colors truncate">contact@sampleswala.com</p>
+                      <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-1">Direct support & business inquiries</p>
                     </div>
-                  </div>
+                  </a>
 
-                  <div className="flex items-start gap-6 p-6 studio-panel rounded-sm group hover:border-studio-neon/30 transition-all">
-                    <div className="p-4 bg-studio-neon/10 rounded-sm text-studio-neon group-hover:bg-studio-neon group-hover:text-black transition-colors">
+                  {/* Instagram Card */}
+                  <a 
+                    href="https://instagram.com/sampleswala" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="comic-panel p-6 flex items-start gap-6 group hover:-translate-y-1 hover:shadow-[12px_12px_0px_#E1306C] border-4 border-black transition-all cursor-pointer"
+                  >
+                    <div className="p-4 bg-[#E1306C] text-white border-2 border-black rotate-3 group-hover:-rotate-3 transition-transform flex-shrink-0">
+                      <Instagram size={24} />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Instagram DMs</h4>
+                      <p className="text-lg font-black text-white group-hover:text-[#E1306C] transition-colors truncate">@sampleswala</p>
+                      <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-1">Drop a DM for quick availability updates & leaks</p>
+                    </div>
+                  </a>
+
+                  {/* Support Card */}
+                  <div className="comic-panel p-6 flex items-start gap-6 group hover:-translate-y-1 hover:shadow-[12px_12px_0px_#00FF94] border-4 border-black transition-all">
+                    <div className="p-4 bg-[#00FF94] text-black border-2 border-black -rotate-2 group-hover:rotate-2 transition-transform flex-shrink-0">
                       <MessageSquare size={24} />
                     </div>
-                    <div>
-                      <h4 className="text-xs font-black uppercase tracking-widest text-white/40 mb-1">Support</h4>
-                      <p className="text-lg font-bold">Available 24/7 for you</p>
+                    <div className="min-w-0">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Response Time</h4>
+                      <p className="text-lg font-black text-white group-hover:text-[#00FF94] transition-colors">Available 24/7</p>
+                      <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-1">We typically reply within 2-4 hours</p>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Simple Help Text */}
-              <div className="p-8 border-l-2 border-studio-yellow bg-white/5 space-y-4">
-                <h3 className="font-black uppercase tracking-widest text-xs">Need Quick Help?</h3>
-                <p className="text-sm text-white/60 leading-relaxed">
-                  Just send us a message and we'll get back to you as soon as possible.
-                </p>
-              </div>
             </div>
 
-            {/* Contact Form (Client Component) */}
-            <ContactForm />
+            {/* Contact Form (7 Cols) */}
+            <div className="lg:col-span-7">
+              <ContactForm />
+            </div>
 
           </div>
         </div>
       </section>
 
       {/* Footer Aesthetic */}
-      <section className="py-24 bg-zinc-950 border-t border-white/5">
+      <section className="py-24 bg-zinc-950 border-t-4 border-black">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-xl font-black uppercase tracking-widest italic">Based in India, <span className="text-studio-yellow">Global Sound.</span></h2>
+            <h2 className="text-xl font-black uppercase tracking-widest italic comic-text">Based in India, <span className="text-studio-yellow">Global Sound.</span></h2>
             <p className="text-white/30 text-[10px] font-bold uppercase tracking-[0.3em]">SamplesWala HQ • Mumbai • 100% Quality</p>
           </div>
         </div>

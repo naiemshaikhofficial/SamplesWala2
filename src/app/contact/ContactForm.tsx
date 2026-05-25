@@ -39,23 +39,23 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="studio-panel p-8 md:p-12 rounded-sm relative overflow-hidden">
-      <div className="absolute top-0 right-0 p-8 opacity-5">
+    <div className="comic-panel p-8 md:p-12 border-4 border-black shadow-[10px_10px_0px_#00BFFF] relative overflow-hidden bg-zinc-950">
+      <div className="absolute top-0 right-0 p-8 opacity-5 text-[#00BFFF]">
         <Send size={120} />
       </div>
 
       {status === "success" ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
-          <div className="w-20 h-20 bg-studio-neon/20 rounded-full flex items-center justify-center text-studio-neon">
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 relative z-10">
+          <div className="w-20 h-20 bg-studio-neon text-black border-4 border-black flex items-center justify-center rounded-sm shadow-[4px_4px_0px_black] rotate-6">
             <CheckCircle2 size={40} />
           </div>
           <div className="space-y-2">
-            <h3 className="text-2xl font-black uppercase italic">Message Sent!</h3>
-            <p className="text-white/60 text-sm">Thank you! We'll get back to you shortly.</p>
+            <h3 className="text-3xl font-black uppercase italic comic-text text-white">Message Sent!</h3>
+            <p className="text-white/60 text-xs font-black uppercase tracking-widest">Thank you! We'll get back to you shortly.</p>
           </div>
           <button 
             onClick={() => setStatus("idle")}
-            className="studio-button"
+            className="studio-button hover:bg-studio-yellow transition-all"
           >
             Send Another Message
           </button>
@@ -72,8 +72,8 @@ export default function ContactForm() {
               type="text" 
               name="name" 
               required 
-              placeholder="Your Name"
-              className="w-full bg-black border border-white/10 p-4 rounded-sm focus:outline-none focus:border-studio-yellow text-sm transition-colors"
+              placeholder="YOUR NAME"
+              className="w-full bg-black border-4 border-black p-4 rounded-sm focus:outline-none focus:border-studio-yellow text-xs font-black uppercase tracking-widest transition-all focus:translate-x-[-2px] focus:translate-y-[-2px] focus:shadow-[4px_4px_0px_#FFE600] outline-none"
             />
           </div>
 
@@ -83,8 +83,8 @@ export default function ContactForm() {
               type="email" 
               name="email" 
               required 
-              placeholder="you@example.com"
-              className="w-full bg-black border border-white/10 p-4 rounded-sm focus:outline-none focus:border-studio-yellow text-sm transition-colors"
+              placeholder="YOU@EXAMPLE.COM"
+              className="w-full bg-black border-4 border-black p-4 rounded-sm focus:outline-none focus:border-studio-yellow text-xs font-black uppercase tracking-widest transition-all focus:translate-x-[-2px] focus:translate-y-[-2px] focus:shadow-[4px_4px_0px_#FFE600] outline-none"
             />
           </div>
 
@@ -94,13 +94,13 @@ export default function ContactForm() {
               name="message" 
               required 
               rows={5}
-              placeholder="Write your message here..."
-              className="w-full bg-black border border-white/10 p-4 rounded-sm focus:outline-none focus:border-studio-yellow text-sm transition-colors resize-none"
+              placeholder="WRITE YOUR MESSAGE HERE..."
+              className="w-full bg-black border-4 border-black p-4 rounded-sm focus:outline-none focus:border-studio-yellow text-xs font-black uppercase tracking-widest transition-all focus:translate-x-[-2px] focus:translate-y-[-2px] focus:shadow-[4px_4px_0px_#FFE600] outline-none resize-none"
             />
           </div>
 
           {status === "error" && (
-            <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-sm text-xs">
+            <div className="flex items-center gap-3 p-4 bg-red-500/10 border-2 border-red-500/30 text-red-500 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0px_black]">
               <AlertCircle size={16} />
               <p>{errorMessage}</p>
             </div>
@@ -109,13 +109,13 @@ export default function ContactForm() {
           <button 
             type="submit" 
             disabled={status === "sending"}
-            className="studio-button w-full py-5 disabled:opacity-50 disabled:cursor-not-allowed group"
+            className="studio-button w-full py-5 disabled:opacity-50 disabled:cursor-not-allowed group transition-all"
           >
             {status === "sending" ? (
               "Sending..."
             ) : (
               <>
-                Send Message
+                <span>Send Message</span>
                 <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </>
             )}
