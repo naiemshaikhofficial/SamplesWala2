@@ -8,6 +8,7 @@ export interface CartItem {
   cover_url: string
   slug: string
   type: 'pack' | 'preset'
+  is_downloadable?: boolean
 }
 
 interface CartContextType {

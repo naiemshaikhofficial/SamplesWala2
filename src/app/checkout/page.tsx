@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
-import { ShoppingBag, Trash2, Tag, ArrowRight, Loader2, CheckCircle2, ShieldCheck, Zap, PartyPopper } from 'lucide-react'
+import { ShoppingBag, Trash2, Tag, ArrowRight, Loader2, CheckCircle2, ShieldCheck, Zap, PartyPopper, Clock } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { validateCoupon } from './actions'
@@ -190,6 +190,7 @@ const ConfettiEffect = () => {
 export default function CheckoutPage() {
   const countryOptions = React.useMemo(() => countryList().getData(), [])
   const { items, removeItem, total, clearCart, itemCount, setSidebarOpen } = useCart()
+  const hasPreorder = items.some(item => item.type === 'pack' && item.is_downloadable === false)
 
   // Close sidebar immediately when checkout page loads
   useEffect(() => {
@@ -890,6 +891,31 @@ export default function CheckoutPage() {
                 {couponError && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest">{couponError}</p>}
                 {discount > 0 && <p className="text-[8px] font-bold text-studio-neon uppercase tracking-widest">Coupon Applied Successfully!</p>}
               </div>
+
+              {/* Pre-order warning notice */}
+              {hasPreorder && (
+                <div className="p-5 rounded-sm border-2 border-[#FFC800] bg-black/60 shadow-[4px_4px_0px_#FF0080] text-left space-y-3 mt-4">
+                  <div className="flex items-center gap-2.5 text-[#FFC800]">
+                    <div className="p-1 bg-[#FFC800] text-black border-2 border-black rounded-xs -rotate-6">
+                      <Clock size={14} className="animate-pulse" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-white">Pre-order Notice</span>
+                  </div>
+                  <p className="text-[9px] font-bold text-white/70 uppercase tracking-widest leading-relaxed">
+                    Some items in your cart are <span className="text-[#FFC800]">pre-orders</span>. Our sample packs are mostly <span className="text-[#FFC800]">live-recorded</span> or highly <span className="text-[#FF0080]">time-consuming</span> to produce, <span className="text-studio-neon">but we are trying hard to make it available as soon as possible!</span>
+                  </p>
+                  <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest leading-relaxed">
+                    🚀 Before pre-ordering, note it might take <span className="text-white underline decoration-[#FFC800]">1-2 months to deliver</span>. Once available, we will notify you via our social media & email.
+                  </p>
+                  <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest leading-relaxed pt-1 border-t border-white/10">
+                    📧 Personally email us at{' '}
+                    <a href="mailto:contact@sampleswala.com" className="text-[#FFC800] hover:text-white underline font-black transition-colors lowercase">
+                      contact@sampleswala.com
+                    </a>{' '}
+                    for availability questions.
+                  </p>
+                </div>
+              )}
 
               {/* Legal Agreement */}
               <div className="space-y-4">

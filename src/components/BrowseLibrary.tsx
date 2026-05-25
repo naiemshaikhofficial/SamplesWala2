@@ -29,7 +29,8 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
       price: currentPrice,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
-      type: 'pack'
+      type: 'pack',
+      is_downloadable: pack.is_downloadable
     })
     router.push('/checkout')
   }, [addItem, router])
@@ -210,7 +211,8 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                     price: currentPrice,
                     slug: pack.slug,
                     cover_url: pack.cover_url || undefined,
-                    type: 'pack'
+                    type: 'pack',
+                    is_downloadable: pack.is_downloadable
                   })}
                   className={`flex-1 h-10 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
                     isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon'

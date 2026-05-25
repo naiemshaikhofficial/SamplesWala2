@@ -84,7 +84,8 @@ export function HeroSlider({ packs }: { packs: any[] }) {
       price: price,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
-      type: 'pack'
+      type: 'pack',
+      is_downloadable: pack.is_downloadable
     })
     setAddedId(pack.id)
     setTimeout(() => setAddedId(null), 1200)
@@ -99,7 +100,8 @@ export function HeroSlider({ packs }: { packs: any[] }) {
       price: price,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
-      type: 'pack'
+      type: 'pack',
+      is_downloadable: pack.is_downloadable
     })
     router.push('/checkout')
   }

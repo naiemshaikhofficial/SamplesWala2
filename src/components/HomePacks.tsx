@@ -58,7 +58,8 @@ export function HomePacks({ packs }: { packs: any[] }) {
       price: currentPrice,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
-      type: 'pack'
+      type: 'pack',
+      is_downloadable: pack.is_downloadable
     })
     setAddedPackId(pack.id)
     setTimeout(() => setAddedPackId(null), 1200)
@@ -71,7 +72,8 @@ export function HomePacks({ packs }: { packs: any[] }) {
       price: currentPrice,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
-      type: 'pack'
+      type: 'pack',
+      is_downloadable: pack.is_downloadable
     })
     router.push('/checkout')
   }

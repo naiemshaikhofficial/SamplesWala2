@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { ArrowLeft, PlayCircle, ShieldCheck, Zap, HelpCircle, Plus, Download } from 'lucide-react'
+import { ArrowLeft, PlayCircle, ShieldCheck, Zap, HelpCircle, Plus, Download, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DownloadButton } from '@/components/DownloadButton'
 import { PaymentButton } from '@/components/PaymentButton'
@@ -220,7 +220,8 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                         price: currentPrice,
                         slug: pack.slug,
                         cover_url: pack.cover_url || undefined,
-                        type: 'pack'
+                        type: 'pack',
+                        is_downloadable: pack.is_downloadable
                       }} 
                     />
                     <PaymentButton 
@@ -232,6 +233,28 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       cover_url={pack.cover_url || ''}
                       userId={user?.id}
                     />
+                    {!pack.is_downloadable && (
+                      <div className="p-5 rounded-sm border-2 border-[#FFC800] bg-black/60 shadow-[4px_4px_0px_#FF0080] text-left space-y-3 mt-2">
+                        <div className="flex items-center gap-2.5 text-[#FFC800]">
+                          <div className="p-1 bg-[#FFC800] text-black border-2 border-black rounded-xs -rotate-6">
+                            <Clock size={14} className="animate-pulse" />
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-white">Pre-order Notice</span>
+                        </div>
+                        <p className="text-[9px] font-bold text-white/70 uppercase tracking-widest leading-relaxed">
+                          Please note: our sample packs are mostly <span className="text-[#FFC800]">live-recorded</span> or highly <span className="text-[#FF0080]">time-consuming</span> to curate & produce, <span className="text-studio-neon">but we are trying hard to make it available as soon as possible!</span>
+                        </p>
+                        <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest leading-relaxed">
+                          🚀 It may take <span className="text-white underline decoration-[#FFC800]">1-2 months to deliver</span>. Once released, you will be notified immediately via social media & email.
+                        </p>
+                        <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest leading-relaxed pt-1 border-t border-white/10">
+                          📧 For availability queries, feel free to personally email us at{' '}
+                          <a href="mailto:contact@sampleswala.com" className="text-[#FFC800] hover:text-white underline font-black transition-colors lowercase">
+                            contact@sampleswala.com
+                          </a>
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
