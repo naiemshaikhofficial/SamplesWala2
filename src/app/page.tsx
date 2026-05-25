@@ -79,16 +79,9 @@ export default async function HomePage() {
           <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
             <div className="space-y-4 text-center lg:text-left relative">
               
-              {/* Premium Logo Image */}
-              <div className="relative w-[340px] sm:w-[500px] md:w-[620px] h-[80px] sm:h-[118px] md:h-[145px] select-none pointer-events-none mx-auto lg:mx-0 mb-4">
-                <Image 
-                  src="/Logo.png" 
-                  alt="SamplesWala Logo" 
-                  fill 
-                  priority
-                  sizes="(max-width: 768px) 340px, 620px"
-                  className="object-contain object-center lg:object-left"
-                />
+              {/* Premium Animated Logo Title */}
+              <div className="block pb-2 pointer-events-auto mx-auto lg:mx-0">
+                <AnimatedLogo isHero={true} />
               </div>
               
               {/* Street Accent Subtitle */}
