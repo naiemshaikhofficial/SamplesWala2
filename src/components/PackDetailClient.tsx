@@ -41,6 +41,54 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
     return getPackPriceDetails(pack)
   }, [pack, now])
 
+  const faqs = React.useMemo(() => {
+    const list = [
+      {
+        q: "Is this compatible with FL Studio?",
+        a: "Yes! Our samples are professional 24-bit WAV files, compatible with all DAWs including FL Studio, Ableton Live, Logic Pro, Cubase, and more."
+      }
+    ];
+
+    if (!pack.is_downloadable) {
+      list.push(
+        {
+          q: "How does the pre-order process work?",
+          a: "By pre-ordering, you secure the pack at a highly discounted special price while it is in the studio. Once completed, the download link will automatically appear in your Library/Vault and we'll email you immediately."
+        },
+        {
+          q: "Why does it take 1-2 months to deliver?",
+          a: "Our sample packs are premium products featuring real musicians and live-recorded instruments. Post-production (editing, sound design, mixing, and mastering) is highly time-consuming because we are committed to delivering unmatched, commercial-grade sound quality. But we are trying hard to make it available as soon as possible!"
+        },
+        {
+          q: "Can I get a refund on my pre-order?",
+          a: "No, all pre-orders are strictly non-refundable and final, similar to our digital products. A refund will only be issued in the extremely rare event that the production is officially cancelled by SamplesWala."
+        },
+        {
+          q: "How will I be notified when it's ready?",
+          a: "We will notify you instantly via your registered email address and through our official social media channels. You'll be able to log in and download it instantly."
+        }
+      );
+    } else {
+      list.push({
+        q: "Where is my download link?",
+        a: "Delivery is instant. You will get a download link on the screen immediately after payment, and a backup link will be sent to your registered email."
+      });
+    }
+
+    list.push(
+      {
+        q: "Will I get an official invoice?",
+        a: "Yes, a digital tax invoice is automatically generated for every purchase and sent to your email for your records."
+      },
+      {
+        q: "Are these sounds royalty-free?",
+        a: "Absolutely. Every sound you buy from Samples Wala is 100% royalty-free for use in your commercial music productions without any attribution."
+      }
+    );
+
+    return list;
+  }, [pack.is_downloadable]);
+
   const currentPrice = priceDetails.priceInr
   const isPreorderActive = priceDetails.isPreorderActive
   const isExpired = priceDetails.isExpired
@@ -304,24 +352,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         </div>
 
         <div className="max-w-4xl space-y-4">
-          {[
-            {
-              q: "Is this compatible with FL Studio?",
-              a: "Yes! Our samples are professional 24-bit WAV files, compatible with all DAWs including FL Studio, Ableton Live, Logic Pro, Cubase, and more."
-            },
-            {
-              q: "Where is my download link?",
-              a: "Delivery is instant. You will get a download link on the screen immediately after payment, and a backup link will be sent to your registered email."
-            },
-            {
-              q: "Will I get an official invoice?",
-              a: "Yes, a digital invoice is automatically generated for every purchase and sent to your email for your records."
-            },
-            {
-              q: "Are these sounds royalty-free?",
-              a: "Absolutely. Every sound you buy from Samples Wala is 100% royalty-free for use in your commercial music productions without any attribution."
-            }
-          ].map((faq, idx) => (
+          {faqs.map((faq, idx) => (
             <div key={idx} className="border-2 border-black shadow-[4px_4px_0px_black] bg-studio-charcoal">
               <button
                 onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
