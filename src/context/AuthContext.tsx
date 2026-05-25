@@ -16,6 +16,49 @@ const AuthContext = createContext<AuthContextType>({
   isArtist: false,
   loading: true,
 })
+const pendingFetches = new Map<string, Promise<boolean>>()
+
+const getCachedArtistStatus = (userId: string): boolean | null => {
+  if (typeof window === 'undefined') return null
+  try {
+    const cached = sessionStorage.getItem(`artist-status-${userId}`)
+    return cached !== null ? cached === 'true' : null
+  } catch {
+    return null
+  }
+}
+
+const setCachedArtistStatus = (userId: string, isArtist: boolean) => {
+  if (typeof window === 'undefined') return
+  try {
+    sessionStorage.setItem(`artist-status-${userId}`, String(isArtist))
+  } catch {}
+}
+
+const fetchArtistStatus = (userId: string): Promise<boolean> => {
+  const cached = getCachedArtistStatus(userId)
+  if (cached !== null) return Promise.resolve(cached)
+
+  const existing = pendingFetches.get(userId)
+  if (existing) return existing
+
+  const promise = fetch('/api/auth/artist-status')
+    .then(async (res) => {
+      if (res.ok) {
+        const data = await res.json()
+        setCachedArtistStatus(userId, data.isArtist)
+        return !!data.isArtist
+      }
+      return false
+    })
+    .catch(() => false)
+    .finally(() => {
+      pendingFetches.delete(userId)
+    })
+
+  pendingFetches.set(userId, promise)
+  return promise
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any | null>(null)
@@ -27,18 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const hasSessionCookie = typeof window !== 'undefined' && document.cookie.split(';').some(c => c.trim().startsWith('sb-') || c.trim().includes('-auth-token'))
     const supabase = createClient()
 
-    const checkArtistStatus = async () => {
-      try {
-        const res = await fetch('/api/auth/artist-status')
-        if (res.ok) {
-          const data = await res.json()
-          setIsArtist(data.isArtist)
-        } else {
-          setIsArtist(false)
-        }
-      } catch {
-        setIsArtist(false)
-      }
+    const checkArtistStatus = async (userId: string) => {
+      const isArtistStatus = await fetchArtistStatus(userId)
+      setIsArtist(isArtistStatus)
     }
 
     const initAuth = async () => {
@@ -55,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session)
         setUser(session?.user || null)
         if (session?.user) {
-          await checkArtistStatus()
+          await checkArtistStatus(session.user.id)
         }
       } catch (err) {
         console.error('[AUTH_INIT_ERROR]', err)
@@ -70,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(currentSession)
       setUser(currentSession?.user || null)
       if (currentSession?.user) {
-        await checkArtistStatus()
+        await checkArtistStatus(currentSession.user.id)
       } else {
         setIsArtist(false)
       }
