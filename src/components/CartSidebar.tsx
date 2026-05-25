@@ -4,30 +4,12 @@ import { useCart } from '@/context/CartContext'
 import { X, ShoppingBag, Trash2, ArrowRight, Zap } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/context/AuthContext'
 
 export function CartSidebar({ initialUser }: { initialUser?: any }) {
   const { items, removeItem, subtotal, discount, total, itemCount, isSidebarOpen, setSidebarOpen } = useCart()
-  const [user, setUser] = useState<any>(initialUser)
+  const { user } = useAuth()
   const router = useRouter()
-  const supabase = createClient()
-
-  useEffect(() => {
-    // Only fetch if we don't have an initial user (safety fallback)
-    if (!initialUser) {
-      const checkUser = async () => {
-        const { data: { user: currentUser } } = await supabase.auth.getUser()
-        setUser(currentUser)
-      }
-      checkUser()
-    }
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase.auth, initialUser])
 
   useEffect(() => {
     if (isSidebarOpen) {

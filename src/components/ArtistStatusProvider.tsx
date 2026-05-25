@@ -1,44 +1,21 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-
-const ArtistStatusContext = createContext(false)
+import React from 'react'
+import { useAuth } from '@/context/AuthContext'
 
 export function useIsArtist() {
-  return useContext(ArtistStatusContext)
+  const { isArtist } = useAuth()
+  return isArtist
 }
 
 /**
- * 🟢 CPU OPTIMIZATION: Instead of querying artist_collaborations + admins tables
- * on EVERY page load in the root layout (27K+ requests/month), this component
- * lazily checks artist status client-side ONLY for logged-in users.
- * 
- * This saves ~50-100ms of server CPU per request for all guest visitors.
+ * 🟢 COMPATIBILITY LAYER: Wraps children.
+ * Real auth state management has been migrated to AuthProvider in src/context/AuthContext.tsx.
  */
 export function ArtistStatusProvider({ 
   children 
 }: { 
   children: React.ReactNode
 }) {
-  const [isArtist, setIsArtist] = useState(false)
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        // Check artist status client-side via lightweight API
-        fetch('/api/auth/artist-status')
-          .then(res => res.ok ? res.json() : { isArtist: false })
-          .then(data => setIsArtist(data.isArtist))
-          .catch(() => setIsArtist(false))
-      }
-    })
-  }, [])
-
-  return (
-    <ArtistStatusContext.Provider value={isArtist}>
-      {children}
-    </ArtistStatusContext.Provider>
-  )
+  return <>{children}</>
 }

@@ -9,14 +9,14 @@ import { AddToCartButton } from '@/components/AddToCartButton'
 import { ShareButton } from '@/components/ShareButton'
 import Link from 'next/link'
 import { getOptimizedImageUrl } from '@/lib/images'
-import { createClient } from '@/lib/supabase/client'
 import { getPackPriceDetails } from '@/lib/pricing'
+import { useAuth } from '@/context/AuthContext'
 
 export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const pack = initialPack
+  const { user } = useAuth()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [owned, setOwned] = useState(false)
-  const [user, setUser] = useState<any>(null)
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -27,17 +27,15 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   }, [])
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user)
-        fetch(`/api/auth/ownership?itemId=${pack.id}`)
-          .then(res => res.ok ? res.json() : { owned: false })
-          .then(data => setOwned(data.owned))
-          .catch(() => setOwned(false))
-      }
-    })
-  }, [pack.id])
+    if (user) {
+      fetch(`/api/auth/ownership?itemId=${pack.id}`)
+        .then(res => res.ok ? res.json() : { owned: false })
+        .then(data => setOwned(data.owned))
+        .catch(() => setOwned(false))
+    } else {
+      setOwned(false)
+    }
+  }, [user, pack.id])
 
   const priceDetails = React.useMemo(() => {
     return getPackPriceDetails(pack)

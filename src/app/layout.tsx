@@ -34,6 +34,7 @@ export const metadata: Metadata = generatePageMetadata({
 
 
 import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { HeaderCartIcon } from "@/components/HeaderCartIcon";
 import { Instagram, Youtube, Twitter } from "lucide-react";
 import { BackgroundMural } from "@/components/BackgroundMural";
@@ -140,20 +141,21 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} ${notoMusic.variable} antialiased min-h-screen flex flex-col text-white`}>
-        <CartProvider>
-          <ArtistStatusProvider>
-            <BackgroundMural />
-            <ContentProtection />
-            <ServiceWorkerRegistration />
-            <CartSidebar />
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
-            <Analytics />
-            <SpeedInsights />
-          </ArtistStatusProvider>
-        </CartProvider>
-
+        <AuthProvider>
+          <CartProvider>
+            <ArtistStatusProvider>
+              <BackgroundMural />
+              <ContentProtection />
+              <ServiceWorkerRegistration />
+              <CartSidebar />
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+              <Analytics />
+              <SpeedInsights />
+            </ArtistStatusProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

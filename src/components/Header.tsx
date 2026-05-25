@@ -7,25 +7,11 @@ import { HeaderCartIcon } from './HeaderCartIcon'
 import { LogoutButton } from './LogoutButton'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AnimatedLogo } from './AnimatedLogo'
-import { useIsArtist } from './ArtistStatusProvider'
-
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/context/AuthContext'
 
 export function Header() {
-  const isArtist = useIsArtist()
+  const { user, isArtist } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
 
   const dashboardUrl = process.env.NODE_ENV === 'production'
     ? 'https://dashboard.sampleswala.com'

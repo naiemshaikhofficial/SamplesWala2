@@ -40,7 +40,14 @@ const testimonials = [
     pack: "THE BOLLYWOOD",
     quote: "SamplesWala's Bollywood pack is basically the gold standard. The melodies and percussion feel so authentic, they bring that cinematic feel to my tracks instantly. Great stuff.",
     instagram: "https://www.instagram.com/mix_with_python/"
-
+  },
+  {
+    name: "David Gifson",
+    role: "Music Director / Producer",
+    image: "/david-gifson.jpg",
+    pack: "THE BOLLYWOOD",
+    quote: "SamplesWala is a total game-changer. The loops and one-shots have incredible warmth and clarity, meaning I barely have to do any mixing. The Bollywood elements are super authentic and sit perfectly in the production.",
+    instagram: "https://www.instagram.com/davidgifson/"
   }
 ]
 

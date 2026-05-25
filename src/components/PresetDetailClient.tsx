@@ -7,7 +7,7 @@ import { AddToCartButton } from '@/components/AddToCartButton'
 import { ShareButton } from '@/components/ShareButton'
 import { DownloadButton } from '@/components/DownloadButton'
 import { motion, AnimatePresence } from 'framer-motion'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/context/AuthContext'
 
 interface PresetDetailClientProps {
   preset: any
@@ -16,20 +16,20 @@ interface PresetDetailClientProps {
 }
 
 export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientProps) {
+  const { user } = useAuth()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [isOwned, setIsOwned] = useState(false)
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        fetch(`/api/auth/ownership?itemId=${preset.id}`)
-          .then(res => res.ok ? res.json() : { owned: false })
-          .then(data => setIsOwned(data.owned))
-          .catch(() => setIsOwned(false))
-      }
-    })
-  }, [preset.id])
+    if (user) {
+      fetch(`/api/auth/ownership?itemId=${preset.id}`)
+        .then(res => res.ok ? res.json() : { owned: false })
+        .then(data => setIsOwned(data.owned))
+        .catch(() => setIsOwned(false))
+    } else {
+      setIsOwned(false)
+    }
+  }, [user, preset.id])
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
