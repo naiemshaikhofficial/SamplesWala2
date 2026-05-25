@@ -13,9 +13,9 @@ export async function POST(req: Request) {
     }
 
     // 1. Clear the data caches for Supabase queries
-    revalidateTag('packs')
-    revalidateTag('categories')
-    revalidateTag('presets')
+    revalidateTag('packs', 'max')
+    revalidateTag('categories', 'max')
+    revalidateTag('presets', 'max')
 
     // 2. Force revalidation of primary listing and detail routes
     revalidatePath('/')
