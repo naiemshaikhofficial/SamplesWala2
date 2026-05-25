@@ -18,8 +18,10 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [owned, setOwned] = useState(false)
   const [now, setNow] = useState(Date.now())
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const timer = setInterval(() => {
       setNow(Date.now())
     }, 1000)
@@ -239,25 +241,24 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                         <div className="flex items-center gap-2 mb-2 justify-center">
                           <Zap size={14} className="text-studio-neon animate-pulse" />
                           <span className="text-[9px] font-black uppercase tracking-widest text-white">Pre-Order Offer Ends In:</span>
-                        </div>
-                        <div className="grid grid-cols-4 gap-2 text-center font-mono text-white">
+                                         <div className="grid grid-cols-4 gap-2 text-center font-mono text-white">
                           <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{String(days).padStart(2, '0')}</span>
+                            <span className="text-base font-black block leading-none">{mounted ? String(days).padStart(2, '0') : '00'}</span>
                             <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Days</span>
                           </div>
                           <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{String(hours).padStart(2, '0')}</span>
+                            <span className="text-base font-black block leading-none">{mounted ? String(hours).padStart(2, '0') : '00'}</span>
                             <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Hours</span>
                           </div>
                           <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{String(minutes).padStart(2, '0')}</span>
+                            <span className="text-base font-black block leading-none">{mounted ? String(minutes).padStart(2, '0') : '00'}</span>
                             <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Mins</span>
                           </div>
                           <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{String(seconds).padStart(2, '0')}</span>
+                            <span className="text-base font-black block leading-none">{mounted ? String(seconds).padStart(2, '0') : '00'}</span>
                             <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Secs</span>
                           </div>
-                        </div>
+                        </div>         </div>
                       </div>
                     )}
                     <AddToCartButton 

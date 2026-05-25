@@ -43,8 +43,10 @@ export function HomePacks({ packs }: { packs: any[] }) {
   const router = useRouter()
   const [addedPackId, setAddedPackId] = React.useState<string | null>(null)
   const [now, setNow] = React.useState(Date.now())
+  const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
+    setMounted(true)
     const timer = setInterval(() => {
       setNow(Date.now())
     }, 1000)
@@ -213,22 +215,24 @@ export function HomePacks({ packs }: { packs: any[] }) {
                     </div>
                     <div className="flex gap-0.5 font-mono text-[9px] font-black">
                       <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
-                        <span>{String(days).padStart(2, '0')}</span>
+                        <span>{mounted ? String(days).padStart(2, '0') : '00'}</span>
                         <span className="text-[4px] text-white/40 uppercase font-sans">d</span>
                       </div>
                       <span className="text-white/20 self-center">:</span>
                       <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
-                        <span>{String(hours).padStart(2, '0')}</span>
+                        <span>{mounted ? String(hours).padStart(2, '0') : '00'}</span>
                         <span className="text-[4px] text-white/40 uppercase font-sans">h</span>
                       </div>
                       <span className="text-white/20 self-center">:</span>
                       <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
-                        <span>{String(minutes).padStart(2, '0')}</span>
+                        <span>{mounted ? String(minutes).padStart(2, '0') : '00'}</span>
                         <span className="text-[4px] text-white/40 uppercase font-sans">m</span>
                       </div>
                       <span className="text-white/20 self-center">:</span>
                       <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
-                        <span className={isIndia ? 'text-[#FF9933]' : 'text-studio-neon animate-pulse'}>{String(seconds).padStart(2, '0')}</span>
+                        <span className={isIndia ? 'text-[#FF9933]' : 'text-studio-neon animate-pulse'}>
+                          {mounted ? String(seconds).padStart(2, '0') : '00'}
+                        </span>
                         <span className="text-[4px] text-white/40 uppercase font-sans">s</span>
                       </div>
                     </div>
