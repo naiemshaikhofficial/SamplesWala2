@@ -77,6 +77,15 @@ function checkRateLimit(ip: string, isSensitive: boolean): { allowed: boolean; r
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const host = request.headers.get('host') || ''
+  const proto = request.headers.get('x-forwarded-proto') || 'https'
+
+  // 🟢 SEO & PERFORMANCE: Instant 301 Redirect for www and HTTP variants to enforce canonical HTTPS non-www domain
+  if (host.startsWith('www.') || proto === 'http') {
+    const cleanHost = host.replace(/^www\./, '')
+    const redirectUrl = new URL(pathname + request.nextUrl.search, `https://${cleanHost}`)
+    return NextResponse.redirect(redirectUrl, 301)
+  }
 
   // 🟢 CPU OPTIMIZATION: Immediate redirect for dead pages to bypass expensive rate limiting or DB session checks.
   const deadLinks = ['/free', '/samples', '/vst-plugins', '/vocal-packs'];
