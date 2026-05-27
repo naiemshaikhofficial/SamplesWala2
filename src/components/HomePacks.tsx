@@ -42,16 +42,6 @@ export function HomePacks({ packs }: { packs: any[] }) {
   const { addItem } = useCart()
   const router = useRouter()
   const [addedPackId, setAddedPackId] = React.useState<string | null>(null)
-  const [now, setNow] = React.useState(Date.now())
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setMounted(true)
-    const timer = setInterval(() => {
-      setNow(Date.now())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   const handleAddToCart = (pack: any, currentPrice: number) => {
     addItem({
@@ -111,11 +101,6 @@ export function HomePacks({ packs }: { packs: any[] }) {
         const currentPrice = priceDetails.priceInr
         const isPreorderActive = priceDetails.isPreorderActive
         const isExpired = priceDetails.isExpired
-
-        const days = priceDetails.daysLeft
-        const hours = priceDetails.hoursLeft
-        const minutes = priceDetails.minutesLeft
-        const seconds = priceDetails.secondsLeft
 
         return (
           <motion.div
@@ -204,39 +189,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 </div>
 
                 {!pack.is_downloadable && isPreorderActive ? (
-                  <div className={`mt-2 p-2 rounded-sm border-2 flex items-center justify-between gap-1 text-white rotate-[-0.5deg] ${
-                    isIndia 
-                      ? 'border-[#FF9933] shadow-[3px_3px_0px_#128807] bg-black/60' 
-                      : 'border-black shadow-[3px_3px_0px_#a6e22e] bg-studio-charcoal'
-                  }`}>
-                    <div className="flex items-center gap-1">
-                      <div className={`w-1.5 h-1.5 rounded-full bg-white animate-pulse`} />
-                      <span className="text-[8px] font-black uppercase tracking-wider text-white">Ends In:</span>
-                    </div>
-                    <div className="flex gap-0.5 font-mono text-[9px] font-black">
-                      <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
-                        <span>{mounted ? String(days).padStart(2, '0') : '00'}</span>
-                        <span className="text-[4px] text-white/40 uppercase font-sans">d</span>
-                      </div>
-                      <span className="text-white/20 self-center">:</span>
-                      <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
-                        <span>{mounted ? String(hours).padStart(2, '0') : '00'}</span>
-                        <span className="text-[4px] text-white/40 uppercase font-sans">h</span>
-                      </div>
-                      <span className="text-white/20 self-center">:</span>
-                      <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
-                        <span>{mounted ? String(minutes).padStart(2, '0') : '00'}</span>
-                        <span className="text-[4px] text-white/40 uppercase font-sans">m</span>
-                      </div>
-                      <span className="text-white/20 self-center">:</span>
-                      <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
-                        <span className={isIndia ? 'text-[#FF9933]' : 'text-studio-neon animate-pulse'}>
-                          {mounted ? String(seconds).padStart(2, '0') : '00'}
-                        </span>
-                        <span className="text-[4px] text-white/40 uppercase font-sans">s</span>
-                      </div>
-                    </div>
-                  </div>
+                  <PackCountdown pack={pack} isIndia={isIndia} />
                 ) : (
                   <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 border-2 border-black rounded-sm w-fit rotate-1 ${
                     isExpired
@@ -302,3 +255,74 @@ export function HomePacks({ packs }: { packs: any[] }) {
     </motion.div>
   )
 }
+
+function PackCountdown({ pack, isIndia }: { pack: any, isIndia: boolean }) {
+  const [mounted, setMounted] = React.useState(false)
+  const [, setTick] = React.useState(0)
+
+  React.useEffect(() => {
+    setMounted(true)
+    const timer = setInterval(() => {
+      setTick(t => t + 1)
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const priceDetails = getPackPriceDetails(pack)
+  const isPreorderActive = priceDetails.isPreorderActive
+
+  if (!isPreorderActive) return null
+
+  const days = priceDetails.daysLeft
+  const hours = priceDetails.hoursLeft
+  const minutes = priceDetails.minutesLeft
+  const seconds = priceDetails.secondsLeft
+
+  return (
+    <div className={`mt-2 p-2 rounded-sm border-2 flex items-center justify-between gap-1 text-white rotate-[-0.5deg] ${
+      isIndia 
+        ? 'border-[#FF9933] shadow-[3px_3px_0px_#128807] bg-black/60' 
+        : 'border-black shadow-[3px_3px_0px_#a6e22e] bg-studio-charcoal'
+    }`}>
+      <div className="flex items-center gap-1">
+        <div className={`w-1.5 h-1.5 rounded-full bg-white animate-pulse`} />
+        <span className="text-[8px] font-black uppercase tracking-wider text-white">Ends In:</span>
+      </div>
+      <div className="flex gap-0.5 font-mono text-[9px] font-black">
+        <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
+          <span>{mounted ? String(days).padStart(2, '0') : '00'}</span>
+          <span className="text-[4px] text-white/40 uppercase font-sans">d</span>
+        </div>
+        <span className="text-white/20 self-center">:</span>
+        <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
+          <span>{mounted ? String(hours).padStart(2, '0') : '00'}</span>
+          <span className="text-[4px] text-white/40 uppercase font-sans">h</span>
+        </div>
+        <span className="text-white/20 self-center">:</span>
+        <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
+          <span>{mounted ? String(minutes).padStart(2, '0') : '00'}</span>
+          <span className="text-[4px] text-white/40 uppercase font-sans">m</span>
+        </div>
+        <span className="text-white/20 self-center">:</span>
+        <div className="bg-black/60 px-1 py-0.5 rounded-sm border border-white/5 flex flex-col items-center min-w-[18px]">
+          <span className={isIndia ? 'text-[#FF9933]' : 'text-studio-neon animate-pulse'}>
+            {mounted ? String(seconds).padStart(2, '0') : '00'}
+          </span>
+          <span className="text-[4px] text-white/40 uppercase font-sans">s</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+
+
+
+
+
+
+
+
+
+

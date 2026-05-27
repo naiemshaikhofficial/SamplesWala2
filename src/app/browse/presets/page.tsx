@@ -57,8 +57,12 @@ export default async function PresetsPage() {
 
         {presets.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {presets.map((preset: any) => (
-              <PresetCard key={preset.id} preset={preset} />
+            {presets.map((preset: any, index: number) => (
+              <PresetCard 
+                key={preset.id} 
+                preset={preset} 
+                priority={index < 6}
+              />
             ))}
           </div>
         ) : (

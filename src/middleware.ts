@@ -81,7 +81,8 @@ export async function middleware(request: NextRequest) {
   const proto = request.headers.get('x-forwarded-proto') || 'https'
 
   // 🟢 SEO & PERFORMANCE: Instant 301 Redirect for www and HTTP variants to enforce canonical HTTPS non-www domain
-  if (host.startsWith('www.') || proto === 'http') {
+  const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+  if (!isLocal && (host.startsWith('www.') || proto === 'http')) {
     const cleanHost = host.replace(/^www\./, '')
     const redirectUrl = new URL(pathname + request.nextUrl.search, `https://${cleanHost}`)
     return NextResponse.redirect(redirectUrl, 301)

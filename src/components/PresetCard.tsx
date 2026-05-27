@@ -20,9 +20,10 @@ interface PresetCardProps {
     cover_url?: string
     mrp_inr?: number
   }
+  priority?: boolean
 }
 
-export function PresetCard({ preset }: PresetCardProps) {
+export function PresetCard({ preset, priority = false }: PresetCardProps) {
   const { addItem } = useCart()
   const router = useRouter()
   const [isAdded, setIsAdded] = useState(false)
@@ -60,9 +61,10 @@ export function PresetCard({ preset }: PresetCardProps) {
   return (
     <motion.div
       variants={item}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
+      initial={priority ? "show" : "hidden"}
+      animate={priority ? "show" : undefined}
+      whileInView={priority ? undefined : "show"}
+      viewport={priority ? undefined : { once: true }}
       className="group flex flex-col space-y-4"
     >
       <Link
@@ -76,6 +78,7 @@ export function PresetCard({ preset }: PresetCardProps) {
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
+          priority={priority}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 

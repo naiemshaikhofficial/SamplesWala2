@@ -74,26 +74,6 @@ export default async function HomePage() {
         <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-studio-neon/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4 z-0" />
 
         <div className="container mx-auto px-4 relative z-30 space-y-10">
-          
-          {/* Epic-Style Header Row */}
-          <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
-            <div className="space-y-4 text-center lg:text-left relative">
-              
-              {/* Premium Animated Logo Title */}
-              <div className="block pb-2 pointer-events-auto mx-auto lg:mx-0">
-                <AnimatedLogo isHero={true} />
-              </div>
-              
-              {/* Street Accent Subtitle */}
-              <p className="text-xs font-bold text-white/70 uppercase tracking-[0.15em] md:tracking-[0.25em] max-w-xl leading-normal border-l-4 border-studio-pink pl-4 select-none">
-                Premium Indian sample packs, presets &amp; synthesizers. Built for the creative community.
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-              <HeroSearch />
-            </div>
-          </div>
 
           {/* Custom Interactive Epic Games Slider */}
           <HeroSlider packs={packs} />
