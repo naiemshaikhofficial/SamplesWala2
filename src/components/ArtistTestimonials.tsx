@@ -99,7 +99,7 @@ export function ArtistTestimonials() {
                           </Link>
                         )}
                         {t.instagram && (
-                          <Link href={t.instagram} target="_blank" className="text-white/40 hover:text-studio-pink transition-colors">
+                          <Link href={t.instagram} target="_blank" className="text-white/40 hover:text-[#E1306C] transition-colors">
                             <Instagram size={12} />
                           </Link>
                         )}
