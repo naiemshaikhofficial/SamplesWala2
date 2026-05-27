@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getPacks, getPresets, getPacksBySeries } from '@/app/browse/actions'
-import { ArrowRight, Zap, ShieldCheck, Music, Sparkles } from 'lucide-react'
+import { ArrowRight, Zap, ShieldCheck, Music, Sparkles, Gift } from 'lucide-react'
 import { HeroSearch } from '@/components/HeroSearch'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { HomePacks } from '@/components/HomePacks'
@@ -14,6 +14,7 @@ import { AnimatedLogo } from '@/components/AnimatedLogo'
 
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
+import { getOptimizedImageUrl } from '@/lib/images'
 
 // 🟢 CDN CACHING: Infinite cache (until manual or on-demand revalidation triggers via webhook).
 // This secures 0 DB hits and 0 serverless executions under normal traffic.
@@ -27,7 +28,7 @@ export const metadata = generatePageMetadata({
 
 export default async function HomePage() {
   const [packs, presets, indiaJourneyPacks] = await Promise.all([
-    getPacks(4),
+    getPacks(12),
     getPresets(4),
     getPacksBySeries('India Journey', 4)
   ])
@@ -778,23 +779,6 @@ export default async function HomePage() {
         </div>
         <div className="h-1.5 bg-[#F5F0E8]" />
       </div>
-
-      {/* Featured Packs - Hidden for now
-      <section className="py-24 container mx-auto px-4">
-        <div className="flex items-end justify-between mb-12 border-b border-white/5 pb-8">
-          <div className="space-y-2">
-            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic">Trending <span className="text-studio-neon">Collections</span></h2>
-            <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Top rated by industry veterans</p>
-          </div>
-          <Link href="/browse" className="text-[10px] font-black text-white/40 uppercase hover:text-studio-neon transition-colors flex items-center gap-2">
-            View All
-            <ArrowRight size={12} />
-          </Link>
-        </div>
-
-        <HomePacks packs={packs.slice(0, 4)} />
-      </section>
-      */}
 
       {/* Featured Presets */}
       <section className="py-24 bg-studio-charcoal/30 border-y border-white/5 overflow-hidden">
