@@ -49,6 +49,16 @@ export function HeroSearch() {
     }
   }, [query, router])
 
+  const placeholders = ['TRAP', 'HIP HOP', 'BOLLYWOOD', 'DRILL', 'LO-FI', 'VOCALS', 'MELODIES', 'PRESETS']
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length)
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div ref={searchRef} className="relative w-full max-w-md mx-auto lg:mx-0 z-50">
       <form onSubmit={handleSearch} className="relative graffiti-input-box overflow-hidden">
@@ -60,7 +70,7 @@ export function HeroSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setIsOpen(true)}
-          placeholder="SEARCH SAMPLES..."
+          placeholder={`SEARCH ${placeholders[placeholderIndex]}...`}
           className="w-full h-14 bg-transparent pl-12 pr-12 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:bg-white/5 transition-all placeholder:text-white/20 text-white"
         />
         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">

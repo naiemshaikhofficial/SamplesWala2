@@ -1,13 +1,158 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, ShoppingBag, ChevronRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Menu, X, ShoppingBag, ChevronRight, Search, ArrowRight } from 'lucide-react'
 import { HeaderCartIcon } from './HeaderCartIcon'
 import { LogoutButton } from './LogoutButton'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AnimatedLogo } from './AnimatedLogo'
 import { useAuth } from '@/context/AuthContext'
+import { getSearchSuggestions } from '@/app/browse/actions'
+
+function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
+  const [query, setQuery] = useState('')
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (query.length >= 2) {
+        setIsLoading(true)
+        const results = await getSearchSuggestions(query)
+        setSuggestions(results)
+        setIsOpen(true)
+        setIsLoading(false)
+      } else {
+        setSuggestions([])
+        setIsOpen(false)
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [query])
+
+  const handleSearch = React.useCallback((e?: React.FormEvent) => {
+    e?.preventDefault()
+    if (query.trim()) {
+      setIsOpen(false)
+      if (onSearchClose) onSearchClose()
+      router.push(`/browse?q=${encodeURIComponent(query.trim())}`)
+    }
+  }, [query, router, onSearchClose])
+
+  const placeholders = ['TRAP', 'HIP HOP', 'BOLLYWOOD', 'DRILL', 'LO-FI', 'VOCALS', 'MELODIES', 'PRESETS']
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length)
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div ref={searchRef} className="relative w-full md:max-w-[280px] z-50">
+      <form onSubmit={handleSearch} className="relative border-4 border-black bg-studio-charcoal shadow-[4px_4px_0px_#00BFFF] focus-within:shadow-[4px_4px_0px_#FFE600] focus-within:-translate-y-0.5 transition-all overflow-hidden h-11 flex items-center">
+        <div className="absolute left-3 text-white/20">
+          <Search size={14} />
+        </div>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => query.length >= 2 && setIsOpen(true)}
+          placeholder={`SEARCH ${placeholders[placeholderIndex]}...`}
+          className="w-full h-full bg-transparent pl-9 pr-9 text-[10px] font-black uppercase tracking-widest focus:outline-none placeholder:text-white/20 text-white"
+        />
+        <div className="absolute right-3 flex items-center gap-1.5">
+          {query && (
+            <button
+              type="button"
+              onClick={() => { setQuery(''); setSuggestions([]); }}
+              className="text-white/20 hover:text-white"
+            >
+              <X size={12} />
+            </button>
+          )}
+          <button
+            type="submit"
+            className="text-white/40 hover:text-studio-yellow transition-colors"
+          >
+            <ArrowRight size={14} />
+          </button>
+        </div>
+      </form>
+
+      {/* Suggestions Dropdown */}
+      {isOpen && (suggestions.length > 0 || isLoading) && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 w-full md:w-[300px]">
+          {isLoading ? (
+            <div className="p-3 text-[8px] font-black uppercase tracking-widest text-white/20 animate-pulse">Searching Signal...</div>
+          ) : (
+            <div className="divide-y-2 divide-black">
+              {suggestions.map((pack) => (
+                <Link
+                  key={pack.id}
+                  href={`/packs/${pack.slug}`}
+                  onClick={() => {
+                    setIsOpen(false)
+                    if (onSearchClose) onSearchClose()
+                  }}
+                  className="flex items-center gap-3 p-2 hover:bg-white/5 transition-colors group"
+                >
+                  <div className="w-9 h-9 relative flex-shrink-0 border-2 border-black">
+                    <Image
+                      src={pack.cover_url || '/placeholder.jpg'}
+                      alt={pack.name}
+                      fill
+                      sizes="36px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <h4 className="text-[9px] font-black uppercase truncate group-hover:text-studio-neon transition-colors">
+                      {pack.name}
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[7px] text-white/40 line-through font-bold">
+                        ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
+                      </span>
+                      <p className="text-[9px] font-black text-studio-neon uppercase italic tracking-widest leading-none">
+                        ₹{pack.price_inr}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight size={10} className="text-white/10 group-hover:text-studio-neon -translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all" />
+                </Link>
+              ))}
+              <button
+                onClick={handleSearch}
+                className="w-full p-2 bg-black/40 text-[7px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-studio-yellow text-left"
+              >
+                View all results for "{query}"
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function Header() {
   const { user, isArtist } = useAuth()
@@ -74,8 +219,13 @@ export function Header() {
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full relative z-[110]">
         <AnimatedLogo onClick={() => setIsMenuOpen(false)} />
 
+        {/* Global Search Bar (Desktop) */}
+        <div className="hidden md:block flex-grow max-w-[200px] lg:max-w-[280px] mx-4 lg:mx-6">
+          <HeaderSearch />
+        </div>
+
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] italic">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-[11px] font-black uppercase tracking-[0.2em] italic">
           <NavLinks />
         </nav>
 
@@ -123,6 +273,11 @@ export function Header() {
           >
             {/* Comic Accent */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:16px_16px]" />
+
+            {/* Mobile Search Bar */}
+            <div className="w-full relative z-20">
+              <HeaderSearch onSearchClose={() => setIsMenuOpen(false)} />
+            </div>
 
             <nav className="flex flex-col space-y-4 text-2xl font-black uppercase tracking-tighter relative z-10">
               {[
