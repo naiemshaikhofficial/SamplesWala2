@@ -55,19 +55,52 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
     }
   }, [query, router, onSearchClose])
 
-  const placeholders = ['TRAP', 'HIP HOP', 'BOLLYWOOD', 'DRILL', 'LO-FI', 'VOCALS', 'MELODIES', 'PRESETS']
-  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const [placeholderText, setPlaceholderText] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [loopNum, setLoopNum] = useState(0)
+  const [typingSpeed, setTypingSpeed] = useState(150)
+
+  const words = ['TRAP SAMPLES', 'HIP HOP LOOPS', 'BOLLYWOOD VOCALS', 'DRILL KITS', 'LO-FI MELODIES', 'PRESETS']
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length)
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [])
+    let timer: NodeJS.Timeout
+
+    const handleType = () => {
+      const i = loopNum % words.length
+      const fullTxt = `SEARCH ${words[i]}...`
+
+      if (isDeleting) {
+        setPlaceholderText(fullTxt.substring(0, placeholderText.length - 1))
+        setTypingSpeed(45) // Faster when deleting
+      } else {
+        setPlaceholderText(fullTxt.substring(0, placeholderText.length + 1))
+        setTypingSpeed(90) // Smooth normal typing speed
+      }
+
+      if (!isDeleting && placeholderText === fullTxt) {
+        // Pause at the end of the word
+        timer = setTimeout(() => setIsDeleting(true), 2500)
+      } else if (isDeleting && placeholderText === '') {
+        setIsDeleting(false)
+        setLoopNum(loopNum + 1)
+        setTypingSpeed(250) // Short pause before next word
+      } else {
+        timer = setTimeout(handleType, typingSpeed)
+      }
+    }
+
+    timer = setTimeout(handleType, typingSpeed)
+    return () => clearTimeout(timer)
+  }, [placeholderText, isDeleting, loopNum, typingSpeed])
 
   return (
     <div ref={searchRef} className="relative w-full md:max-w-[280px] z-50">
-      <form onSubmit={handleSearch} className="relative border-4 border-black bg-studio-charcoal shadow-[4px_4px_0px_#00BFFF] focus-within:shadow-[4px_4px_0px_#FFE600] focus-within:-translate-y-0.5 transition-all overflow-hidden h-11 flex items-center">
+      <motion.form 
+        onSubmit={handleSearch} 
+        whileHover={{ scale: 1.03, y: -1 }}
+        transition={{ type: "spring", stiffness: 450, damping: 18 }}
+        className="relative border-4 border-black bg-studio-charcoal shadow-[4px_4px_0px_#00BFFF] focus-within:shadow-[4px_4px_0px_#FFE600] focus-within:-translate-y-0.5 transition-all overflow-hidden h-11 flex items-center"
+      >
         <div className="absolute left-3 text-white/20">
           <Search size={14} />
         </div>
@@ -76,7 +109,7 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setIsOpen(true)}
-          placeholder={`SEARCH ${placeholders[placeholderIndex]}...`}
+          placeholder={placeholderText}
           className="w-full h-full bg-transparent pl-9 pr-9 text-[10px] font-black uppercase tracking-widest focus:outline-none placeholder:text-white/20 text-white"
         />
         <div className="absolute right-3 flex items-center gap-1.5">
@@ -96,7 +129,7 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
             <ArrowRight size={14} />
           </button>
         </div>
-      </form>
+      </motion.form>
 
       {/* Suggestions Dropdown */}
       {isOpen && (suggestions.length > 0 || isLoading) && (

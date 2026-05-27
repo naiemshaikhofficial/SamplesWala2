@@ -5,6 +5,7 @@ import { ArrowRight, Search, X } from 'lucide-react'
 import { getSearchSuggestions } from '@/app/browse/actions'
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 
 export function HeroSearch() {
   const [query, setQuery] = useState('')
@@ -49,19 +50,52 @@ export function HeroSearch() {
     }
   }, [query, router])
 
-  const placeholders = ['TRAP', 'HIP HOP', 'BOLLYWOOD', 'DRILL', 'LO-FI', 'VOCALS', 'MELODIES', 'PRESETS']
-  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const [placeholderText, setPlaceholderText] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [loopNum, setLoopNum] = useState(0)
+  const [typingSpeed, setTypingSpeed] = useState(150)
+
+  const words = ['TRAP SAMPLES', 'HIP HOP LOOPS', 'BOLLYWOOD VOCALS', 'DRILL KITS', 'LO-FI MELODIES', 'PRESETS']
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length)
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [])
+    let timer: NodeJS.Timeout
+
+    const handleType = () => {
+      const i = loopNum % words.length
+      const fullTxt = `SEARCH ${words[i]}...`
+
+      if (isDeleting) {
+        setPlaceholderText(fullTxt.substring(0, placeholderText.length - 1))
+        setTypingSpeed(45) // Faster when deleting
+      } else {
+        setPlaceholderText(fullTxt.substring(0, placeholderText.length + 1))
+        setTypingSpeed(90) // Smooth normal typing speed
+      }
+
+      if (!isDeleting && placeholderText === fullTxt) {
+        // Pause at the end of the word
+        timer = setTimeout(() => setIsDeleting(true), 2500)
+      } else if (isDeleting && placeholderText === '') {
+        setIsDeleting(false)
+        setLoopNum(loopNum + 1)
+        setTypingSpeed(250) // Short pause before next word
+      } else {
+        timer = setTimeout(handleType, typingSpeed)
+      }
+    }
+
+    timer = setTimeout(handleType, typingSpeed)
+    return () => clearTimeout(timer)
+  }, [placeholderText, isDeleting, loopNum, typingSpeed])
 
   return (
     <div ref={searchRef} className="relative w-full max-w-md mx-auto lg:mx-0 z-50">
-      <form onSubmit={handleSearch} className="relative graffiti-input-box overflow-hidden">
+      <motion.form 
+        onSubmit={handleSearch} 
+        whileHover={{ scale: 1.03, y: -1 }}
+        transition={{ type: "spring", stiffness: 450, damping: 18 }}
+        className="relative graffiti-input-box overflow-hidden"
+      >
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20">
           <Search size={16} />
         </div>
@@ -70,7 +104,7 @@ export function HeroSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setIsOpen(true)}
-          placeholder={`SEARCH ${placeholders[placeholderIndex]}...`}
+          placeholder={placeholderText}
           className="w-full h-14 bg-transparent pl-12 pr-12 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:bg-white/5 transition-all placeholder:text-white/20 text-white"
         />
         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -90,7 +124,7 @@ export function HeroSearch() {
             <ArrowRight size={18} />
           </button>
         </div>
-      </form>
+      </motion.form>
 
       {/* Suggestions Dropdown */}
       {isOpen && (suggestions.length > 0 || isLoading) && (
