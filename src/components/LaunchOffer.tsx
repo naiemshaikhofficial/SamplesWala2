@@ -3,15 +3,53 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Zap } from 'lucide-react'
 
+import { createClient } from '@/lib/supabase/client'
+
 export function LaunchOffer() {
   const [isMobile, setIsMobile] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
+  const [isVisible, setIsVisible] = React.useState(true)
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
     window.addEventListener('resize', checkMobile)
+
+    setMounted(true)
+
+    // Check cached value immediately on mount for fast reaction
+    const cached = sessionStorage.getItem('show_launch_offer')
+    if (cached !== null) {
+      setIsVisible(cached !== 'false')
+    }
+
+    const fetchStatus = async () => {
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('app_metadata')
+          .select('value')
+          .eq('key', 'show_launch_offer')
+          .maybeSingle()
+
+        if (!error && data) {
+          const value = data.value !== 'false'
+          setIsVisible(value)
+          sessionStorage.setItem('show_launch_offer', String(value))
+        }
+      } catch (err) {
+        console.error('Error fetching launch offer status:', err)
+      }
+    }
+
+    fetchStatus()
+
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  if (mounted && !isVisible) {
+    return null
+  }
 
   return (
     <div className="relative overflow-hidden h-10 md:h-12 flex items-center border-b-4 border-black z-[50] group">
