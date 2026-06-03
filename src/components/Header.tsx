@@ -238,10 +238,9 @@ export function Header() {
           <Link
             href="/auth"
             onClick={() => setIsMenuOpen(false)}
-            className="px-4 py-2 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[11px] tracking-wide flex items-center gap-1.5 group/signin"
+            className="px-4 py-2 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[11px] tracking-wide"
           >
-            <span>Sign In</span>
-            <ArrowRight size={13} className="text-black transition-transform duration-300 group-hover/signin:translate-x-1" />
+            Sign In
           </Link>
         )}
       </div>
@@ -268,10 +267,9 @@ export function Header() {
           {!user && (
             <Link
               href="/auth"
-              className="px-3 py-1.5 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[10px] flex items-center gap-1 group/signin"
+              className="px-3 py-1.5 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[10px]"
             >
-              <span>Sign In</span>
-              <ArrowRight size={11} className="text-black transition-transform duration-300 group-hover/signin:translate-x-0.5" />
+              Sign In
             </Link>
           )}
           <HeaderCartIcon />
