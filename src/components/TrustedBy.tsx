@@ -30,7 +30,7 @@ export default function TrustedBy() {
           <div className="h-1 w-12 bg-black" />
         </div>
         <div className="sr-only">
-          Trusted by producers at: Sony Music, T-Series, Zee Music, Desi Music Factory, Tips, Saregama, White Hill, Speed Records, Aditya Music, Ommsom Entertainment.
+          Trusted by producers at: Sony Music, T-Series, Zee Music, Desi Music Factory, Tips, Saregama, White Hill, Speed Records, Aditya Music, Ommsom Entertainment, Desi Melodies, Warner Music India, Ultra Media, Times Music, Universal Music Group.
         </div>
       </div>
 

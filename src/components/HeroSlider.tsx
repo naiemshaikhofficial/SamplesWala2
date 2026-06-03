@@ -19,7 +19,57 @@ export function HeroSlider({ packs }: { packs: any[] }) {
   const progressTimer = useRef<NodeJS.Timeout | null>(null)
   const isHovered = useRef(false)
 
+  // Touch gesture refs for mobile swiping
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+  const touchEndX = useRef<number | null>(null)
+  const touchEndY = useRef<number | null>(null)
+
   const slideDuration = 6000 // 6 seconds per slide
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+    touchEndX.current = e.touches[0].clientX
+    touchEndY.current = e.touches[0].clientY
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX
+    touchEndY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = () => {
+    if (
+      touchStartX.current === null ||
+      touchEndX.current === null ||
+      touchStartY.current === null ||
+      touchEndY.current === null
+    ) {
+      return
+    }
+
+    const diffX = touchStartX.current - touchEndX.current
+    const diffY = touchStartY.current - touchEndY.current
+    const swipeThreshold = 50 // Minimum swipe distance in px
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX > swipeThreshold) {
+        // Swipe left -> Next slide
+        setActiveIndex((prev) => (prev + 1) % packs.length)
+        setProgress(0)
+      } else if (diffX < -swipeThreshold) {
+        // Swipe right -> Prev slide
+        setActiveIndex((prev) => (prev - 1 + packs.length) % packs.length)
+        setProgress(0)
+      }
+    }
+
+    touchStartX.current = null
+    touchEndX.current = null
+    touchStartY.current = null
+    touchEndY.current = null
+  }
 
   // Active Pack Data
   const activePack = packs[activeIndex] || packs[0]
@@ -126,7 +176,12 @@ export function HeroSlider({ packs }: { packs: any[] }) {
         
         {/* LEFT COLUMN: Main Showcase Slider Panel (Grid column 3/4 span) */}
         <div className="lg:col-span-3 flex flex-col">
-          <div className="w-full h-auto min-h-[580px] lg:h-[500px] bg-studio-charcoal border-4 border-black shadow-premium p-6 md:p-10 relative overflow-hidden flex flex-col justify-between group">
+          <div 
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="w-full h-auto min-h-[580px] lg:h-[500px] bg-studio-charcoal border-4 border-black shadow-premium p-6 md:p-10 relative overflow-hidden flex flex-col justify-between group"
+          >
             
             <AnimatePresence mode="wait">
               <motion.div
