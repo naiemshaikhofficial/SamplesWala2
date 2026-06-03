@@ -6,10 +6,10 @@ export function LogoutButton() {
   return (
     <button 
       onClick={() => signOut()}
-      className="flex items-center gap-2 px-3 py-1.5 border border-white/5 bg-white/5 hover:bg-studio-neon/10 hover:border-studio-neon/50 hover:text-studio-neon transition-all rounded-sm group"
+      className="flex items-center gap-2 px-4 py-2 bg-[#de1a44] hover:bg-[#c21338] text-white transition-all rounded-lg group font-bold shadow-sm"
     >
-      <LogOut size={14} className="opacity-40 group-hover:opacity-100 transition-opacity" />
-      <span className="text-[9px] font-black uppercase tracking-widest">Sign Out</span>
+      <LogOut size={14} className="text-white" />
+      <span className="text-[11px] font-bold text-white tracking-wide">Sign Out</span>
     </button>
   )
 }

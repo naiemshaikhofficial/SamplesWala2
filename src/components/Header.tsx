@@ -238,7 +238,7 @@ export function Header() {
           <Link
             href="/auth"
             onClick={() => setIsMenuOpen(false)}
-            className="px-4 py-2 border border-white/10 hover:border-studio-yellow transition-all"
+            className="px-4 py-2 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[11px] tracking-wide"
           >
             Sign In
           </Link>
@@ -267,7 +267,7 @@ export function Header() {
           {!user && (
             <Link
               href="/auth"
-              className="px-3 py-1.5 border-2 border-black bg-white text-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+              className="px-3 py-1.5 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[10px]"
             >
               Sign In
             </Link>
