@@ -8,7 +8,7 @@ const labels = [
   { name: 'Desi Music Factory', logo: '/logos/desi.png', scale: 'scale-[0.85]' },
   { name: 'Tips', logo: '/logos/tips.png', scale: 'scale-[1.1]' },
   { name: 'Saregama', logo: '/logos/saregama.png', scale: 'scale-[1.2]' },
-  { name: 'White Hill', logo: '/logos/hill.png', scale: 'scale-[0.9]' },
+  { name: 'White Hill', logo: '/logos/hill.png', scale: 'scale-[1.0]' },
   { name: 'Speed Records', logo: '/logos/speed.png', scale: 'scale-[1.3]' },
   { name: 'Aditya Music', logo: '/logos/aditya.png', scale: 'scale-[1.1]' },
   { name: 'Ommsom Entertainment', logo: '/logos/odia-removebg-preview.png', scale: 'scale-[0.9]' },
@@ -16,7 +16,7 @@ const labels = [
   { name: 'Warner Music India', logo: '/logos/warner.png', scale: 'scale-[1.2]' },
   { name: 'Ultra Media', logo: '/logos/ultra.png', scale: 'scale-[1.1]' },
   { name: 'Times Music', logo: '/logos/times.png', scale: 'scale-[1.2]' },
-  { name: 'Universal Music Group', logo: '/logos/universal.png', scale: 'scale-[1.35] invert' },
+  { name: 'Universal Music Group', logo: '/logos/universal.png', scale: 'scale-[1.7] invert' },
 ];
 
 export default function TrustedBy() {
