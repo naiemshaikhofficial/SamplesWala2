@@ -63,6 +63,7 @@ export default async function RootLayout({
     "name": "Samples Wala",
     "url": "https://sampleswala.com",
     "logo": "https://sampleswala.com/Logo.png",
+    "description": "Premium royalty-free Indian sample packs, loops, and sound kits. Trusted by music producers at major labels like T-Series, Sony Music, Zee Music, and tips. Reviewed by leading artists including Abhi Bright, Sohan Beatz, and python.",
     "sameAs": [
       "https://instagram.com/sampleswala",
       "https://youtube.com/@sampleswala",

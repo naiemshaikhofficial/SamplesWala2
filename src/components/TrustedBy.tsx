@@ -26,6 +26,9 @@ export default function TrustedBy() {
           </h2>
           <div className="h-1 w-12 bg-black" />
         </div>
+        <div className="sr-only">
+          Trusted by producers at: Sony Music, T-Series, Zee Music, Desi Music Factory, Tips, Saregama, White Hill, Speed Records, Aditya Music, Ommsom Entertainment.
+        </div>
       </div>
 
       <div className="relative flex overflow-hidden">

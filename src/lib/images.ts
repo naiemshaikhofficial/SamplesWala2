@@ -6,5 +6,20 @@
  */
 export function getOptimizedImageUrl(url: string | null | undefined, width: number = 800, quality: number = 80): string {
   if (!url) return '/placeholder.jpg';
-  return url;
+
+  const WORKER_URL = 'https://sampleswala-images.sampleswala.workers.dev';
+
+  if (url.startsWith('/')) {
+    return `${url}?w=${width}&q=${quality}`;
+  }
+
+  try {
+    const isExternal = url.startsWith('http');
+    if (!isExternal) return url;
+
+    // Use the custom worker to resize and optimize
+    return `${WORKER_URL}/?url=${encodeURIComponent(url)}&w=${width}&q=${quality}`;
+  } catch (e) {
+    return url;
+  }
 }

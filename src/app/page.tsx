@@ -22,7 +22,7 @@ export const revalidate = false
 
 export const metadata = generatePageMetadata({
   title: "Samples Wala | Premium Indian Sample Packs & Loops",
-  description: "Download high-quality Indian sample packs, loops, and curated collections for Bollywood, Hip-Hop, and Electronic music. 100% royalty-free.",
+  description: "Download premium royalty-free Indian sample packs, loops, and sound libraries. Trusted by producers at T-Series, Sony Music, and Zee Music. Reviewed by top artists like Abhi Bright & Sohan Beatz.",
   path: '/'
 })
 
@@ -50,10 +50,79 @@ export default async function HomePage() {
     "@type": "Organization",
     "name": "Samples Wala",
     "url": "https://sampleswala.com",
-    "logo": "https://sampleswala.com/logo.png",
+    "logo": "https://sampleswala.com/Logo.png",
     "sameAs": [
       "https://instagram.com/sampleswala",
-      "https://youtube.com/sampleswala"
+      "https://youtube.com/@sampleswala",
+      "https://twitter.com/sampleswala"
+    ],
+    "description": "Premium royalty-free Indian sample packs, loops, and sound kits. Trusted by music producers at major labels like T-Series, Sony Music, Zee Music, and tips. Reviewed by leading artists including Abhi Bright, Sohan Beatz, and python.",
+    "review": [
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "Abhi Bright",
+          "sameAs": "https://www.instagram.com/abhibright/"
+        },
+        "reviewBody": "Honestly, 'THE SOUTH' pack is a complete vibe. Those tapori rhythms and South Indian elements were exactly what my latest track needed. SamplesWala is definitely the real deal.",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "Sohan Beatz",
+          "sameAs": "https://www.instagram.com/sohanbeatz/"
+        },
+        "reviewBody": "Just picked up 'The South' pack and I'm really impressed. The authenticity of the percussion adds so much energy to my beats. It's a must-have for anyone producing Indian hip-hop.",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "Python",
+          "sameAs": "https://www.instagram.com/mix_with_python/"
+        },
+        "reviewBody": "SamplesWala's Bollywood pack is basically the gold standard. The melodies and percussion feel so authentic, they bring that cinematic feel to my tracks instantly. Great stuff.",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "David Gifson",
+          "sameAs": "https://www.instagram.com/davidgifson/"
+        },
+        "reviewBody": "Finding authentic Odia and Sambalpuri folk elements of this quality is nearly impossible. The rhythms and percussions in this pack are incredibly rich and pristine. They give an instant organic energy to my production.",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "Deepak Poojary",
+          "sameAs": "https://www.instagram.com/deepak_poojary._/"
+        },
+        "reviewBody": "Finding authentic South Indian samples that actually work in a club setting used to be a struggle. This pack changed everything for me. The percussion is so crisp and hard-hitting.",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5"
+        }
+      }
     ]
   }
 
