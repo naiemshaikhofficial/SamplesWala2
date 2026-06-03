@@ -70,7 +70,7 @@ export function ArtistTestimonials() {
           {testimonials.map((t, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-[80vw] sm:w-[45vw] md:w-auto aspect-square snap-center bg-studio-charcoal border-4 border-black p-6 md:p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between"
+              className="flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-auto snap-center bg-studio-charcoal border-4 border-black p-6 md:p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-2 transition-all group relative overflow-hidden flex flex-col justify-between"
             >
               {/* Decorative Background Icon */}
               <div className="absolute -right-4 -bottom-4 opacity-[0.03] text-white pointer-events-none">
