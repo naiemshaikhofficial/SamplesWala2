@@ -5,7 +5,7 @@ const labels = [
   { name: 'Sony Music', logo: '/logos/sony.png', scale: 'scale-[1.1]' },
   { name: 'T-Series', logo: '/logos/tseries.png', scale: 'scale-[0.85]' },
   { name: 'Zee Music', logo: '/logos/zee.png', scale: 'scale-[1.35]' },
-  { name: 'Desi Music Factory', logo: '/logos/desi.png', scale: 'scale-[0.85]' },
+  { name: 'Desi Music Factory', logo: '/logos/desi.png', scale: 'scale-[1.0]' },
   { name: 'Tips', logo: '/logos/tips.png', scale: 'scale-[1.1]' },
   { name: 'Saregama', logo: '/logos/saregama.png', scale: 'scale-[1.2]' },
   { name: 'White Hill', logo: '/logos/hill.png', scale: 'scale-[1.0]' },
