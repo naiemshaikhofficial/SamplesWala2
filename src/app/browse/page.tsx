@@ -6,6 +6,7 @@ import { generatePageMetadata } from '@/lib/seo/metadata'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { PresetCard } from '@/components/PresetCard'
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
+import { FlashSalePromo } from '@/components/FlashSalePromo'
 
 export const metadata = generatePageMetadata({
   title: 'Browse Music Production Tools | SamplesWala',
@@ -84,16 +85,7 @@ export default async function BrowsePage({
               </div>
            </div>
 
-           {/* Stats / Promo */}
-           <div className="p-5 bg-studio-pink/10 border-2 border-studio-pink/20 rounded-sm">
-              <div className="flex items-center gap-2 text-studio-pink mb-2">
-                 <ShoppingBag size={14} />
-                 <span className="text-[9px] font-black uppercase tracking-widest">Flash Sale</span>
-              </div>
-              <p className="text-[11px] font-black uppercase tracking-tighter text-white">
-                 Get any {type === 'packs' ? 'Pack' : 'Preset'} for <span className="text-studio-neon">₹499</span>
-              </p>
-           </div>
+           <FlashSalePromo type={type} />
         </aside>
 
         {/* --- MAIN CONTENT AREA --- */}
