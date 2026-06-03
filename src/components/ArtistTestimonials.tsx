@@ -48,6 +48,15 @@ const testimonials = [
     pack: "SAMBALPUR RHYTHM",
     quote: "Finding authentic Odia and Sambalpuri folk elements of this quality is nearly impossible. The rhythms and percussions in this pack are incredibly rich and pristine. They give an instant organic energy to my production.",
     instagram: "https://www.instagram.com/davidgifson/"
+  },
+  {
+    name: "DJ Nitesh",
+    role: "DJ / Producer",
+    image: "/dj-nitesh.jpg",
+    pack: "SAMBALPUR RHYTHM",
+    quote: "Wow, this is absolutely incredible! Honestly, I should be the one thanking you for providing such high-quality, authentic samples for us. They have completely elevated my productions! ❤️🫶🏼",
+    youtube: "https://www.youtube.com/@djniteshofficial30",
+    instagram: "https://www.instagram.com/dj.nitesh_official"
   }
 ]
 
