@@ -30,8 +30,8 @@ export function Footer() {
               <Image
                 src="/Logo.png"
                 alt="SamplesWala Logo"
-                width={160}
-                height={45}
+                width={120}
+                height={30}
                 priority
                 className="object-contain"
               />
