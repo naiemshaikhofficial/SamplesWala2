@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { AnimatedLogo } from '@/components/AnimatedLogo'
+import Image from 'next/image'
 import { Instagram, Youtube, Facebook, Send, Linkedin } from 'lucide-react'
 
 export function Footer() {
@@ -17,15 +17,25 @@ export function Footer() {
         <div className="flex-1 bg-white h-full" />
         <div className="flex-1 bg-studio-neon h-full" />
       </div>
-
       {/* Cyber Comic Dots Ambient Overlay */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:16px_16px]" />
 
       <div className="container mx-auto px-4 md:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 md:mb-20">
-          {/* Logo & Description Panel */}
           <div className="col-span-1 space-y-6">
-            <AnimatedLogo className="opacity-95 hover:opacity-100 hover:scale-105 transition-all duration-300" />
+            <Link
+              href="/"
+              className="flex items-center select-none hover:scale-105 transition-transform duration-200 opacity-95 hover:opacity-100"
+            >
+              <Image
+                src="/Logo.png"
+                alt="SamplesWala Logo"
+                width={160}
+                height={45}
+                priority
+                className="object-contain"
+              />
+            </Link>
             <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed max-w-sm">
               Premium sound design for the modern producer. Industry standard sample packs, loops, and tools for Indian music production.
             </p>
