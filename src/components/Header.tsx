@@ -95,8 +95,8 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
 
   return (
     <div ref={searchRef} className="relative w-full md:max-w-[280px] z-50">
-      <motion.form 
-        onSubmit={handleSearch} 
+      <motion.form
+        onSubmit={handleSearch}
         whileHover={{ scale: 1.03, y: -1 }}
         transition={{ type: "spring", stiffness: 450, damping: 18 }}
         className="relative border-4 border-black bg-studio-charcoal shadow-[4px_4px_0px_#00BFFF] focus-within:shadow-[4px_4px_0px_#FFE600] focus-within:-translate-y-0.5 transition-all overflow-hidden h-11 flex items-center"
@@ -250,7 +250,20 @@ export function Header() {
   return (
     <header className={`${isMenuOpen ? 'fixed top-0' : 'sticky top-0'} z-[100] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)] w-full`}>
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full relative z-[110]">
-        <AnimatedLogo onClick={() => setIsMenuOpen(false)} />
+        <Link
+          href="/"
+          onClick={() => setIsMenuOpen(false)}
+          className="flex items-center select-none hover:scale-105 translate-y-[6px] transition-transform duration-200"
+        >
+          <Image
+            src="/Logo.png"
+            alt="SamplesWala Logo"
+            width={180}
+            height={45}
+            priority
+            className="object-contain"
+          />
+        </Link>
 
         {/* Global Search Bar (Desktop) */}
         <div className="hidden md:block flex-grow max-w-[200px] lg:max-w-[280px] mx-4 lg:mx-6">
