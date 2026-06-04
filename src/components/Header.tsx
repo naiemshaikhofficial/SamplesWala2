@@ -253,7 +253,7 @@ export function Header() {
         <Link
           href="/"
           onClick={() => setIsMenuOpen(false)}
-          className="flex items-center select-none hover:scale-105 translate-y-[6px] transition-transform duration-200"
+          className="flex items-center select-none hover:scale-105 translate-y-[13px] transition-transform duration-200"
         >
           <Image
             src="/Logo.png"
