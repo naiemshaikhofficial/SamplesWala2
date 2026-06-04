@@ -483,6 +483,11 @@ export default function CheckoutPage() {
         name: "Sampleswala",
         description: `Checkout ${itemCount} items`,
         order_id: order.id,
+        prefill: {
+          name: billingDetails.fullName,
+          email: user?.email || '',
+          contact: billingDetails.phone
+        },
         handler: async function (response: any) {
           setPaymentStatus('processing')
           try {
