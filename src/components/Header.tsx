@@ -258,8 +258,8 @@ export function Header() {
           <Image
             src="/Logo.png"
             alt="SamplesWala Logo"
-            width={180}
-            height={45}
+            width={150}
+            height={30}
             priority
             className="object-contain"
           />
