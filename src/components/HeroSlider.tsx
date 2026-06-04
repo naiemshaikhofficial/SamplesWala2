@@ -90,7 +90,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
     // Setup auto-play interval
     const startAutoPlay = () => {
       setProgress(0)
-      
+
       // Timer for slide transition
       autoPlayTimer.current = setInterval(() => {
         if (!isHovered.current) {
@@ -161,28 +161,28 @@ export function HeroSlider({ packs }: { packs: any[] }) {
     { text: 'NEW ARRIVAL', color: 'bg-studio-red' },
     { text: 'BEST SELLER', color: 'bg-studio-pink' },
     { text: 'TRENDING PACK', color: 'bg-studio-yellow' },
-    { text: 'PRE-ORDER SAVINGS', color: 'bg-studio-neon' },
+    { text: 'EPIC DEAL', color: 'bg-studio-neon' },
   ]
 
   const activeTag = tags[activeIndex % tags.length]
 
   return (
-    <div 
+    <div
       className="w-full relative z-30"
       onMouseEnter={() => { isHovered.current = true }}
       onMouseLeave={() => { isHovered.current = false }}
     >
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-stretch">
-        
+
         {/* LEFT COLUMN: Main Showcase Slider Panel (Grid column 3/4 span) */}
         <div className="lg:col-span-3 flex flex-col">
-          <div 
+          <div
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             className="w-full h-auto min-h-[580px] lg:h-[500px] bg-studio-charcoal border-4 border-black shadow-premium p-6 md:p-10 relative overflow-hidden flex flex-col justify-between group"
           >
-            
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={activePack.id}
@@ -212,13 +212,13 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   {/* Overall Subtle Dark Overlay */}
                   <div className="absolute inset-0 bg-black/10" />
                 </div>
-                
+
                 {/* Top Row: Tags & Badges */}
                 <div className="flex items-center justify-between relative z-10">
                   <div className={`px-4 py-1.5 ${activeTag.color} text-black font-black uppercase text-[10px] md:text-xs tracking-[0.2em] shadow-[3px_3px_0px_black] border-2 border-black rotate-[-2deg]`}>
                     {activeTag.text}
                   </div>
-                  
+
                   <div className="flex items-center gap-2 bg-black px-3 py-1 border-2 border-black shadow-[2px_2px_0px_white]">
                     <ShieldCheck size={12} className="text-studio-neon" />
                     <span className="text-[8px] font-black uppercase tracking-wider text-white">100% Royalty Free</span>
@@ -227,7 +227,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                 {/* Main Content Area */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center py-4 relative z-10 flex-1">
-                  
+
                   {/* Left Text Block (7 Columns) */}
                   <div className="md:col-span-7 space-y-4 md:space-y-6 text-left">
                     <div className="space-y-2">
@@ -253,7 +253,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                           ₹{currentPrice}
                         </span>
                       </div>
-                      
+
                       <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
                         <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
                           {Math.round((1 - (currentPrice / (activePack.mrp_inr || (currentPrice * 3)))) * 100)}% OFF
@@ -261,9 +261,8 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       </div>
 
                       {!activePack.is_downloadable && (
-                        <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${
-                          isExpired ? 'bg-studio-red text-white' : 'bg-studio-neon text-black'
-                        }`}>
+                        <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${isExpired ? 'bg-studio-red text-white' : 'bg-studio-neon text-black'
+                          }`}>
                           {isExpired ? 'Regular Price' : 'Pre-Order Offer'}
                         </div>
                       )}
@@ -274,7 +273,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   <div className="md:col-span-5 flex justify-center md:justify-end relative">
                     {/* Decorative Comic Splash behind the cover */}
                     <div className="absolute w-60 h-60 bg-studio-pink/10 blur-2xl rounded-full -z-10 animate-pulse" />
-                    
+
                     <div className="w-56 md:w-64 aspect-square relative border-4 border-black shadow-premium transform hover:rotate-0 transition-transform duration-500 -rotate-3 group-hover:scale-105">
                       <Image
                         src={getOptimizedImageUrl(activePack.cover_url, 600, 80)}
@@ -284,7 +283,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         sizes="(max-width: 768px) 220px, 320px"
                         className="object-cover"
                       />
-                      
+
                       {/* Corner badge on image */}
                       <div className="absolute -top-3 -right-3 w-8 h-8 bg-studio-yellow text-black border-2 border-black rounded-full flex items-center justify-center shadow-[2px_2px_0px_black]">
                         <Zap size={16} fill="black" />
@@ -296,7 +295,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                 {/* Bottom Actions Row */}
                 <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 relative z-10 pt-4 border-t border-white/5">
-                  
+
                   {/* Cart added animation popover */}
                   <div className="relative flex-1 sm:flex-none">
                     <AnimatePresence>
@@ -324,13 +323,12 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                   <button
                     onClick={(e) => handleBuyNow(e, activePack, currentPrice)}
-                    className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 hover:bg-white hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
-                      isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'
-                    } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
+                    className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 hover:bg-white hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'
+                      } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
                   >
                     {isPreorderActive ? 'PRE-ORDER NOW' : 'BUY NOW'}
                   </button>
-                  
+
                   <Link
                     href={`/packs/${activePack.slug}`}
                     className="w-full sm:w-auto h-11 sm:h-14 px-4 sm:px-6 border-2 border-white/10 hover:border-studio-blue hover:text-studio-blue text-[9px] sm:text-[10px] font-black uppercase tracking-widest flex items-center justify-center transition-all"
@@ -352,11 +350,10 @@ export function HeroSlider({ packs }: { packs: any[] }) {
               <button
                 key={pack.id}
                 onClick={() => handleSelectSlide(index)}
-                className={`flex-1 min-w-[200px] lg:w-full text-left p-3.5 border-4 border-black transition-all duration-300 relative flex items-center gap-3.5 select-none ${
-                  isActive 
-                    ? 'bg-white/10 border-studio-pink shadow-[4px_4px_0px_black] translate-x-1' 
+                className={`flex-1 min-w-[200px] lg:w-full text-left p-3.5 border-4 border-black transition-all duration-300 relative flex items-center gap-3.5 select-none ${isActive
+                    ? 'bg-white/10 border-studio-pink shadow-[4px_4px_0px_black] translate-x-1'
                     : 'bg-studio-charcoal border-black hover:bg-white/[0.03] hover:translate-x-0.5'
-                }`}
+                  }`}
               >
                 {/* Active slider background slide-in indicator */}
                 {isActive && (
@@ -382,11 +379,11 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   <h4 className="text-[12px] font-black uppercase truncate text-white tracking-tight leading-tight">
                     {pack.name}
                   </h4>
-                  
+
                   {/* Miniature auto-play Progress Bar (Visible only on Active card) */}
                   {isActive ? (
                     <div className="w-full h-1 bg-white/10 mt-2 relative overflow-hidden rounded-full">
-                      <div 
+                      <div
                         className="h-full bg-studio-pink transition-all duration-100 ease-linear"
                         style={{ width: `${progress}%` }}
                       />

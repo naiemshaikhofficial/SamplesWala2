@@ -14,7 +14,8 @@ export async function POST(request: Request) {
       items, // array of {id, type}
       userId,
       billingDetails,
-      isFree
+      isFree,
+      couponCode
     } = body
 
     // 1. Verify Payment OR Verify Free Order
@@ -80,6 +81,27 @@ export async function POST(request: Request) {
       if (vaultError.code !== '23505') {
         console.error('[VAULT_ERROR]', vaultError)
         return NextResponse.json({ error: "Failed to update library" }, { status: 500 })
+      }
+    }
+
+    // 3.5 Record Coupon Usage
+    if (couponCode) {
+      const cleanCoupon = String(couponCode).toUpperCase().trim()
+      const { data: coupon } = await admin
+        .from('coupons')
+        .select('id')
+        .eq('code', cleanCoupon)
+        .eq('is_active', true)
+        .maybeSingle()
+
+      if (coupon) {
+        await admin
+          .from('coupon_usages')
+          .insert({
+            coupon_id: coupon.id,
+            user_id: userId,
+            order_id: finalOrderId
+          })
       }
     }
 

@@ -200,6 +200,7 @@ export default function CheckoutPage() {
   const [coupon, setCoupon] = useState('')
   const [discount, setDiscount] = useState(0)
   const [couponError, setCouponError] = useState('')
+  const [couponDiscountAmount, setCouponDiscountAmount] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
@@ -367,18 +368,24 @@ export default function CheckoutPage() {
   const handleApplyCoupon = async () => {
     if (!coupon) return
     setLoading(true)
-    const result = await validateCoupon(coupon)
+    const result = await validateCoupon(
+      coupon,
+      user?.id || null,
+      items.map(item => ({ id: item.id, price: item.price }))
+    )
     if (result.success) {
-      setDiscount(result.discount || 0)
+      setDiscount(result.discountPercent || 0)
+      setCouponDiscountAmount(result.discountAmount || 0)
       setCouponError('')
     } else {
       setCouponError(result.message || 'Invalid coupon')
       setDiscount(0)
+      setCouponDiscountAmount(0)
     }
     setLoading(false)
   }
 
-  const discountedTotal = Math.round(total - (total * discount / 100))
+  const discountedTotal = Math.max(0, total - couponDiscountAmount)
 
   const subtotalRef = useAnimatedCounter(total)
   const totalRef = useAnimatedCounter(discountedTotal)
@@ -407,11 +414,8 @@ export default function CheckoutPage() {
       return
     }
 
-    setLoading(true)
-    setError('')
-
-    // --- 1. HANDLE FREE CHECKOUT (BYPASS RAZORPAY) ---
-    if (total === 0) {
+    setLoading(true)     // --- 1. HANDLE FREE CHECKOUT (BYPASS RAZORPAY) ---
+    if (discountedTotal === 0) {
       try {
         const verifyRes = await fetch('/api/razorpay/verify', {
           method: 'POST',
@@ -420,7 +424,8 @@ export default function CheckoutPage() {
             isFree: true,
             items: items.map(i => ({ id: i.id, type: i.type })),
             userId: user.id,
-            billingDetails: billingDetails
+            billingDetails: billingDetails,
+            couponCode: discount > 0 ? coupon : undefined
           }),
         })
 
@@ -461,7 +466,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: items.map(i => ({ id: i.id, type: i.type })),
-          couponCode: coupon
+          couponCode: discount > 0 ? coupon : undefined
         }),
       })
       const order = await res.json()
@@ -488,7 +493,8 @@ export default function CheckoutPage() {
                 ...response,
                 items: items.map(i => ({ id: i.id, type: i.type })),
                 userId: user.id,
-                billingDetails: billingDetails
+                billingDetails: billingDetails,
+                couponCode: discount > 0 ? coupon : undefined
               }),
             })
             const verifyData = await verifyRes.json()

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
 import { createClient } from '@/lib/supabase/server'
+import { validateCoupon } from '@/app/checkout/actions'
 
 import { getPackPriceDetails } from '../../../../lib/pricing'
 
@@ -52,23 +53,24 @@ export async function POST(request: Request) {
     const subtotalAfterBundle = rawSubtotal - bundleDiscountAmount
     
     // Server-side Coupon Validation
+    let couponDiscountAmount = 0
     let couponDiscountPercent = 0
     if (couponCode) {
-      const { data: couponData } = await supabase
-        .from('coupons')
-        .select('discount_percent')
-        .eq('code', couponCode.toUpperCase())
-        .eq('is_active', true)
-        .or(`expires_at.gt.${new Date().toISOString()},expires_at.is.null`)
-        .maybeSingle()
-      
-      if (couponData) {
-        couponDiscountPercent = couponData.discount_percent
+      const couponResult = await validateCoupon(
+        couponCode,
+        user.id,
+        allItems.map(item => ({ id: item.id, price: Number(item.price_inr) }))
+      )
+
+      if (couponResult.success) {
+        couponDiscountAmount = couponResult.discountAmount || 0
+        couponDiscountPercent = couponResult.discountPercent || 0
+      } else {
+        return NextResponse.json({ error: couponResult.message || 'Invalid coupon' }, { status: 400 })
       }
     }
 
-    const couponDiscountAmount = Math.round(subtotalAfterBundle * couponDiscountPercent / 100)
-    const total = subtotalAfterBundle - couponDiscountAmount
+    const total = Math.max(0, subtotalAfterBundle - couponDiscountAmount)
 
     // 3. Create Razorpay order
     const options = {
