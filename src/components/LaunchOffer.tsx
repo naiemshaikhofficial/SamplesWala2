@@ -8,20 +8,20 @@ import { createClient } from '@/lib/supabase/client'
 export function LaunchOffer() {
   const [isMobile, setIsMobile] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
-  const [isVisible, setIsVisible] = React.useState(true)
+  const [isVisible, setIsVisible] = React.useState(false)
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
     window.addEventListener('resize', checkMobile)
 
-    setMounted(true)
-
     // Check cached value immediately on mount for fast reaction
     const cached = sessionStorage.getItem('show_launch_offer')
     if (cached !== null) {
       setIsVisible(cached !== 'false')
     }
+
+    setMounted(true)
 
     const fetchStatus = async () => {
       try {
@@ -47,7 +47,7 @@ export function LaunchOffer() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  if (mounted && !isVisible) {
+  if (!mounted || !isVisible) {
     return null
   }
 

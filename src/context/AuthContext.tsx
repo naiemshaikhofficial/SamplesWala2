@@ -67,7 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const hasSessionCookie = typeof window !== 'undefined' && document.cookie.split(';').some(c => c.trim().startsWith('sb-') || c.trim().includes('-auth-token'))
     const supabase = createClient()
 
     const checkArtistStatus = async (userId: string) => {
@@ -76,14 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const initAuth = async () => {
-      if (!hasSessionCookie) {
-        setUser(null)
-        setSession(null)
-        setIsArtist(false)
-        setLoading(false)
-        return
-      }
-
       try {
         const { data: { session } } = await supabase.auth.getSession()
         setSession(session)

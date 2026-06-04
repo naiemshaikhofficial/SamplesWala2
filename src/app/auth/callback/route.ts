@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 import { revalidatePath } from 'next/cache'
 
 export async function GET(request: Request) {
@@ -9,12 +10,31 @@ export async function GET(request: Request) {
   const next = searchParams.get('next') ?? '/browse'
 
   if (code) {
-    const supabase = await createClient()
+    const cookieStore = await cookies()
+    const response = NextResponse.redirect(`${origin}${next}`)
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            const domain = process.env.NODE_ENV === 'production' ? '.sampleswala.com' : undefined;
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, { ...options, domain })
+              response.cookies.set(name, value, { ...options, domain })
+            })
+          },
+        },
+      }
+    )
+
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
       revalidatePath('/', 'layout')
-      const response = NextResponse.redirect(`${origin}${next}`)
-      // Cookies are already handled by the server client's setAll via next/headers
       return response
     }
   }
