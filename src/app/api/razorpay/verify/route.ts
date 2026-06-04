@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { generateInvoicePDF } from '@/lib/invoice'
 import { sendInvoiceEmail } from '@/lib/emails'
+import { getPackPriceDetails } from '../../../../lib/pricing'
 
 export async function POST(request: Request) {
   try {
@@ -40,18 +41,64 @@ export async function POST(request: Request) {
     const presetIds = items.filter((i: any) => i.type === 'preset').map((i: any) => i.id)
 
     const [packsRes, presetsRes] = await Promise.all([
-      packIds.length > 0 ? admin.from('sample_packs').select('id, name, price_inr, full_pack_download_url').in('id', packIds) : { data: [] },
-      presetIds.data ? { data: presetIds.data } : (presetIds.length > 0 ? admin.from('presets').select('id, name, price_inr').in('id', presetIds) : { data: [] })
+      packIds.length > 0 ? admin.from('sample_packs').select('id, name, price_inr, created_at, full_pack_download_url').in('id', packIds) : { data: [] },
+      presetIds.length > 0 ? admin.from('presets').select('id, name, price_inr').in('id', presetIds) : { data: [] }
     ])
 
-    const allPurchasedItems = [...(packsRes.data || []), ...(presetsRes.data || [])]
+    // Securely calculate dynamic prices for packs
+    const resolvedPacks = (packsRes.data || []).map((pack: any) => {
+      const priceDetails = getPackPriceDetails(pack)
+      return {
+        ...pack,
+        price_inr: priceDetails.priceInr
+      }
+    })
+
+    const allPurchasedItems = [...resolvedPacks, ...(presetsRes.data || [])]
 
     if (allPurchasedItems.length === 0) {
       return NextResponse.json({ error: "Failed to verify item details" }, { status: 500 })
     }
 
-    const calculatedTotal = allPurchasedItems.reduce((acc, item) => acc + (item.price_inr || 0), 0)
-    if (isFree && calculatedTotal > 0) {
+    // Calculate subtotal, bundle discount, and coupon discount to get exact total paid
+    const rawSubtotal = allPurchasedItems.reduce((acc, item) => acc + Number(item.price_inr || 0), 0)
+    const bundleDiscountAmount = items.length >= 3 ? Math.round(rawSubtotal * 0.1) : 0
+    const subtotalAfterBundle = rawSubtotal - bundleDiscountAmount
+
+    let couponDiscountAmount = 0
+    let couponDiscountPercent = 0
+    let applicableItems: string[] | null = null
+
+    if (couponCode) {
+      const cleanCoupon = String(couponCode).toUpperCase().trim()
+      const { data: coupon } = await admin
+        .from('coupons')
+        .select('*')
+        .eq('code', cleanCoupon)
+        .eq('is_active', true)
+        .maybeSingle()
+
+      if (coupon) {
+        couponDiscountPercent = coupon.discount_percent || 0
+        applicableItems = coupon.applicable_items || null
+
+        if (applicableItems && applicableItems.length > 0) {
+          const applicableTotal = allPurchasedItems.reduce((sum, item) => {
+            if (applicableItems!.includes(item.id)) {
+              return sum + Number(item.price_inr || 0)
+            }
+            return sum
+          }, 0)
+          couponDiscountAmount = Math.round(applicableTotal * couponDiscountPercent / 100)
+        } else {
+          couponDiscountAmount = Math.round(rawSubtotal * couponDiscountPercent / 100)
+        }
+      }
+    }
+
+    const serverVerifiedTotal = Math.max(0, subtotalAfterBundle - couponDiscountAmount)
+
+    if (isFree && serverVerifiedTotal > 0) {
         return NextResponse.json({ error: "Invalid free order" }, { status: 400 })
     }
 
@@ -59,15 +106,36 @@ export async function POST(request: Request) {
     const finalOrderId = isFree ? `SW_FREE_${Date.now()}` : razorpay_order_id
     const finalPaymentId = isFree ? `SW_PAY_FREE_${Date.now()}` : razorpay_payment_id
 
-    // 3. Add to User Vault
-    const vaultEntries = items.map((item: any) => {
+    // 3. Add to User Vault (with discounted item prices)
+    let calculatedSum = 0
+    const vaultEntries = items.map((item: any, index: number) => {
       const dbItem = allPurchasedItems.find(p => p.id === item.id)
+      const basePrice = Number(dbItem?.price_inr || 0)
+      const itemBundleDiscount = items.length >= 3 ? Math.round(basePrice * 0.1) : 0
+      
+      let itemCouponDiscount = 0
+      if (couponDiscountPercent > 0) {
+        const isApplicable = !applicableItems || applicableItems.length === 0 || applicableItems.includes(item.id)
+        if (isApplicable) {
+          itemCouponDiscount = Math.round(basePrice * couponDiscountPercent / 100)
+        }
+      }
+
+      let finalPrice = Math.max(0, basePrice - itemBundleDiscount - itemCouponDiscount)
+      
+      // Distribute rounding discrepancies to the last item
+      if (index === items.length - 1) {
+        finalPrice = Math.max(0, serverVerifiedTotal - calculatedSum)
+      } else {
+        calculatedSum += finalPrice
+      }
+
       return {
         user_id: userId,
         item_id: item.id,
         item_type: item.type,
         item_name: dbItem?.name || 'Unknown Item',
-        amount: dbItem?.price_inr || 0,
+        amount: finalPrice,
         razorpay_order_id: finalOrderId,
         razorpay_payment_id: finalPaymentId
       }
@@ -133,14 +201,15 @@ export async function POST(request: Request) {
       if (user && user.email) {
         const invoiceItems = items.map((item: any) => {
           const dbItem = allPurchasedItems.find(p => p.id === item.id)
+          const vaultEntry = vaultEntries.find((v: any) => v.item_id === item.id)
           return { 
             name: dbItem?.name || 'Unknown Item', 
-            price: dbItem?.price_inr || 0,
+            price: vaultEntry ? vaultEntry.amount : (dbItem?.price_inr || 0),
             isPreorder: item.type === 'pack' && !dbItem?.full_pack_download_url 
           }
         })
 
-        const total = invoiceItems.reduce((sum, item) => sum + item.price, 0)
+        const total = serverVerifiedTotal
         const hasPreorder = invoiceItems.some(i => i.isPreorder)
 
         const userAddress = billingDetails 
