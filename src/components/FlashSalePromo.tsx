@@ -9,7 +9,7 @@ interface FlashSalePromoProps {
 
 export function FlashSalePromo({ type }: FlashSalePromoProps) {
   const [mounted, setMounted] = React.useState(false)
-  const [isVisible, setIsVisible] = React.useState(true)
+  const [isVisible, setIsVisible] = React.useState(false)
 
   React.useEffect(() => {
     setMounted(true)
@@ -29,8 +29,8 @@ export function FlashSalePromo({ type }: FlashSalePromoProps) {
           .eq('key', 'show_flash_sale')
           .maybeSingle()
 
-        if (!error && data) {
-          const value = data.value !== 'false'
+        if (!error) {
+          const value = data ? data.value !== 'false' : false
           setIsVisible(value)
           sessionStorage.setItem('show_flash_sale', String(value))
         }
@@ -42,7 +42,7 @@ export function FlashSalePromo({ type }: FlashSalePromoProps) {
     fetchStatus()
   }, [])
 
-  if (mounted && !isVisible) {
+  if (!mounted || !isVisible) {
     return null
   }
 
