@@ -325,7 +325,7 @@ export function Header() {
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] bg-[size:16px_16px]" />
 
             {/* Mobile Search Bar */}
-            <div className="w-full relative z-20 pt-8">
+            <div className="w-full relative z-20 pt-16">
               <HeaderSearch onSearchClose={() => setIsMenuOpen(false)} />
             </div>
 
