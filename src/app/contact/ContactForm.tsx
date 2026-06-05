@@ -11,16 +11,19 @@ export default function ContactForm() {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    
-    // Web3Forms Access Key
-    formData.append("access_key", "854ad5d5-c25d-4329-8c46-d9e242a2a817");
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const message = formData.get('message');
 
     setStatus("sending");
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch("/api/contact", {
         method: "POST",
-        body: formData
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, message })
       });
 
       const data = await response.json();
@@ -30,7 +33,7 @@ export default function ContactForm() {
         form.reset();
       } else {
         setStatus("error");
-        setErrorMessage(data.message || "Something went wrong.");
+        setErrorMessage(data.error || "Something went wrong.");
       }
     } catch (error) {
       setStatus("error");
