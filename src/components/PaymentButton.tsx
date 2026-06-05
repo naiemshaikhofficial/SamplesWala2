@@ -4,10 +4,13 @@ import { CreditCard, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
 
+import { useCurrency } from '@/context/CurrencyContext'
+
 interface PaymentButtonProps {
   packId: string
   packName: string
   price: number
+  price_usd?: number
   slug: string
   cover_url: string
   userId?: string
@@ -15,10 +18,11 @@ interface PaymentButtonProps {
   label?: string
 }
 
-export function PaymentButton({ packId, packName, price, slug, cover_url, userId, type = 'pack', label }: PaymentButtonProps) {
+export function PaymentButton({ packId, packName, price, price_usd, slug, cover_url, userId, type = 'pack', label }: PaymentButtonProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { addItem, items, setSidebarOpen } = useCart()
+  const { formatPrice } = useCurrency()
 
   const handleBuyNow = async () => {
     setLoading(true)
@@ -31,6 +35,7 @@ export function PaymentButton({ packId, packName, price, slug, cover_url, userId
         id: packId,
         name: packName,
         price: price,
+        price_usd: price_usd,
         slug: slug,
         cover_url: cover_url,
         type: type
@@ -52,7 +57,7 @@ export function PaymentButton({ packId, packName, price, slug, cover_url, userId
       ) : (
         <>
           <CreditCard size={20} />
-          <span>{label || `BUY NOW — ₹${price}`}</span>
+          <span>{label || `BUY NOW — ${formatPrice(price, price_usd)}`}</span>
         </>
       )}
     </button>

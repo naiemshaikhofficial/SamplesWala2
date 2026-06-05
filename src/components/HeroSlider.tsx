@@ -8,12 +8,14 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, ShieldCheck } from 'lucide-react'
 import { getPackPriceDetails } from '@/lib/pricing'
+import { useCurrency } from '@/context/CurrencyContext'
 
 export function HeroSlider({ packs }: { packs: any[] }) {
   const { addItem } = useCart()
   const router = useRouter()
   const [activeIndex, setActiveIndex] = useState(0)
   const [addedId, setAddedId] = useState<string | null>(null)
+  const { formatPrice, getAmount } = useCurrency()
   const [progress, setProgress] = useState(0)
   const autoPlayTimer = useRef<NodeJS.Timeout | null>(null)
   const progressTimer = useRef<NodeJS.Timeout | null>(null)
@@ -80,7 +82,13 @@ export function HeroSlider({ packs }: { packs: any[] }) {
     return getPackPriceDetails(activePack)
   }, [activePack])
 
-  const currentPrice = priceDetails ? priceDetails.priceInr : Number(activePack?.price_inr || 0)
+  const currentPriceInr = priceDetails ? priceDetails.priceInr : Number(activePack?.price_inr || 0)
+  const priceNum = getAmount(currentPriceInr, activePack?.price_usd)
+  const mrpNum = getAmount(activePack?.mrp_inr || (currentPriceInr * 3), activePack?.price_usd ? Number(activePack.price_usd) * 3 : null)
+
+  const displayPrice = formatPrice(currentPriceInr, activePack?.price_usd)
+  const displayMrp = formatPrice(activePack?.mrp_inr || (currentPriceInr * 3), activePack?.price_usd ? Number(activePack.price_usd) * 3 : null)
+  const discountPercent = Math.round((1 - (priceNum / mrpNum)) * 100)
   const isPreorderActive = priceDetails ? priceDetails.isPreorderActive : false
   const isExpired = priceDetails ? priceDetails.isExpired : false
 
@@ -131,7 +139,8 @@ export function HeroSlider({ packs }: { packs: any[] }) {
     addItem({
       id: pack.id,
       name: pack.name,
-      price: price,
+      price: Number(pack.price_inr),
+      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -147,7 +156,8 @@ export function HeroSlider({ packs }: { packs: any[] }) {
     addItem({
       id: pack.id,
       name: pack.name,
-      price: price,
+      price: Number(pack.price_inr),
+      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -247,16 +257,16 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                     <div className="flex items-center gap-4 pt-2">
                       <div className="flex flex-col">
                         <span className="text-[11px] text-white/40 line-through font-black">
-                          ₹{activePack.mrp_inr || (currentPrice * 3)}
+                          {displayMrp}
                         </span>
                         <span className="text-3xl md:text-4xl font-black text-studio-yellow italic leading-none comic-text">
-                          ₹{currentPrice}
+                          {displayPrice}
                         </span>
                       </div>
 
                       <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
                         <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
-                          {Math.round((1 - (currentPrice / (activePack.mrp_inr || (currentPrice * 3)))) * 100)}% OFF
+                          {discountPercent}% OFF
                         </span>
                       </div>
 
@@ -313,7 +323,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                     </AnimatePresence>
 
                     <button
-                      onClick={(e) => handleAddToCart(e, activePack, currentPrice)}
+                      onClick={(e) => handleAddToCart(e, activePack, currentPriceInr)}
                       className={`w-full sm:w-auto h-11 sm:h-14 px-3 sm:px-8 bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 sm:gap-3 hover:bg-studio-neon hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none`}
                     >
                       <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
@@ -322,7 +332,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   </div>
 
                   <button
-                    onClick={(e) => handleBuyNow(e, activePack, currentPrice)}
+                    onClick={(e) => handleBuyNow(e, activePack, currentPriceInr)}
                     className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 hover:bg-white hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'
                       } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
                   >
@@ -390,7 +400,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                     </div>
                   ) : (
                     <span className="text-[9px] font-bold text-studio-neon italic mt-1 block">
-                      ₹{pack.price_inr}
+                      {formatPrice(pack.price_inr, pack.price_usd)}
                     </span>
                   )}
                 </div>

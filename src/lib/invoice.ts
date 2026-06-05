@@ -10,13 +10,16 @@ export async function generateInvoicePDF(orderData: {
   userAddress?: string,
   items: { name: string, price: number }[],
   total: number,
-  date: string
+  date: string,
+  currency?: string
 }) {
   const pdfDoc = await PDFDocument.create()
   const page = pdfDoc.addPage([600, 800])
   const { width, height } = page.getSize()
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+  
+  const curSymbol = orderData.currency || 'INR'
 
   // Comic Accents (Background elements)
   page.drawRectangle({ x: 0, y: height - 100, width: 10, height: 100, color: rgb(1, 0, 0.5) }) // Pink
@@ -105,7 +108,7 @@ export async function generateInvoicePDF(orderData: {
   // Table Header (Comic Neon Green)
   page.drawRectangle({ x: 51, y: 545, width: 498, height: 25, color: rgb(0, 1, 0.58) })
   page.drawText('DESCRIPTION OF DIGITAL GOODS', { x: 70, y: 552, size: 9, font: boldFont })
-  page.drawText('AMOUNT (INR)', { x: 450, y: 552, size: 9, font: boldFont })
+  page.drawText(`AMOUNT (${curSymbol})`, { x: 450, y: 552, size: 9, font: boldFont })
 
   // Items
   let currentY = 520
@@ -136,7 +139,7 @@ export async function generateInvoicePDF(orderData: {
   page.drawLine({ start: { x: 365, y: calcTop - 35 }, end: { x: 535, y: calcTop - 35 }, thickness: 1 })
 
   page.drawText('NET PAYABLE:', { x: 365, y: calcTop - 52, size: 11, font: boldFont })
-  page.drawText(`INR ${orderData.total.toFixed(2)}`, { x: 470, y: calcTop - 52, size: 11, font: boldFont })
+  page.drawText(`${curSymbol} ${orderData.total.toFixed(2)}`, { x: 470, y: calcTop - 52, size: 11, font: boldFont })
 
   // Transaction Stamp
   page.drawRectangle({ x: 50, y: 230, width: 140, height: 35, color: rgb(0, 0, 0) })

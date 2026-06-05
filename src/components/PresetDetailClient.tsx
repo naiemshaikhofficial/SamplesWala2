@@ -8,6 +8,7 @@ import { ShareButton } from '@/components/ShareButton'
 import { DownloadButton } from '@/components/DownloadButton'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
+import { useCurrency } from '@/context/CurrencyContext'
 
 interface PresetDetailClientProps {
   preset: any
@@ -19,6 +20,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
   const { user } = useAuth()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const [isOwned, setIsOwned] = useState(false)
+  const { formatPrice, getAmount } = useCurrency()
 
   useEffect(() => {
     if (user) {
@@ -80,17 +82,17 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                 <div className="flex flex-col">
                   {preset.mrp_inr && (
                     <span className="text-sm text-white/40 line-through font-bold">
-                      ₹{preset.mrp_inr}
+                      {formatPrice(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
                     </span>
                   )}
                   <p className="text-3xl font-black text-studio-neon uppercase italic tracking-widest">
-                    {preset.price_inr === 0 ? 'FREE' : `₹${preset.price_inr}`}
+                    {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
                   </p>
                 </div>
                 {preset.mrp_inr && preset.price_inr > 0 && (
                   <div className="bg-studio-red px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2">
                     <span className="text-[11px] font-black text-white uppercase italic">
-                      {Math.round((1 - (Number(preset.price_inr) / Number(preset.mrp_inr))) * 100)}% OFF
+                      {Math.round((1 - (getAmount(preset.price_inr, preset.price_usd) / getAmount(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)}% OFF
                     </span>
                   </div>
                 )}
@@ -136,6 +138,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                          id: preset.id,
                          name: preset.name,
                          price: Number(preset.price_inr),
+                         price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
                          slug: preset.slug,
                          cover_url: preset.cover_url || undefined,
                          type: 'preset'
@@ -146,7 +149,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                         className="w-full h-14 md:h-16 bg-studio-neon text-black font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-white transition-all shadow-[4px_4px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] border-4 border-black"
                      >
                         <Zap size={18} className="md:w-5 md:h-5" fill="currentColor" />
-                        {isFree ? 'GET FOR FREE' : 'BUY NOW'}
+                        {isFree ? 'GET FOR FREE' : `BUY NOW — ${formatPrice(preset.price_inr, preset.price_usd)}`}
                      </Link>
                   </div>
                )}

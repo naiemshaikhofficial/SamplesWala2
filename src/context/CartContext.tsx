@@ -5,6 +5,7 @@ export interface CartItem {
   id: string
   name: string
   price: number
+  price_usd?: number
   cover_url: string
   slug: string
   type: 'pack' | 'preset'

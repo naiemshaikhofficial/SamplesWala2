@@ -34,6 +34,7 @@ export const metadata: Metadata = generatePageMetadata({
 
 
 import { CartProvider } from "@/context/CartContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { HeaderCartIcon } from "@/components/HeaderCartIcon";
 import { Instagram, Youtube, Twitter } from "lucide-react";
@@ -112,12 +113,6 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
 
-        {/* Geographic Targeting (Local SEO) */}
-        <meta name="geo.region" content="IN" />
-        <meta name="geo.placename" content="Mumbai, India" />
-        <meta name="geo.position" content="19.0760;72.8777" />
-        <meta name="ICBM" content="19.0760, 72.8777" />
-
         {/* Crawler Directives */}
         <meta name="rating" content="general" />
         <meta name="distribution" content="global" />
@@ -143,19 +138,21 @@ export default async function RootLayout({
       </head>
       <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} ${notoMusic.variable} antialiased min-h-screen flex flex-col text-white`}>
         <AuthProvider>
-          <CartProvider>
-            <ArtistStatusProvider>
-              <BackgroundMural />
-              <ContentProtection />
-              <ServiceWorkerRegistration />
-              <CartSidebar />
-              <LayoutWrapper>
-                {children}
-              </LayoutWrapper>
-              <Analytics />
-              <SpeedInsights />
-            </ArtistStatusProvider>
-          </CartProvider>
+          <CurrencyProvider>
+            <CartProvider>
+              <ArtistStatusProvider>
+                <BackgroundMural />
+                <ContentProtection />
+                <ServiceWorkerRegistration />
+                <CartSidebar />
+                <LayoutWrapper>
+                  {children}
+                </LayoutWrapper>
+                <Analytics />
+                <SpeedInsights />
+              </ArtistStatusProvider>
+            </CartProvider>
+          </CurrencyProvider>
         </AuthProvider>
       </body>
     </html>

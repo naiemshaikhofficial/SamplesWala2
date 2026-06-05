@@ -10,7 +10,14 @@ const DEFAULT_KEYWORDS = [
   'Sample Wala',
   'Samplewala',
   'sampleswala',
-  'sampleswala.com'
+  'sampleswala.com',
+  'hip hop drum kits',
+  'splice alternative',
+  'sound kits',
+  'trap samples',
+  'presets for serum',
+  'lofi sample pack',
+  'synth presets'
 ]
 
 // --- Dynamic Niche Keyword Resource Dictionary ---

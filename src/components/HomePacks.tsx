@@ -7,6 +7,7 @@ import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getPackPriceDetails } from '@/lib/pricing'
+import { useCurrency } from '@/context/CurrencyContext'
 
 function parseDbDate(dateStr: string | undefined | null) {
   if (!dateStr) return 0
@@ -42,12 +43,14 @@ export function HomePacks({ packs }: { packs: any[] }) {
   const { addItem } = useCart()
   const router = useRouter()
   const [addedPackId, setAddedPackId] = React.useState<string | null>(null)
+  const { formatPrice, getAmount } = useCurrency()
 
   const handleAddToCart = (pack: any, currentPrice: number) => {
     addItem({
       id: pack.id,
       name: pack.name,
       price: currentPrice,
+      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -62,6 +65,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
       id: pack.id,
       name: pack.name,
       price: currentPrice,
+      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -101,6 +105,13 @@ export function HomePacks({ packs }: { packs: any[] }) {
         const currentPrice = priceDetails.priceInr
         const isPreorderActive = priceDetails.isPreorderActive
         const isExpired = priceDetails.isExpired
+
+        const priceNum = getAmount(currentPrice, pack.price_usd)
+        const mrpNum = getAmount(pack.mrp_inr || (currentPrice * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
+
+        const displayPrice = formatPrice(currentPrice, pack.price_usd)
+        const displayMrp = formatPrice(pack.mrp_inr || (currentPrice * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
+        const discountPercent = Math.round((1 - (priceNum / mrpNum)) * 100)
 
         return (
           <motion.div
@@ -158,12 +169,12 @@ export function HomePacks({ packs }: { packs: any[] }) {
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
                       <span className="text-[10px] text-white/50 line-through font-bold">
-                        ₹{pack.mrp_inr || (currentPrice * 3)}
+                        {displayMrp}
                       </span>
                       <p className={`text-[16px] font-black italic leading-none ${
                         isIndia ? 'text-[#FF9933]' : 'text-studio-neon'
                       }`}>
-                        ₹{currentPrice}
+                        {displayPrice}
                       </p>
                     </div>
                     
@@ -172,7 +183,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                         isIndia ? 'bg-[#128807] text-white font-black' : 'bg-studio-red text-white'
                       }`}>
                         <span className="text-[9px] font-black uppercase italic">
-                          {Math.round((1 - (currentPrice / (pack.mrp_inr || (currentPrice * 3)))) * 100)}% OFF
+                          {discountPercent}% OFF
                         </span>
                       </div>
                       {!pack.is_downloadable && (

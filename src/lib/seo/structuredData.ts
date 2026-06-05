@@ -28,13 +28,31 @@ export function generatePackStructuredData(pack: any) {
     },
     "category": categoryName,
     "offers": {
-      "@type": "Offer",
-      "url": `https://sampleswala.com/packs/${pack.slug}`,
+      "@type": "AggregateOffer",
       "priceCurrency": "INR",
-      "price": pack.price_inr,
-      "priceValidUntil": "2027-12-31",
-      "availability": "https://schema.org/InStock",
-      "itemCondition": "https://schema.org/NewCondition"
+      "lowPrice": pack.price_inr,
+      "highPrice": pack.price_inr,
+      "offerCount": "2",
+      "offers": [
+        {
+          "@type": "Offer",
+          "url": `https://sampleswala.com/packs/${pack.slug}`,
+          "priceCurrency": "INR",
+          "price": pack.price_inr,
+          "priceValidUntil": "2027-12-31",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        },
+        {
+          "@type": "Offer",
+          "url": `https://sampleswala.com/packs/${pack.slug}`,
+          "priceCurrency": "USD",
+          "price": pack.price_usd || Math.round(pack.price_inr / 80),
+          "priceValidUntil": "2027-12-31",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      ]
     },
     "aggregateRating": {
       "@type": "AggregateRating",
@@ -68,13 +86,31 @@ export function generatePresetStructuredData(preset: any) {
     },
     "category": preset.type,
     "offers": {
-      "@type": "Offer",
-      "url": `https://sampleswala.com/browse/presets/${preset.slug}`,
+      "@type": "AggregateOffer",
       "priceCurrency": "INR",
-      "price": preset.price_inr,
-      "priceValidUntil": "2027-12-31",
-      "availability": "https://schema.org/InStock",
-      "itemCondition": "https://schema.org/NewCondition"
+      "lowPrice": preset.price_inr,
+      "highPrice": preset.price_inr,
+      "offerCount": "2",
+      "offers": [
+        {
+          "@type": "Offer",
+          "url": `https://sampleswala.com/browse/presets/${preset.slug}`,
+          "priceCurrency": "INR",
+          "price": preset.price_inr,
+          "priceValidUntil": "2027-12-31",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        },
+        {
+          "@type": "Offer",
+          "url": `https://sampleswala.com/browse/presets/${preset.slug}`,
+          "priceCurrency": "USD",
+          "price": preset.price_usd || (preset.price_inr === 0 ? 0 : Math.round((preset.price_inr / 80) * 100) / 100 || 2.99),
+          "priceValidUntil": "2027-12-31",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      ]
     },
     "aggregateRating": {
       "@type": "AggregateRating",

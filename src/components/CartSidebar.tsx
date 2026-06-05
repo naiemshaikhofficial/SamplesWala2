@@ -5,11 +5,21 @@ import { X, ShoppingBag, Trash2, ArrowRight, Zap } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useCurrency } from '@/context/CurrencyContext'
 
 export function CartSidebar({ initialUser }: { initialUser?: any }) {
   const { items, removeItem, subtotal, discount, total, itemCount, isSidebarOpen, setSidebarOpen } = useCart()
   const { user } = useAuth()
   const router = useRouter()
+  const { currency, formatPrice, getAmount } = useCurrency()
+
+  const subtotalNum = items.reduce((acc, item) => acc + getAmount(item.price, item.price_usd), 0)
+  const discountNum = items.length >= 3 ? Math.round(subtotalNum * 0.1 * 100) / 100 : 0
+  const totalNum = Math.max(0, subtotalNum - discountNum)
+
+  const displaySubtotal = currency === 'INR' ? `₹${Math.round(subtotalNum)}` : `$${subtotalNum.toFixed(2)}`
+  const displayDiscount = currency === 'INR' ? `₹${Math.round(discountNum)}` : `$${discountNum.toFixed(2)}`
+  const displayTotal = currency === 'INR' ? `₹${Math.round(totalNum)}` : `$${totalNum.toFixed(2)}`
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -167,7 +177,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                         <span className="text-[8px] font-black bg-white/10 text-white/40 px-1.5 py-0.5 border border-white/5 uppercase tracking-widest">
                           {item.type}
                         </span>
-                        <p className="text-xs font-black text-studio-yellow italic tracking-widest">₹{item.price}</p>
+                        <p className="text-xs font-black text-studio-yellow italic tracking-widest">{formatPrice(item.price, item.price_usd)}</p>
                       </div>
                     </div>
                     <button 
@@ -191,12 +201,12 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/40">
                 <span>Subtotal</span>
-                <span>₹{subtotal}</span>
+                <span>{displaySubtotal}</span>
               </div>
-              {discount > 0 && (
+              {discountNum > 0 && (
                 <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-studio-neon">
                   <span>Bundle Discount (10%)</span>
-                  <span>-₹{discount}</span>
+                  <span>-{displayDiscount}</span>
                 </div>
               )}
               <div className="flex justify-between items-end pt-2">
@@ -204,7 +214,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                   <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 italic block">Total Amount</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-3xl font-black text-studio-yellow italic">₹{total}</span>
+                  <span className="text-3xl font-black text-studio-yellow italic">{displayTotal}</span>
                 </div>
               </div>
             </div>

@@ -6,6 +6,7 @@ import { getSearchSuggestions } from '@/app/browse/actions'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useCurrency } from '@/context/CurrencyContext'
 
 export function HeroSearch() {
   const [query, setQuery] = useState('')
@@ -14,6 +15,7 @@ export function HeroSearch() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const searchRef = useRef<HTMLDivElement>(null)
+  const { formatPrice } = useCurrency()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -155,10 +157,10 @@ export function HeroSearch() {
                     </h4>
                     <div className="flex items-center gap-2">
                       <span className="text-[8px] text-white/40 line-through font-bold">
-                        ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
+                        {formatPrice(pack.mrp_inr || (Number(pack.price_inr) * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)}
                       </span>
                       <p className="text-[10px] font-black text-studio-neon uppercase italic tracking-widest">
-                        ₹{pack.price_inr}
+                        {formatPrice(pack.price_inr, pack.price_usd)}
                       </p>
                     </div>
                   </div>

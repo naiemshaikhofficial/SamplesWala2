@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { getOptimizedImageUrl } from '@/lib/images'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { useAuth } from '@/context/AuthContext'
+import { useCurrency } from '@/context/CurrencyContext'
 
 export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const pack = initialPack
@@ -19,6 +20,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const [owned, setOwned] = useState(false)
   const [now, setNow] = useState(Date.now())
   const [mounted, setMounted] = useState(false)
+  const { formatPrice, getAmount } = useCurrency()
 
   useEffect(() => {
     setMounted(true)
@@ -91,9 +93,16 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
     return list;
   }, [pack.is_downloadable]);
 
-  const currentPrice = priceDetails.priceInr
   const isPreorderActive = priceDetails.isPreorderActive
   const isExpired = priceDetails.isExpired
+
+  const currentPriceInr = priceDetails.priceInr
+  const priceNum = getAmount(currentPriceInr, pack.price_usd)
+  const mrpNum = getAmount(pack.mrp_inr || (currentPriceInr * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
+
+  const displayPrice = formatPrice(currentPriceInr, pack.price_usd)
+  const displayMrp = formatPrice(pack.mrp_inr || (currentPriceInr * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
+  const discountPercent = Math.round((1 - (priceNum / mrpNum)) * 100)
 
   const days = priceDetails.daysLeft
   const hours = priceDetails.hoursLeft
@@ -192,15 +201,15 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex flex-col">
                   <span className="text-[12px] text-white/50 line-through font-bold">
-                    ₹{pack.mrp_inr || (currentPrice * 3)}
+                    {displayMrp}
                   </span>
                   <p className="text-3xl font-black text-studio-neon uppercase italic tracking-widest leading-none">
-                    ₹{currentPrice}
+                    {displayPrice}
                   </p>
                 </div>
                 <div className="bg-studio-red px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2 flex flex-col items-center">
                   <span className="text-[11px] font-black text-white uppercase italic">
-                    {Math.round((1 - (currentPrice / (pack.mrp_inr || (currentPrice * 3)))) * 100)}% OFF
+                    {discountPercent}% OFF
                   </span>
                   {!pack.is_downloadable && (
                     <span className={`text-[7px] font-black uppercase tracking-tighter px-2 rounded-sm mt-0.5 ${isExpired ? 'bg-studio-charcoal text-white' : 'bg-white text-studio-red'}`}>
@@ -266,7 +275,8 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       item={{
                         id: pack.id,
                         name: pack.name,
-                        price: currentPrice,
+                        price: Number(pack.price_inr),
+                        price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
                         slug: pack.slug,
                         cover_url: pack.cover_url || undefined,
                         type: 'pack',
@@ -274,10 +284,11 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       }} 
                     />
                     <PaymentButton 
-                      label={isPreorderActive ? `PRE-ORDER NOW — ₹${currentPrice}` : `BUY NOW — ₹${currentPrice}`}
+                      label={isPreorderActive ? `PRE-ORDER NOW — ${displayPrice}` : `BUY NOW — ${displayPrice}`}
                       packId={pack.id} 
                       packName={pack.name} 
-                      price={currentPrice} 
+                      price={currentPriceInr} 
+                      price_usd={pack.price_usd ? Number(pack.price_usd) : undefined}
                       slug={pack.slug}
                       cover_url={pack.cover_url || ''}
                       userId={user?.id}

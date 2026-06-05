@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AnimatedLogo } from './AnimatedLogo'
 import { useAuth } from '@/context/AuthContext'
 import { getSearchSuggestions } from '@/app/browse/actions'
+import { useCurrency } from '@/context/CurrencyContext'
 
 function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
   const [query, setQuery] = useState('')
@@ -18,6 +19,7 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const searchRef = useRef<HTMLDivElement>(null)
+  const { formatPrice } = useCurrency()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -163,10 +165,10 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
                     </h4>
                     <div className="flex items-center gap-2">
                       <span className="text-[7px] text-white/40 line-through font-bold">
-                        ₹{pack.mrp_inr || (Number(pack.price_inr) * 3)}
+                        {formatPrice(pack.mrp_inr || (Number(pack.price_inr) * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)}
                       </span>
                       <p className="text-[9px] font-black text-studio-neon uppercase italic tracking-widest leading-none">
-                        ₹{pack.price_inr}
+                        {formatPrice(pack.price_inr, pack.price_usd)}
                       </p>
                     </div>
                   </div>
@@ -186,6 +188,8 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
     </div>
   )
 }
+
+
 
 export function Header() {
   const { user, isArtist } = useAuth()
@@ -217,6 +221,7 @@ export function Header() {
 
   const NavLinks = () => (
     <>
+      <Link href="/" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Home</Link>
       <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Sample Packs</Link>
       <Link href="/browse/presets" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
       <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
@@ -275,7 +280,6 @@ export function Header() {
           <NavLinks />
         </nav>
 
-        {/* Mobile Actions */}
         <div className="flex md:hidden items-center gap-3">
           {!user && (
             <Link
@@ -327,6 +331,7 @@ export function Header() {
 
             <nav className="flex flex-col space-y-4 text-2xl font-black uppercase tracking-tighter relative z-10">
               {[
+                { name: 'Home', href: '/' },
                 { name: 'Browse Packs', href: '/browse/packs' },
                 { name: 'Producer Presets', href: '/browse/presets' },
                 { name: 'Your Library', href: '/library' },

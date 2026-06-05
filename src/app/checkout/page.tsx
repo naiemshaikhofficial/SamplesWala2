@@ -12,9 +12,10 @@ import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
+import { useCurrency } from '@/context/CurrencyContext'
 
 // --- ANIMATED COUNTER HOOK ---
-function useAnimatedCounter(targetValue: number) {
+function useAnimatedCounter(targetValue: number, prefix: string = '₹') {
   const ref = React.useRef<HTMLElement>(null);
   const prevValueRef = React.useRef(targetValue);
   const animationFrameRef = React.useRef<number | null>(null);
@@ -30,7 +31,7 @@ function useAnimatedCounter(targetValue: number) {
       const currentValue = startValue + (targetValue - startValue) * progress;
 
       if (ref.current) {
-        ref.current.textContent = `₹${currentValue.toFixed(2)}`;
+        ref.current.textContent = `${prefix}${currentValue.toFixed(2)}`;
       }
 
       if (progress < 1) {
@@ -47,7 +48,7 @@ function useAnimatedCounter(targetValue: number) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [targetValue]);
+  }, [targetValue, prefix]);
 
   return ref;
 }
@@ -190,6 +191,7 @@ const ConfettiEffect = () => {
 export default function CheckoutPage() {
   const countryOptions = React.useMemo(() => countryList().getData(), [])
   const { items, removeItem, total, clearCart, itemCount, setSidebarOpen } = useCart()
+  const { currency, symbol, formatPrice } = useCurrency()
   const hasPreorder = items.some(item => item.type === 'pack' && item.is_downloadable === false)
 
   // Close sidebar immediately when checkout page loads
@@ -198,9 +200,9 @@ export default function CheckoutPage() {
   }, [setSidebarOpen])
 
   const [coupon, setCoupon] = useState('')
-  const [discount, setDiscount] = useState(0)
+  const [discount, setDiscount] = useState(0) // coupon discount percent
+  const [applicableItems, setApplicableItems] = useState<string[] | null>(null)
   const [couponError, setCouponError] = useState('')
-  const [couponDiscountAmount, setCouponDiscountAmount] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
@@ -219,6 +221,233 @@ export default function CheckoutPage() {
   const [newsletterOptIn, setNewsletterOptIn] = useState(true)
   const router = useRouter()
   const supabase = createClient()
+
+  const billingDetailsRef = React.useRef(billingDetails)
+  const couponRef = React.useRef(coupon)
+  const discountRef = React.useRef(discount)
+  const newsletterOptInRef = React.useRef(newsletterOptIn)
+
+  useEffect(() => {
+    billingDetailsRef.current = billingDetails
+  }, [billingDetails])
+
+  useEffect(() => {
+    couponRef.current = coupon
+  }, [coupon])
+
+  useEffect(() => {
+    discountRef.current = discount
+  }, [discount])
+
+  useEffect(() => {
+    newsletterOptInRef.current = newsletterOptIn
+  }, [newsletterOptIn])
+
+  // 1. Setup client-side dynamic pricing calculations
+  const itemsWithPrices = items.map(item => {
+    const priceUsd = item.price_usd ? Number(item.price_usd) : 
+      (item.type === 'preset' 
+        ? (item.price === 0 ? 0 : Math.round((item.price / 80) * 100) / 100 || 2.99)
+        : Math.round(item.price / 80))
+    return {
+      ...item,
+      displayPrice: currency === 'USD' ? `$${priceUsd.toFixed(2)}` : `₹${item.price}`,
+      numericPrice: currency === 'USD' ? priceUsd : item.price
+    }
+  })
+
+  const rawSubtotalUsd = itemsWithPrices.reduce((sum, item) => sum + item.numericPrice, 0)
+  const bundleDiscountUsd = items.length >= 3 ? Number((rawSubtotalUsd * 0.1).toFixed(2)) : 0
+  const activeSubtotal = currency === 'USD' ? Number((rawSubtotalUsd - bundleDiscountUsd).toFixed(2)) : total
+
+  let activeCouponDiscount = 0
+  if (discount > 0) {
+    if (currency === 'USD') {
+      if (applicableItems && applicableItems.length > 0) {
+        const applicableTotal = itemsWithPrices.reduce((sum, item) => {
+          if (applicableItems.includes(item.id)) {
+            return sum + item.numericPrice
+          }
+          return sum
+        }, 0)
+        activeCouponDiscount = Number((applicableTotal * discount / 100).toFixed(2))
+      } else {
+        activeCouponDiscount = Number((activeSubtotal * discount / 100).toFixed(2))
+      }
+    } else {
+      if (applicableItems && applicableItems.length > 0) {
+        const applicableTotal = items.reduce((sum, item) => {
+          if (applicableItems.includes(item.id)) {
+            return sum + item.price
+          }
+          return sum
+        }, 0)
+        activeCouponDiscount = Math.round(applicableTotal * discount / 100)
+      } else {
+        activeCouponDiscount = Math.round(total * discount / 100)
+      }
+    }
+  }
+
+  const activeTotal = Math.max(0, currency === 'USD' 
+    ? Number((activeSubtotal - activeCouponDiscount).toFixed(2))
+    : (total - activeCouponDiscount)
+  )
+
+  // Counter animation refs
+  const subtotalRef = useAnimatedCounter(currency === 'USD' ? activeSubtotal : total, symbol)
+  const totalRef = useAnimatedCounter(activeTotal, symbol)
+
+  const [paypalLoaded, setPaypalLoaded] = useState(false)
+
+  // 2. Load PayPal SDK helper
+  const loadPayPal = (clientId: string) => {
+    return new Promise<boolean>((resolve) => {
+      if ((window as any).paypal) {
+        resolve(true)
+        return
+      }
+      const script = document.createElement('script')
+      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture`
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
+      document.body.appendChild(script)
+    })
+  }
+
+  // Effect to load PayPal SDK
+  useEffect(() => {
+    if (currency === 'USD' && activeTotal > 0 && user) {
+      const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+      if (!clientId) {
+        setError('PayPal Client ID is not configured.')
+        return
+      }
+      
+      loadPayPal(clientId).then((success) => {
+        if (success) {
+          setPaypalLoaded(true)
+        } else {
+          setError('Failed to load PayPal SDK')
+        }
+      })
+    }
+  }, [currency, activeTotal, user])
+
+  // Effect to render/re-render PayPal buttons (Only when loading status, currency, total eligibility, or user shifts)
+  useEffect(() => {
+    if (paypalLoaded && currency === 'USD' && activeTotal > 0 && document.getElementById('paypal-button-container')) {
+      const container = document.getElementById('paypal-button-container')
+      if (container) {
+        container.innerHTML = ''
+      }
+      
+      try {
+        (window as any).paypal.Buttons({
+          style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'rect',
+            label: 'pay'
+          },
+          createOrder: async function(data: any, actions: any) {
+            setError('')
+            setLoading(true)
+            
+            if (!validateForm()) {
+              setLoading(false)
+              const billingSection = document.getElementById('billing-details-section')
+              if (billingSection) {
+                billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+              throw new Error('Please fill in all billing details.')
+            }
+
+            try {
+              const res = await fetch('/api/paypal/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  items: items.map(i => ({ id: i.id, type: i.type })),
+                  couponCode: discountRef.current > 0 ? couponRef.current : undefined
+                })
+              })
+              const order = await res.json()
+              if (order.error) {
+                throw new Error(order.error)
+              }
+              return order.id
+            } catch (err: any) {
+              setError(err.message || 'PayPal order creation failed')
+              setLoading(false)
+              throw err
+            }
+          },
+          onApprove: async function(data: any, actions: any) {
+            setPaymentStatus('processing')
+            setLoading(true)
+            
+            try {
+              const verifyRes = await fetch('/api/paypal/capture-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId: data.orderID,
+                  billingDetails: billingDetailsRef.current
+                })
+              })
+              const verifyData = await verifyRes.json()
+
+              if (verifyData.success) {
+                await supabase.auth.updateUser({
+                  data: {
+                    full_name: billingDetailsRef.current.fullName,
+                    phone: billingDetailsRef.current.phone,
+                    address: billingDetailsRef.current.address,
+                    city: billingDetailsRef.current.city,
+                    state: billingDetailsRef.current.state,
+                    zip: billingDetailsRef.current.zip,
+                    country: billingDetailsRef.current.country
+                  }
+                })
+
+                try {
+                  await supabase
+                    .from('user_accounts')
+                    .update({ newsletter: newsletterOptInRef.current })
+                    .eq('user_id', user.id)
+                } catch (e) {
+                  console.error('Failed to update newsletter status:', e)
+                }
+
+                setPaymentStatus('success')
+                clearCart()
+                router.push('/library')
+              } else {
+                setError(verifyData.error || 'Verification failed')
+                setPaymentStatus('idle')
+                setLoading(false)
+              }
+            } catch (err) {
+              setError('Payment verification error')
+              setPaymentStatus('idle')
+              setLoading(false)
+            }
+          },
+          onError: function(err: any) {
+            console.error('[PAYPAL_BUTTON_ERROR]', err)
+            setError('An error occurred during the PayPal transaction.')
+            setLoading(false)
+          },
+          onCancel: function() {
+            setLoading(false)
+          }
+        }).render('#paypal-button-container')
+      } catch (e) {
+        console.error('Failed to render PayPal buttons:', e)
+      }
+    }
+  }, [paypalLoaded, currency, activeTotal, user])
 
   useEffect(() => {
     const ensureE164 = (phone: any) => {
@@ -354,8 +583,8 @@ export default function CheckoutPage() {
 
     const cleanZip = billingDetails.zip.trim()
     if (!cleanZip) {
-      errors.zip = 'PINCODE IS REQUIRED'
-    } else if (!/^\d{6}$/.test(cleanZip)) {
+      errors.zip = 'POSTAL CODE IS REQUIRED'
+    } else if (billingDetails.country === 'India' && !/^\d{6}$/.test(cleanZip)) {
       errors.zip = 'ENTER A VALID 6-DIGIT PINCODE'
     }
 
@@ -371,24 +600,21 @@ export default function CheckoutPage() {
     const result = await validateCoupon(
       coupon,
       user?.id || null,
-      items.map(item => ({ id: item.id, price: item.price }))
+      currency === 'USD'
+        ? itemsWithPrices.map(item => ({ id: item.id, price: item.numericPrice }))
+        : items.map(item => ({ id: item.id, price: item.price }))
     )
     if (result.success) {
       setDiscount(result.discountPercent || 0)
-      setCouponDiscountAmount(result.discountAmount || 0)
+      setApplicableItems(result.applicableItems || null)
       setCouponError('')
     } else {
       setCouponError(result.message || 'Invalid coupon')
       setDiscount(0)
-      setCouponDiscountAmount(0)
+      setApplicableItems(null)
     }
     setLoading(false)
   }
-
-  const discountedTotal = Math.max(0, total - couponDiscountAmount)
-
-  const subtotalRef = useAnimatedCounter(total)
-  const totalRef = useAnimatedCounter(discountedTotal)
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -415,7 +641,7 @@ export default function CheckoutPage() {
     }
 
     setLoading(true)     // --- 1. HANDLE FREE CHECKOUT (BYPASS RAZORPAY) ---
-    if (discountedTotal === 0) {
+    if (activeTotal === 0) {
       try {
         const verifyRes = await fetch('/api/razorpay/verify', {
           method: 'POST',
@@ -662,7 +888,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Cart Items List */}
           <div className="lg:col-span-8 space-y-4">
-            {items.map((item) => (
+            {itemsWithPrices.map((item) => (
               <div key={item.id} className="flex items-center gap-6 p-4 bg-white/5 border border-white/5 rounded-sm group hover:border-white/10 transition-all">
                 <div className="w-20 h-20 relative rounded-sm overflow-hidden flex-shrink-0">
                   <Image src={item.cover_url || '/placeholder.jpg'} alt={item.name} fill sizes="80px" className="object-cover" />
@@ -674,7 +900,7 @@ export default function CheckoutPage() {
                   </p>
                 </div>
                 <div className="text-right space-y-2">
-                  <p className="font-black text-xl">₹{item.price}</p>
+                  <p className="font-black text-xl">{item.displayPrice}</p>
                   <button onClick={() => removeItem(item.id)} className="text-white/20 hover:text-red-500 transition-colors p-2">
                     <Trash2 size={16} />
                   </button>
@@ -717,7 +943,7 @@ export default function CheckoutPage() {
                   <div className="phone-input-container">
                     <PhoneInput
                       international
-                      defaultCountry="IN"
+                      defaultCountry={currency === 'USD' ? undefined : 'IN'}
                       placeholder="PHONE"
                       value={billingDetails.phone}
                       onChange={(val) => handleBillingChange('phone', val || '')}
@@ -864,17 +1090,17 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-white/40">
                   <span>Subtotal ({itemCount} items)</span>
-                  <span ref={subtotalRef}>₹{total}</span>
+                  <span ref={subtotalRef}>{currency === 'USD' ? `$${activeSubtotal.toFixed(2)}` : `₹${total}`}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-studio-neon">
                     <span>Discount ({discount}%)</span>
-                    <span>- ₹{Math.round(total * discount / 100)}</span>
+                    <span>-{currency === 'USD' ? `$${activeCouponDiscount.toFixed(2)}` : `₹${activeCouponDiscount}`}</span>
                   </div>
                 )}
                 <div className="pt-4 border-t border-white/10 flex justify-between items-end">
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Total Amount</span>
-                  <span ref={totalRef} className="text-3xl font-black text-studio-yellow italic">₹{discountedTotal}</span>
+                  <span ref={totalRef} className="text-3xl font-black text-studio-yellow italic">{currency === 'USD' ? `$${activeTotal.toFixed(2)}` : `₹${total - activeCouponDiscount}`}</span>
                 </div>
               </div>
 
@@ -939,20 +1165,35 @@ export default function CheckoutPage() {
                 )}
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-black/95 backdrop-blur-md border-t border-white/10 z-50 lg:relative lg:p-0 lg:bg-transparent lg:border-t-0 lg:z-auto">
                   <div className="max-w-md mx-auto lg:max-w-none">
-                    <button
-                      onClick={handleCheckout}
-                      disabled={loading || paymentStatus === 'processing'}
-                      className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
-                    >
-                      {loading ? (
-                        <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <Zap size={20} className="group-hover:rotate-12 transition-transform" />
-                          <span>{total === 0 ? 'GET FOR FREE' : `COMPLETE PAYMENT — ₹${discountedTotal}`}</span>
-                        </>
-                      )}
-                    </button>
+                    {currency === 'USD' && activeTotal > 0 ? (
+                      <div>
+                        {!paypalLoaded && (
+                          <div className="w-full h-14 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-xs font-black uppercase tracking-widest text-white/40">
+                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            Loading PayPal...
+                          </div>
+                        )}
+                        <div 
+                          id="paypal-button-container" 
+                          className={`w-full mt-2 relative z-10 ${!paypalLoaded ? 'hidden' : ''}`} 
+                        />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleCheckout}
+                        disabled={loading || paymentStatus === 'processing'}
+                        className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
+                      >
+                        {loading ? (
+                          <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <Zap size={20} className="group-hover:rotate-12 transition-transform" />
+                            <span>{activeTotal === 0 ? 'GET FOR FREE' : `COMPLETE PAYMENT — ${formatPrice(currency === 'USD' ? activeTotal : total - activeCouponDiscount, currency === 'USD' ? activeTotal : null)}`}</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
 

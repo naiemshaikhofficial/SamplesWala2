@@ -9,16 +9,19 @@ import { useRouter } from 'next/navigation'
 import { ShoppingCart, Eye } from 'lucide-react'
 import { cleanSearchQuery } from '@/lib/search/queryHelper'
 import { getPackPriceDetails } from '@/lib/pricing'
+import { useCurrency } from '@/context/CurrencyContext'
 
 export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { initialPacks: any[], searchQuery?: string, isIndiaJourney?: boolean }) {
   const { addItem } = useCart()
   const router = useRouter()
+  const { formatPrice, getAmount } = useCurrency()
 
   const handleBuyNow = React.useCallback((pack: any, currentPrice: number) => {
     addItem({
       id: pack.id,
       name: pack.name,
-      price: currentPrice,
+      price: Number(pack.price_inr),
+      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -57,6 +60,13 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
         const currentPrice = priceDetails.priceInr
         const isPreorderActive = priceDetails.isPreorderActive
         const isExpired = priceDetails.isExpired
+
+        const priceNum = getAmount(currentPrice, pack.price_usd)
+        const mrpNum = getAmount(pack.mrp_inr || (currentPrice * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
+
+        const displayPrice = formatPrice(currentPrice, pack.price_usd)
+        const displayMrp = formatPrice(pack.mrp_inr || (currentPrice * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
+        const discountPercent = Math.round((1 - (priceNum / mrpNum)) * 100)
 
         return (
           <div 
@@ -113,12 +123,12 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
                       <span className="text-[9px] text-white/50 line-through font-bold">
-                        ₹{pack.mrp_inr || (currentPrice * 3)}
+                        {displayMrp}
                       </span>
                       <p className={`text-[14px] font-black italic leading-none ${
                         isIndia ? 'text-[#FF9933]' : 'text-studio-neon'
                       }`}>
-                        ₹{currentPrice}
+                        {displayPrice}
                       </p>
                     </div>
                     
@@ -127,7 +137,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                         isIndia ? 'bg-[#128807]' : 'bg-studio-red'
                       }`}>
                         <span className="text-[9px] font-black text-white uppercase italic">
-                          {Math.round((1 - (currentPrice / (pack.mrp_inr || (currentPrice * 3)))) * 100)}% OFF
+                          {discountPercent}% OFF
                         </span>
                       </div>
                       {!pack.is_downloadable && (
@@ -165,7 +175,8 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                   onClick={() => addItem({
                     id: pack.id,
                     name: pack.name,
-                    price: currentPrice,
+                    price: Number(pack.price_inr),
+                    price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
                     slug: pack.slug,
                     cover_url: pack.cover_url || undefined,
                     type: 'pack',

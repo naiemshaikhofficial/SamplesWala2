@@ -13,7 +13,8 @@ export async function sendInvoiceEmail({
   userName,
   total,
   items,
-  isPreorder = false
+  isPreorder = false,
+  currency = 'INR'
 }: {
   email: string,
   pdfBuffer: Buffer,
@@ -22,9 +23,11 @@ export async function sendInvoiceEmail({
   userName?: string,
   total?: number,
   items?: { name: string, price: number }[],
-  isPreorder?: boolean
+  isPreorder?: boolean,
+  currency?: string
 }) {
   try {
+    const curSymbol = currency === 'USD' ? '$' : '₹'
     const { data, error } = await resend.emails.send({
       from: 'Samples Wala <info@sampleswala.com>',
       to: email,
@@ -128,17 +131,17 @@ export async function sendInvoiceEmail({
                         ${items?.map(item => `
                         <tr>
                           <td style="padding: 20px 15px; font-size: 14px; font-weight: 900; color: #fff; border-bottom: 2px solid #000;">${item.name.toUpperCase()}</td>
-                          <td align="right" style="padding: 20px 15px; font-size: 14px; font-weight: 900; color: #00FF94; border-bottom: 2px solid #000;">₹${item.price}</td>
+                          <td align="right" style="padding: 20px 15px; font-size: 14px; font-weight: 900; color: #00FF94; border-bottom: 2px solid #000;">${curSymbol}${item.price}</td>
                         </tr>
                         `).join('') || `
                           <tr>
                             <td style="padding: 20px 15px; font-size: 14px; font-weight: 900; color: #fff; border-bottom: 2px solid #000;">${packNames.join(', ')}</td>
-                            <td align="right" style="padding: 20px 15px; font-size: 14px; font-weight: 900; color: #00FF94; border-bottom: 2px solid #000;">₹${total || '---'}</td>
+                            <td align="right" style="padding: 20px 15px; font-size: 14px; font-weight: 900; color: #00FF94; border-bottom: 2px solid #000;">${curSymbol}${total || '---'}</td>
                           </tr>
                         `}
                         <tr>
                           <td style="padding: 20px 15px; font-size: 18px; font-weight: 900; color: #fff; text-transform: uppercase;">TOTAL PAID</td>
-                          <td align="right" style="padding: 20px 15px; font-size: 18px; font-weight: 900; color: #ff0080;">₹${total || '---'}</td>
+                          <td align="right" style="padding: 20px 15px; font-size: 18px; font-weight: 900; color: #ff0080;">${curSymbol}${total || '---'}</td>
                         </tr>
                       </table>
 

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '@/context/CartContext'
 import { getOptimizedImageUrl } from '@/lib/images'
+import { useCurrency } from '@/context/CurrencyContext'
 
 interface PresetCardProps {
   preset: {
@@ -17,6 +18,7 @@ interface PresetCardProps {
     youtube_url?: string
     drive_url: string
     price_inr: number
+    price_usd?: number
     cover_url?: string
     mrp_inr?: number
   }
@@ -27,12 +29,14 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
   const { addItem } = useCart()
   const router = useRouter()
   const [isAdded, setIsAdded] = useState(false)
+  const { formatPrice, getAmount } = useCurrency()
 
   const handleAddToCart = () => {
     addItem({
       id: preset.id,
       name: preset.name,
       price: Number(preset.price_inr),
+      price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
       slug: preset.slug,
       cover_url: preset.cover_url || undefined,
       type: 'preset'
@@ -46,6 +50,7 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
       id: preset.id,
       name: preset.name,
       price: Number(preset.price_inr),
+      price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
       slug: preset.slug,
       cover_url: preset.cover_url || undefined,
       type: 'preset'
@@ -102,17 +107,17 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
             <div className="flex items-center gap-3">
               <div className="flex flex-col">
                 <span className="text-[10px] text-white/50 line-through font-bold">
-                  ₹{preset.mrp_inr || (Number(preset.price_inr) * 3)}
+                  {formatPrice(preset.mrp_inr || (Number(preset.price_inr) * 3), preset.price_usd ? Number(preset.price_usd) * 3 : null)}
                 </span>
                 <p className="text-[16px] font-black text-studio-neon italic leading-none">
-                  ₹{preset.price_inr}
+                  {formatPrice(preset.price_inr, preset.price_usd)}
                 </p>
               </div>
               
               {/* Discount Badge */}
               <div className="bg-studio-red px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
                 <span className="text-[9px] font-black text-white uppercase italic">
-                  {Math.round((1 - (Number(preset.price_inr) / (preset.mrp_inr || (Number(preset.price_inr) * 3)))) * 100)}% OFF
+                  {Math.round((1 - (getAmount(preset.price_inr, preset.price_usd) / getAmount(preset.mrp_inr || (Number(preset.price_inr) * 3), preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)}% OFF
                 </span>
               </div>
             </div>
