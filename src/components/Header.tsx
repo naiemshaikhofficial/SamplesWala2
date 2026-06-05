@@ -222,6 +222,7 @@ export function Header() {
   const NavLinks = () => (
     <>
       <Link href="/" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Home</Link>
+      <Link href="/browse" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Browse</Link>
       <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Sample Packs</Link>
       <Link href="/browse/presets" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
       <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
@@ -229,7 +230,7 @@ export function Header() {
       {isArtist && (
         <a
           href={dashboardUrl}
-          className="px-3 py-1 bg-studio-neon text-black font-black italic hover:bg-white transition-colors skew-x-[-10deg]"
+          className="px-3 py-1.5 bg-studio-neon text-black font-black italic hover:bg-white transition-colors skew-x-[-10deg]"
         >
           DASHBOARD
         </a>
@@ -279,6 +280,12 @@ export function Header() {
         <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-[11px] font-black uppercase tracking-[0.2em] italic">
           <NavLinks />
         </nav>
+
+        {/* Mobile Header Nav Links */}
+        <div className="flex md:hidden items-center gap-3 text-[10px] font-black uppercase tracking-wider italic mr-1">
+          <Link href="/" className="hover:text-studio-yellow transition-colors">Home</Link>
+          <Link href="/browse" className="hover:text-studio-yellow transition-colors">Browse</Link>
+        </div>
 
         <div className="flex md:hidden items-center gap-3">
           {!user && (
@@ -332,6 +339,7 @@ export function Header() {
             <nav className="flex flex-col space-y-4 text-2xl font-black uppercase tracking-tighter relative z-10">
               {[
                 { name: 'Home', href: '/' },
+                { name: 'Browse', href: '/browse' },
                 { name: 'Browse Packs', href: '/browse/packs' },
                 { name: 'Producer Presets', href: '/browse/presets' },
                 { name: 'Your Library', href: '/library' },
