@@ -24,7 +24,7 @@ export function PaymentAccepted({ className = '', variant = 'full' }: PaymentAcc
     : logos
 
   return (
-    razor pay and paypal mention karrap items - center justify - center gap - 1.5 md: gap - 3 ${ className } `}>
+    <div className={`flex flex-wrap items-center justify-center gap-1.5 md:gap-3 ${className}`}>
       {activeLogos.map((logo) => (
         <div
           key={logo.file}
@@ -38,7 +38,7 @@ export function PaymentAccepted({ className = '', variant = 'full' }: PaymentAcc
         >
           {/* Official Vector Logo Image */}
           <img
-            src={`/ payment - logos / ${ logo.file }.svg`}
+            src={`/payment-logos/${logo.file}.svg`}
             alt={logo.name}
             className="w-full h-full object-contain opacity-70 group-hover:opacity-100 transition-opacity duration-300 filter drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]"
           />
