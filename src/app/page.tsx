@@ -11,6 +11,7 @@ import { TrustpilotBadge } from '@/components/TrustpilotBadge'
 import { PresetCard } from '@/components/PresetCard'
 import { HeroSlider } from '@/components/HeroSlider'
 import { AnimatedLogo } from '@/components/AnimatedLogo'
+import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
 
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
@@ -895,6 +896,17 @@ export default async function HomePage() {
             <div className="h-1.5 md:h-2 bg-studio-neon w-16 md:w-24 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
           </div>
 
+          {/* Secure Payments Banner */}
+          <div className="text-center space-y-6 max-w-4xl mx-auto pb-10 border-b border-white/5">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/50">
+              WE ACCEPT ALL MAJOR INDIAN &amp; INTERNATIONAL PAYMENTS
+            </h3>
+            <PaymentAccepted variant="full" />
+            <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.15em]">
+              ⚡ UPI (GPAY, PHONEPE, PAYTM) • RUPAY • VISA • MASTERCARD • AMERICAN EXPRESS • PAYPAL
+            </p>
+          </div>
+
           <div className="grid grid-cols-3 gap-2 md:gap-12">
             <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-2 md:p-8 bg-studio-red border-2 md:border-4 border-black shadow-[3px_3px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-1 md:hover:-translate-y-2 transition-all group">
               <div className="h-6 w-6 md:h-12 md:w-12 bg-white flex items-center justify-center rounded-sm mx-auto md:mx-0 border-2 border-black shadow-[2px_2px_0px_black] md:shadow-[3px_3px_0px_black]">
@@ -924,7 +936,6 @@ export default async function HomePage() {
               </p>
             </div>
           </div>
-
           {/* Trustpilot Widget - Comic Verified Badge */}
           <TrustpilotBadge />
 

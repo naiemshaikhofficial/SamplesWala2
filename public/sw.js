@@ -9,6 +9,10 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
 });
 
+// Fetch interception is disabled to let the browser's native HTTP cache
+// handle caching via 'Cache-Control: public, max-age=31536000, immutable' headers.
+// This prevents cross-origin CORS/opaque load failures (net::ERR_FAILED) in the Service Worker context.
+/*
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -39,3 +43,4 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+*/

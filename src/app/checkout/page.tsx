@@ -13,6 +13,7 @@ import countryList from 'react-select-country-list'
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import { useCurrency } from '@/context/CurrencyContext'
+import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
 
 // --- ANIMATED COUNTER HOOK ---
 function useAnimatedCounter(targetValue: number, prefix: string = '₹') {
@@ -1234,14 +1235,9 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment Methods */}
-            <div className="flex flex-col items-center gap-4 py-4 grayscale opacity-30">
-              <p className="text-[7px] font-black uppercase tracking-[0.3em] text-white/40">Secure Payments via Razorpay</p>
-              <div className="flex gap-4 items-center">
-                <div className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-xs">UPI</div>
-                <div className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-xs">VISA</div>
-                <div className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-xs">CARD</div>
-                <div className="text-[10px] font-black border border-white/20 px-2 py-1 rounded-xs">NET</div>
-              </div>
+            <div className="flex flex-col items-center gap-4 py-4">
+              <p className="text-[7px] font-black uppercase tracking-[0.3em] text-white/35">We Accept National &amp; International Payments</p>
+              <PaymentAccepted variant="compact" />
             </div>
 
             {/* Upsell Section */}

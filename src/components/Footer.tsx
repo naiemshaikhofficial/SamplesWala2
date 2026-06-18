@@ -3,6 +3,7 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Instagram, Youtube, Facebook, Send, Linkedin } from 'lucide-react'
+import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
 
 export function Footer() {
   const dashboardUrl = process.env.NODE_ENV === 'production'
@@ -209,6 +210,12 @@ export function Footer() {
               </a>
             </div>
           </div>
+        </div>
+
+        {/* Secure Payments Row */}
+        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col items-center justify-center gap-4 text-center">
+          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-white/35">Secure National &amp; International Payments</p>
+          <PaymentAccepted />
         </div>
 
         {/* Bottom Section */}
