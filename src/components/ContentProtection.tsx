@@ -3,6 +3,14 @@ import { useEffect } from 'react'
 
 export function ContentProtection() {
   useEffect(() => {
+    if (
+      process.env.NODE_ENV === 'development' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'
+    ) {
+      return
+    }
+
     // Disable right click
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault()

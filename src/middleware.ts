@@ -133,7 +133,7 @@ export async function middleware(request: NextRequest) {
   const isSuspicious = /bot|spider|crawl|scraper|curl|wget|python|libwww|headless/i.test(ua) &&
     !/googlebot|bingbot|yandexbot|duckduckbot|lighthouse/i.test(ua);
 
-  if (isSuspicious && (isApi || isServerAction)) {
+  if (!isLocal && isSuspicious && (isApi || isServerAction)) {
     return new NextResponse(
       JSON.stringify({ error: "Access Denied: Automated tools are blocked." }),
       {
