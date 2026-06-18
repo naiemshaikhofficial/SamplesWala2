@@ -7,6 +7,17 @@ export default function cloudflareLoader({ src, width, quality }: { src: string;
   // Use the correct worker URL provided by the user
   const WORKER_URL = 'https://sampleswala-images.sampleswala.workers.dev';
   
+  if (src.startsWith(WORKER_URL)) {
+    try {
+      const urlObj = new URL(src);
+      urlObj.searchParams.set('w', width.toString());
+      urlObj.searchParams.set('q', (quality || 75).toString());
+      return urlObj.toString();
+    } catch (e) {
+      return src;
+    }
+  }
+
   if (src.startsWith('/')) {
     return `${src}?w=${width}&q=${quality || 75}`;
   }
