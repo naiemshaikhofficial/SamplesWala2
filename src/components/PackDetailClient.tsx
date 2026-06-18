@@ -270,29 +270,31 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                         </div>         </div>
                       </div>
                     )}
-                    <AddToCartButton 
-                      label={isPreorderActive ? "Pre-order" : "Add to Cart"}
-                      item={{
-                        id: pack.id,
-                        name: pack.name,
-                        price: Number(pack.price_inr),
-                        price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
-                        slug: pack.slug,
-                        cover_url: pack.cover_url || undefined,
-                        type: 'pack',
-                        is_downloadable: pack.is_downloadable
-                      }} 
-                    />
-                    <PaymentButton 
-                      label={isPreorderActive ? `PRE-ORDER NOW — ${displayPrice}` : `BUY NOW — ${displayPrice}`}
-                      packId={pack.id} 
-                      packName={pack.name} 
-                      price={currentPriceInr} 
-                      price_usd={pack.price_usd ? Number(pack.price_usd) : undefined}
-                      slug={pack.slug}
-                      cover_url={pack.cover_url || ''}
-                      userId={user?.id}
-                    />
+                    <div className="hidden lg:flex flex-col gap-3">
+                      <AddToCartButton 
+                        label={isPreorderActive ? "Pre-order" : "Add to Cart"}
+                        item={{
+                          id: pack.id,
+                          name: pack.name,
+                          price: Number(pack.price_inr),
+                          price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+                          slug: pack.slug,
+                          cover_url: pack.cover_url || undefined,
+                          type: 'pack',
+                          is_downloadable: pack.is_downloadable
+                        }} 
+                      />
+                      <PaymentButton 
+                        label={isPreorderActive ? `PRE-ORDER NOW — ${displayPrice}` : `BUY NOW — ${displayPrice}`}
+                        packId={pack.id} 
+                        packName={pack.name} 
+                        price={currentPriceInr} 
+                        price_usd={pack.price_usd ? Number(pack.price_usd) : undefined}
+                        slug={pack.slug}
+                        cover_url={pack.cover_url || ''}
+                        userId={user?.id}
+                      />
+                    </div>
                     {!pack.is_downloadable && (
                       <div className="p-5 rounded-sm border-2 border-[#FFC800] bg-black/60 shadow-[4px_4px_0px_#FF0080] text-left space-y-3 mt-2">
                         <div className="flex items-center gap-2.5 text-[#FFC800]">

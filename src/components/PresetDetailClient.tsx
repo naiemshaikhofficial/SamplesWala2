@@ -132,7 +132,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                     <DownloadButton itemId={preset.id} type="preset" />
                  </div>
               ) : (
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="hidden lg:grid grid-cols-1 gap-4">
                      <AddToCartButton 
                        item={{
                          id: preset.id,
