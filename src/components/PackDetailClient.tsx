@@ -172,7 +172,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         </div>
 
         {/* Mobile Order 2: Name & Purchase */}
-        <div className="lg:col-span-4 space-y-8 order-2 lg:order-1">
+        <div className="lg:col-span-4 space-y-8 order-2 lg:order-1 lg:sticky lg:top-24">
           <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
             <Image 
               src={getOptimizedImageUrl(pack.cover_url, 800, 90)} 
@@ -434,6 +434,54 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             </p>
          </div>
       </section>
+
+      {/* Mobile Sticky CTA Bar */}
+      {!owned && (
+        <div 
+          className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-black/95 backdrop-blur-md border-t border-white/10 p-3 flex items-center justify-between gap-3 shadow-[0_-10px_20px_rgba(0,0,0,0.5)]"
+          style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom))' }}
+        >
+          <div className="flex flex-col min-w-0 pr-2">
+            <span className="text-[10px] font-black uppercase text-white/50 truncate block max-w-[120px]">
+              {pack.name}
+            </span>
+            <span className="text-xs font-black text-studio-neon leading-none mt-1">
+              {displayPrice}
+            </span>
+          </div>
+          <div className="flex gap-2 flex-grow max-w-[220px] min-w-[160px]">
+            <div className="flex-grow">
+              <AddToCartButton 
+                compact
+                label={isPreorderActive ? "Pre-order" : "Add to Cart"}
+                item={{
+                  id: pack.id,
+                  name: pack.name,
+                  price: Number(pack.price_inr),
+                  price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+                  slug: pack.slug,
+                  cover_url: pack.cover_url || undefined,
+                  type: 'pack',
+                  is_downloadable: pack.is_downloadable
+                }} 
+              />
+            </div>
+            <div className="flex-grow">
+              <PaymentButton 
+                compact
+                label={isPreorderActive ? "PRE-ORDER" : "BUY NOW"}
+                packId={pack.id} 
+                packName={pack.name} 
+                price={currentPriceInr} 
+                price_usd={pack.price_usd ? Number(pack.price_usd) : undefined}
+                slug={pack.slug}
+                cover_url={pack.cover_url || ''}
+                userId={user?.id}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -72,7 +72,7 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
 
       {/* Related Packs Section */}
       {relatedPacks.length > 0 && (
-        <section className="py-24 bg-black border-t border-white/5 relative overflow-hidden">
+        <section className="pt-24 pb-36 lg:pb-24 bg-black border-t border-white/5 relative overflow-hidden">
           <div className="container mx-auto px-4 relative z-10">
             <div className="flex flex-col mb-12">
               <div className="h-1 bg-studio-yellow w-12 mb-4 shadow-[0_0_15px_#FFC800]" />

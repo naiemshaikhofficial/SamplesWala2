@@ -70,7 +70,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
         </div>
 
         {/* Mobile: 2. Info & Actions | Desktop: Left Column */}
-        <div className="lg:col-span-5 lg:order-1 space-y-8">
+        <div className="lg:col-span-5 lg:order-1 space-y-8 lg:sticky lg:top-24">
            <div className="space-y-4">
               <div className="inline-block px-3 py-1 bg-studio-pink text-white text-[10px] font-black uppercase tracking-widest jagged-border -rotate-2">
                 {preset.type}
@@ -289,6 +289,48 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
             </p>
          </div>
       </section>
+
+      {/* Mobile Sticky CTA Bar */}
+      {!isOwned && (
+        <div 
+          className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-black/95 backdrop-blur-md border-t border-white/10 p-3 flex items-center justify-between gap-3 shadow-[0_-10px_20px_rgba(0,0,0,0.5)]"
+          style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom))' }}
+        >
+          <div className="flex flex-col min-w-0 pr-2">
+            <span className="text-[10px] font-black uppercase text-white/50 truncate block max-w-[120px]">
+              {preset.name}
+            </span>
+            <span className="text-xs font-black text-studio-neon leading-none mt-1">
+              {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
+            </span>
+          </div>
+          <div className="flex gap-2 flex-grow max-w-[220px] min-w-[160px]">
+            <div className="flex-grow">
+              <AddToCartButton 
+                compact
+                item={{
+                  id: preset.id,
+                  name: preset.name,
+                  price: Number(preset.price_inr),
+                  price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+                  slug: preset.slug,
+                  cover_url: preset.cover_url || undefined,
+                  type: 'preset'
+                }} 
+              />
+            </div>
+            <div className="flex-grow">
+              <Link 
+                 href={`/checkout?direct=${preset.id}&type=preset`}
+                 className="w-full h-9 bg-studio-neon text-black font-black uppercase tracking-[0.1em] text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 hover:bg-white transition-all shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] border-2 border-black rounded-sm"
+              >
+                 <Zap size={10} fill="currentColor" />
+                 <span>{isFree ? 'GET FREE' : 'BUY NOW'}</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
