@@ -149,6 +149,17 @@ export default async function HomePage() {
           {/* Custom Interactive Epic Games Slider */}
           <HeroSlider packs={packs} />
 
+          {/* Hero Secure Payments Row */}
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-6 border-t border-white/5 relative z-30">
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-studio-neon animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/55">
+                ⚡ SECURE PAYMENTS VIA RAZORPAY &amp; PAYPAL — WE ACCEPT ALL UPI &amp; INTERNATIONAL CARDS
+              </p>
+            </div>
+            <PaymentAccepted variant="full" className="lg:justify-end" />
+          </div>
+
         </div>
       </section>
 
