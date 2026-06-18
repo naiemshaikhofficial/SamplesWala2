@@ -172,8 +172,8 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         </div>
 
         {/* Mobile Order 2: Name & Purchase */}
-        <div className="lg:col-span-4 lg:col-start-1 lg:row-span-2 lg:row-start-1 space-y-8 order-2 lg:order-1 lg:sticky lg:top-24">
-          <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
+        <div className="lg:col-span-4 lg:col-start-1 lg:row-span-2 lg:row-start-1 space-y-5 order-2 lg:order-1 lg:sticky lg:top-24">
+          <div className="w-full max-w-[280px] lg:max-w-[260px] mx-auto lg:mx-0 aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
             <Image 
               src={getOptimizedImageUrl(pack.cover_url, 800, 90)} 
               alt={`${pack.name} - Premium Indian Sample Pack | SamplesWala`} 
