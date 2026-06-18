@@ -125,7 +125,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Mobile Order 1: Video Preview & Technical Specs */}
-        <div className="lg:col-span-8 space-y-10 order-1 lg:order-2">
+        <div className="lg:col-span-8 lg:col-start-5 lg:row-start-1 space-y-10 order-1 lg:order-2">
           {vId ? (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -172,7 +172,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         </div>
 
         {/* Mobile Order 2: Name & Purchase */}
-        <div className="lg:col-span-4 space-y-8 order-2 lg:order-1 lg:sticky lg:top-24">
+        <div className="lg:col-span-4 lg:col-start-1 lg:row-span-2 lg:row-start-1 space-y-8 order-2 lg:order-1 lg:sticky lg:top-24">
           <div className="aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
             <Image 
               src={getOptimizedImageUrl(pack.cover_url, 800, 90)} 
@@ -325,7 +325,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         </div>
 
         {/* Mobile Order 3: Description & Details */}
-        <div className="lg:col-span-12 lg:grid lg:grid-cols-12 gap-12 order-3">
+        <div className="lg:col-span-8 lg:col-start-5 lg:row-start-2 lg:grid lg:grid-cols-12 gap-12 order-3">
           <div className="lg:col-span-8 space-y-8">
             <p className="text-xs text-white/80 leading-relaxed font-medium bg-black/40 backdrop-blur-md p-6 border border-white/10 rounded-sm whitespace-pre-wrap">
               {pack.description || "No description available for this collection."}
