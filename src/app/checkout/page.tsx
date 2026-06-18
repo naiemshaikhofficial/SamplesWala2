@@ -1236,8 +1236,8 @@ export default function CheckoutPage() {
 
             {/* Payment Methods */}
             <div className="flex flex-col items-center gap-4 py-4">
-              <p className="text-[7px] font-black uppercase tracking-[0.3em] text-white/35">We Accept National &amp; International Payments</p>
-              <PaymentAccepted variant="compact" />
+              <p className="text-[7px] font-black uppercase tracking-[0.3em] text-white/35">We Accept Domestic &amp; International Payments</p>
+              <PaymentAccepted variant="full" />
             </div>
 
             {/* Upsell Section */}

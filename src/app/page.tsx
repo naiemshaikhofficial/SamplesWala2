@@ -152,9 +152,9 @@ export default async function HomePage() {
           {/* Hero Secure Payments Row */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-6 border-t border-white/5 relative z-30">
             <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-studio-neon animate-pulse" />
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/55">
-                ⚡ SECURE PAYMENTS VIA RAZORPAY &amp; PAYPAL — WE ACCEPT ALL UPI &amp; INTERNATIONAL CARDS
+              <span className="w-2 h-2 rounded-full bg-studio-neon animate-pulse flex-shrink-0" />
+              <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.15em] md:tracking-[0.25em] text-white/55 leading-relaxed">
+                ⚡ WE ACCEPT DOMESTIC &amp; INTERNATIONAL PAYMENTS
               </p>
             </div>
             <PaymentAccepted variant="full" className="lg:justify-end" />
@@ -910,11 +910,11 @@ export default async function HomePage() {
           {/* Secure Payments Banner */}
           <div className="text-center space-y-6 max-w-4xl mx-auto pb-10 border-b border-white/5">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/50">
-              WE ACCEPT ALL MAJOR INDIAN &amp; INTERNATIONAL PAYMENTS
+              WE ACCEPT DOMESTIC &amp; INTERNATIONAL PAYMENTS
             </h3>
             <PaymentAccepted variant="full" />
             <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.15em]">
-              ⚡ UPI (GPAY, PHONEPE, PAYTM) • RUPAY • VISA • MASTERCARD • AMERICAN EXPRESS • PAYPAL
+              ⚡ UPI (GPAY, PHONEPE, PAYTM) • RUPAY • VISA • MASTERCARD • AMERICAN EXPRESS
             </p>
           </div>
 
