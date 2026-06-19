@@ -174,6 +174,14 @@ export function generatePageMetadata({
   }
 }
 
+function cleanDescriptionText(text: string): string {
+  if (!text) return ''
+  return text
+    .replace(/<\/?[^>]+(>|$)/g, "") // Strip HTML tags
+    .replace(/\s+/g, " ")           // Collapse multiple spaces/newlines
+    .trim()
+}
+
 export function generatePackMetadata(pack: any): Metadata {
   const categoryName = pack.categories?.[0]?.name || 'Samples'
   const siteTitle = "Samples Wala"
@@ -186,7 +194,9 @@ export function generatePackMetadata(pack: any): Metadata {
   if (pack.preset_count > 0) counts.push(`${pack.preset_count} Presets`)
   
   const countString = counts.length > 0 ? ` featuring ${counts.join(', ')}` : ''
-  const description = pack.description || `${pack.name} - A premium ${categoryName} sample pack by Samples Wala. ${contentSummary}${countString}. Professional quality, 100% royalty-free for your music production.`
+  const description = cleanDescriptionText(
+    pack.description || `${pack.name} - A premium ${categoryName} sample pack by Samples Wala. ${contentSummary}${countString}. Professional quality, 100% royalty-free for your music production.`
+  )
 
   // Dynamically extract super-focused exact phrase keywords
   const focusedKeywords = generateSmartKeywords(pack.name, categoryName)
@@ -216,7 +226,9 @@ export function generatePresetMetadata(preset: any): Metadata {
   const dawName = preset.daws?.[0] || 'FL Studio'
   const siteTitle = "Samples Wala"
   
-  const description = preset.description || `${preset.name} - A professional ${preset.type} preset for ${dawName} by Samples Wala. 100% royalty-free, high-quality mixing chains and templates for modern music production.`
+  const description = cleanDescriptionText(
+    preset.description || `${preset.name} - A professional ${preset.type} preset for ${dawName} by Samples Wala. 100% royalty-free, high-quality mixing chains and templates for modern music production.`
+  )
 
   // Dynamically extract super-focused exact phrase keywords
   const focusedKeywords = generateSmartKeywords(preset.name, `${preset.type} preset ${dawName}`)

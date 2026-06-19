@@ -11,7 +11,7 @@ async function fetchAllPacks(limit?: number) {
   const supabase = getAdminClient()
   let query = supabase
     .from('sample_packs')
-    .select('id, name, slug, cover_url, price_inr, price_usd, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
+    .select('id, name, slug, description, cover_url, price_inr, price_usd, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
     .order('created_at', { ascending: false })
 
   if (limit) {
@@ -30,6 +30,7 @@ async function fetchAllPacks(limit?: number) {
     id: pack.id,
     name: pack.name,
     slug: pack.slug,
+    description: pack.description,
     cover_url: pack.cover_url,
     price_inr: pack.price_inr,
     price_usd: pack.price_usd,
@@ -60,7 +61,7 @@ async function fetchPacksBySeries(seriesName: string, limit?: number) {
   const supabase = getAdminClient()
   let query = supabase
     .from('sample_packs')
-    .select('id, name, slug, cover_url, price_inr, price_usd, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary, series')
+    .select('id, name, slug, description, cover_url, price_inr, price_usd, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary, series')
     .eq('series', seriesName)
     .order('created_at', { ascending: false })
 
@@ -80,6 +81,7 @@ async function fetchPacksBySeries(seriesName: string, limit?: number) {
     id: pack.id,
     name: pack.name,
     slug: pack.slug,
+    description: pack.description,
     cover_url: pack.cover_url,
     price_inr: pack.price_inr,
     price_usd: pack.price_usd,
@@ -285,7 +287,7 @@ export async function getPacksByCategorySlug(slug: string) {
 
       const { data, error } = await supabase
         .from('sample_packs')
-        .select('id, name, slug, cover_url, price_inr, price_usd, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
+        .select('id, name, slug, description, cover_url, price_inr, price_usd, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
         .eq('category_id', category.id)
         .order('created_at', { ascending: false })
 
@@ -298,6 +300,7 @@ export async function getPacksByCategorySlug(slug: string) {
         id: pack.id,
         name: pack.name,
         slug: pack.slug,
+        description: pack.description,
         cover_url: pack.cover_url,
         price_inr: pack.price_inr,
         price_usd: pack.price_usd,

@@ -40,8 +40,13 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
         currentPacks = currentPacks.filter(p => {
           const nameLower = p.name.toLowerCase()
           const categoryLower = (p.categories?.name || '').toLowerCase()
+          const descriptionLower = (p.description || '').toLowerCase()
+          const summaryLower = (p.total_contents_summary || '').toLowerCase()
           return searchWords.every(word => 
-            nameLower.includes(word) || categoryLower.includes(word)
+            nameLower.includes(word) || 
+            categoryLower.includes(word) || 
+            descriptionLower.includes(word) || 
+            summaryLower.includes(word)
           )
         })
       }
