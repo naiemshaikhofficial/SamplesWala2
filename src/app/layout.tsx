@@ -47,6 +47,8 @@ import { ArtistStatusProvider } from "@/components/ArtistStatusProvider";
 import Script from "next/script";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import "lenis/dist/lenis.css";
+import { LenisProvider } from "@/components/LenisProvider";
 
 export default async function RootLayout({
   children,
@@ -145,9 +147,11 @@ export default async function RootLayout({
                 <ContentProtection />
                 <ServiceWorkerRegistration />
                 <CartSidebar />
-                <LayoutWrapper>
-                  {children}
-                </LayoutWrapper>
+                <LenisProvider>
+                  <LayoutWrapper>
+                    {children}
+                  </LayoutWrapper>
+                </LenisProvider>
                 <Analytics />
                 <SpeedInsights />
               </ArtistStatusProvider>
