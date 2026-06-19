@@ -3,24 +3,29 @@ import { getPacks } from '@/app/browse/actions'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 
-// 🟢 CPU OPTIMIZATION: Cache sitemap for 24 hours instead of regenerating on every crawler visit
-export const revalidate = 86400
-
+// Force sitemap to be dynamically generated on every request so new products show up instantly
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://sampleswala.com'
   const supabase = getAdminClient()
 
-  // 1. Fetch all packs for dynamic routes
+  // 1. Fetch all packs for dynamic routes (Direct DB fetch for instant real-time sitemap)
   let packEntries: any[] = []
   try {
-    const packs = await getPacks()
-    packEntries = packs.map((pack) => ({
-      url: `${baseUrl}/packs/${pack.slug}`,
-      lastModified: new Date(pack.updated_at || new Date()),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }))
+    const { data: packs } = await supabase
+      .from('sample_packs')
+      .select('slug, updated_at')
+    
+    if (packs) {
+      packEntries = packs.map((pack) => ({
+        url: `${baseUrl}/packs/${pack.slug}`,
+        lastModified: new Date(pack.updated_at || new Date()),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }))
+    }
   } catch (error) {
     console.error('Sitemap: Failed to fetch packs', error)
   }
