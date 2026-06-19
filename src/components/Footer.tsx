@@ -38,7 +38,7 @@ export function Footer() {
               />
             </Link>
             <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed max-w-sm">
-              Premium sound design for the modern producer. Industry standard sample packs, loops, and tools for Indian music production.
+              Premium sound design for the modern producer. Industry standard sample packs, loops, and presets for Indian &amp; global music production.
             </p>
             {/* ⚡ Value Proposition Sticker Badges (Highly stylized comic style) */}
             <div className="flex flex-col gap-3 pt-2">
@@ -109,7 +109,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/browse?category=Vocals" className="hover:text-studio-blue hover:translate-x-1.5 transition-all duration-200 inline-block">
-                  Indian Vocals
+                  Vocals
                 </Link>
               </li>
               <li>

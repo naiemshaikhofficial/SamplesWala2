@@ -194,6 +194,7 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
 export function Header() {
   const { user, isArtist } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { currency, setCurrency } = useCurrency()
 
   const dashboardUrl = process.env.NODE_ENV === 'production'
     ? 'https://dashboard.sampleswala.com'
@@ -237,6 +238,13 @@ export function Header() {
       )}
 
       <div className="flex items-center gap-4">
+        <button
+          onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')}
+          className="px-2 py-1 bg-black text-[9px] font-black tracking-widest text-white border border-white/15 hover:border-studio-yellow hover:text-studio-yellow transition-all rounded-xs flex items-center gap-1.5 shadow-[2px_2px_0px_black] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          title="Switch Currency"
+        >
+          <span>{currency === 'INR' ? '🇮🇳 INR' : '🌐 USD'}</span>
+        </button>
         <HeaderCartIcon />
         {user ? (
           <LogoutButton />
@@ -288,6 +296,13 @@ export function Header() {
         </div>
 
         <div className="flex md:hidden items-center gap-3">
+          <button
+            onClick={() => setCurrency(currency === 'INR' ? 'USD' : 'INR')}
+            className="px-2 py-1 bg-black text-[8px] font-black tracking-widest text-white border border-white/15 hover:border-studio-yellow hover:text-studio-yellow transition-all rounded-xs flex items-center gap-1 shadow-[2px_2px_0px_black] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            title="Switch Currency"
+          >
+            <span>{currency === 'INR' ? 'INR' : 'USD'}</span>
+          </button>
           {!user && (
             <Link
               href="/auth"

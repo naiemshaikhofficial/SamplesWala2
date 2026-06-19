@@ -22,8 +22,8 @@ import { getOptimizedImageUrl } from '@/lib/images'
 export const revalidate = false
 
 export const metadata = generatePageMetadata({
-  title: "Samples Wala | Premium Indian Sample Packs & Loops",
-  description: "Download premium royalty-free Indian sample packs, loops, and sound libraries. Trusted by producers at T-Series, Sony Music, and Zee Music. Reviewed by top artists like Abhi Bright & Sohan Beatz.",
+  title: "Samples Wala | Premium Indian & Global Sample Packs, Loops & Presets",
+  description: "Download premium royalty-free Indian and global sample packs, loops, and sound libraries. Trusted by producers at T-Series, Sony Music, and Zee Music. Reviewed by top artists like Abhi Bright & Sohan Beatz.",
   path: '/'
 })
 

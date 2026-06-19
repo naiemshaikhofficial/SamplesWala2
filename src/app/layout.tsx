@@ -28,8 +28,8 @@ const notoMusic = Noto_Music({
 import { generatePageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = generatePageMetadata({
-  title: "Samples Wala | Premium Indian Sample Packs & Loops",
-  description: "Samples Wala (also known as Sample Wala) provides high-quality sounds for Indian music producers. Professional royalty-free samples, loops, and curated collections for Bollywood, Hip-Hop, and Electronic music.",
+  title: "Samples Wala | Premium Indian & Global Sample Packs, Loops & Presets",
+  description: "Samples Wala provides high-quality Indian and global sounds for music producers worldwide. Professional royalty-free sample packs, loops, and curated presets for Bollywood, Hip-Hop, Electronic, and more.",
 });
 
 
