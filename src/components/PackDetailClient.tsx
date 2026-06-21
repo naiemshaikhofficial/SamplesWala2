@@ -108,11 +108,14 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const minutes = priceDetails.minutesLeft
   const seconds = priceDetails.secondsLeft
 
-  const vId = React.useMemo(() => {
-    if (!pack.video_url) return null;
+  const videoIds = React.useMemo(() => {
+    if (!pack.video_url) return [];
+    const urls = pack.video_url.split(',').map((url: string) => url.trim()).filter(Boolean);
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = pack.video_url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return urls.map((url: string) => {
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }).filter(Boolean) as string[];
   }, [pack.video_url])
 
   return (
@@ -125,22 +128,35 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Mobile Order 1: Video Preview & Technical Specs */}
         <div className="lg:col-span-8 lg:col-start-5 lg:row-start-1 space-y-10 order-1 lg:order-2">
-          {vId ? (
+          {videoIds.length > 0 ? (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="h-6 w-1 bg-studio-neon shadow-[0_0_10px_#a6e22e]" />
-                <h2 className="text-lg font-black uppercase tracking-tighter">Demo</h2>
+                <h2 className="text-lg font-black uppercase tracking-tighter">
+                  {videoIds.length > 1 ? 'Demos' : 'Demo'}
+                </h2>
               </div>
-              <div className="aspect-video rounded-sm overflow-hidden border-2 border-white/5 bg-black">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={`https://www.youtube.com/embed/${vId}?rel=0&modestbranding=1`}
-                  title={`${pack.name} Preview`}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
+              <div className={videoIds.length > 1 ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "w-full"}>
+                {videoIds.map((id, index) => (
+                  <div key={id} className="space-y-2">
+                    {videoIds.length > 1 && (
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white/40 block">
+                        Demo {index + 1}
+                      </span>
+                    )}
+                    <div className="aspect-video rounded-sm overflow-hidden border-2 border-white/5 bg-black">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`}
+                        title={`${pack.name} Preview ${index + 1}`}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ) : (
