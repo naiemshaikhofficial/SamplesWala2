@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
-import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, ShieldCheck } from 'lucide-react'
@@ -207,7 +206,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   {/* The dynamic background image with slow parallax zoom on hover */}
                   <div className="absolute inset-0 w-full h-full transform scale-105 group-hover:scale-100 transition-transform duration-[10s] ease-out">
                     <Image
-                      src={getOptimizedImageUrl(activePack.cover_url, 800, 80)}
+                      src={activePack.cover_url || '/placeholder.jpg'}
                       alt=""
                       fill
                       sizes="(max-width: 1200px) 100vw, 80vw"
@@ -286,7 +285,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                     <div className="w-56 md:w-64 aspect-square relative border-4 border-black shadow-premium transform hover:rotate-0 transition-transform duration-500 -rotate-3 group-hover:scale-105">
                       <Image
-                        src={getOptimizedImageUrl(activePack.cover_url, 600, 80)}
+                        src={activePack.cover_url || '/placeholder.jpg'}
                         alt={activePack.name}
                         fill
                         priority
@@ -373,7 +372,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                 {/* Pack Tiny Cover Thumbnail */}
                 <div className="w-12 h-12 relative flex-shrink-0 border-2 border-black">
                   <Image
-                    src={getOptimizedImageUrl(pack.cover_url, 150, 80)}
+                    src={pack.cover_url || '/placeholder.jpg'}
                     alt={pack.name}
                     fill
                     sizes="48px"

@@ -143,19 +143,19 @@ export function BackgroundMural() {
           }}
           className="absolute inset-0 w-full h-[130%] -top-[15%] pointer-events-none overflow-hidden"
         >
-          <div className="absolute top-[10%] left-[5%] -rotate-12 opacity-[0.08]" style={{ WebkitTextStroke: '2px var(--color-studio-pink)', color: 'transparent', filter: 'drop-shadow(0 0 10px var(--color-studio-pink))' }}>
+          <div className="absolute top-[10%] left-[5%] -rotate-12 opacity-[0.08]" style={{ WebkitTextStroke: '2px var(--color-studio-pink)', color: 'transparent', textShadow: '0 0 10px var(--color-studio-pink)' }}>
             <span className="text-8xl md:text-[12rem] font-black italic">SAMPLES</span>
           </div>
-          <div className="absolute top-[40%] right-[10%] rotate-6 opacity-[0.05]" style={{ WebkitTextStroke: '2px var(--color-studio-neon)', color: 'transparent', filter: 'drop-shadow(0 0 10px var(--color-studio-neon))' }}>
+          <div className="absolute top-[40%] right-[10%] rotate-6 opacity-[0.05]" style={{ WebkitTextStroke: '2px var(--color-studio-neon)', color: 'transparent', textShadow: '0 0 10px var(--color-studio-neon)' }}>
             <span className="text-8xl md:text-[15rem] font-black">BASS</span>
           </div>
-          <div className="absolute bottom-[20%] left-[15%] -rotate-6 opacity-[0.06]" style={{ WebkitTextStroke: '2px var(--color-studio-yellow)', color: 'transparent', filter: 'drop-shadow(0 0 10px var(--color-studio-yellow))' }}>
+          <div className="absolute bottom-[20%] left-[15%] -rotate-6 opacity-[0.06]" style={{ WebkitTextStroke: '2px var(--color-studio-yellow)', color: 'transparent', textShadow: '0 0 10px var(--color-studio-yellow)' }}>
             <span className="text-7xl md:text-[10rem] font-black italic">WAALA</span>
           </div>
-          <div className="absolute top-[70%] right-[5%] -rotate-12 opacity-[0.04]" style={{ WebkitTextStroke: '2px var(--color-studio-blue)', color: 'transparent', filter: 'drop-shadow(0 0 10px var(--color-studio-blue))' }}>
+          <div className="absolute top-[70%] right-[5%] -rotate-12 opacity-[0.04]" style={{ WebkitTextStroke: '2px var(--color-studio-blue)', color: 'transparent', textShadow: '0 0 10px var(--color-studio-blue)' }}>
             <span className="text-8xl md:text-[12rem] font-black">RAW</span>
           </div>
-          <div className="absolute top-[5%] right-[20%] rotate-12 opacity-[0.03]" style={{ WebkitTextStroke: '2px #ff4d00', color: 'transparent', filter: 'drop-shadow(0 0 10px #ff4d00)' }}>
+          <div className="absolute top-[5%] right-[20%] rotate-12 opacity-[0.03]" style={{ WebkitTextStroke: '2px #ff4d00', color: 'transparent', textShadow: '0 0 10px #ff4d00' }}>
             <span className="text-6xl md:text-[8rem] font-black italic">FIRE</span>
           </div>
         </motion.div>

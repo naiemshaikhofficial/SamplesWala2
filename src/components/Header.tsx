@@ -57,43 +57,48 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
     }
   }, [query, router, onSearchClose])
 
-  const [placeholderText, setPlaceholderText] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [loopNum, setLoopNum] = useState(0)
-  const [typingSpeed, setTypingSpeed] = useState(150)
-
+  const inputRef = useRef<HTMLInputElement>(null)
   const words = ['TRAP SAMPLES', 'HIP HOP LOOPS', 'BOLLYWOOD VOCALS', 'DRILL KITS', 'LO-FI MELODIES', 'PRESETS']
 
   useEffect(() => {
+    let currentText = ''
+    let isDeletingText = false
+    let currentWordIndex = 0
     let timer: NodeJS.Timeout
 
     const handleType = () => {
-      const i = loopNum % words.length
+      const i = currentWordIndex % words.length
       const fullTxt = `SEARCH ${words[i]}...`
+      let speed = 90
 
-      if (isDeleting) {
-        setPlaceholderText(fullTxt.substring(0, placeholderText.length - 1))
-        setTypingSpeed(45) // Faster when deleting
+      if (isDeletingText) {
+        currentText = fullTxt.substring(0, currentText.length - 1)
+        speed = 45
       } else {
-        setPlaceholderText(fullTxt.substring(0, placeholderText.length + 1))
-        setTypingSpeed(90) // Smooth normal typing speed
+        currentText = fullTxt.substring(0, currentText.length + 1)
       }
 
-      if (!isDeleting && placeholderText === fullTxt) {
-        // Pause at the end of the word
-        timer = setTimeout(() => setIsDeleting(true), 2500)
-      } else if (isDeleting && placeholderText === '') {
-        setIsDeleting(false)
-        setLoopNum(loopNum + 1)
-        setTypingSpeed(250) // Short pause before next word
+      if (inputRef.current) {
+        inputRef.current.placeholder = currentText
+      }
+
+      if (!isDeletingText && currentText === fullTxt) {
+        timer = setTimeout(() => {
+          isDeletingText = true
+          handleType()
+        }, 2500)
+      } else if (isDeletingText && currentText === '') {
+        isDeletingText = false
+        currentWordIndex++
+        timer = setTimeout(handleType, 250)
       } else {
-        timer = setTimeout(handleType, typingSpeed)
+        timer = setTimeout(handleType, speed)
       }
     }
 
-    timer = setTimeout(handleType, typingSpeed)
+    timer = setTimeout(handleType, 150)
     return () => clearTimeout(timer)
-  }, [placeholderText, isDeleting, loopNum, typingSpeed])
+  }, [])
 
   return (
     <div ref={searchRef} className="relative w-full md:max-w-[280px] z-50">
@@ -107,11 +112,12 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
           <Search size={14} />
         </div>
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setIsOpen(true)}
-          placeholder={placeholderText}
+          placeholder=""
           className="w-full h-full bg-transparent pl-9 pr-9 text-[10px] font-black uppercase tracking-widest focus:outline-none placeholder:text-white/20 text-white"
         />
         <div className="absolute right-3 flex items-center gap-1.5">

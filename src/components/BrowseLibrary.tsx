@@ -4,7 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { clientCache } from '@/lib/clientCache'
 import { useCart } from '@/context/CartContext'
-import { getOptimizedImageUrl } from '@/lib/images'
 import { useRouter } from 'next/navigation'
 import { ShoppingCart, Eye } from 'lucide-react'
 import { cleanSearchQuery } from '@/lib/search/queryHelper'
@@ -88,7 +87,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
               }`}
             >
               <Image
-                src={getOptimizedImageUrl(pack.cover_url, 600, 80)}
+                src={pack.cover_url || '/placeholder.jpg'}
                 alt={`${pack.name} - Indian Sample Pack & Loops | SamplesWala`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

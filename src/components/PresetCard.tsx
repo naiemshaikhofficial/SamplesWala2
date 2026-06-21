@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '@/context/CartContext'
-import { getOptimizedImageUrl } from '@/lib/images'
 import { useCurrency } from '@/context/CurrencyContext'
 
 interface PresetCardProps {
@@ -78,7 +77,7 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
         className="comic-panel aspect-square block group-hover:border-studio-pink transition-all group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[14px_14px_0px_black]"
       >
         <Image
-          src={getOptimizedImageUrl(preset.cover_url || '/placeholder.jpg', 600, 80)}
+          src={preset.cover_url || '/placeholder.jpg'}
           alt={`${preset.name} - ${preset.type} Preset | SamplesWala`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"

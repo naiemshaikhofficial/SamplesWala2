@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Search, Music, ArrowRight, X, ShieldCheck, ArrowLeft, Play, Pause, Download, Loader2, Sparkles, FolderHeart, Volume2, HelpCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getOptimizedImageUrl } from '@/lib/images'
 import { DownloadButton } from '@/components/DownloadButton'
 import { getPackSamples } from '@/app/library/actions'
 
@@ -213,7 +212,7 @@ export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left w-full md:w-auto">
             <div className="aspect-square relative w-24 md:w-36 h-24 md:h-36 bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] flex-shrink-0">
               <Image 
-                src={getOptimizedImageUrl(activePack.cover_url, 400, 80)} 
+                src={activePack.cover_url || '/placeholder.jpg'} 
                 alt={activePack.name} 
                 fill 
                 sizes="(max-width: 768px) 96px, 144px"
@@ -565,7 +564,7 @@ export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
             <div key={item.id} className="group flex flex-col space-y-4">
               <div className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-neon transition-all">
                 <Image 
-                  src={getOptimizedImageUrl(item.cover_url, 600, 80)} 
+                  src={item.cover_url || '/placeholder.jpg'} 
                   alt={item.name} 
                   fill 
                   sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
