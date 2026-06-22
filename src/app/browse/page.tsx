@@ -20,9 +20,14 @@ export default async function BrowsePage({
   searchParams: Promise<{ q?: string; type?: string }> 
 }) {
   const { q, type = 'packs' } = await searchParams
-  const packs = await getPacks()
-  const categories = await getAllCategories()
-  const presets = await getPresets()
+  
+  // Parallelize and fetch conditionally to minimize serverless CPU usage and page response time
+  const categoriesPromise = getAllCategories()
+  const dataPromise = type === 'packs' ? getPacks() : getPresets()
+  const [categories, data] = await Promise.all([categoriesPromise, dataPromise])
+  
+  const packs = type === 'packs' ? data : []
+  const presets = type === 'presets' ? data : []
 
   const breadcrumbs = generateBreadcrumbData([
     { name: 'Home', item: 'https://sampleswala.com' },

@@ -161,6 +161,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - images/assets (svg, png, etc, including all other common static assets like woff, json, etc)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|mp3|wav|pdf|json|txt|webmanifest)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sitemap\\.xml|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|mp3|wav|pdf|json|txt|webmanifest)$).*)',
   ],
 }

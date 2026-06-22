@@ -48,11 +48,15 @@ export default async function GenrePage({ params, searchParams }: Props) {
     notFound()
   }
 
-  const [packs, presets, categories] = await Promise.all([
-    getPacksByCategorySlug(slug),
-    getPresetsByCategory(category.id),
-    getAllCategories()
-  ])
+  // Parallelize and fetch conditionally to avoid loading unused tab data
+  const categoriesPromise = getAllCategories()
+  const dataPromise = type === 'packs' 
+    ? getPacksByCategorySlug(slug) 
+    : getPresetsByCategory(category.id)
+
+  const [categories, data] = await Promise.all([categoriesPromise, dataPromise])
+  const packs = type === 'packs' ? data : []
+  const presets = type === 'presets' ? data : []
 
   const breadcrumbs = generateBreadcrumbData([
     { name: 'Home', item: 'https://sampleswala.com' },

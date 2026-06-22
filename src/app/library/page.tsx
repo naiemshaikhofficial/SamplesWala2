@@ -35,50 +35,61 @@ export default async function LibraryPage() {
   const vaultPacks = allVaultItems?.filter(v => v.item_type === 'pack') || []
   const vaultPresets = allVaultItems?.filter(v => v.item_type === 'preset') || []
   
-  let libraryItems: any[] = []
-  
-  if (vaultPacks.length > 0) {
-    const packIds = vaultPacks.map(v => v.item_id)
-    const { data: packData } = await supabase
-      .from('sample_packs')
-      .select('id, name, slug, cover_url, full_pack_download_url')
-      .in('id', packIds)
-    
-    if (packData) {
-      libraryItems.push(...packData.map(p => ({
-        ...p,
-        type: 'pack',
-        created_at: vaultPacks.find(v => v.item_id === p.id)?.created_at,
-        is_downloadable: !!p.full_pack_download_url
-      })))
-    }
-  }
+  const packIds = vaultPacks.map(v => v.item_id)
+  const presetIds = vaultPresets.map(v => v.item_id)
 
-  if (vaultPresets.length > 0) {
-    const presetIds = vaultPresets.map(v => v.item_id)
-    const { data: presetData } = await supabase
-      .from('presets')
-      .select('id, name, slug, cover_url, drive_url')
-      .in('id', presetIds)
-    
-    if (presetData) {
-      libraryItems.push(...presetData.map(p => ({
-        ...p,
-        type: 'preset',
-        created_at: vaultPresets.find(v => v.item_id === p.id)?.created_at,
-        is_downloadable: !!p.drive_url
-      })))
-    }
-  }
+  // Run all secondary details queries in parallel to drastically improve page generation speed
+  const packsPromise = packIds.length > 0
+    ? supabase
+        .from('sample_packs')
+        .select('id, name, slug, cover_url, full_pack_download_url')
+        .in('id', packIds)
+    : Promise.resolve({ data: null })
 
-  // 3. Fetch user account profile for billing
-  const { data: profile } = await supabase
+  const presetsPromise = presetIds.length > 0
+    ? supabase
+        .from('presets')
+        .select('id, name, slug, cover_url, drive_url')
+        .in('id', presetIds)
+    : Promise.resolve({ data: null })
+
+  const profilePromise = supabase
     .from('user_accounts')
     .select('full_name, phone_number, address_line1, city, state, postal_code, gstin')
     .eq('user_id', user.id)
     .maybeSingle()
 
-  // 4. Map names to billing items for the table
+  const [packsResult, presetsResult, profileResult] = await Promise.all([
+    packsPromise,
+    presetsPromise,
+    profilePromise
+  ])
+
+  const packData = packsResult.data
+  const presetData = presetsResult.data
+  const profile = profileResult.data
+
+  let libraryItems: any[] = []
+  
+  if (packData) {
+    libraryItems.push(...packData.map((p: any) => ({
+      ...p,
+      type: 'pack',
+      created_at: vaultPacks.find(v => v.item_id === p.id)?.created_at,
+      is_downloadable: !!p.full_pack_download_url
+    })))
+  }
+
+  if (presetData) {
+    libraryItems.push(...presetData.map((p: any) => ({
+      ...p,
+      type: 'preset',
+      created_at: vaultPresets.find(v => v.item_id === p.id)?.created_at,
+      is_downloadable: !!p.drive_url
+    })))
+  }
+
+  // 3. Map names to billing items for the table
   const billingItems = allVaultItems?.map(item => ({
     ...item,
     item_name: libraryItems.find(p => p.id === item.item_id)?.name || item.item_name || 'Digital Asset'

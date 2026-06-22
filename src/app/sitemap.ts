@@ -3,9 +3,9 @@ import { getPacks } from '@/app/browse/actions'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 
-// Force sitemap to be dynamically generated on every request so new products show up instantly
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// Cache sitemap using Incremental Static Regeneration (revalidated every 6 hours)
+// This avoids hitting the database on every single crawler hit.
+export const revalidate = 21600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://sampleswala.com'
