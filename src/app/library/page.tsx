@@ -5,8 +5,6 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { getOptimizedImageUrl } from '@/lib/images'
 
-import { DownloadButton } from '@/components/DownloadButton'
-import { BillingHistory } from '@/components/BillingHistory'
 import { SearchableLibrary } from '@/components/SearchableLibrary'
 
 
@@ -96,7 +94,7 @@ export default async function LibraryPage() {
   })) || []
 
   return (
-    <div className="container mx-auto px-4 py-32 space-y-24">
+    <div className="container mx-auto px-4 py-32 space-y-16">
       <div className="flex flex-col items-center text-center space-y-4">
         <div className="h-16 w-16 bg-studio-yellow/10 flex items-center justify-center rounded-sm mb-4">
           <FolderHeart className="text-studio-yellow" size={32} />
@@ -105,10 +103,12 @@ export default async function LibraryPage() {
         <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Unlocked High-Fidelity Artifacts</p>
       </div>
       
-      <SearchableLibrary items={libraryItems} />
-
-      {/* Billing Section */}
-      <BillingHistory items={billingItems} profile={profile} email={user.email} />
+      <SearchableLibrary 
+        items={libraryItems} 
+        billingItems={billingItems}
+        profile={profile}
+        email={user.email}
+      />
     </div>
   )
 }

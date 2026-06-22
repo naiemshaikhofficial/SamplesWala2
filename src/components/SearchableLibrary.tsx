@@ -1,9 +1,10 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, Music, ArrowRight, X, ShieldCheck, ArrowLeft, Play, Pause, Download, Loader2, Sparkles, FolderHeart, Volume2, HelpCircle } from 'lucide-react'
+import { Search, Music, ArrowRight, X, ShieldCheck, ArrowLeft, Play, Pause, Download, Loader2, Sparkles, FolderHeart, Volume2, HelpCircle, Receipt } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { DownloadButton } from '@/components/DownloadButton'
+import { BillingHistory } from '@/components/BillingHistory'
 import { getPackSamples } from '@/app/library/actions'
 
 interface LibraryItem {
@@ -42,10 +43,20 @@ function formatTime(secs: number) {
   return `${m}:${s < 10 ? '0' : ''}${s}`
 }
 
-export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
+export function SearchableLibrary({ 
+  items, 
+  billingItems, 
+  profile, 
+  email 
+}: { 
+  items: LibraryItem[]
+  billingItems: any[]
+  profile: any
+  email?: string
+}) {
   // Main vault states
   const [search, setSearch] = useState('')
-  const [activeTab, setActiveTab] = useState<'all' | 'pack' | 'preset'>('all')
+  const [activeTab, setActiveTab] = useState<'packs' | 'presets' | 'orders'>('packs')
 
   // Pack Explorer states
   const [activePack, setActivePack] = useState<LibraryItem | null>(null)
@@ -171,7 +182,7 @@ export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
   // Filter calculations
   const filteredItems = items.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
-    const matchesTab = activeTab === 'all' || p.type === activeTab
+    const matchesTab = (activeTab === 'packs' && p.type === 'pack') || (activeTab === 'presets' && p.type === 'preset')
     return matchesSearch && matchesTab
   })
 
@@ -183,9 +194,9 @@ export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
   })
 
   // Dynamic counts for tabs
-  const allCount = items.length
   const packCount = items.filter(p => p.type === 'pack').length
   const presetCount = items.filter(p => p.type === 'preset').length
+  const orderCount = billingItems?.length || 0
 
   // Render Pack Explorer Mode
   if (activePack) {
@@ -460,187 +471,202 @@ export function SearchableLibrary({ items }: { items: LibraryItem[] }) {
   // Render Grid Mode (Standard Vault Page)
   return (
     <div className="space-y-12">
+      {/* Premium Dashboard Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="bg-black border-4 border-black p-6 shadow-[8px_8px_0px_rgba(255,200,0,1)] hover:-translate-y-1 transition-all">
+          <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Sample Packs Unlocked</h4>
+          <p className="text-3xl font-black text-studio-yellow italic mt-1">{packCount} PACKS</p>
+        </div>
+        <div className="bg-black border-4 border-black p-6 shadow-[8px_8px_0px_rgba(255,0,128,1)] hover:-translate-y-1 transition-all">
+          <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Producer Presets</h4>
+          <p className="text-3xl font-black text-studio-pink italic mt-1">{presetCount} PRESETS</p>
+        </div>
+        <div className="bg-black border-4 border-black p-6 shadow-[8px_8px_0px_rgba(0,255,159,1)] hover:-translate-y-1 transition-all">
+          <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Total Orders</h4>
+          <p className="text-3xl font-black text-studio-neon italic mt-1">{orderCount} ORDERS</p>
+        </div>
+      </div>
+
       {/* Category tabs and Search bar row */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-white/5">
         <div className="flex flex-col sm:flex-row sm:items-center gap-6 w-full lg:w-auto">
-          {/* Section Icon & Title */}
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 bg-white/5 flex items-center justify-center rounded-sm">
-              <Music size={20} className="text-white/40" />
-            </div>
-            <div>
-              <h2 className="text-xl font-black uppercase tracking-tight italic">Your Collection</h2>
-              <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">
-                {items.length} {items.length === 1 ? 'Item' : 'Items'} Unlocked
-              </p>
-            </div>
-          </div>
-
-          {/* Type Tab Selector */}
-          <div className="flex rounded-sm bg-white/5 border border-white/10 p-0.5 self-start sm:self-center">
+          {/* Dashboard Tab Selector */}
+          <div className="flex flex-wrap rounded-sm bg-white/5 border border-white/10 p-0.5 w-full sm:w-auto">
             <button
-              onClick={() => setActiveTab('all')}
-              className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
-                activeTab === 'all' ? 'bg-studio-yellow text-black' : 'text-white/40 hover:text-white'
+              onClick={() => setActiveTab('packs')}
+              className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
+                activeTab === 'packs' ? 'bg-studio-yellow text-black shadow-[2px_2px_0px_black]' : 'text-white/40 hover:text-white'
               }`}
             >
-              All
-              <span className={`text-[7px] px-1 py-0.5 rounded-xs ${activeTab === 'all' ? 'bg-black text-studio-yellow' : 'bg-white/10 text-white/60'}`}>
-                {allCount}
-              </span>
-            </button>
-            <button
-              onClick={() => setActiveTab('pack')}
-              className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
-                activeTab === 'pack' ? 'bg-studio-yellow text-black' : 'text-white/40 hover:text-white'
-              }`}
-            >
-              Packs
-              <span className={`text-[7px] px-1 py-0.5 rounded-xs ${activeTab === 'pack' ? 'bg-black text-studio-yellow' : 'bg-white/10 text-white/60'}`}>
+              <Music size={12} />
+              Sample Packs
+              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded-xs ${activeTab === 'packs' ? 'bg-black text-studio-yellow' : 'bg-white/10 text-white/60'}`}>
                 {packCount}
               </span>
             </button>
             <button
-              onClick={() => setActiveTab('preset')}
-              className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
-                activeTab === 'preset' ? 'bg-studio-yellow text-black' : 'text-white/40 hover:text-white'
+              onClick={() => setActiveTab('presets')}
+              className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
+                activeTab === 'presets' ? 'bg-studio-pink text-white shadow-[2px_2px_0px_black]' : 'text-white/40 hover:text-white'
               }`}
             >
-              Presets
-              <span className={`text-[7px] px-1 py-0.5 rounded-xs ${activeTab === 'preset' ? 'bg-black text-studio-yellow' : 'bg-white/10 text-white/60'}`}>
+              <Sparkles size={12} />
+              Producer Presets
+              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded-xs ${activeTab === 'presets' ? 'bg-black text-white' : 'bg-white/10 text-white/60'}`}>
                 {presetCount}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
+                activeTab === 'orders' ? 'bg-studio-neon text-black shadow-[2px_2px_0px_black]' : 'text-white/40 hover:text-white'
+              }`}
+            >
+              <Receipt size={12} />
+              Order History
+              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded-xs ${activeTab === 'orders' ? 'bg-black text-studio-neon' : 'bg-white/10 text-white/60'}`}>
+                {orderCount}
               </span>
             </button>
           </div>
         </div>
 
-        {/* Global Vault Search */}
-        <div className="relative w-full lg:w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
-          <input 
-            type="text"
-            placeholder="Search your library..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-sm py-3 pl-12 pr-10 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-studio-neon/50 focus:bg-white/[0.08] transition-all"
-          />
-          {search && (
-            <button 
-              onClick={() => setSearch('')}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white"
-            >
-              <X size={14} />
-            </button>
-          )}
-        </div>
+        {/* Search Bar - hidden on Orders tab */}
+        {activeTab !== 'orders' && (
+          <div className="relative w-full lg:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+            <input 
+              type="text"
+              placeholder={`Search unlocked ${activeTab === 'packs' ? 'packs' : 'presets'}...`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-sm py-3 pl-12 pr-10 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-studio-neon/50 focus:bg-white/[0.08] transition-all"
+            />
+            {search && (
+              <button 
+                onClick={() => setSearch('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Grid items */}
-      {filteredItems.length === 0 ? (
-        <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-white/5 rounded-sm">
-           <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">
-             {search ? 'No matches found for your search' : 'No items found in this section'}
-           </p>
-           {search ? (
-             <button 
-               onClick={() => setSearch('')}
-               className="mt-4 text-[9px] font-black uppercase tracking-widest text-studio-neon hover:underline"
-             >
-               Clear Search
-             </button>
-           ) : (
-             <Link 
-               href="/browse"
-               className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-black uppercase text-[10px] tracking-widest hover:bg-studio-yellow transition-all border border-black shadow-[4px_4px_0px_rgba(255,200,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none"
-             >
-               <Sparkles size={12} />
-               Browse Sounds Store
-             </Link>
-           )}
+      {/* Dynamic Content Area */}
+      {activeTab === 'orders' ? (
+        <div className="animate-fadeIn !mt-0">
+          <BillingHistory items={billingItems} profile={profile} email={email} />
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12">
-          {filteredItems.map((item) => (
-            <div key={item.id} className="group flex flex-col space-y-4">
-              <div className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-neon transition-all">
-                <Image 
-                  src={item.cover_url || '/placeholder.jpg'} 
-                  alt={item.name} 
-                  fill 
-                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-1 border border-white/10 rounded-sm">
-                    <p className={`text-[7px] font-black uppercase tracking-widest ${item.type === 'pack' ? 'text-studio-yellow' : 'text-studio-pink'}`}>
-                      {item.type === 'pack' ? 'PACK' : 'PRESET'}
-                    </p>
-                </div>
-              </div>
-              
-              <div className="space-y-4 px-1 flex-1 flex flex-col justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <ShieldCheck size={10} className="text-studio-neon" />
-                    <span className="text-[7px] font-black uppercase tracking-[0.2em] text-studio-neon/80 font-mono">Verified License</span>
+        /* Grid items */
+        filteredItems.length === 0 ? (
+          <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-white/5 rounded-sm">
+             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">
+               {search ? 'No matches found for your search' : `No ${activeTab === 'packs' ? 'sample packs' : 'producer presets'} found in your collection`}
+             </p>
+             {search ? (
+               <button 
+                 onClick={() => setSearch('')}
+                 className="mt-4 text-[9px] font-black uppercase tracking-widest text-studio-neon hover:underline"
+               >
+                 Clear Search
+               </button>
+             ) : (
+               <Link 
+                 href="/browse"
+                 className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-black uppercase text-[10px] tracking-widest hover:bg-studio-yellow transition-all border border-black shadow-[4px_4px_0px_rgba(255,200,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none"
+               >
+                 <Sparkles size={12} />
+                 Browse Sounds Store
+               </Link>
+             )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12 animate-fadeIn">
+            {filteredItems.map((item) => (
+              <div key={item.id} className="group flex flex-col space-y-4">
+                <div className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-neon transition-all">
+                  <Image 
+                    src={item.cover_url || '/placeholder.jpg'} 
+                    alt={item.name} 
+                    fill 
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                  <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-1 border border-white/10 rounded-sm">
+                      <p className={`text-[7px] font-black uppercase tracking-widest ${item.type === 'pack' ? 'text-studio-yellow' : 'text-studio-pink'}`}>
+                        {item.type === 'pack' ? 'PACK' : 'PRESET'}
+                      </p>
                   </div>
-                  <h3 className="text-[13px] font-black uppercase truncate italic tracking-tight text-white">{item.name}</h3>
-                  {item.created_at && (
-                    <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
-                      Purchased on {new Date(item.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.2em] text-white/20 pt-1">
-                    <span className="flex items-center gap-2"><Music size={10} /> Full {item.type === 'pack' ? 'Pack' : 'Preset'}</span>
-                    <span className="text-studio-neon/60">Unlocked</span>
-                  </div>
                 </div>
+                
+                <div className="space-y-4 px-1 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <ShieldCheck size={10} className="text-studio-neon" />
+                      <span className="text-[7px] font-black uppercase tracking-[0.2em] text-studio-neon/80 font-mono">Verified License</span>
+                    </div>
+                    <h3 className="text-[13px] font-black uppercase truncate italic tracking-tight text-white">{item.name}</h3>
+                    {item.created_at && (
+                      <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
+                        Purchased on {new Date(item.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.2em] text-white/20 pt-1">
+                      <span className="flex items-center gap-2"><Music size={10} /> Full {item.type === 'pack' ? 'Pack' : 'Preset'}</span>
+                      <span className="text-studio-neon/60">Unlocked</span>
+                    </div>
+                  </div>
 
-                <div className="flex flex-col gap-2 pt-2 items-start w-full">
-                  {item.is_downloadable ? (
-                    item.type === 'pack' ? (
-                      <div className="flex flex-col gap-2 w-full">
-                        <DownloadButton itemId={item.id} type={item.type} />
-                        <button
-                          onClick={() => setActivePack(item)}
-                          className="w-full h-11 border-2 border-black bg-studio-neon/10 hover:bg-studio-neon hover:text-black text-studio-neon text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-[4px_4px_0px_black] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
-                        >
-                          <Music size={12} />
-                          Explore Sounds
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2 w-full items-start">
-                        <div className="flex-1">
+                  <div className="flex flex-col gap-2 pt-2 items-start w-full">
+                    {item.is_downloadable ? (
+                      item.type === 'pack' ? (
+                        <div className="flex flex-col gap-2 w-full">
                           <DownloadButton itemId={item.id} type={item.type} />
+                          <button
+                            onClick={() => setActivePack(item)}
+                            className="w-full h-11 border-2 border-black bg-studio-neon/10 hover:bg-studio-neon hover:text-black text-studio-neon text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-[4px_4px_0px_black] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+                          >
+                            <Music size={12} />
+                            Explore Sounds
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2 w-full items-start">
+                          <div className="flex-1">
+                            <DownloadButton itemId={item.id} type={item.type} />
+                          </div>
+                          <Link 
+                            href={`/browse/presets/${item.slug}`}
+                            className="h-16 w-16 border-4 border-black bg-white/5 shadow-[6px_6px_0px_black] flex-shrink-0 flex items-center justify-center hover:bg-white/10 transition-all group/link active:translate-x-1 active:translate-y-1 active:shadow-none"
+                          >
+                            <ArrowRight size={18} className="text-white/40 group-hover/link:text-white transition-colors" />
+                          </Link>
+                        </div>
+                      )
+                    ) : (
+                      <div className="w-full bg-studio-neon/5 border border-studio-neon/20 p-4 rounded-sm flex items-center justify-between group/pre">
+                        <div className="space-y-0.5">
+                          <p className="text-[10px] font-black text-studio-neon uppercase tracking-widest italic">Pre-ordered</p>
+                          <p className="text-[7px] font-bold text-white/40 uppercase tracking-tighter">Will be sent once available</p>
                         </div>
                         <Link 
-                          href={`/browse/presets/${item.slug}`}
-                          className="h-16 w-16 border-4 border-black bg-white/5 shadow-[6px_6px_0px_black] flex-shrink-0 flex items-center justify-center hover:bg-white/10 transition-all group/link active:translate-x-1 active:translate-y-1 active:shadow-none"
+                          href={item.type === 'pack' ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`}
+                          className="h-10 w-10 bg-studio-neon/10 border border-studio-neon/20 flex items-center justify-center hover:bg-studio-neon hover:border-black transition-all group-hover/pre:rotate-12"
                         >
-                          <ArrowRight size={18} className="text-white/40 group-hover/link:text-white transition-colors" />
+                          <ArrowRight size={14} className="text-studio-neon group-hover/pre:text-black" />
                         </Link>
                       </div>
-                    )
-                  ) : (
-                    <div className="w-full bg-studio-neon/5 border border-studio-neon/20 p-4 rounded-sm flex items-center justify-between group/pre">
-                      <div className="space-y-0.5">
-                        <p className="text-[10px] font-black text-studio-neon uppercase tracking-widest italic">Pre-ordered</p>
-                        <p className="text-[7px] font-bold text-white/40 uppercase tracking-tighter">Will be sent once available</p>
-                      </div>
-                      <Link 
-                        href={item.type === 'pack' ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`}
-                        className="h-10 w-10 bg-studio-neon/10 border border-studio-neon/20 flex items-center justify-center hover:bg-studio-neon hover:border-black transition-all group-hover/pre:rotate-12"
-                      >
-                        <ArrowRight size={14} className="text-studio-neon group-hover/pre:text-black" />
-                      </Link>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )
       )}
     </div>
   )
