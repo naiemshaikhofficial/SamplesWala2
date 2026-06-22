@@ -364,7 +364,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
 
       {/* Floating Sticky CTA Bar */}
       <AnimatePresence>
-        {showFloatingBar && !isOwned && mounted && (
+        {(showFloatingBar || isMobile) && !isOwned && mounted && (
           <div 
             className="fixed left-0 right-0 z-50 pointer-events-none" 
             style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
