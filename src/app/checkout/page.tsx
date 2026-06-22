@@ -195,6 +195,19 @@ export default function CheckoutPage() {
   const { currency, symbol, formatPrice } = useCurrency()
   const hasPreorder = items.some(item => item.type === 'pack' && item.is_downloadable === false)
 
+  const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   // Close sidebar immediately when checkout page loads
   useEffect(() => {
     setSidebarOpen(false)
@@ -872,305 +885,626 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      <MusicalNotesBackground />
-
-      <div className="container mx-auto px-4 pt-20 pb-32 lg:pb-20 relative z-10">
-        <div className="flex flex-col items-center mb-16 text-center">
-          <div className="h-1 bg-studio-yellow w-24 mb-6 shadow-[0_0_20px_#FFC800]" />
-          <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
-            SECURE <span className="text-studio-yellow">CHECKOUT</span>
+    <div className="min-h-screen bg-black text-white relative">
+      <div className="container mx-auto max-w-5xl px-4 pt-16 pb-24 relative z-10">
+        {/* Graffiti Branded Header */}
+        <div className="flex flex-col items-center mb-12 text-center">
+          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic text-white graffiti-title-text">
+            Checkout
           </h1>
-          <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.4em] mt-4">
-            Premium Assets / Digital Delivery
+          <p className="text-[9px] text-studio-yellow font-black uppercase tracking-[0.2em] mt-2">
+            ⚡ Secure checkout / instant delivery
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          {/* Cart Items List */}
-          <div className="lg:col-span-8 space-y-4">
-            {itemsWithPrices.map((item) => (
-              <div key={item.id} className="flex items-center gap-6 p-4 bg-white/5 border border-white/5 rounded-sm group hover:border-white/10 transition-all">
-                <div className="w-20 h-20 relative rounded-sm overflow-hidden flex-shrink-0">
-                  <Image src={item.cover_url || '/placeholder.jpg'} alt={item.name} fill sizes="80px" className="object-cover" />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="font-black uppercase tracking-tight text-lg">{item.name}</h3>
-                  <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
-                    {item.type === 'preset' ? 'Producer Preset' : 'Premium Sample Pack'}
-                  </p>
-                </div>
-                <div className="text-right space-y-2">
-                  <p className="font-black text-xl">{item.displayPrice}</p>
-                  <button onClick={() => removeItem(item.id)} className="text-white/20 hover:text-red-500 transition-colors p-2">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            ))}
+        {/* Cinematic Sound-Scanner & Checkout Conveyor Belt Divider */}
+        <div className="mb-12 border-2 border-black rounded-sm shadow-[6px_6px_0px_#FFE600] overflow-hidden relative z-20">
+          <style dangerouslySetInnerHTML={{ __html: `
+            :root {
+              --conveyor-dur: 0.8s;
+              --item-dur: 12s;
+            }
+            @keyframes beltScroll {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-100px); }
+            }
+            @keyframes gearSpin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            @keyframes itemMove {
+              0% { transform: translateX(-150px); }
+              100% { transform: translateX(1150px); }
+            }
+            @keyframes itemBounce {
+              0% { transform: translateY(0); }
+              100% { transform: translateY(-5px); }
+            }
+            @keyframes laserPulse {
+              0% { transform: scaleX(0.85); opacity: 0.6; }
+              100% { transform: scaleX(1.15); opacity: 0.95; }
+            }
+            @keyframes laserScanColor {
+              0%, 10% {
+                fill: url(#laserGreen);
+                opacity: 0.95;
+              }
+              15%, 100% {
+                fill: url(#laserRed);
+                opacity: 0.7;
+              }
+            }
+            @keyframes splashPulse {
+              0%, 10% {
+                fill: #00FF94;
+                opacity: 0.85;
+                transform: scale(1.4);
+              }
+              15%, 100% {
+                fill: #FF0055;
+                opacity: 0.45;
+                transform: scale(1.0);
+              }
+            }
+            @keyframes comicTextPop {
+              0% {
+                transform: translate(500px, 45px) scale(0) rotate(-15deg);
+                opacity: 0;
+              }
+              2% {
+                transform: translate(500px, 25px) scale(1.2) rotate(10deg);
+                opacity: 1;
+              }
+              8% {
+                transform: translate(500px, 20px) scale(1) rotate(-5deg);
+                opacity: 1;
+              }
+              15% {
+                transform: translate(500px, 10px) scale(0.7) rotate(0deg);
+                opacity: 0;
+              }
+              100% {
+                transform: translate(500px, 10px) scale(0) rotate(0deg);
+                opacity: 0;
+              }
+            }
+            @keyframes eqWave {
+              0% { transform: scaleY(0.25); }
+              100% { transform: scaleY(1.25); }
+            }
+            .belt-plates {
+              animation: beltScroll var(--conveyor-dur) linear infinite;
+            }
+            .gear-spin {
+              transform-box: fill-box;
+              transform-origin: center;
+              animation: gearSpin 2s linear infinite;
+            }
+            .item-1 { animation: itemMove var(--item-dur) linear infinite; animation-delay: 0s; }
+            .item-2 { animation: itemMove var(--item-dur) linear infinite; animation-delay: 3s; }
+            .item-3 { animation: itemMove var(--item-dur) linear infinite; animation-delay: 6s; }
+            .item-4 { animation: itemMove var(--item-dur) linear infinite; animation-delay: 9s; }
+            
+            .tape-reel-spin {
+              transform-box: fill-box;
+              transform-origin: center;
+              animation: gearSpin 1.5s linear infinite;
+            }
+            .vinyl-spin {
+              transform-box: fill-box;
+              transform-origin: center;
+              animation: gearSpin 3s linear infinite;
+            }
+            .dial-spin {
+              transform-box: fill-box;
+              transform-origin: center;
+              animation: gearSpin 4s linear infinite;
+            }
+            .coin-bounce {
+              animation: itemBounce 0.8s ease-in-out infinite alternate;
+            }
+            .laser-beam {
+              transform-origin: top center;
+              animation: laserScanColor 3s steps(120) infinite, laserPulse 1.5s ease-in-out infinite alternate;
+            }
+            .laser-splash {
+              transform-origin: 500px 75px;
+              animation: splashPulse 3s infinite;
+            }
+            .pop-text-1, .pop-text-2, .pop-text-3, .pop-text-4 {
+              transform-box: fill-box;
+              transform-origin: center;
+            }
+            .pop-text-1 { animation: comicTextPop var(--item-dur) infinite; animation-delay: 6s; }
+            .pop-text-2 { animation: comicTextPop var(--item-dur) infinite; animation-delay: 9s; }
+            .pop-text-3 { animation: comicTextPop var(--item-dur) infinite; animation-delay: 0s; }
+            .pop-text-4 { animation: comicTextPop var(--item-dur) infinite; animation-delay: 3s; }
+            
+            .eq-bars rect {
+              transform-box: fill-box;
+              transform-origin: bottom;
+            }
+            .eq-bar-1 { animation: eqWave 0.8s ease-in-out infinite alternate; }
+            .eq-bar-2 { animation: eqWave 1.2s ease-in-out infinite alternate; }
+            .eq-bar-3 { animation: eqWave 0.6s ease-in-out infinite alternate; }
+            .eq-bar-4 { animation: eqWave 1.0s ease-in-out infinite alternate; }
+          `}} />
 
-            <Link href="/browse" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-white pt-4">
-              <ArrowRight size={14} className="rotate-180" />
-              Continue Shopping
-            </Link>
-
-            {/* Billing Address Section */}
-            <div id="billing-details-section" className="pt-12 space-y-8">
-              <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_15px_#FFC800]" />
-                  <h2 className="text-xl font-black uppercase tracking-tight italic">Billing Details</h2>
-                </div>
-                <span className={`text-[8px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors ${Object.keys(formErrors).length > 0 ? 'text-red-500' : 'text-studio-neon'}`}>
-                  {Object.keys(formErrors).length > 0 ? <ShieldCheck size={10} className="rotate-180" /> : <CheckCircle2 size={10} />}
-                  {Object.keys(formErrors).length > 0 ? 'Action Required' : 'Auto-Saved'}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Full Name</label>
-                  <input
-                    type="text"
-                    placeholder="NAME"
-                    className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.fullName ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                    value={billingDetails.fullName}
-                    onChange={(e) => handleBillingChange('fullName', e.target.value)}
-                  />
-                  {formErrors.fullName && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.fullName}</p>}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Phone Number</label>
-                  <div className="phone-input-container">
-                    <PhoneInput
-                      international
-                      defaultCountry={currency === 'USD' ? undefined : 'IN'}
-                      placeholder="PHONE"
-                      value={billingDetails.phone}
-                      onChange={(val) => handleBillingChange('phone', val || '')}
-                      className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus-within:border-studio-yellow outline-none transition-all ${formErrors.phone ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                    />
-                  </div>
-                  {formErrors.phone && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.phone}</p>}
-                </div>
-                <div className="col-span-full space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Address</label>
-                  <input
-                    type="text"
-                    placeholder="STREET ADDRESS"
-                    className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.address ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                    value={billingDetails.address}
-                    onChange={(e) => handleBillingChange('address', e.target.value)}
-                  />
-                  {formErrors.address && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.address}</p>}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">City</label>
-                  <input
-                    type="text"
-                    placeholder="CITY"
-                    className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.city ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                    value={billingDetails.city}
-                    onChange={(e) => handleBillingChange('city', e.target.value)}
-                  />
-                  {formErrors.city && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.city}</p>}
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">State</label>
-                    <input
-                      type="text"
-                      placeholder="STATE"
-                      className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.state ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                      value={billingDetails.state}
-                      onChange={(e) => handleBillingChange('state', e.target.value)}
-                    />
-                    {formErrors.state && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.state}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Pincode</label>
-                    <input
-                      type="text"
-                      placeholder="ZIP"
-                      className={`w-full h-12 bg-white/5 border rounded-sm px-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all ${formErrors.zip ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'}`}
-                      value={billingDetails.zip}
-                      onChange={(e) => handleBillingChange('zip', e.target.value)}
-                    />
-                    {formErrors.zip && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.zip}</p>}
-                  </div>
-                </div>
-
-                <div className="col-span-full space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Country</label>
-                  <Select
-                    options={countryOptions}
-                    value={countryOptions.find(opt => opt.label === billingDetails.country)}
-                    onChange={(val: any) => handleBillingChange('country', val?.label || '')}
-                    placeholder="SELECT COUNTRY"
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    styles={{
-                      control: (base, state) => ({
-                        ...base,
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        borderColor: state.isFocused ? '#FFC800' : (formErrors.country ? 'rgba(239, 68, 68, 0.5)' : 'rgba(255, 255, 255, 0.1)'),
-                        borderRadius: '0.125rem',
-                        height: '3rem',
-                        fontSize: '10px',
-                        fontWeight: '900',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.1em',
-                        boxShadow: 'none',
-                        '&:hover': {
-                          borderColor: state.isFocused ? '#FFC800' : 'rgba(255, 255, 255, 0.2)',
-                        }
-                      }),
-                      menu: (base) => ({
-                        ...base,
-                        backgroundColor: '#000',
-                        border: '1px border rgba(255, 255, 255, 0.1)',
-                        borderRadius: '0.125rem',
-                        zIndex: 50
-                      }),
-                      option: (base, state) => ({
-                        ...base,
-                        backgroundColor: state.isFocused ? 'rgba(255, 200, 0, 0.1)' : 'transparent',
-                        color: state.isFocused ? '#FFC800' : 'rgba(255, 255, 255, 0.6)',
-                        fontSize: '10px',
-                        fontWeight: '900',
-                        textTransform: 'uppercase',
-                        '&:active': {
-                          backgroundColor: '#FFC800',
-                          color: '#000'
-                        }
-                      }),
-                      singleValue: (base) => ({
-                        ...base,
-                        color: '#fff'
-                      }),
-                      input: (base) => ({
-                        ...base,
-                        color: '#fff'
-                      }),
-                      placeholder: (base) => ({
-                        ...base,
-                        color: 'rgba(255, 255, 255, 0.2)'
-                      })
-                    }}
-                  />
-                  {formErrors.country && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1 ml-1">{formErrors.country}</p>}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 mt-4 px-1 opacity-40 hover:opacity-80 transition-opacity duration-200">
-                <input
-                  id="checkout-newsletter"
-                  type="checkbox"
-                  checked={newsletterOptIn}
-                  onChange={(e) => setNewsletterOptIn(e.target.checked)}
-                  className="w-3.5 h-3.5 rounded bg-transparent border border-white/20 text-white/40 accent-white/40 focus:ring-0 focus:ring-offset-0 focus:outline-none cursor-pointer"
-                />
-                <label htmlFor="checkout-newsletter" className="text-[9px] font-medium text-white/50 lowercase tracking-wider leading-relaxed cursor-pointer select-none first-letter:uppercase">
-                  Email me with news and offers
-                </label>
-              </div>
-
-              <div className="p-4 bg-studio-yellow/5 border border-studio-yellow/10 rounded-sm">
-                <p className="text-[9px] font-medium text-studio-yellow uppercase tracking-widest leading-relaxed">
-                  Note: This information is used for billing and tax compliance purposes. All samples remain digital and will be added to your account instantly.
-                </p>
-              </div>
-            </div>
+          {/* Tri-color platform stripe */}
+          <div className="h-1 bg-[#1e1e24]" />
+          <div className="flex h-[3px]">
+            <div className="flex-1 bg-studio-yellow" />
+            <div className="flex-1 bg-studio-blue" />
+            <div className="flex-1 bg-studio-neon" />
           </div>
 
-          {/* Order Summary Side */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="p-8 bg-white/5 border border-white/10 rounded-sm space-y-8">
-              <h2 className="text-xl font-black uppercase tracking-tight italic">Order Summary</h2>
+          {/* Scenery + Conveyor Belt */}
+          <div className="h-28 bg-[#0a0a0c] relative overflow-hidden select-none pointer-events-none">
+            {/* SVG Viewport */}
+            <svg className="w-full h-full" viewBox="0 0 1000 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="laserRed" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#FF0080" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#FF0080" stopOpacity="0" />
+                </linearGradient>
+                <linearGradient id="laserGreen" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#00FF94" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#00FF94" stopOpacity="0" />
+                </linearGradient>
+                <pattern id="conveyorGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#16161b" strokeWidth="1" />
+                </pattern>
+              </defs>
 
-              <div className="space-y-4">
-                <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-white/40">
-                  <span>Subtotal ({itemCount} items)</span>
-                  <span ref={subtotalRef}>{currency === 'USD' ? `$${activeSubtotal.toFixed(2)}` : `₹${total}`}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-studio-neon">
-                    <span>Discount ({discount}%)</span>
-                    <span>-{currency === 'USD' ? `$${activeCouponDiscount.toFixed(2)}` : `₹${activeCouponDiscount}`}</span>
-                  </div>
-                )}
-                <div className="pt-4 border-t border-white/10 flex justify-between items-end">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Total Amount</span>
-                  <span ref={totalRef} className="text-3xl font-black text-studio-yellow italic">{currency === 'USD' ? `$${activeTotal.toFixed(2)}` : `₹${total - activeCouponDiscount}`}</span>
-                </div>
+              {/* Grid Background */}
+              <rect width="1000" height="100" fill="url(#conveyorGrid)" />
+
+              {/* Sound visualizer bars in background */}
+              <g className="eq-bars" opacity="0.15">
+                <rect x="50" y="20" width="5" height="45" rx="2" fill="#00BFFF" className="eq-bar-1" />
+                <rect x="60" y="10" width="5" height="55" rx="2" fill="#FF0080" className="eq-bar-2" />
+                <rect x="70" y="25" width="5" height="40" rx="2" fill="#00FF94" className="eq-bar-3" />
+                <rect x="80" y="15" width="5" height="50" rx="2" fill="#FFE600" className="eq-bar-4" />
+                
+                <rect x="910" y="15" width="5" height="50" rx="2" fill="#FFE600" className="eq-bar-4" />
+                <rect x="920" y="25" width="5" height="40" rx="2" fill="#00FF94" className="eq-bar-3" />
+                <rect x="930" y="10" width="5" height="55" rx="2" fill="#FF0080" className="eq-bar-2" />
+                <rect x="940" y="20" width="5" height="45" rx="2" fill="#00BFFF" className="eq-bar-1" />
+              </g>
+
+              {/* Status Info Board Badges */}
+              <g transform="translate(180, 20)">
+                <rect x="-75" y="-10" width="150" height="20" rx="3" fill="#000" stroke="#222" strokeWidth="1" />
+                <rect x="-73" y="-8" width="146" height="16" rx="2" fill="#FFE600" />
+                <text y="3" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">SECURE SYSTEM v2.0</text>
+              </g>
+
+              <g transform="translate(820, 20)">
+                <rect x="-75" y="-10" width="150" height="20" rx="3" fill="#000" stroke="#222" strokeWidth="1" />
+                <rect x="-73" y="-8" width="146" height="16" rx="2" fill="#00FF94" />
+                <text y="3" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">100% INSTANT DELIVERY</text>
+              </g>
+
+              {/* Laser Scanner Machine */}
+              {/* Emitter head hanger */}
+              <rect x="496" y="0" width="8" height="26" fill="#18181c" stroke="#000" strokeWidth="2" />
+              <rect x="491" y="2" width="18" height="4" fill="#00BFFF" stroke="#000" strokeWidth="1.5" />
+              <rect x="491" y="12" width="18" height="4" fill="#00FF94" stroke="#000" strokeWidth="1.5" />
+              
+              {/* Pulsing Emitter Beam */}
+              <polygon className="laser-beam" points="492,30 508,30 535,75 465,75" />
+              
+              {/* Contact splash glow */}
+              <ellipse className="laser-splash" cx="500" cy="75" rx="16" ry="3.5" />
+
+              {/* Scanner head */}
+              <path d="M480,24 L520,24 L514,35 Q500,40 486,35 Z" fill="#25252b" stroke="#000" strokeWidth="2" />
+              <rect x="490" y="31" width="20" height="3" rx="0.5" fill="#FF0055" />
+
+              {/* Conveyor Belt Gears/Rollers supporting the belt */}
+              <g className="gear-spin">
+                <circle cx="60" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
+                <line x1="60" y1="80" x2="60" y2="92" stroke="#000" strokeWidth="1.5" />
+                <line x1="54" y1="86" x2="66" y2="86" stroke="#000" strokeWidth="1.5" />
+              </g>
+              <g className="gear-spin">
+                <circle cx="180" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
+                <line x1="180" y1="80" x2="180" y2="92" stroke="#000" strokeWidth="1.5" />
+                <line x1="174" y1="86" x2="186" y2="86" stroke="#000" strokeWidth="1.5" />
+              </g>
+              <g className="gear-spin">
+                <circle cx="300" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
+                <line x1="300" y1="80" x2="300" y2="92" stroke="#000" strokeWidth="1.5" />
+                <line x1="294" y1="86" x2="306" y2="86" stroke="#000" strokeWidth="1.5" />
+              </g>
+              <g className="gear-spin">
+                <circle cx="420" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
+                <line x1="420" y1="80" x2="420" y2="92" stroke="#000" strokeWidth="1.5" />
+                <line x1="414" y1="86" x2="426" y2="86" stroke="#000" strokeWidth="1.5" />
+              </g>
+              <g className="gear-spin">
+                <circle cx="540" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
+                <line x1="540" y1="80" x2="540" y2="92" stroke="#000" strokeWidth="1.5" />
+                <line x1="534" y1="86" x2="546" y2="86" stroke="#000" strokeWidth="1.5" />
+              </g>
+              <g className="gear-spin">
+                <circle cx="660" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
+                <line x1="660" y1="80" x2="660" y2="92" stroke="#000" strokeWidth="1.5" />
+                <line x1="654" y1="86" x2="666" y2="86" stroke="#000" strokeWidth="1.5" />
+              </g>
+              <g className="gear-spin">
+                <circle cx="780" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
+                <line x1="780" y1="80" x2="780" y2="92" stroke="#000" strokeWidth="1.5" />
+                <line x1="774" y1="86" x2="786" y2="86" stroke="#000" strokeWidth="1.5" />
+              </g>
+              <g className="gear-spin">
+                <circle cx="900" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
+                <line x1="900" y1="80" x2="900" y2="92" stroke="#000" strokeWidth="1.5" />
+                <line x1="894" y1="86" x2="906" y2="86" stroke="#000" strokeWidth="1.5" />
+              </g>
+
+              {/* Conveyor Belt plates */}
+              <g className="belt-plates">
+                <rect x="-50" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="0" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="50" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="100" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="150" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="200" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="250" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="300" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="350" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="400" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="450" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="500" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="550" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="600" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="650" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="700" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="750" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="800" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="850" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="900" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="950" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="1000" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="1050" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="1100" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="1150" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="1200" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+                <rect x="1250" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <rect x="1300" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
+              </g>
+
+              {/* Conveyor base plate */}
+              <rect x="0" y="82" width="1000" height="4" fill="#000" />
+
+              {/* MOVING ITEMS */}
+              {/* Item 1: Cassette Tape */}
+              <g className="item-1">
+                <g transform="translate(0, 52)">
+                  <rect x="-24" y="-14" width="48" height="28" rx="2" fill="#000" transform="translate(3, 3)" />
+                  <rect x="-24" y="-14" width="48" height="28" rx="2" fill="#FF0080" stroke="#000" strokeWidth="2" />
+                  <rect x="-18" y="-9" width="36" height="18" rx="1" fill="#fff" stroke="#000" strokeWidth="1.5" />
+                  <g transform="translate(-8, 0)" className="tape-reel-spin">
+                    <circle cx="0" cy="0" r="3.5" fill="#000" />
+                    <line x1="-3" y1="0" x2="3" y2="0" stroke="#fff" strokeWidth="0.8" />
+                    <line x1="0" y1="-3" x2="0" y2="3" stroke="#fff" strokeWidth="0.8" />
+                  </g>
+                  <g transform="translate(8, 0)" className="tape-reel-spin">
+                    <circle cx="0" cy="0" r="3.5" fill="#000" />
+                    <line x1="-3" y1="0" x2="3" y2="0" stroke="#fff" strokeWidth="0.8" />
+                    <line x1="0" y1="-3" x2="0" y2="3" stroke="#fff" strokeWidth="0.8" />
+                  </g>
+                  <text y="-2" textAnchor="middle" fill="#000" fontSize="4.5" fontWeight="900" fontFamily="sans-serif">BASS</text>
+                </g>
+              </g>
+
+              {/* Item 2: Vinyl Record */}
+              <g className="item-2">
+                <g transform="translate(0, 52)">
+                  <circle cx="0" cy="0" r="16" fill="#000" transform="translate(3, 3)" />
+                  <g className="vinyl-spin">
+                    <circle cx="0" cy="0" r="16" fill="#111" stroke="#000" strokeWidth="2" />
+                    <circle cx="0" cy="0" r="12" fill="none" stroke="#222" strokeWidth="1" />
+                    <circle cx="0" cy="0" r="8" fill="none" stroke="#333" strokeWidth="0.8" />
+                    <circle cx="0" cy="0" r="5" fill="#00BFFF" stroke="#000" strokeWidth="1" />
+                    <circle cx="0" cy="0" r="1.2" fill="#000" />
+                    <path d="M-10,-10 Q-5,-15 0,-10 Q-5,-5 -10,-10 Z" fill="#fff" opacity="0.15" />
+                  </g>
+                </g>
+              </g>
+
+              {/* Item 3: Sound Vault Safe Box */}
+              <g className="item-3">
+                <g transform="translate(0, 52)">
+                  <rect x="-14" y="-14" width="28" height="28" rx="2" fill="#000" transform="translate(3, 3)" />
+                  <rect x="-14" y="-14" width="28" height="28" rx="2" fill="#00FF94" stroke="#000" strokeWidth="2" />
+                  <rect x="-10" y="-10" width="20" height="20" fill="none" stroke="#000" strokeWidth="1.5" />
+                  <g className="dial-spin">
+                    <circle cx="0" cy="0" r="6" fill="#fff" stroke="#000" strokeWidth="1.5" />
+                    <line x1="0" y1="-6" x2="0" y2="6" stroke="#000" strokeWidth="1" />
+                    <line x1="-6" y1="0" x2="6" y2="0" stroke="#000" strokeWidth="1" />
+                    <circle cx="0" cy="0" r="2" fill="#000" />
+                  </g>
+                </g>
+              </g>
+
+              {/* Item 4: Coin Stack */}
+              <g className="item-4">
+                <g transform="translate(0, 52)" className="coin-bounce">
+                  <path d="M-12,8 Q0,13 12,8 L12,12 Q0,17 -12,12 Z" fill="#000" />
+                  <ellipse cx="0" cy="6" rx="12" ry="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
+                  <rect x="-12" y="1" width="24" height="5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
+                  <ellipse cx="0" cy="1" rx="12" ry="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
+                  <rect x="-12" y="-4" width="24" height="5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
+                  <ellipse cx="0" cy="-4" rx="12" ry="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
+                  <rect x="-12" y="-9" width="24" height="5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
+                  <ellipse cx="0" cy="-9" rx="12" ry="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
+                  <text y="-8" textAnchor="middle" fill="#000" fontSize="6.5" fontWeight="900" fontFamily="sans-serif">₹</text>
+                </g>
+              </g>
+
+              {/* Comic popup text overlay labels */}
+              {/* Text 1 (pops when Item 1 is scanned) */}
+              <g className="pop-text-1">
+                <polygon points="-30,-10 30,-10 25,10 -25,10" fill="#FF0080" stroke="#000" strokeWidth="2" />
+                <text y="3.5" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.5">BASS!</text>
+              </g>
+
+              {/* Text 2 (pops when Item 2 is scanned) */}
+              <g className="pop-text-2">
+                <polygon points="-30,-10 30,-10 25,10 -25,10" fill="#00BFFF" stroke="#000" strokeWidth="2" />
+                <text y="3.5" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.5">BEAT!</text>
+              </g>
+
+              {/* Text 3 (pops when Item 3 is scanned) */}
+              <g className="pop-text-3">
+                <polygon points="-45,-10 45,-10 40,10 -40,10" fill="#00FF94" stroke="#000" strokeWidth="2" />
+                <text y="3.5" textAnchor="middle" fill="#000" fontSize="8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.5">APPROVED!</text>
+              </g>
+
+              {/* Text 4 (pops when Item 4 is scanned) */}
+              <g className="pop-text-4">
+                <polygon points="-35,-10 35,-10 30,10 -30,10" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                <text y="3.5" textAnchor="middle" fill="#000" fontSize="8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.5">SAVED!</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          {/* Left Column (Review Items & Billing Details) */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Cart Items List */}
+            <div className="border-2 border-black bg-[#121212] p-5 md:p-6 rounded-sm shadow-[6px_6px_0px_#0074e4] space-y-4">
+              <div className="flex items-center gap-2 border-b border-black pb-4">
+                <span className="w-1.5 h-3 bg-studio-blue rounded-xs shadow-[0_0_10px_#0074e4]" />
+                <h2 className="text-sm font-black uppercase tracking-tight italic text-white">Review Items</h2>
               </div>
+              <div className="divide-y divide-neutral-900">
+                {itemsWithPrices.map((item) => (
+                  <div key={item.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                    <div className="w-12 h-12 relative rounded-sm overflow-hidden flex-shrink-0 border border-white/5">
+                      <Image src={item.cover_url || '/placeholder.jpg'} alt={item.name} fill sizes="48px" className="object-cover" />
+                    </div>
+                    <div className="flex-grow min-w-0">
+                      <h3 className="font-bold uppercase text-xs truncate text-white">{item.name}</h3>
+                      <p className="text-[9px] text-neutral-500 font-bold uppercase tracking-wider mt-1">
+                        {item.type === 'preset' ? 'Preset' : 'Sample Pack'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4 text-right flex-shrink-0">
+                      <p className="font-black text-xs text-neutral-200">{item.displayPrice}</p>
+                      <button onClick={() => removeItem(item.id)} className="text-neutral-500 hover:text-white p-1 cursor-pointer transition-colors duration-150">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="pt-2">
+                <Link href="/browse" className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-neutral-500 hover:text-white transition-colors">
+                  <ArrowRight size={11} className="rotate-180" />
+                  Continue Shopping
+                </Link>
+              </div>
+            </div>
 
-              {/* Coupon Input */}
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <div className="relative flex-grow">
-                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" size={14} />
+            {/* Billing Details Section */}
+            <div id="billing-details-section" className="space-y-6">
+              <div className="border-2 border-black bg-[#121212] p-5 md:p-6 rounded-sm shadow-[6px_6px_0px_#FFE600] space-y-6">
+                <div className="flex items-center justify-between border-b border-black pb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-3 bg-studio-yellow rounded-xs shadow-[0_0_10px_#FFE600]" />
+                    <h2 className="text-sm font-black uppercase tracking-tight italic text-white">Billing Details</h2>
+                  </div>
+                  <span className="text-[9px] font-black text-neutral-500 uppercase tracking-wider bg-black/40 px-2 py-0.5 border border-white/5 rounded-xs">
+                    {Object.keys(formErrors).length > 0 ? 'Action Required' : 'Auto-Saved'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Full Name</label>
                     <input
                       type="text"
-                      placeholder="COUPON CODE"
-                      className="w-full h-10 bg-black border border-white/10 rounded-sm pl-10 pr-4 text-[10px] font-black uppercase tracking-widest focus:border-studio-yellow outline-none transition-all"
-                      value={coupon}
-                      onChange={(e) => setCoupon(e.target.value)}
+                      placeholder="NAME"
+                      className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.fullName ? 'border-studio-red bg-studio-red/5' : ''}`}
+                      value={billingDetails.fullName}
+                      onChange={(e) => handleBillingChange('fullName', e.target.value)}
                     />
+                    {formErrors.fullName && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.fullName}</p>}
                   </div>
-                  <button
-                    onClick={handleApplyCoupon}
-                    disabled={loading}
-                    className="px-4 bg-white/10 hover:bg-white hover:text-black transition-all text-[10px] font-black uppercase tracking-widest rounded-sm disabled:opacity-50"
-                  >
-                    Apply
-                  </button>
-                </div>
-                {couponError && <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest">{couponError}</p>}
-                {discount > 0 && <p className="text-[8px] font-bold text-studio-neon uppercase tracking-widest">Coupon Applied Successfully!</p>}
-              </div>
-
-              {/* Pre-order warning notice */}
-              {hasPreorder && (
-                <div className="p-5 rounded-sm border-2 border-[#FFC800] bg-black/60 shadow-[4px_4px_0px_#FF0080] text-left space-y-3 mt-4">
-                  <div className="flex items-center gap-2.5 text-[#FFC800]">
-                    <div className="p-1 bg-[#FFC800] text-black border-2 border-black rounded-xs -rotate-6">
-                      <Clock size={14} className="animate-pulse" />
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Phone Number</label>
+                    <div className="phone-input-container">
+                      <PhoneInput
+                        international
+                        defaultCountry={currency === 'USD' ? undefined : 'IN'}
+                        placeholder="PHONE"
+                        value={billingDetails.phone}
+                        onChange={(val) => handleBillingChange('phone', val || '')}
+                        className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus-within:border-studio-yellow outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.phone ? 'border-studio-red bg-studio-red/5' : ''}`}
+                      />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-white">Pre-order Notice</span>
+                    {formErrors.phone && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.phone}</p>}
                   </div>
-                  <p className="text-[9px] font-bold text-white/70 uppercase tracking-widest leading-relaxed">
-                    Some items in your cart are <span className="text-[#FFC800]">pre-orders</span>. Our sample packs are mostly <span className="text-[#FFC800]">live-recorded</span> or highly <span className="text-[#FF0080]">time-consuming</span> to produce, <span className="text-studio-neon">but we are trying hard to make it available as soon as possible!</span>
-                  </p>
-                  <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest leading-relaxed">
-                    🚀 Before pre-ordering, note it might take <span className="text-white underline decoration-[#FFC800]">1-2 months to deliver</span>. Once available, we will notify you via our social media & email.
-                  </p>
-                  <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest leading-relaxed pt-1 border-t border-white/10">
-                    📧 Personally email us at{' '}
-                    <a href="mailto:contact@sampleswala.com" className="text-[#FFC800] hover:text-white underline font-black transition-colors lowercase">
-                      contact@sampleswala.com
-                    </a>{' '}
-                    for availability questions.
-                  </p>
-                </div>
-              )}
+                  <div className="col-span-full space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Address</label>
+                    <input
+                      type="text"
+                      placeholder="STREET ADDRESS"
+                      className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.address ? 'border-studio-red bg-studio-red/5' : ''}`}
+                      value={billingDetails.address}
+                      onChange={(e) => handleBillingChange('address', e.target.value)}
+                    />
+                    {formErrors.address && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.address}</p>}
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">City</label>
+                    <input
+                      type="text"
+                      placeholder="CITY"
+                      className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.city ? 'border-studio-red bg-studio-red/5' : ''}`}
+                      value={billingDetails.city}
+                      onChange={(e) => handleBillingChange('city', e.target.value)}
+                    />
+                    {formErrors.city && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.city}</p>}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">State</label>
+                      <input
+                        type="text"
+                        placeholder="STATE"
+                        className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.state ? 'border-studio-red bg-studio-red/5' : ''}`}
+                        value={billingDetails.state}
+                        onChange={(e) => handleBillingChange('state', e.target.value)}
+                      />
+                      {formErrors.state && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.state}</p>}
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Pincode</label>
+                      <input
+                        type="text"
+                        placeholder="ZIP"
+                        className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.zip ? 'border-studio-red bg-studio-red/5' : ''}`}
+                        value={billingDetails.zip}
+                        onChange={(e) => handleBillingChange('zip', e.target.value)}
+                      />
+                      {formErrors.zip && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.zip}</p>}
+                    </div>
+                  </div>
 
-              {/* Legal Agreement */}
-              <div className="space-y-4">
-                {error && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-sm">
-                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center">
-                      {error}
-                    </p>
+                  <div className="col-span-full space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Country</label>
+                    <Select
+                      options={countryOptions}
+                      value={countryOptions.find(opt => opt.label === billingDetails.country)}
+                      onChange={(val: any) => handleBillingChange('country', val?.label || '')}
+                      placeholder="SELECT COUNTRY"
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={{
+                        control: (base, state) => ({
+                          ...base,
+                          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                          borderColor: state.isFocused ? '#FFE600' : (formErrors.country ? '#FF3131' : 'rgba(255, 255, 255, 0.1)'),
+                          borderRadius: '4px',
+                          height: '2.5rem',
+                          minHeight: '2.5rem',
+                          fontSize: '12px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          boxShadow: 'none',
+                          '&:hover': {
+                            borderColor: state.isFocused ? '#FFE600' : 'rgba(255, 255, 255, 0.15)',
+                          }
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          backgroundColor: '#0d0d0d',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          borderRadius: '4px',
+                          zIndex: 50,
+                        }),
+                        menuList: (base) => ({
+                          ...base,
+                          maxHeight: '180px',
+                          overflowY: 'auto',
+                          '&::-webkit-scrollbar': {
+                            width: '4px',
+                          },
+                          '&::-webkit-scrollbar-track': {
+                            background: 'transparent',
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: '2px',
+                          },
+                          '&::-webkit-scrollbar-thumb:hover': {
+                            background: 'rgba(255, 255, 255, 0.2)',
+                          },
+                        }),
+                        option: (base, state) => ({
+                          ...base,
+                          backgroundColor: state.isFocused ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                          color: state.isFocused ? '#FFE600' : 'rgba(255, 255, 255, 0.6)',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
+                          padding: '8px 12px',
+                          '&:active': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            color: '#fff'
+                          }
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          color: '#fff'
+                        }),
+                        input: (base) => ({
+                          ...base,
+                          color: '#fff'
+                        }),
+                        placeholder: (base) => ({
+                          ...base,
+                          color: 'rgba(255, 255, 255, 0.25)'
+                        })
+                      }}
+                    />
+                    {formErrors.country && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.country}</p>}
                   </div>
-                )}
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-black/95 backdrop-blur-md border-t border-white/10 z-50 lg:relative lg:p-0 lg:bg-transparent lg:border-t-0 lg:z-auto">
-                  <div className="max-w-md mx-auto lg:max-w-none">
+                </div>
+
+                <div className="flex items-center gap-2 mt-2 px-1 opacity-30 hover:opacity-75 transition-opacity duration-200">
+                  <input
+                    id="checkout-newsletter"
+                    type="checkbox"
+                    checked={newsletterOptIn}
+                    onChange={(e) => setNewsletterOptIn(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded bg-transparent border border-white/20 text-studio-yellow focus:ring-0 focus:outline-none cursor-pointer"
+                  />
+                  <label htmlFor="checkout-newsletter" className="text-[9px] font-black text-neutral-400 tracking-wider cursor-pointer select-none">
+                    Email me updates and special offers
+                  </label>
+                </div>
+
+                {/* Complete Payment Button (Left side, Desktop only) */}
+                {mounted && !isMobile && (
+                  <div className="pt-6 border-t border-white/5 space-y-4 mt-6">
+                    {error && (
+                      <div className="p-3 bg-studio-red/10 border border-studio-red/20 rounded">
+                        <p className="text-[9px] font-bold text-studio-red uppercase tracking-wider text-center">
+                          {error}
+                        </p>
+                      </div>
+                    )}
                     {currency === 'USD' && activeTotal > 0 ? (
                       <div>
                         {!paypalLoaded && (
-                          <div className="w-full h-14 bg-white/5 border border-white/10 rounded-sm flex items-center justify-center text-xs font-black uppercase tracking-widest text-white/40">
-                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          <div className="w-full h-11 bg-neutral-900/40 border border-white/10 rounded flex items-center justify-center text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+                            <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
                             Loading PayPal...
                           </div>
                         )}
@@ -1183,109 +1517,153 @@ export default function CheckoutPage() {
                       <button
                         onClick={handleCheckout}
                         disabled={loading || paymentStatus === 'processing'}
-                        className="w-full h-14 bg-[#FFC800] text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white transition-all disabled:opacity-50 rounded-sm shadow-[0_0_40px_rgba(255,200,0,0.1)]"
+                        className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black]"
                       >
                         {loading ? (
-                          <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin" />
+                          <Loader2 className="animate-spin" size={13} />
                         ) : (
                           <>
-                            <Zap size={20} className="group-hover:rotate-12 transition-transform" />
-                            <span>{activeTotal === 0 ? 'GET FOR FREE' : `COMPLETE PAYMENT — ${formatPrice(currency === 'USD' ? activeTotal : total - activeCouponDiscount, currency === 'USD' ? activeTotal : null)}`}</span>
+                            <Zap size={12} fill="black" />
+                            <span>{activeTotal === 0 ? 'Get Free' : 'Complete Payment'}</span>
                           </>
                         )}
                       </button>
                     )}
+                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider text-center">
+                      We accept all international & domestic payments
+                    </p>
                   </div>
-                </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-                <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.2em] leading-relaxed text-center px-4">
-                  By purchasing, you agree to our <Link href="/terms" className="text-white/40 hover:text-studio-yellow underline">Terms</Link>, <Link href="/refund-policy" className="text-white/40 hover:text-studio-yellow underline">Refund</Link>, <Link href="/privacy" className="text-white/40 hover:text-studio-yellow underline">Privacy</Link> & <Link href="/terms" className="text-white/40 hover:text-studio-yellow underline">EULA</Link>.
+          {/* Order Summary Side */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="border-2 border-black bg-[#121212] p-5 md:p-6 rounded-sm shadow-[6px_6px_0px_#00FF94] space-y-6">
+              <div className="flex items-center gap-2 border-b border-black pb-4">
+                <span className="w-1.5 h-3 bg-studio-neon rounded-xs shadow-[0_0_10px_#00FF94]" />
+                <h2 className="text-sm font-black uppercase tracking-tight italic text-white">Order Summary</h2>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-neutral-400">
+                  <span>Subtotal ({itemCount} items)</span>
+                  <span ref={subtotalRef}>{currency === 'USD' ? `$${activeSubtotal.toFixed(2)}` : `₹${total}`}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-xs font-black uppercase tracking-wider text-studio-neon">
+                    <span>Discount ({discount}%)</span>
+                    <span>-{currency === 'USD' ? `$${activeCouponDiscount.toFixed(2)}` : `₹${activeCouponDiscount}`}</span>
+                  </div>
+                )}
+                <div className="pt-4 border-t border-white/5 flex justify-between items-baseline">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-neutral-500">Total</span>
+                  <span ref={totalRef} className="text-2xl font-black text-studio-yellow italic tracking-wide">{currency === 'USD' ? `$${activeTotal.toFixed(2)}` : `₹${total - activeCouponDiscount}`}</span>
+                </div>
+              </div>
+
+              {/* Coupon Input */}
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Coupon Code</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="COUPON"
+                    className="flex-grow h-9 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-neon focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700"
+                    value={coupon}
+                    onChange={(e) => setCoupon(e.target.value)}
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={loading}
+                    className="px-4 bg-white hover:bg-neutral-200 text-black text-[10px] font-black uppercase tracking-wider rounded-sm border border-black shadow-[2px_2px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_black] transition-all disabled:opacity-50"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {couponError && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{couponError}</p>}
+                {discount > 0 && <p className="text-[8px] font-bold text-studio-neon uppercase tracking-widest mt-1 ml-0.5">Coupon Applied Successfully!</p>}
+              </div>
+
+              {/* Pre-order warning notice */}
+              {hasPreorder && (
+                <div className="p-4 rounded border border-studio-yellow/20 bg-studio-yellow/5 text-left space-y-2">
+                  <div className="flex items-center gap-2 text-studio-yellow">
+                    <Clock size={12} className="animate-pulse" />
+                    <span className="text-[9px] font-black uppercase tracking-wider">Pre-order Notice</span>
+                  </div>
+                  <p className="text-[8px] text-white/70 font-semibold uppercase tracking-wider leading-relaxed">
+                    Some items in your cart are <span className="text-studio-yellow">pre-orders</span>. Sound packs are live-recorded or highly production-intensive.
+                  </p>
+                  <p className="text-[8px] text-white/40 font-semibold uppercase tracking-wider leading-relaxed">
+                    It might take <span className="text-white">1-2 months to deliver</span>. Once available, we will notify you via email.
+                  </p>
+                </div>
+              )}
+
+              {/* Legal Agreement */}
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                <p className="text-[9px] font-medium text-neutral-500 uppercase tracking-wider leading-relaxed text-center">
+                  By purchasing, you agree to our{' '}
+                  <Link href="/terms" className="text-neutral-400 hover:text-white underline">Terms</Link>,{' '}
+                  <Link href="/refund-policy" className="text-neutral-400 hover:text-white underline">Refund</Link>,{' '}
+                  <Link href="/privacy" className="text-neutral-400 hover:text-white underline">Privacy</Link> &{' '}
+                  <Link href="/terms" className="text-neutral-400 hover:text-white underline">EULA</Link>.
                 </p>
-              </div>
-
-              <div className="flex items-center justify-center gap-3 pt-2 opacity-40">
-                <ShieldCheck size={14} className="text-studio-neon" />
-                <span className="text-[8px] font-black uppercase tracking-[0.2em]">128-bit SSL Secure Transaction</span>
-              </div>
-            </div>
-
-            {/* Trust Badges Section */}
-            <div className="p-6 bg-white/[0.02] border border-white/5 rounded-sm space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="h-4 w-1 bg-studio-neon shadow-[0_0_10px_#00FF94]" />
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-white/60">Why Samples Wala?</h3>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div className="flex gap-4 items-start">
-                  <Zap size={14} className="text-studio-yellow mt-1" />
-                  <div>
-                    <h4 className="text-[9px] font-black uppercase tracking-tight">Instant Delivery</h4>
-                    <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest mt-1">Get your sounds immediately after payment</p>
-                  </div>
-                </div>
-                <div className="flex gap-4 items-start">
-                  <ShieldCheck size={14} className="text-studio-neon mt-1" />
-                  <div>
-                    <h4 className="text-[9px] font-black uppercase tracking-tight">Lifetime Access</h4>
-                    <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest mt-1">Download your purchases anytime from your vault</p>
-                  </div>
+                <div className="flex items-center justify-center gap-2 opacity-50">
+                  <ShieldCheck size={12} className="text-neutral-400" />
+                  <span className="text-[8px] font-medium uppercase tracking-wider text-neutral-400">128-bit SSL Secure Transaction</span>
                 </div>
               </div>
             </div>
-
-            {/* Payment Methods */}
-            <div className="flex flex-col items-center gap-4 py-4">
-              <p className="text-[7px] font-black uppercase tracking-[0.3em] text-white/35">We Accept Domestic &amp; International Payments</p>
-              <PaymentAccepted variant="full" />
-            </div>
-
-            {/* Upsell Section */}
-            {upsellPacks.length > 0 && (
-              <div className="p-6 bg-studio-yellow/5 border border-studio-yellow/10 rounded-sm space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-4 w-1 bg-studio-yellow shadow-[0_0_10px_#FFC800]" />
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-studio-yellow italic">Frequently Bought Together</h3>
-                </div>
-
-                <div className="space-y-4">
-                  {upsellPacks.map((pack) => (
-                    <div key={pack.id} className="flex gap-4 items-center group">
-                      <div className="w-12 h-12 relative rounded-sm overflow-hidden flex-shrink-0 border border-white/5">
-                        <Image src={pack.cover_url || '/placeholder.jpg'} alt={pack.name} fill sizes="48px" className="object-cover" />
-                      </div>
-                      <div className="flex-grow">
-                        <h4 className="text-[9px] font-black uppercase tracking-tight line-clamp-1">{pack.name}</h4>
-                        <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest">₹{pack.price_inr}</p>
-                      </div>
-                      <Link
-                        href={`/packs/${pack.slug}`}
-                        className="p-2 border border-white/10 hover:border-studio-yellow hover:text-studio-yellow transition-all rounded-sm"
-                      >
-                        <ArrowRight size={12} />
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Support Section */}
-            <Link href="/contact" className="mt-4 p-6 border border-white/5 rounded-sm flex items-center justify-between group hover:border-studio-yellow/20 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-studio-yellow group-hover:bg-studio-yellow group-hover:text-black transition-all">
-                  <ShoppingBag size={18} />
-                </div>
-                <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-widest">Need Help?</h4>
-                  <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest mt-1">Contact Support Team</p>
-                </div>
-              </div>
-              <ArrowRight size={14} className="text-white/10 group-hover:text-studio-yellow group-hover:translate-x-1 transition-all" />
-            </Link>
           </div>
         </div>
       </div>
+
+      {/* Floating Sticky Complete Payment Bar (Mobile only) */}
+      {mounted && isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-black/95 backdrop-blur-md border-t border-white/10 z-50">
+          <div className="max-w-md mx-auto">
+            {error && (
+              <div className="mb-2 p-2 bg-studio-red/10 border border-studio-red/20 rounded">
+                <p className="text-[9px] font-bold text-studio-red uppercase tracking-wider text-center">
+                  {error}
+                </p>
+              </div>
+            )}
+            {currency === 'USD' && activeTotal > 0 ? (
+              <div>
+                {!paypalLoaded && (
+                  <div className="w-full h-11 bg-neutral-900/40 border border-white/10 rounded flex items-center justify-center text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+                    Loading PayPal...
+                  </div>
+                )}
+                <div 
+                  id="paypal-button-container" 
+                  className={`w-full mt-2 relative z-10 ${!paypalLoaded ? 'hidden' : ''}`} 
+                />
+              </div>
+            ) : (
+              <button
+                onClick={handleCheckout}
+                disabled={loading || paymentStatus === 'processing'}
+                className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black]"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" size={13} />
+                ) : (
+                  <>
+                    <Zap size={12} fill="black" />
+                    <span>{activeTotal === 0 ? 'Get Free' : `Complete Payment — ${currency === 'USD' ? `$${activeTotal.toFixed(2)}` : `₹${total - activeCouponDiscount}`}`}</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
