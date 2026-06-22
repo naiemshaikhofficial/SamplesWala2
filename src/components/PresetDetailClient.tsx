@@ -2,13 +2,15 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, Youtube, Download, ShieldCheck, Zap, Music, ShoppingBag, CheckCircle2, Layout, HelpCircle, Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Youtube, Download, ShieldCheck, Zap, Music, ShoppingBag, CheckCircle2, Layout, HelpCircle, Plus, Check, CreditCard, Loader2 } from 'lucide-react'
 import { AddToCartButton } from '@/components/AddToCartButton'
 import { ShareButton } from '@/components/ShareButton'
 import { DownloadButton } from '@/components/DownloadButton'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
 import { useCurrency } from '@/context/CurrencyContext'
+import { useCart } from '@/context/CartContext'
 
 interface PresetDetailClientProps {
   preset: any
@@ -22,6 +24,28 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
   const [isOwned, setIsOwned] = useState(false)
   const { formatPrice, getAmount } = useCurrency()
 
+  const [showFloatingBar, setShowFloatingBar] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const router = useRouter()
+  const { addItem, items: cartItems, setSidebarOpen } = useCart()
+  const isAlreadyInCart = cartItems.some(i => i.id === preset.id)
+  const [added, setAdded] = useState(false)
+  const [buyLoading, setBuyLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   useEffect(() => {
     if (user) {
       fetch(`/api/auth/ownership?itemId=${preset.id}`)
@@ -32,6 +56,54 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
       setIsOwned(false)
     }
   }, [user, preset.id])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 450) {
+        setShowFloatingBar(true)
+      } else {
+        setShowFloatingBar(false)
+      }
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const handleFloatingAddToCart = () => {
+    if (isAlreadyInCart) {
+      setSidebarOpen(true)
+      return
+    }
+    addItem({
+      id: preset.id,
+      name: preset.name,
+      price: Number(preset.price_inr),
+      price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+      slug: preset.slug,
+      cover_url: preset.cover_url || undefined,
+      type: 'preset'
+    })
+    setAdded(true)
+    setSidebarOpen(true)
+    setTimeout(() => setAdded(false), 2000)
+  }
+
+  const handleFloatingBuyNow = async () => {
+    setBuyLoading(true)
+    setSidebarOpen(false)
+    if (!isAlreadyInCart) {
+      addItem({
+        id: preset.id,
+        name: preset.name,
+        price: Number(preset.price_inr),
+        price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+        slug: preset.slug,
+        cover_url: preset.cover_url || undefined,
+        type: 'preset'
+      })
+    }
+    router.push('/checkout')
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
@@ -290,47 +362,104 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
          </div>
       </section>
 
-      {/* Mobile Sticky CTA Bar */}
-      {!isOwned && (
-        <div 
-          className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-black/95 backdrop-blur-md border-t border-white/10 p-3 flex items-center justify-between gap-3 shadow-[0_-10px_20px_rgba(0,0,0,0.5)]"
-          style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom))' }}
-        >
-          <div className="flex flex-col min-w-0 pr-2">
-            <span className="text-[10px] font-black uppercase text-white/50 truncate block max-w-[120px]">
-              {preset.name}
-            </span>
-            <span className="text-xs font-black text-studio-neon leading-none mt-1">
-              {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
-            </span>
-          </div>
-          <div className="flex gap-2 flex-grow max-w-[220px] min-w-[160px]">
-            <div className="flex-grow">
-              <AddToCartButton 
-                compact
-                item={{
-                  id: preset.id,
-                  name: preset.name,
-                  price: Number(preset.price_inr),
-                  price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
-                  slug: preset.slug,
-                  cover_url: preset.cover_url || undefined,
-                  type: 'preset'
-                }} 
-              />
-            </div>
-            <div className="flex-grow">
-              <Link 
-                 href={`/checkout?direct=${preset.id}&type=preset`}
-                 className="w-full h-9 bg-studio-neon text-black font-black uppercase tracking-[0.1em] text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 hover:bg-white transition-all shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] border-2 border-black rounded-sm"
+      {/* Floating Sticky CTA Bar */}
+      <AnimatePresence>
+        {showFloatingBar && !isOwned && mounted && (
+          <div 
+            className="fixed left-0 right-0 z-50 pointer-events-none" 
+            style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+          >
+            <div className="max-w-4xl mx-auto px-4">
+              <motion.div
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 100, opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="pointer-events-auto w-full bg-[#0a0a0a]/95 backdrop-blur-md border border-white/10 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.8)] px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 md:gap-6"
               >
-                 <Zap size={10} fill="currentColor" />
-                 <span>{isFree ? 'GET FREE' : 'BUY NOW'}</span>
-              </Link>
+                {/* Product Image and info */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
+                    <Image
+                      src={preset.cover_url || '/placeholder.jpg'}
+                      alt={preset.name}
+                      fill
+                      sizes="40px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[100px] sm:max-w-[200px] md:max-w-[300px]">
+                      {preset.name}
+                    </span>
+                    <span className="text-[8px] md:text-[9px] text-white/40 font-bold uppercase tracking-wider truncate">
+                      {preset.type || 'Preset'} • {preset.daws?.[0] || 'All DAWs'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Price Info */}
+                <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                  {preset.mrp_inr && (
+                    <span className="text-[9px] md:text-xs text-white/30 line-through font-bold">
+                      {formatPrice(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
+                    </span>
+                  )}
+                  <span className="text-xs md:text-sm font-black text-studio-neon leading-none italic uppercase tracking-wider">
+                    {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
+                  </span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+                  {/* Add to Cart Button - Green Pill */}
+                  <button
+                    onClick={handleFloatingAddToCart}
+                    className={`h-9 px-3.5 md:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] ${
+                      isAlreadyInCart
+                        ? 'bg-white/5 text-white hover:bg-white/10'
+                        : 'bg-[#00FF94] text-black hover:bg-white hover:scale-105 shadow-[0_0_15px_rgba(0,255,148,0.2)]'
+                    }`}
+                  >
+                    {isAlreadyInCart ? (
+                      <>
+                        <Check size={10} />
+                        <span>In Cart</span>
+                      </>
+                    ) : added ? (
+                      <>
+                        <Check size={10} />
+                        <span>Added!</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag size={10} />
+                        <span>Add to cart</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Buy Now Button - Yellow Pill */}
+                  <button
+                    disabled={buyLoading}
+                    onClick={handleFloatingBuyNow}
+                    className="h-9 px-3.5 md:px-5 bg-[#FFC800] text-black font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center gap-1.5 rounded-full transition-all hover:bg-white hover:scale-105 disabled:opacity-50 border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                  >
+                    {buyLoading ? (
+                      <Loader2 className="animate-spin" size={10} />
+                    ) : (
+                      <>
+                        <CreditCard size={10} />
+                        <span>{isFree ? 'GET FREE' : 'Buy Now'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   )
 }
