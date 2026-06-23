@@ -1523,7 +1523,13 @@ export default function CheckoutPage() {
                           <Loader2 className="animate-spin" size={13} />
                         ) : (
                           <>
-                            <Zap size={12} fill="black" />
+                            <Image 
+                              src="/icons8-pay-96.png" 
+                              alt="Pay" 
+                              width={14} 
+                              height={14} 
+                              className="object-contain shrink-0"
+                            />
                             <span>{activeTotal === 0 ? 'Get Free' : 'Complete Payment'}</span>
                           </>
                         )}
@@ -1638,12 +1644,6 @@ export default function CheckoutPage() {
                 </p>
               </div>
             )}
-            <p className="text-[7.5px] font-black text-neutral-500 uppercase tracking-widest text-center mb-2 leading-relaxed select-none">
-              By purchasing, you agree to our{' '}
-              <Link href="/terms" className="text-studio-yellow hover:underline">Terms</Link>
-              {' '}and{' '}
-              <Link href="/refund-policy" className="text-studio-yellow hover:underline">Refund Policy</Link>.
-            </p>
             {currency === 'USD' && activeTotal > 0 ? (
               <div>
                 {!paypalLoaded && (
@@ -1667,12 +1667,24 @@ export default function CheckoutPage() {
                   <Loader2 className="animate-spin" size={13} />
                 ) : (
                   <>
-                    <Zap size={12} fill="black" />
+                    <Image 
+                      src="/icons8-pay-96.png" 
+                      alt="Pay" 
+                      width={14} 
+                      height={14} 
+                      className="object-contain shrink-0"
+                    />
                     <span>{activeTotal === 0 ? 'Get Free' : `Complete Payment — ${currency === 'USD' ? `$${activeTotal.toFixed(2)}` : `₹${total - activeCouponDiscount}`}`}</span>
                   </>
                 )}
               </button>
             )}
+            <p className="text-[7.5px] font-black text-neutral-500 uppercase tracking-widest text-center mt-3 leading-relaxed select-none">
+              By purchasing, you agree to our{' '}
+              <Link href="/terms" className="text-studio-yellow hover:underline">Terms</Link>
+              {' '}and{' '}
+              <Link href="/refund-policy" className="text-studio-yellow hover:underline">Refund Policy</Link>.
+            </p>
           </div>
         </div>
       )}
