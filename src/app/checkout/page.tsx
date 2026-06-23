@@ -946,6 +946,9 @@ export default function CheckoutPage() {
               animation: failWalkSad 12s infinite linear;
               transform-box: fill-box;
             }
+            .guard-group {
+              transform-box: fill-box;
+            }
             
             .success-leg-l-group {
               transform-box: fill-box;
@@ -1002,6 +1005,12 @@ export default function CheckoutPage() {
               animation: failFaceSadTimeline 12s infinite;
             }
             
+            .guard-arm-r-group {
+              transform-box: fill-box;
+              transform-origin: 7px -9px;
+              animation: guardArmRightAnim 12s infinite ease-in-out;
+            }
+            
             .pop-success-text {
               transform-box: fill-box;
               transform-origin: center;
@@ -1021,18 +1030,49 @@ export default function CheckoutPage() {
             }
             
             @keyframes successWalkRun {
-              0% { transform: translateX(-100px); }
-              25% { transform: translateX(500px); }
-              37.5% { transform: translateX(500px); }
-              50% { transform: translateX(1100px); }
-              100% { transform: translateX(1100px); }
+              0% { transform: translate(-100px, 0px); }
+              2.08% { transform: translate(-50px, -1.5px); }
+              4.16% { transform: translate(0px, 0px); }
+              6.25% { transform: translate(50px, -1.5px); }
+              8.33% { transform: translate(100px, 0px); }
+              10.4% { transform: translate(150px, -1.5px); }
+              12.5% { transform: translate(200px, 0px); }
+              14.5% { transform: translate(250px, -1.5px); }
+              16.6% { transform: translate(300px, 0px); }
+              18.7% { transform: translate(350px, -1.5px); }
+              20.8% { transform: translate(400px, 0px); }
+              22.9% { transform: translate(450px, -1.5px); }
+              25% { transform: translate(500px, 0px); }
+              37.5% { transform: translate(500px, 0px); }
+              39.5% { transform: translate(600px, -3px); }
+              41.6% { transform: translate(700px, 0px); }
+              43.7% { transform: translate(800px, -3px); }
+              45.8% { transform: translate(900px, 0px); }
+              47.9% { transform: translate(1000px, -3px); }
+              50% { transform: translate(1100px, 0px); }
+              100% { transform: translate(1100px, 0px); }
             }
             @keyframes failWalkSad {
-              0% { transform: translateX(-100px); }
-              50% { transform: translateX(-100px); }
-              75% { transform: translateX(500px); }
-              87.5% { transform: translateX(500px); }
-              100% { transform: translateX(380px); opacity: 0; }
+              0% { transform: translate(-100px, 0px); }
+              50% { transform: translate(-100px, 0px); }
+              52.08% { transform: translate(-50px, -1.5px); }
+              54.16% { transform: translate(0px, 0px); }
+              56.25% { transform: translate(50px, -1.5px); }
+              58.33% { transform: translate(100px, 0px); }
+              60.4% { transform: translate(150px, -1.5px); }
+              62.5% { transform: translate(200px, 0px); }
+              64.5% { transform: translate(250px, -1.5px); }
+              66.6% { transform: translate(300px, 0px); }
+              68.7% { transform: translate(350px, -1.5px); }
+              70.8% { transform: translate(400px, 0px); }
+              72.9% { transform: translate(450px, -1.5px); }
+              75% { transform: translate(500px, 0px); }
+              87.5% { transform: translate(500px, 0px); }
+              89.5% { transform: translate(470px, -0.8px); }
+              91.6% { transform: translate(440px, 0px); }
+              93.7% { transform: translate(410px, -0.8px); }
+              95.8% { transform: translate(380px, 0px); opacity: 1; }
+              100% { transform: translate(300px, 0px); opacity: 0; }
             }
             
             @keyframes successLegLeftAnim {
@@ -1145,6 +1185,20 @@ export default function CheckoutPage() {
               87.5%, 100% { opacity: 1; }
             }
             
+            @keyframes guardArmRightAnim {
+              0%, 24% { transform: rotate(0deg); }
+              25% { transform: rotate(-50deg); }
+              31.25% { transform: rotate(-30deg); }
+              37.5% { transform: rotate(-50deg); }
+              38%, 74% { transform: rotate(0deg); }
+              75% { transform: rotate(110deg); }
+              80% { transform: rotate(90deg); }
+              85% { transform: rotate(110deg); }
+              90% { transform: rotate(90deg); }
+              95% { transform: rotate(110deg); }
+              100% { transform: rotate(0deg); }
+            }
+            
             @keyframes popSuccessTimeline {
               0%, 37.4% { transform: translate(500px, 20px) scale(0); opacity: 0; }
               37.5% { transform: translate(500px, 20px) scale(1.2) rotate(5deg); opacity: 1; }
@@ -1160,15 +1214,15 @@ export default function CheckoutPage() {
             }
             
             @keyframes laserScanTimeline {
-              0%, 24% { fill: rgba(0, 191, 255, 0.05); opacity: 0.1; transform: scaleX(0.5); }
-              25% { fill: #00FF94; opacity: 0.8; transform: scaleX(0.85); }
-              31.25% { fill: #00FF94; opacity: 0.95; transform: scaleX(1.15); }
-              37.5% { fill: #00FF94; opacity: 0.8; transform: scaleX(0.85); }
-              38%, 74% { fill: rgba(0, 191, 255, 0.05); opacity: 0.1; transform: scaleX(0.5); }
-              75% { fill: #FF3131; opacity: 0.8; transform: scaleX(0.85); }
-              81.25% { fill: #FF3131; opacity: 0.95; transform: scaleX(1.15); }
-              87.5% { fill: #FF3131; opacity: 0.8; transform: scaleX(0.85); }
-              88%, 100% { fill: rgba(0, 191, 255, 0.05); opacity: 0.1; transform: scaleX(0.5); }
+              0%, 24% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
+              25% { fill: rgba(0, 255, 148, 0.3); opacity: 0.85; transform: scaleX(0.85); }
+              31.25% { fill: rgba(0, 255, 148, 0.35); opacity: 0.95; transform: scaleX(1.15); }
+              37.5% { fill: rgba(0, 255, 148, 0.3); opacity: 0.85; transform: scaleX(0.85); }
+              38%, 74% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
+              75% { fill: rgba(255, 49, 49, 0.3); opacity: 0.85; transform: scaleX(0.85); }
+              81.25% { fill: rgba(255, 49, 49, 0.35); opacity: 0.95; transform: scaleX(1.15); }
+              87.5% { fill: rgba(255, 49, 49, 0.3); opacity: 0.85; transform: scaleX(0.85); }
+              88%, 100% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
             }
             
             @keyframes scannerLightTimeline {
@@ -1202,20 +1256,69 @@ export default function CheckoutPage() {
           </div>
 
           {/* Scenery + Conveyor Belt */}
-          <div className="h-28 bg-[#0a0a0c] relative overflow-hidden select-none pointer-events-none">
+          <div className="h-28 bg-white relative overflow-hidden select-none pointer-events-none border-y border-black/15 shadow-[inset_0_4px_12px_rgba(0,0,0,0.03)]">
             {/* SVG Viewport */}
             <svg className="w-full h-full" viewBox="0 0 1000 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="conveyorGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#16161b" strokeWidth="1" />
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f2f6" strokeWidth="1" />
                 </pattern>
               </defs>
 
               {/* Grid Background */}
               <rect width="1000" height="100" fill="url(#conveyorGrid)" />
 
+              {/* Ceiling Spotlight Tracks (White Room Studio Light Rig) */}
+              <line x1="10" y1="2" x2="990" y2="2" stroke="#e1e4ea" strokeWidth="2" />
+              <g fill="#e1e4ea">
+                <circle cx="100" cy="2" r="2" />
+                <polygon points="90,2 110,2 100,6" />
+                <polygon points="100,6 60,74 140,74" fill="rgba(255,230,0,0.02)" />
+
+                <circle cx="300" cy="2" r="2" />
+                <polygon points="290,2 310,2 300,6" />
+                <polygon points="300,6 260,74 340,74" fill="rgba(0,191,255,0.02)" />
+
+                <circle cx="700" cy="2" r="2" />
+                <polygon points="690,2 710,2 700,6" />
+                <polygon points="700,6 660,74 740,74" fill="rgba(0,255,148,0.02)" />
+
+                <circle cx="900" cy="2" r="2" />
+                <polygon points="890,2 910,2 900,6" />
+                <polygon points="900,6 860,74 940,74" fill="rgba(255,230,0,0.02)" />
+              </g>
+
+              {/* Soundproofing Acoustic Foam Wall Panels */}
+              {/* Group 1 (Far Left) */}
+              <g fill="#f1f3f7" stroke="#e2e6ee" strokeWidth="0.5">
+                <rect x="25" y="10" width="6" height="6" rx="0.5" />
+                <rect x="33" y="10" width="6" height="6" rx="0.5" />
+                <rect x="41" y="10" width="6" height="6" rx="0.5" />
+                <rect x="25" y="18" width="6" height="6" rx="0.5" />
+                <rect x="33" y="18" width="6" height="6" rx="0.5" />
+                <rect x="41" y="18" width="6" height="6" rx="0.5" />
+              </g>
+              {/* Group 2 (Center Left) */}
+              <g fill="#f1f3f7" stroke="#e2e6ee" strokeWidth="0.5">
+                <rect x="345" y="10" width="6" height="6" rx="0.5" />
+                <rect x="353" y="10" width="6" height="6" rx="0.5" />
+                <rect x="361" y="10" width="6" height="6" rx="0.5" />
+                <rect x="345" y="18" width="6" height="6" rx="0.5" />
+                <rect x="353" y="18" width="6" height="6" rx="0.5" />
+                <rect x="361" y="18" width="6" height="6" rx="0.5" />
+              </g>
+              {/* Group 3 (Center Right) */}
+              <g fill="#f1f3f7" stroke="#e2e6ee" strokeWidth="0.5">
+                <rect x="635" y="10" width="6" height="6" rx="0.5" />
+                <rect x="643" y="10" width="6" height="6" rx="0.5" />
+                <rect x="651" y="10" width="6" height="6" rx="0.5" />
+                <rect x="635" y="18" width="6" height="6" rx="0.5" />
+                <rect x="643" y="18" width="6" height="6" rx="0.5" />
+                <rect x="651" y="18" width="6" height="6" rx="0.5" />
+              </g>
+
               {/* Sound visualizer bars in background */}
-              <g className="eq-bars" opacity="0.12">
+              <g className="eq-bars" opacity="0.28">
                 <rect x="50" y="20" width="5" height="45" rx="2" fill="#00BFFF" className="eq-bar-1" />
                 <rect x="60" y="10" width="5" height="55" rx="2" fill="#FF0080" className="eq-bar-2" />
                 <rect x="70" y="25" width="5" height="40" rx="2" fill="#00FF94" className="eq-bar-3" />
@@ -1227,17 +1330,116 @@ export default function CheckoutPage() {
                 <rect x="940" y="20" width="5" height="45" rx="2" fill="#00BFFF" className="eq-bar-1" />
               </g>
 
-              {/* Status Info Board Badges */}
+              {/* SamplesWala Store Backdrop Elements (Vibrant Shop Items) */}
+              <g opacity="0.88">
+                {/* Left Speaker Monitor Stand */}
+                <rect x="80" y="30" width="22" height="44" fill="#1e1e24" stroke="#000" strokeWidth="2" rx="2" />
+                <circle cx="91" cy="40" r="5" fill="#FFE600" stroke="#000" strokeWidth="1" />
+                <circle cx="91" cy="40" r="2.2" fill="#000" />
+                <circle cx="91" cy="56" r="8" fill="#FFE600" stroke="#000" strokeWidth="1" />
+                <circle cx="91" cy="56" r="3.5" fill="#000" />
+                <rect x="87" y="67" width="8" height="2" fill="#000" rx="0.5" />
+                <circle cx="99" cy="34" r="1.2" fill="#00FF94" />
+
+                {/* Left Display Rack for Samples & Loops Packs */}
+                <rect x="250" y="24" width="42" height="50" fill="none" stroke="#000" strokeWidth="2" />
+                <line x1="250" y1="40" x2="292" y2="40" stroke="#000" strokeWidth="2" />
+                <line x1="250" y1="56" x2="292" y2="56" stroke="#000" strokeWidth="2" />
+                {/* Top Shelf Pack Boxes */}
+                <rect x="254" y="27" width="9" height="12" fill="#FF0080" stroke="#000" strokeWidth="1.2" rx="0.5" />
+                <rect x="266" y="27" width="9" height="12" fill="#00FF94" stroke="#000" strokeWidth="1.2" rx="0.5" />
+                <rect x="278" y="27" width="9" height="12" fill="#00BFFF" stroke="#000" strokeWidth="1.2" rx="0.5" />
+                {/* Middle Shelf Pack Boxes */}
+                <rect x="254" y="43" width="10" height="12" fill="#FFE600" stroke="#000" strokeWidth="1.2" rx="0.5" />
+                <rect x="268" y="43" width="10" height="12" fill="#FF8C00" stroke="#000" strokeWidth="1.2" rx="0.5" />
+                <rect x="281" y="43" width="8" height="12" fill="#8A2BE2" stroke="#000" strokeWidth="1.2" rx="0.5" />
+                {/* Bottom Shelf Vinyl Records in Rack */}
+                <rect x="253" y="59" width="3" height="14" fill="#000" stroke="#000" strokeWidth="0.5" />
+                <rect x="257" y="59" width="3" height="14" fill="#0074e4" stroke="#000" strokeWidth="0.5" />
+                <rect x="261" y="59" width="3" height="14" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+                <rect x="265" y="59" width="3" height="14" fill="#FF3131" stroke="#000" strokeWidth="0.5" />
+                <rect x="269" y="59" width="3" height="14" fill="#00FF94" stroke="#000" strokeWidth="0.5" />
+                <rect x="273" y="59" width="3" height="14" fill="#fff" stroke="#000" strokeWidth="0.5" />
+
+                {/* Box Stacks near Left Rack */}
+                <g transform="translate(298, 52)">
+                  <rect x="0" y="0" width="16" height="22" fill="#c08a58" stroke="#000" strokeWidth="1.8" rx="1" />
+                  <line x1="0" y1="11" x2="16" y2="11" stroke="#906030" strokeWidth="1" />
+                  <rect x="5" y="0" width="6" height="22" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+                  <text x="8" y="7" textAnchor="middle" fill="#000" fontSize="3" fontWeight="950" fontFamily="sans-serif">SW</text>
+                  <text x="8" y="18" textAnchor="middle" fill="#000" fontSize="3" fontWeight="950" fontFamily="sans-serif">LOOPS</text>
+                </g>
+
+                {/* Synth / Keyboard Stand on Right */}
+                <rect x="690" y="42" width="45" height="32" fill="none" stroke="#000" strokeWidth="2" />
+                <line x1="690" y1="52" x2="735" y2="52" stroke="#000" strokeWidth="2" />
+                {/* Keyboard body */}
+                <rect x="692" y="44" width="41" height="7" fill="#1e1e24" stroke="#000" strokeWidth="1" rx="0.5" />
+                {/* White & black keys */}
+                <rect x="694" y="48" width="37" height="3" fill="#fff" />
+                <line x1="697" y1="48" x2="697" y2="50" stroke="#000" strokeWidth="0.8" />
+                <line x1="701" y1="48" x2="701" y2="50" stroke="#000" strokeWidth="0.8" />
+                <line x1="705" y1="48" x2="705" y2="50" stroke="#000" strokeWidth="0.8" />
+                <line x1="709" y1="48" x2="709" y2="50" stroke="#000" strokeWidth="0.8" />
+                <line x1="713" y1="48" x2="713" y2="50" stroke="#000" strokeWidth="0.8" />
+                <line x1="717" y1="48" x2="717" y2="50" stroke="#000" strokeWidth="0.8" />
+                <line x1="721" y1="48" x2="721" y2="50" stroke="#000" strokeWidth="0.8" />
+                <line x1="725" y1="48" x2="725" y2="50" stroke="#000" strokeWidth="0.8" />
+                {/* Headphones hanging from keyboard stand */}
+                <path d="M 732 52 A 5 5 0 0 1 742 52" fill="none" stroke="#000" strokeWidth="1.5" />
+                <rect x="730" y="52" width="3" height="5" fill="#FFE600" stroke="#000" strokeWidth="0.5" rx="0.5" />
+                <rect x="741" y="52" width="3" height="5" fill="#FFE600" stroke="#000" strokeWidth="0.5" rx="0.5" />
+
+                {/* Cardboard Box Stacks on Right (SamplesWala shipment) */}
+                <g transform="translate(642, 48)">
+                  <rect x="0" y="10" width="22" height="16" fill="#c08a58" stroke="#000" strokeWidth="1.8" rx="1" />
+                  <line x1="0" y1="18" x2="22" y2="18" stroke="#906030" strokeWidth="1" />
+                  <rect x="8" y="10" width="6" height="16" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+                  <text x="11" y="24" textAnchor="middle" fill="#000" fontSize="3" fontWeight="950" fontFamily="sans-serif">DRUMS</text>
+                  
+                  <rect x="4" y="0" width="15" height="10" fill="#c08a58" stroke="#000" strokeWidth="1.8" rx="1" />
+                  <text x="11.5" y="7" textAnchor="middle" fill="#000" fontSize="2.8" fontWeight="950" fontFamily="sans-serif">PACK</text>
+                </g>
+
+                {/* Right Vinyl Rack Shelf & Record Player */}
+                <rect x="875" y="26" width="32" height="48" fill="#18181c" stroke="#000" strokeWidth="2" rx="2" />
+                {/* Turntable / Vinyl Player on top */}
+                <rect x="878" y="18" width="26" height="7" fill="#FFE600" stroke="#000" strokeWidth="1.5" rx="1" />
+                <circle cx="891" cy="21.5" r="2.5" fill="#000" />
+                <line x1="882" y1="20" x2="885" y2="24" stroke="#000" strokeWidth="1" />
+                {/* Shelf line */}
+                <line x1="875" y1="38" x2="907" y2="38" stroke="#000" strokeWidth="1.5" />
+                {/* Records inside rack */}
+                <rect x="879" y="41" width="2.2" height="19" fill="#00FF94" stroke="#000" strokeWidth="0.5" />
+                <rect x="883" y="41" width="2.2" height="19" fill="#FF0080" stroke="#000" strokeWidth="0.5" />
+                <rect x="887" y="41" width="2.2" height="19" fill="#00BFFF" stroke="#000" strokeWidth="0.5" />
+                <rect x="891" y="41" width="2.2" height="19" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+                <rect x="895" y="41" width="2.2" height="19" fill="#FF8C00" stroke="#000" strokeWidth="0.5" />
+                <rect x="899" y="41" width="2.2" height="19" fill="#fff" stroke="#000" strokeWidth="0.5" />
+                <rect x="903" y="41" width="2.2" height="19" fill="#111" stroke="#000" strokeWidth="0.5" />
+
+                {/* Neon Soundwaves on Wall */}
+                <path d="M 215 48 Q 230 35 245 48 T 275 48" fill="none" stroke="#00BFFF" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+                <path d="M 760 48 Q 775 35 790 48 T 820 48" fill="none" stroke="#FF0080" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+              </g>
+
+              {/* Hanging Wires for Status Board Badges */}
+              <line x1="130" y1="0" x2="130" y2="10" stroke="#000" strokeWidth="1.2" />
+              <line x1="230" y1="0" x2="230" y2="10" stroke="#000" strokeWidth="1.2" />
+              <line x1="770" y1="0" x2="770" y2="10" stroke="#000" strokeWidth="1.2" />
+              <line x1="870" y1="0" x2="870" y2="10" stroke="#000" strokeWidth="1.2" />
+
+              {/* Status Info Board Badges (Hanging Store LED displays) */}
               <g transform="translate(180, 20)">
-                <rect x="-75" y="-10" width="150" height="20" rx="3" fill="#000" stroke="#222" strokeWidth="1" />
+                <rect x="-75" y="-10" width="150" height="20" rx="3" fill="#000" stroke="#000" strokeWidth="2" />
                 <rect x="-73" y="-8" width="146" height="16" rx="2" fill="#FFE600" />
-                <text y="3.5" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">SECURE SYSTEM v2.0</text>
+                <text y="3.5" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="950" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">SECURE SYSTEM v2.0</text>
               </g>
 
               <g transform="translate(820, 20)">
-                <rect x="-75" y="-10" width="150" height="20" rx="3" fill="#000" stroke="#222" strokeWidth="1" />
+                <rect x="-75" y="-10" width="150" height="20" rx="3" fill="#000" stroke="#000" strokeWidth="2" />
                 <rect x="-73" y="-8" width="146" height="16" rx="2" fill="#00FF94" />
-                <text y="3.5" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">100% INSTANT DELIVERY</text>
+                <text y="3.5" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="950" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">100% INSTANT DELIVERY</text>
               </g>
 
               {/* Character 1: SUCCESS PATH */}
@@ -1267,12 +1469,16 @@ export default function CheckoutPage() {
                   <g className="success-arm-r-group">
                     <path d="M7,-9 L13,-4 L8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
                   </g>
-                  {/* Carried Box */}
+                  {/* Carried Box (Detailed Cardboard Box) */}
                   <g className="carried-box">
-                    <rect x="-16" y="-6" width="32" height="18" fill="#FFE600" stroke="#000" strokeWidth="2" rx="1.5" />
-                    <line x1="-16" y1="3" x2="16" y2="3" stroke="#000" strokeWidth="1.5" />
-                    <text y="0" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.1">SAMPLES</text>
-                    <text y="8" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.1">WALA</text>
+                    <rect x="-16" y="-7" width="32" height="19" fill="#c08a58" stroke="#000" strokeWidth="1.8" rx="1" />
+                    <line x1="-16" y1="2.5" x2="16" y2="2.5" stroke="#906030" strokeWidth="1" />
+                    <rect x="-3" y="-7" width="6" height="19" fill="#FFE600" stroke="#000" strokeWidth="0.8" />
+                    <rect x="-13" y="-4" width="7" height="5" fill="#fff" stroke="#000" strokeWidth="0.5" />
+                    <line x1="-12" y1="-3.5" x2="-12" y2="-1.5" stroke="#000" strokeWidth="0.5" />
+                    <line x1="-10" y1="-3.5" x2="-10" y2="-1.5" stroke="#000" strokeWidth="0.8" />
+                    <line x1="-8" y1="-3.5" x2="-8" y2="-1.5" stroke="#000" strokeWidth="0.5" />
+                    <text y="9" textAnchor="middle" fill="#000" fontSize="3.2" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.2">SAMPLESWALA</text>
                   </g>
                 </g>
               </g>
@@ -1313,32 +1519,65 @@ export default function CheckoutPage() {
                   <g className="fail-arm-r-group">
                     <path d="M7,-9 L13,-4 L8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
                   </g>
-                  {/* Carried Box (thrown) */}
+                  {/* Carried Box (thrown Detailed Cardboard Box) */}
                   <g className="fail-box-group">
-                    <rect x="-16" y="-6" width="32" height="18" fill="#FFE600" stroke="#000" strokeWidth="2" rx="1.5" />
-                    <line x1="-16" y1="3" x2="16" y2="3" stroke="#000" strokeWidth="1.5" />
-                    <text y="0" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.1">SAMPLES</text>
-                    <text y="8" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.1">WALA</text>
+                    <rect x="-16" y="-7" width="32" height="19" fill="#c08a58" stroke="#000" strokeWidth="1.8" rx="1" />
+                    <line x1="-16" y1="2.5" x2="16" y2="2.5" stroke="#906030" strokeWidth="1" />
+                    <rect x="-3" y="-7" width="6" height="19" fill="#FFE600" stroke="#000" strokeWidth="0.8" />
+                    <rect x="-13" y="-4" width="7" height="5" fill="#fff" stroke="#000" strokeWidth="0.5" />
+                    <line x1="-12" y1="-3.5" x2="-12" y2="-1.5" stroke="#000" strokeWidth="0.5" />
+                    <line x1="-10" y1="-3.5" x2="-10" y2="-1.5" stroke="#000" strokeWidth="0.8" />
+                    <line x1="-8" y1="-3.5" x2="-8" y2="-1.5" stroke="#000" strokeWidth="0.5" />
+                    <text y="9" textAnchor="middle" fill="#000" fontSize="3.2" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.2">SAMPLESWALA</text>
                   </g>
                 </g>
               </g>
 
               {/* SECURITY SCANNER GATE */}
-              {/* Left post */}
               <rect x="480" y="20" width="6" height="55" fill="#18181c" stroke="#000" strokeWidth="2" />
-              {/* Right post */}
               <rect x="514" y="20" width="6" height="55" fill="#18181c" stroke="#000" strokeWidth="2" />
-              {/* Top scanner arch */}
               <rect x="474" y="12" width="52" height="10" rx="2" fill="#25252b" stroke="#000" strokeWidth="2" />
-              {/* Scanner indicator light */}
               <circle cx="500" cy="17" r="3" fill="#333" stroke="#000" strokeWidth="1" className="scanner-light" />
+
+              {/* SECURITY GUARD CHARACTER */}
+              <g className="guard-group" transform="translate(538, 53)">
+                {/* Legs */}
+                <line x1="-3" y1="7" x2="-3" y2="21" stroke="#000" strokeWidth="3" />
+                <line x1="3" y1="7" x2="3" y2="21" stroke="#000" strokeWidth="3" />
+                <circle cx="-3" cy="21" r="2.2" fill="#000" />
+                <circle cx="3" cy="21" r="2.2" fill="#000" />
+                {/* Body/Shirt (dark blue/black uniform) */}
+                <rect x="-7" y="-14" width="14" height="21" rx="2" fill="#1b2030" stroke="#000" strokeWidth="2" />
+                {/* Gold Officer Badge */}
+                <polygon points="0,-8 3,-5 0,-2 -3,-5" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+                {/* Head */}
+                <circle cx="0" cy="-21" r="7" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                {/* Sunglasses */}
+                <rect x="-4.5" y="-23.5" width="3.5" height="1.8" fill="#000" rx="0.5" />
+                <rect x="1" y="-23.5" width="3.5" height="1.8" fill="#000" rx="0.5" />
+                <line x1="-1" y1="-22.5" x2="1" y2="-22.5" stroke="#000" strokeWidth="0.8" />
+                {/* Mouth (serious / angry) */}
+                <path d="M-2,-18.5 L2,-18.5" stroke="#000" strokeWidth="1" strokeLinecap="round" />
+                {/* Security Cap */}
+                <path d="M-8,-26 L8,-26 L9,-22 L-9,-22 Z" fill="#111" stroke="#000" strokeWidth="1.5" />
+                <rect x="-4" y="-25" width="8" height="2" fill="#FFE600" />
+                {/* Visor Brim */}
+                <path d="M-7,-22 L-10,-20 L-8,-20 Z" fill="#000" />
+                {/* Left Arm (holding security stick / baton) */}
+                <path d="M-7,-9 L-12,-4 L-10,4" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                <line x1="-10" y1="4" x2="-8" y2="10" stroke="#FFE600" strokeWidth="2" strokeLinecap="round" />
+                {/* Right Arm (pointing / waving list) */}
+                <g className="guard-arm-r-group">
+                  <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                </g>
+              </g>
 
               {/* Pulsing Scan Beam */}
               <polygon points="484,22 516,22 522,75 478,75" className="laser-beam-timeline" />
 
               {/* Floor walkway ground line */}
-              <rect x="0" y="74" width="1000" height="4" fill="#000" />
-              <rect x="0" y="78" width="1000" height="2" fill="#FFE600" opacity="0.3" />
+              <rect x="0" y="74" width="1000" height="5" fill="#18181c" />
+              <line x1="0" y1="74" x2="1000" y2="74" stroke="#FFE600" strokeWidth="1.5" strokeDasharray="6 4" />
 
               {/* Pop success bubble */}
               <g className="pop-success-text" transform="translate(500, 20)">
