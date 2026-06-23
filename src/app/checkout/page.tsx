@@ -1608,8 +1608,8 @@ export default function CheckoutPage() {
             </div>
 
             {/* Minimalistic Supported Payments Logos */}
-            <div className="pt-4 space-y-2.5">
-              <div className="flex items-center justify-center gap-1.5 opacity-65 select-none">
+            <div className="pt-4 space-y-4.5">
+              <div className="flex items-center justify-center gap-2.5 opacity-65 select-none">
                 <Image 
                   src="/icons8-payment-100 (1).png" 
                   alt="Payment Methods" 
