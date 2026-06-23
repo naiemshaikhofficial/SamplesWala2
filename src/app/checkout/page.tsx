@@ -939,13 +939,11 @@ export default function CheckoutPage() {
               --item-dur: 12s;
             }
             .success-char-group {
-              transform-box: view-box;
             }
             .start-anim .success-char-group {
               animation: successWalkRun 12s infinite linear;
             }
             .fail-char-group {
-              transform-box: view-box;
             }
             .start-anim .fail-char-group {
               animation: failWalkSad 12s infinite linear;
@@ -956,28 +954,28 @@ export default function CheckoutPage() {
             
             .success-leg-l-group {
               transform-box: fill-box;
-              transform-origin: -4px 7px;
+              transform-origin: 50% 0%;
             }
             .start-anim .success-leg-l-group {
               animation: successLegLeftAnim 12s infinite ease-in-out;
             }
             .success-leg-r-group {
               transform-box: fill-box;
-              transform-origin: 4px 7px;
+              transform-origin: 50% 0%;
             }
             .start-anim .success-leg-r-group {
               animation: successLegRightAnim 12s infinite ease-in-out;
             }
             .success-arm-l-group {
               transform-box: fill-box;
-              transform-origin: -7px -9px;
+              transform-origin: 100% 0%;
             }
             .start-anim .success-arm-l-group {
               animation: successArmLeftAnim 12s infinite ease-in-out;
             }
             .success-arm-r-group {
               transform-box: fill-box;
-              transform-origin: 7px -9px;
+              transform-origin: 0% 0%;
             }
             .start-anim .success-arm-r-group {
               animation: successArmRightAnim 12s infinite ease-in-out;
@@ -985,35 +983,34 @@ export default function CheckoutPage() {
             
             .fail-leg-l-group {
               transform-box: fill-box;
-              transform-origin: -4px 7px;
+              transform-origin: 50% 0%;
             }
             .start-anim .fail-leg-l-group {
               animation: failLegLeftAnim 12s infinite ease-in-out;
             }
             .fail-leg-r-group {
               transform-box: fill-box;
-              transform-origin: 4px 7px;
+              transform-origin: 50% 0%;
             }
             .start-anim .fail-leg-r-group {
               animation: failLegRightAnim 12s infinite ease-in-out;
             }
             .fail-arm-l-group {
               transform-box: fill-box;
-              transform-origin: -7px -9px;
+              transform-origin: 100% 0%;
             }
             .start-anim .fail-arm-l-group {
               animation: failArmLeftAnim 12s infinite ease-in-out;
             }
             .fail-arm-r-group {
               transform-box: fill-box;
-              transform-origin: 7px -9px;
+              transform-origin: 0% 0%;
             }
             .start-anim .fail-arm-r-group {
               animation: failArmRightAnim 12s infinite ease-in-out;
             }
             
             .fail-box-group {
-              transform-box: view-box;
             }
             .start-anim .fail-box-group {
               animation: failBoxAnim 12s infinite ease-in-out;
@@ -1028,21 +1025,19 @@ export default function CheckoutPage() {
             
             .guard-arm-r-group {
               transform-box: fill-box;
-              transform-origin: 7px -9px;
+              transform-origin: 0% 0%;
             }
             .start-anim .guard-arm-r-group {
               animation: guardArmRightAnim 12s infinite ease-in-out;
             }
             
             .pop-success-text {
-              transform-box: view-box;
               transform-origin: center;
             }
             .start-anim .pop-success-text {
               animation: popSuccessTimeline 12s infinite ease-in-out;
             }
             .pop-fail-text {
-              transform-box: view-box;
               transform-origin: center;
             }
             .start-anim .pop-fail-text {
@@ -1072,6 +1067,10 @@ export default function CheckoutPage() {
               20.8% { transform: translate(400px, 0px); }
               22.9% { transform: translate(450px, -1.5px); }
               25% { transform: translate(500px, 0px); }
+              35% { transform: translate(500px, 0px); }
+              36.25% { transform: translate(500px, -8px); }
+              37.5% { transform: translate(500px, 0px); }
+              38.75% { transform: translate(500px, -8px); }
               40% { transform: translate(500px, 0px); }
               41.6% { transform: translate(600px, -3px); }
               43.3% { transform: translate(700px, 0px); }
@@ -1096,6 +1095,11 @@ export default function CheckoutPage() {
               70.8% { transform: translate(400px, 0px); }
               72.9% { transform: translate(450px, -1.5px); }
               75% { transform: translate(500px, 0px); }
+              83% { transform: translate(500px, 0px); }
+              84% { transform: translate(498px, -1px); }
+              85% { transform: translate(502px, 1px); }
+              86% { transform: translate(499px, -1px); }
+              87% { transform: translate(501px, 0px); }
               88% { transform: translate(500px, 0px); }
               90% { transform: translate(460px, -1.5px); }
               92% { transform: translate(420px, 0px); }
@@ -1112,6 +1116,10 @@ export default function CheckoutPage() {
               15.6% { transform: rotate(25deg); }
               20.8% { transform: rotate(-25deg); }
               25% { transform: rotate(0deg); }
+              35% { transform: rotate(-15deg); }
+              36.25% { transform: rotate(-30deg); }
+              37.5% { transform: rotate(-15deg); }
+              38.75% { transform: rotate(-30deg); }
               40% { transform: rotate(0deg); }
               41.6% { transform: rotate(-45deg); }
               43.3% { transform: rotate(45deg); }
@@ -1128,6 +1136,10 @@ export default function CheckoutPage() {
               15.6% { transform: rotate(-25deg); }
               20.8% { transform: rotate(25deg); }
               25% { transform: rotate(0deg); }
+              35% { transform: rotate(15deg); }
+              36.25% { transform: rotate(30deg); }
+              37.5% { transform: rotate(15deg); }
+              38.75% { transform: rotate(30deg); }
               40% { transform: rotate(0deg); }
               41.6% { transform: rotate(45deg); }
               43.3% { transform: rotate(-45deg); }
@@ -1144,7 +1156,11 @@ export default function CheckoutPage() {
               15.6% { transform: rotate(15deg); }
               20.8% { transform: rotate(-15deg); }
               25% { transform: rotate(0deg); }
-              40% { transform: rotate(0deg); }
+              35% { transform: rotate(-120deg); }
+              36.25% { transform: rotate(-140deg); }
+              37.5% { transform: rotate(-120deg); }
+              38.75% { transform: rotate(-140deg); }
+              40% { transform: rotate(-120deg); }
               41.6% { transform: translateY(-4px) rotate(-110deg); }
               43.3% { transform: translateY(-8px) rotate(-130deg); }
               45% { transform: translateY(-4px) rotate(-110deg); }
@@ -1160,7 +1176,11 @@ export default function CheckoutPage() {
               15.6% { transform: rotate(-15deg); }
               20.8% { transform: rotate(15deg); }
               25% { transform: rotate(0deg); }
-              40% { transform: rotate(0deg); }
+              35% { transform: rotate(120deg); }
+              36.25% { transform: rotate(140deg); }
+              37.5% { transform: rotate(120deg); }
+              38.75% { transform: rotate(140deg); }
+              40% { transform: rotate(120deg); }
               41.6% { transform: translateY(-4px) rotate(110deg); }
               43.3% { transform: translateY(-8px) rotate(130deg); }
               45% { transform: translateY(-4px) rotate(110deg); }
@@ -1218,14 +1238,14 @@ export default function CheckoutPage() {
               62.4% { transform: rotate(10deg); }
               72.8% { transform: rotate(-10deg); }
               75% { transform: rotate(0deg); }
-              83% { transform: rotate(-12deg); }
-              84% { transform: rotate(12deg); }
-              85% { transform: rotate(-12deg); }
-              86% { transform: rotate(12deg); }
-              87% { transform: rotate(-12deg); }
+              83% { transform: rotate(-8deg); }
+              84% { transform: rotate(8deg); }
+              85% { transform: rotate(-8deg); }
+              86% { transform: rotate(8deg); }
+              87% { transform: rotate(-8deg); }
               88% { transform: rotate(0deg); }
-              90% { transform: rotate(-90deg); }
-              98% { transform: rotate(-90deg); }
+              90% { transform: rotate(-120deg); }
+              98% { transform: rotate(-120deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failArmRightAnim {
@@ -1234,23 +1254,23 @@ export default function CheckoutPage() {
               62.4% { transform: rotate(-10deg); }
               72.8% { transform: rotate(10deg); }
               75% { transform: rotate(0deg); }
-              83% { transform: rotate(12deg); }
-              84% { transform: rotate(-12deg); }
-              85% { transform: rotate(12deg); }
-              86% { transform: rotate(-12deg); }
-              87% { transform: rotate(12deg); }
+              83% { transform: rotate(8deg); }
+              84% { transform: rotate(-8deg); }
+              85% { transform: rotate(8deg); }
+              86% { transform: rotate(-8deg); }
+              87% { transform: rotate(8deg); }
               88% { transform: rotate(0deg); }
-              90% { transform: rotate(90deg); }
-              98% { transform: rotate(90deg); }
+              90% { transform: rotate(120deg); }
+              98% { transform: rotate(120deg); }
               100% { transform: rotate(0deg); }
             }
             
             @keyframes failBoxAnim {
               0%, 88% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-              91% { transform: translate(50px, -35px) rotate(180deg); }
-              94% { transform: translate(90px, 12px) rotate(360deg); }
-              98% { transform: translate(90px, 12px) rotate(360deg); opacity: 1; }
-              100% { transform: translate(90px, 12px) rotate(360deg); opacity: 0; }
+              91% { transform: translate(80px, -30px) rotate(180deg); }
+              94% { transform: translate(180px, 15px) rotate(360deg); }
+              98% { transform: translate(180px, 15px) rotate(360deg); opacity: 1; }
+              100% { transform: translate(180px, 15px) rotate(360deg); opacity: 0; }
             }
             
             @keyframes failFaceHappyTimeline {
