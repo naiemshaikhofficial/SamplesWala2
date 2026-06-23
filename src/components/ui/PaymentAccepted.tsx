@@ -25,7 +25,7 @@ export function PaymentAccepted({ className = '', variant = 'full' }: PaymentAcc
     : logos
 
   return (
-    <div className={`flex flex-wrap items-center justify-center gap-3 md:gap-4.5 ${className}`}>
+    <div className={`flex flex-wrap items-center justify-center gap-4 md:gap-6 ${className}`}>
       {activeLogos.map((logo, idx) => {
         const isHovered = hoveredIndex === idx
         return (
@@ -35,31 +35,22 @@ export function PaymentAccepted({ className = '', variant = 'full' }: PaymentAcc
             onMouseEnter={() => setHoveredIndex(idx)}
             onMouseLeave={() => setHoveredIndex(null)}
             whileHover={{ 
-              y: -3, 
-              x: -3, 
-              scale: 1.06,
-              transition: { type: 'spring', stiffness: 350, damping: 12 }
+              y: -4, 
+              scale: 1.15,
+              transition: { type: 'spring', stiffness: 350, damping: 10 }
             }}
-            whileTap={{ y: 1, x: 1, scale: 0.96 }}
-            style={{
-              boxShadow: isHovered 
-                ? `5px 5px 0px ${logo.shadowColor}` 
-                : '3px 3px 0px rgba(255, 255, 255, 0.08)',
-              borderColor: isHovered ? logo.shadowColor : 'rgba(255, 255, 255, 0.15)',
-            }}
-            className="group relative flex items-center justify-center w-[48px] h-[28px] md:w-[68px] md:h-[38px] 
-              bg-white/[0.03] hover:bg-white/[0.08] border-2 rounded-xs 
-              px-1.5 py-1 select-none transition-all duration-200 cursor-pointer"
+            whileTap={{ scale: 0.94 }}
+            className="relative flex items-center justify-center w-[36px] h-[22px] md:w-[50px] md:h-[30px] select-none cursor-pointer"
           >
             {/* Official Vector Logo Image with white-to-color transition */}
             <img
               src={`/payment-logos/${logo.file}.svg`}
               alt={logo.name}
-              className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
+              className="w-full h-full object-contain transition-all duration-300"
               style={{
                 filter: isHovered 
                   ? 'brightness(1) invert(0) opacity(1)' 
-                  : 'brightness(0) invert(1) opacity(0.55)'
+                  : 'brightness(0) invert(1) opacity(0.5)'
               }}
             />
           </motion.div>
