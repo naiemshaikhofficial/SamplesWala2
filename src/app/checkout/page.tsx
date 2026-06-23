@@ -1529,18 +1529,12 @@ export default function CheckoutPage() {
                         )}
                       </button>
                     )}
-                    <div className="flex items-center justify-center gap-2 pt-2 select-none">
-                      <Image 
-                        src="/icons8-payment-100 (1).png" 
-                        alt="Payment Methods" 
-                        width={14} 
-                        height={14} 
-                        className="object-contain shrink-0"
-                      />
-                      <p className="text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500 leading-relaxed">
-                        WE ACCEPT DOMESTIC &amp; INTERNATIONAL PAYMENTS
-                      </p>
-                    </div>
+                    <p className="text-[8px] font-black text-neutral-500 uppercase tracking-widest text-center mt-2 leading-relaxed select-none">
+                      By purchasing, you agree to our{' '}
+                      <Link href="/terms" className="text-studio-yellow hover:underline">Terms &amp; Conditions</Link>
+                      {' '}and{' '}
+                      <Link href="/refund-policy" className="text-studio-yellow hover:underline">Refund Policy</Link>.
+                    </p>
                   </div>
                 )}
               </div>
@@ -1611,25 +1605,23 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {/* Legal Agreement */}
-              <div className="space-y-4 pt-4 border-t border-white/5">
-                <p className="text-[9px] font-medium text-neutral-500 uppercase tracking-wider leading-relaxed text-center">
-                  By purchasing, you agree to our{' '}
-                  <Link href="/terms" className="text-neutral-400 hover:text-white underline">Terms</Link>,{' '}
-                  <Link href="/refund-policy" className="text-neutral-400 hover:text-white underline">Refund</Link>,{' '}
-                  <Link href="/privacy" className="text-neutral-400 hover:text-white underline">Privacy</Link> &{' '}
-                  <Link href="/terms" className="text-neutral-400 hover:text-white underline">EULA</Link>.
-                </p>
-                <div className="flex items-center justify-center gap-2 opacity-50">
-                  <ShieldCheck size={12} className="text-neutral-400" />
-                  <span className="text-[8px] font-medium uppercase tracking-wider text-neutral-400">128-bit SSL Secure Transaction</span>
-                </div>
-              </div>
             </div>
 
             {/* Minimalistic Supported Payments Logos */}
-            <div className="pt-2">
-              <PaymentAccepted variant="compact" className="opacity-40 hover:opacity-80 transition-opacity duration-300 justify-center" />
+            <div className="pt-4 space-y-2.5">
+              <div className="flex items-center justify-center gap-1.5 opacity-65 select-none">
+                <Image 
+                  src="/icons8-payment-100 (1).png" 
+                  alt="Payment Methods" 
+                  width={11} 
+                  height={11} 
+                  className="object-contain shrink-0 animate-pulse"
+                />
+                <p className="text-[7.5px] font-black uppercase tracking-[0.12em] text-neutral-400 leading-relaxed">
+                  WE ACCEPT DOMESTIC &amp; INTERNATIONAL PAYMENTS
+                </p>
+              </div>
+              <PaymentAccepted variant="compact" className="opacity-70 hover:opacity-100 transition-opacity duration-300 justify-center" />
             </div>
           </div>
         </div>
@@ -1646,6 +1638,12 @@ export default function CheckoutPage() {
                 </p>
               </div>
             )}
+            <p className="text-[7.5px] font-black text-neutral-500 uppercase tracking-widest text-center mb-2 leading-relaxed select-none">
+              By purchasing, you agree to our{' '}
+              <Link href="/terms" className="text-studio-yellow hover:underline">Terms</Link>
+              {' '}and{' '}
+              <Link href="/refund-policy" className="text-studio-yellow hover:underline">Refund Policy</Link>.
+            </p>
             {currency === 'USD' && activeTotal > 0 ? (
               <div>
                 {!paypalLoaded && (

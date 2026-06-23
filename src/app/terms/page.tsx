@@ -225,10 +225,31 @@ export default function TermsPage() {
                 </div>
               </section>
 
-              {/* Section 05: Intellectual Property Ownership */}
+              {/* Section 05: Digital Products Refund & Cancellation Policy */}
               <section className="space-y-6">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-black text-studio-yellow font-mono border-2 border-studio-yellow px-2 py-0.5 rounded-sm">05</span>
+                  <h2 className="text-xl font-black uppercase tracking-tight italic comic-text">Refund & Cancellation Policy</h2>
+                </div>
+                <div className="space-y-4 text-xs font-bold text-white/60 leading-relaxed uppercase tracking-wider">
+                  <p>
+                    Because all sound libraries, loops, one-shots, and presets purchased from Samples Wala are digital goods delivered instantly via download links upon transaction completion, they cannot be returned, reclaimed, or verified as destroyed. Therefore:
+                  </p>
+                  <div className="comic-panel p-6 border-4 border-black shadow-[6px_6px_0px_#FF3131] bg-red-950/10 space-y-3 text-[9px] font-bold uppercase tracking-widest text-[#FF3131]">
+                    <p className="text-white font-black"><strong className="text-[#FF3131]">•</strong> ALL DIGITAL DOWNLOAD TRANSACTIONS AND PRE-ORDERS ARE 100% FINAL AND STRICTLY NON-REFUNDABLE.</p>
+                    <p className="text-white font-black"><strong className="text-[#FF3131]">•</strong> NO REFUNDS WILL BE ISSUED FOR DISSATISFACTION WITH AUDIO CONTENT, DAW INCOMPATIBILITY, ACCIDENTAL PURCHASES, OR A CHANGE OF MIND.</p>
+                    <p className="text-white font-black"><strong className="text-[#FF3131]">•</strong> SUBMITTING CHARGEBACK CLAIMS OR BILLING DISPUTES WITH CARD ISSUERS FOR ACCESSED DIGITAL PRODUCTS CONSTITUTES A DIRECT BREACH OF THIS LICENSE.</p>
+                  </div>
+                  <p>
+                    By initiating a purchase, checking the terms agreement box, or accessing downloadable files, you give your explicit consent to immediate contract performance and waive any cooling-off periods, returns, or refund entitlements under Indian and international consumer rules.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 06: Intellectual Property Ownership */}
+              <section className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-black text-studio-yellow font-mono border-2 border-studio-yellow px-2 py-0.5 rounded-sm">06</span>
                   <h2 className="text-xl font-black uppercase tracking-tight italic comic-text">Intellectual Property Ownership</h2>
                 </div>
                 <div className="space-y-4 text-xs font-bold text-white/60 leading-relaxed uppercase tracking-wider">

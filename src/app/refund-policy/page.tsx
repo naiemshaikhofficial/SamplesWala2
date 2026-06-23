@@ -69,6 +69,9 @@ export default function RefundPage() {
                     All items sold on Samples Wala are premium, high-fidelity digital downloads. When you make a purchase, access to the audio packages is immediately unlocked and credited to your profile. Since the delivery of digital media is instantaneous:
                   </p>
                   <p className="text-[10px] font-bold text-[#FF3131] uppercase tracking-widest leading-relaxed pl-4 border-l-4 border-[#FF3131]">
+                    AS DIGITAL GOODS (AUDIO SAMPLES, LOOPS, AND SYNTH PRESETS) CANNOT BE PHYSICALLY RETURNED OR DESTROYED ONCE TRANSFERRED, ALL PAYMENTS, LICENSES, AND PRE-ORDERS ARE STRICTLY NON-REFUNDABLE AND FINAL.
+                  </p>
+                  <p>
                     By purchasing our sound libraries or placing pre-orders, you give your explicit consent to immediate contract performance, and you acknowledge that you <span className="underline decoration-[#FF3131] underline-offset-4 decoration-2">entirely forfeit your statutory right of withdrawal, refund, or cancellation</span>.
                   </p>
                 </div>
