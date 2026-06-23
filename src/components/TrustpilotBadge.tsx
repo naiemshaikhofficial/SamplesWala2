@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 
 export function TrustpilotBadge() {
   const ref = useRef<HTMLDivElement>(null)
@@ -23,7 +24,27 @@ export function TrustpilotBadge() {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-8 pt-16">
       {/* Trustpilot Card */}
-      <div className="bg-white p-4 border-4 border-black shadow-[10px_10px_0px_rgba(0,0,0,1)] -rotate-1 max-w-sm w-full transition-transform hover:scale-105 min-h-[110px] flex flex-col justify-between">
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ 
+          opacity: 1, 
+          y: [0, -5, 0],
+        }}
+        transition={{
+          y: {
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          },
+          opacity: { duration: 0.5 }
+        }}
+        whileHover={{ scale: 1.05, rotate: 0 }}
+        className="bg-white p-4 border-4 border-black shadow-[10px_10px_0px_rgba(0,0,0,1)] -rotate-1 max-w-sm w-full transition-shadow duration-300 min-h-[110px] flex flex-col justify-between rounded-xl relative overflow-hidden"
+      >
+        {/* Subtle decorative sticker/tag */}
+        <div className="absolute -top-1 -right-1 bg-black text-white text-[6px] font-black uppercase px-2 py-0.5 tracking-wider rounded-bl-md border-b-2 border-l-2 border-black select-none">
+          TRUSTED
+        </div>
         <div className="text-[8px] font-black uppercase tracking-[0.4em] text-black/40 mb-3 text-center">Industry Verified</div>
         <div 
           ref={ref}
@@ -37,36 +58,72 @@ export function TrustpilotBadge() {
         >
           <a href="https://www.trustpilot.com/review/sampleswala.com" target="_blank" rel="noopener">Trustpilot</a>
         </div>
-      </div>
+      </motion.div>
 
-      {/* ScamAdviser Card */}
-      <a 
+      {/* ScamAdviser Card (Brutalist Sticker Shape with Yellow Theme) */}
+      <motion.a 
         href="https://www.scamadviser.com/check-website/sampleswala.com" 
         target="_blank" 
         rel="noopener noreferrer"
-        className="bg-white p-4 border-4 border-black shadow-[10px_10px_0px_rgba(0,0,0,1)] rotate-1 max-w-sm w-full transition-transform hover:scale-105 min-h-[110px] flex flex-col justify-between"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ 
+          opacity: 1, 
+          y: [-5, 0, -5],
+        }}
+        transition={{
+          y: {
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.6 // Offset the float phase to make it dynamic
+          },
+          opacity: { duration: 0.5 }
+        }}
+        whileHover={{ scale: 1.05, rotate: -1 }}
+        className="bg-[#FFC800] p-4 border-4 border-black shadow-[10px_10px_0px_rgba(0,0,0,1)] rotate-2 max-w-sm w-full min-h-[110px] flex flex-col justify-between rounded-tr-[35px] rounded-bl-[35px] relative overflow-hidden"
       >
-        <div className="text-[8px] font-black uppercase tracking-[0.4em] text-black/40 mb-3 text-center">Safety Rating</div>
+        {/* Subtle decorative sticker/tag */}
+        <div className="absolute -top-1 -right-1 bg-black text-[#FFC800] text-[6px] font-black uppercase px-2 py-0.5 tracking-wider rounded-bl-md border-b-2 border-l-2 border-black select-none">
+          SAFETY CHECK
+        </div>
+        <div className="text-[8px] font-black uppercase tracking-[0.4em] text-black/60 mb-3 text-center">Safety Rating</div>
         <div className="flex items-center justify-center gap-4 flex-1">
           {/* Logo representation */}
           <div className="flex items-center gap-1.5 select-none">
-            {/* Red shield with checkmark */}
-            <svg width="24" height="28" viewBox="0 0 24 28" fill="none" className="flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
+            {/* Red shield with animated checkmark */}
+            <motion.svg 
+              width="24" 
+              height="28" 
+              viewBox="0 0 24 28" 
+              fill="none" 
+              className="flex-shrink-0 drop-shadow-[1px_2px_0px_rgba(0,0,0,0.15)]"
+              xmlns="http://www.w3.org/2000/svg"
+              whileHover={{ rotate: [0, -12, 12, 0], transition: { duration: 0.4 } }}
+            >
               <path d="M12 0L2 4V13C2 19.2 6.2 24.8 12 28C17.8 24.8 22 19.2 22 13V4L12 0Z" fill="#E52427"/>
-              <path d="M7 13.5L10.5 17L17 10" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+              <motion.path 
+                d="M7 13.5L10.5 17L17 10" 
+                stroke="white" 
+                strokeWidth="3" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+              />
+            </motion.svg>
             <div className="flex flex-col leading-none">
               <span className="text-[12px] font-black text-black tracking-tighter font-sans">SCAM</span>
               <span className="text-[12px] font-black text-[#E52427] tracking-tighter font-sans">ADVISER</span>
             </div>
           </div>
-          <div className="h-8 w-[1px] bg-black/10" />
+          <div className="h-8 w-[1px] bg-black/15" />
           <div className="flex flex-col items-center justify-center">
-            <span className="text-[7px] font-black uppercase tracking-wider text-black/40 leading-none">TRUST SCORE</span>
-            <span className="text-[20px] font-black text-[#56B949] leading-none mt-1 font-mono">82/100</span>
+            <span className="text-[7px] font-black uppercase tracking-wider text-black/60 leading-none">TRUST SCORE</span>
+            <span className="text-[20px] font-black text-[#128807] leading-none mt-1 font-mono drop-shadow-[1px_1px_0px_rgba(255,255,255,0.6)]">82/100</span>
           </div>
         </div>
-      </a>
+      </motion.a>
     </div>
   )
 }
