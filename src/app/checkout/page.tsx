@@ -257,7 +257,7 @@ export default function CheckoutPage() {
     country: 'India'
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
-  const [newsletterOptIn, setNewsletterOptIn] = useState(true)
+   const [newsletterOptIn, setNewsletterOptIn] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -1502,15 +1502,15 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 mt-2 px-1 opacity-[0.12] hover:opacity-50 transition-opacity duration-200">
+                <div className="flex items-center gap-2 mt-2 px-1 opacity-70 hover:opacity-100 transition-opacity duration-200">
                   <input
                     id="checkout-newsletter"
                     type="checkbox"
                     checked={newsletterOptIn}
                     onChange={(e) => setNewsletterOptIn(e.target.checked)}
-                    className="w-3 h-3 rounded bg-transparent border border-white/10 text-neutral-800 focus:ring-0 focus:outline-none cursor-pointer accent-neutral-800"
+                    className="w-3.5 h-3.5 rounded bg-transparent border border-white/20 text-studio-yellow focus:ring-0 focus:outline-none cursor-pointer accent-studio-yellow"
                   />
-                  <label htmlFor="checkout-newsletter" className="text-[8.5px] font-black text-neutral-500 tracking-wider cursor-pointer select-none uppercase">
+                  <label htmlFor="checkout-newsletter" className="text-[9px] font-black text-neutral-400 tracking-wider cursor-pointer select-none uppercase">
                     Email me updates and special offers
                   </label>
                 </div>
