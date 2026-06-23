@@ -939,12 +939,16 @@ export default function CheckoutPage() {
               --item-dur: 12s;
             }
             .success-char-group {
+              transform-box: view-box;
+            }
+            .start-anim .success-char-group {
               animation: successWalkRun 12s infinite linear;
-              transform-box: fill-box;
             }
             .fail-char-group {
+              transform-box: view-box;
+            }
+            .start-anim .fail-char-group {
               animation: failWalkSad 12s infinite linear;
-              transform-box: fill-box;
             }
             .guard-group {
               transform-box: fill-box;
@@ -953,79 +957,104 @@ export default function CheckoutPage() {
             .success-leg-l-group {
               transform-box: fill-box;
               transform-origin: -4px 7px;
+            }
+            .start-anim .success-leg-l-group {
               animation: successLegLeftAnim 12s infinite ease-in-out;
             }
             .success-leg-r-group {
               transform-box: fill-box;
               transform-origin: 4px 7px;
+            }
+            .start-anim .success-leg-r-group {
               animation: successLegRightAnim 12s infinite ease-in-out;
             }
             .success-arm-l-group {
               transform-box: fill-box;
               transform-origin: -7px -9px;
+            }
+            .start-anim .success-arm-l-group {
               animation: successArmLeftAnim 12s infinite ease-in-out;
             }
             .success-arm-r-group {
               transform-box: fill-box;
               transform-origin: 7px -9px;
+            }
+            .start-anim .success-arm-r-group {
               animation: successArmRightAnim 12s infinite ease-in-out;
             }
             
             .fail-leg-l-group {
               transform-box: fill-box;
               transform-origin: -4px 7px;
+            }
+            .start-anim .fail-leg-l-group {
               animation: failLegLeftAnim 12s infinite ease-in-out;
             }
             .fail-leg-r-group {
               transform-box: fill-box;
               transform-origin: 4px 7px;
+            }
+            .start-anim .fail-leg-r-group {
               animation: failLegRightAnim 12s infinite ease-in-out;
             }
             .fail-arm-l-group {
               transform-box: fill-box;
               transform-origin: -7px -9px;
+            }
+            .start-anim .fail-arm-l-group {
               animation: failArmLeftAnim 12s infinite ease-in-out;
             }
             .fail-arm-r-group {
               transform-box: fill-box;
               transform-origin: 7px -9px;
+            }
+            .start-anim .fail-arm-r-group {
               animation: failArmRightAnim 12s infinite ease-in-out;
             }
             
             .fail-box-group {
-              transform-box: fill-box;
-              transform-origin: 0px 0px;
+              transform-box: view-box;
+            }
+            .start-anim .fail-box-group {
               animation: failBoxAnim 12s infinite ease-in-out;
             }
             
-            .fail-face-happy {
+            .start-anim .fail-face-happy {
               animation: failFaceHappyTimeline 12s infinite;
             }
-            .fail-face-sad {
+            .start-anim .fail-face-sad {
               animation: failFaceSadTimeline 12s infinite;
             }
             
             .guard-arm-r-group {
               transform-box: fill-box;
               transform-origin: 7px -9px;
+            }
+            .start-anim .guard-arm-r-group {
               animation: guardArmRightAnim 12s infinite ease-in-out;
             }
             
             .pop-success-text {
-              transform-box: fill-box;
+              transform-box: view-box;
               transform-origin: center;
+            }
+            .start-anim .pop-success-text {
               animation: popSuccessTimeline 12s infinite ease-in-out;
             }
             .pop-fail-text {
-              transform-box: fill-box;
+              transform-box: view-box;
               transform-origin: center;
+            }
+            .start-anim .pop-fail-text {
               animation: popFailTimeline 12s infinite ease-in-out;
             }
-            .scanner-light {
+            .start-anim .scanner-light {
               animation: scannerLightTimeline 12s infinite;
             }
             .laser-beam-timeline {
               transform-origin: top center;
+            }
+            .start-anim .laser-beam-timeline {
               animation: laserScanTimeline 12s infinite ease-in-out;
             }
             
@@ -1043,12 +1072,12 @@ export default function CheckoutPage() {
               20.8% { transform: translate(400px, 0px); }
               22.9% { transform: translate(450px, -1.5px); }
               25% { transform: translate(500px, 0px); }
-              37.5% { transform: translate(500px, 0px); }
-              39.5% { transform: translate(600px, -3px); }
-              41.6% { transform: translate(700px, 0px); }
-              43.7% { transform: translate(800px, -3px); }
-              45.8% { transform: translate(900px, 0px); }
-              47.9% { transform: translate(1000px, -3px); }
+              40% { transform: translate(500px, 0px); }
+              41.6% { transform: translate(600px, -3px); }
+              43.3% { transform: translate(700px, 0px); }
+              45% { transform: translate(800px, -3px); }
+              46.6% { transform: translate(900px, 0px); }
+              48.3% { transform: translate(1000px, -3px); }
               50% { transform: translate(1100px, 0px); }
               100% { transform: translate(1100px, 0px); }
             }
@@ -1067,12 +1096,13 @@ export default function CheckoutPage() {
               70.8% { transform: translate(400px, 0px); }
               72.9% { transform: translate(450px, -1.5px); }
               75% { transform: translate(500px, 0px); }
-              87.5% { transform: translate(500px, 0px); }
-              89.5% { transform: translate(470px, -0.8px); }
-              91.6% { transform: translate(440px, 0px); }
-              93.7% { transform: translate(410px, -0.8px); }
-              95.8% { transform: translate(380px, 0px); opacity: 1; }
-              100% { transform: translate(300px, 0px); opacity: 0; }
+              88% { transform: translate(500px, 0px); }
+              90% { transform: translate(460px, -1.5px); }
+              92% { transform: translate(420px, 0px); }
+              94% { transform: translate(380px, -1.5px); }
+              96% { transform: translate(340px, 0px); }
+              98% { transform: translate(300px, -1.5px); opacity: 1; }
+              100% { transform: translate(280px, 0px); opacity: 0; }
             }
             
             @keyframes successLegLeftAnim {
@@ -1082,12 +1112,12 @@ export default function CheckoutPage() {
               15.6% { transform: rotate(25deg); }
               20.8% { transform: rotate(-25deg); }
               25% { transform: rotate(0deg); }
-              37.5% { transform: rotate(0deg); }
-              37.5% { transform: rotate(-45deg); }
-              40% { transform: rotate(45deg); }
-              42.5% { transform: rotate(-45deg); }
-              45% { transform: rotate(45deg); }
-              47.5% { transform: rotate(-45deg); }
+              40% { transform: rotate(0deg); }
+              41.6% { transform: rotate(-45deg); }
+              43.3% { transform: rotate(45deg); }
+              45% { transform: rotate(-45deg); }
+              46.6% { transform: rotate(45deg); }
+              48.3% { transform: rotate(-45deg); }
               50% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
@@ -1098,139 +1128,195 @@ export default function CheckoutPage() {
               15.6% { transform: rotate(-25deg); }
               20.8% { transform: rotate(25deg); }
               25% { transform: rotate(0deg); }
-              37.5% { transform: rotate(0deg); }
-              37.5% { transform: rotate(45deg); }
-              40% { transform: rotate(-45deg); }
-              42.5% { transform: rotate(45deg); }
-              45% { transform: rotate(-45deg); }
-              47.5% { transform: rotate(45deg); }
+              40% { transform: rotate(0deg); }
+              41.6% { transform: rotate(45deg); }
+              43.3% { transform: rotate(-45deg); }
+              45% { transform: rotate(45deg); }
+              46.6% { transform: rotate(-45deg); }
+              48.3% { transform: rotate(45deg); }
               50% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes successArmLeftAnim {
-              0% { transform: rotate(-10deg); }
+              0% { transform: rotate(-15deg); }
+              5.2% { transform: rotate(15deg); }
+              10.4% { transform: rotate(-15deg); }
+              15.6% { transform: rotate(15deg); }
+              20.8% { transform: rotate(-15deg); }
               25% { transform: rotate(0deg); }
-              37.5% { transform: rotate(0deg); }
-              37.5% { transform: translateY(0) rotate(0deg); }
-              50% { transform: translateY(-8px) rotate(-130deg); }
-              100% { transform: translateY(-8px) rotate(-130deg); }
+              40% { transform: rotate(0deg); }
+              41.6% { transform: translateY(-4px) rotate(-110deg); }
+              43.3% { transform: translateY(-8px) rotate(-130deg); }
+              45% { transform: translateY(-4px) rotate(-110deg); }
+              46.6% { transform: translateY(-8px) rotate(-130deg); }
+              48.3% { transform: translateY(-4px) rotate(-110deg); }
+              50% { transform: translateY(0) rotate(0deg); }
+              100% { transform: rotate(0deg); }
             }
             @keyframes successArmRightAnim {
-              0% { transform: rotate(10deg); }
+              0% { transform: rotate(15deg); }
+              5.2% { transform: rotate(-15deg); }
+              10.4% { transform: rotate(15deg); }
+              15.6% { transform: rotate(-15deg); }
+              20.8% { transform: rotate(15deg); }
               25% { transform: rotate(0deg); }
-              37.5% { transform: rotate(0deg); }
-              37.5% { transform: translateY(0) rotate(0deg); }
-              50% { transform: translateY(-8px) rotate(130deg); }
-              100% { transform: translateY(-8px) rotate(130deg); }
+              40% { transform: rotate(0deg); }
+              41.6% { transform: translateY(-4px) rotate(110deg); }
+              43.3% { transform: translateY(-8px) rotate(130deg); }
+              45% { transform: translateY(-4px) rotate(110deg); }
+              46.6% { transform: translateY(-8px) rotate(130deg); }
+              48.3% { transform: translateY(-4px) rotate(110deg); }
+              50% { transform: translateY(0) rotate(0deg); }
+              100% { transform: rotate(0deg); }
             }
             
             @keyframes failLegLeftAnim {
               0%, 50% { transform: rotate(0deg); }
-              50% { transform: rotate(-25deg); }
-              55.2% { transform: rotate(25deg); }
-              60.4% { transform: rotate(-25deg); }
-              65.6% { transform: rotate(25deg); }
-              70.8% { transform: rotate(-25deg); }
+              52.08% { transform: rotate(-20deg); }
+              57.2% { transform: rotate(20deg); }
+              62.4% { transform: rotate(-20deg); }
+              67.6% { transform: rotate(20deg); }
+              72.8% { transform: rotate(-20deg); }
               75% { transform: rotate(0deg); }
-              87.5% { transform: rotate(0deg); }
-              87.5% { transform: rotate(15deg); }
-              90.6% { transform: rotate(-15deg); }
-              93.7% { transform: rotate(15deg); }
-              96.8% { transform: rotate(-15deg); }
+              83% { transform: rotate(-4deg); }
+              84% { transform: rotate(4deg); }
+              85% { transform: rotate(-4deg); }
+              86% { transform: rotate(4deg); }
+              87% { transform: rotate(-4deg); }
+              88% { transform: rotate(0deg); }
+              90% { transform: rotate(40deg); }
+              92% { transform: rotate(-40deg); }
+              94% { transform: rotate(40deg); }
+              96% { transform: rotate(-40deg); }
+              98% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failLegRightAnim {
               0%, 50% { transform: rotate(0deg); }
-              50% { transform: rotate(25deg); }
-              55.2% { transform: rotate(-25deg); }
-              60.4% { transform: rotate(25deg); }
-              65.6% { transform: rotate(-25deg); }
-              70.8% { transform: rotate(25deg); }
+              52.08% { transform: rotate(20deg); }
+              57.2% { transform: rotate(-20deg); }
+              62.4% { transform: rotate(20deg); }
+              67.6% { transform: rotate(-20deg); }
+              72.8% { transform: rotate(20deg); }
               75% { transform: rotate(0deg); }
-              87.5% { transform: rotate(0deg); }
-              87.5% { transform: rotate(-15deg); }
-              90.6% { transform: rotate(15deg); }
-              93.7% { transform: rotate(-15deg); }
-              96.8% { transform: rotate(15deg); }
+              83% { transform: rotate(4deg); }
+              84% { transform: rotate(-4deg); }
+              85% { transform: rotate(4deg); }
+              86% { transform: rotate(-4deg); }
+              87% { transform: rotate(4deg); }
+              88% { transform: rotate(0deg); }
+              90% { transform: rotate(-40deg); }
+              92% { transform: rotate(40deg); }
+              94% { transform: rotate(-40deg); }
+              96% { transform: rotate(40deg); }
+              98% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failArmLeftAnim {
-              0%, 87.5% { transform: rotate(0deg); }
-              90% { transform: rotate(-70deg); }
-              95% { transform: rotate(40deg); }
-              100% { transform: rotate(40deg); }
+              0%, 50% { transform: rotate(0deg); }
+              52.08% { transform: rotate(-10deg); }
+              62.4% { transform: rotate(10deg); }
+              72.8% { transform: rotate(-10deg); }
+              75% { transform: rotate(0deg); }
+              83% { transform: rotate(-12deg); }
+              84% { transform: rotate(12deg); }
+              85% { transform: rotate(-12deg); }
+              86% { transform: rotate(12deg); }
+              87% { transform: rotate(-12deg); }
+              88% { transform: rotate(0deg); }
+              90% { transform: rotate(-90deg); }
+              98% { transform: rotate(-90deg); }
+              100% { transform: rotate(0deg); }
             }
             @keyframes failArmRightAnim {
-              0%, 87.5% { transform: rotate(0deg); }
-              90% { transform: rotate(70deg); }
-              95% { transform: rotate(-40deg); }
-              100% { transform: rotate(-40deg); }
+              0%, 50% { transform: rotate(0deg); }
+              52.08% { transform: rotate(10deg); }
+              62.4% { transform: rotate(-10deg); }
+              72.8% { transform: rotate(10deg); }
+              75% { transform: rotate(0deg); }
+              83% { transform: rotate(12deg); }
+              84% { transform: rotate(-12deg); }
+              85% { transform: rotate(12deg); }
+              86% { transform: rotate(-12deg); }
+              87% { transform: rotate(12deg); }
+              88% { transform: rotate(0deg); }
+              90% { transform: rotate(90deg); }
+              98% { transform: rotate(90deg); }
+              100% { transform: rotate(0deg); }
             }
             
             @keyframes failBoxAnim {
-              0%, 87.5% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-              87.5% { transform: translate(0, 0) rotate(0deg); }
-              92% { transform: translate(50px, -35px) rotate(180deg); }
-              96% { transform: translate(90px, 12px) rotate(360deg); }
-              99% { transform: translate(90px, 12px) rotate(360deg); opacity: 1; }
+              0%, 88% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+              91% { transform: translate(50px, -35px) rotate(180deg); }
+              94% { transform: translate(90px, 12px) rotate(360deg); }
+              98% { transform: translate(90px, 12px) rotate(360deg); opacity: 1; }
               100% { transform: translate(90px, 12px) rotate(360deg); opacity: 0; }
             }
             
             @keyframes failFaceHappyTimeline {
-              0%, 87.4% { opacity: 1; }
-              87.5%, 100% { opacity: 0; }
+              0%, 82.9% { opacity: 1; }
+              83%, 100% { opacity: 0; }
             }
             @keyframes failFaceSadTimeline {
-              0%, 87.4% { opacity: 0; }
-              87.5%, 100% { opacity: 1; }
+              0%, 82.9% { opacity: 0; }
+              83%, 100% { opacity: 1; }
             }
             
             @keyframes guardArmRightAnim {
-              0%, 24% { transform: rotate(0deg); }
-              25% { transform: rotate(-50deg); }
-              31.25% { transform: rotate(-30deg); }
-              37.5% { transform: rotate(-50deg); }
-              38%, 74% { transform: rotate(0deg); }
-              75% { transform: rotate(110deg); }
-              80% { transform: rotate(90deg); }
-              85% { transform: rotate(110deg); }
-              90% { transform: rotate(90deg); }
-              95% { transform: rotate(110deg); }
-              100% { transform: rotate(0deg); }
+              0%, 34.9% { transform: rotate(0deg); }
+              35% { transform: rotate(-60deg); }
+              37% { transform: rotate(-35deg); }
+              39% { transform: rotate(-60deg); }
+              41% { transform: rotate(-35deg); }
+              43%, 82.9% { transform: rotate(0deg); }
+              83% { transform: rotate(115deg); }
+              85% { transform: rotate(90deg); }
+              87% { transform: rotate(115deg); }
+              89% { transform: rotate(90deg); }
+              91% { transform: rotate(115deg); }
+              93%, 100% { transform: rotate(0deg); }
             }
             
             @keyframes popSuccessTimeline {
-              0%, 37.4% { transform: translate(500px, 20px) scale(0); opacity: 0; }
-              37.5% { transform: translate(500px, 20px) scale(1.2) rotate(5deg); opacity: 1; }
-              45% { transform: translate(500px, 15px) scale(1) rotate(-5deg); opacity: 1; }
-              50% { transform: translate(500px, 10px) scale(0); opacity: 0; }
+              0%, 34.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
+              35% { transform: translate(500px, 20px) scale(1.2) rotate(5deg); opacity: 1; }
+              43% { transform: translate(500px, 15px) scale(1) rotate(-5deg); opacity: 1; }
+              48% { transform: translate(500px, 10px) scale(0); opacity: 0; }
               100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
             }
             @keyframes popFailTimeline {
-              0%, 87.4% { transform: translate(500px, 20px) scale(0); opacity: 0; }
-              87.5% { transform: translate(500px, 20px) scale(1.2) rotate(-5deg); opacity: 1; }
-              95% { transform: translate(500px, 15px) scale(1) rotate(5deg); opacity: 1; }
+              0%, 82.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
+              83% { transform: translate(500px, 20px) scale(1.2) rotate(-5deg); opacity: 1; }
+              91% { transform: translate(500px, 15px) scale(1) rotate(5deg); opacity: 1; }
+              96% { transform: translate(500px, 10px) scale(0); opacity: 0; }
               100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
             }
             
             @keyframes laserScanTimeline {
               0%, 24% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
-              25% { fill: rgba(0, 255, 148, 0.3); opacity: 0.85; transform: scaleX(0.85); }
-              31.25% { fill: rgba(0, 255, 148, 0.35); opacity: 0.95; transform: scaleX(1.15); }
-              37.5% { fill: rgba(0, 255, 148, 0.3); opacity: 0.85; transform: scaleX(0.85); }
-              38%, 74% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
-              75% { fill: rgba(255, 49, 49, 0.3); opacity: 0.85; transform: scaleX(0.85); }
-              81.25% { fill: rgba(255, 49, 49, 0.35); opacity: 0.95; transform: scaleX(1.15); }
-              87.5% { fill: rgba(255, 49, 49, 0.3); opacity: 0.85; transform: scaleX(0.85); }
+              25% { fill: rgba(0, 191, 255, 0.35); opacity: 0.85; transform: scaleX(0.85); }
+              30% { fill: rgba(0, 191, 255, 0.45); opacity: 0.95; transform: scaleX(1.15); }
+              34% { fill: rgba(0, 191, 255, 0.35); opacity: 0.85; transform: scaleX(0.85); }
+              35% { fill: rgba(0, 255, 148, 0.4); opacity: 0.95; transform: scaleX(1.1); }
+              39% { fill: rgba(0, 255, 148, 0.4); opacity: 0.95; transform: scaleX(1.1); }
+              40% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
+              41%, 74% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
+              75% { fill: rgba(0, 191, 255, 0.35); opacity: 0.85; transform: scaleX(0.85); }
+              80% { fill: rgba(0, 191, 255, 0.45); opacity: 0.95; transform: scaleX(1.15); }
+              82% { fill: rgba(0, 191, 255, 0.35); opacity: 0.85; transform: scaleX(0.85); }
+              83% { fill: rgba(255, 49, 49, 0.4); opacity: 0.95; transform: scaleX(1.1); }
+              87% { fill: rgba(255, 49, 49, 0.4); opacity: 0.95; transform: scaleX(1.1); }
               88%, 100% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
             }
             
             @keyframes scannerLightTimeline {
               0%, 24% { fill: #333; }
-              25%, 37.5% { fill: #00FF94; filter: drop-shadow(0 0 4px #00FF94); }
-              38%, 74% { fill: #333; }
-              75%, 87.5% { fill: #FF3131; filter: drop-shadow(0 0 4px #FF3131); }
-              88%, 100% { fill: #333; }
+              25%, 34% { fill: #00BFFF; filter: drop-shadow(0 0 4px #00BFFF); }
+              35%, 40% { fill: #00FF94; filter: drop-shadow(0 0 6px #00FF94); }
+              41%, 74% { fill: #333; }
+              75%, 82% { fill: #00BFFF; filter: drop-shadow(0 0 4px #00BFFF); }
+              83%, 88% { fill: #FF3131; filter: drop-shadow(0 0 6px #FF3131); }
+              89%, 100% { fill: #333; }
             }
             
             @keyframes eqWave {
@@ -1241,10 +1327,10 @@ export default function CheckoutPage() {
               transform-box: fill-box;
               transform-origin: bottom;
             }
-            .eq-bar-1 { animation: eqWave 0.8s ease-in-out infinite alternate; }
-            .eq-bar-2 { animation: eqWave 1.2s ease-in-out infinite alternate; }
-            .eq-bar-3 { animation: eqWave 0.6s ease-in-out infinite alternate; }
-            .eq-bar-4 { animation: eqWave 1.0s ease-in-out infinite alternate; }
+            .start-anim .eq-bar-1 { animation: eqWave 0.8s ease-in-out infinite alternate; }
+            .start-anim .eq-bar-2 { animation: eqWave 1.2s ease-in-out infinite alternate; }
+            .start-anim .eq-bar-3 { animation: eqWave 0.6s ease-in-out infinite alternate; }
+            .start-anim .eq-bar-4 { animation: eqWave 1.0s ease-in-out infinite alternate; }
           `}} />
 
           {/* Tri-color platform stripe */}
@@ -1256,7 +1342,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Scenery + Conveyor Belt */}
-          <div className="h-28 bg-white relative overflow-hidden select-none pointer-events-none border-y border-black/15 shadow-[inset_0_4px_12px_rgba(0,0,0,0.03)]">
+          <div className={`h-28 bg-white relative overflow-hidden select-none pointer-events-none border-y border-black/15 shadow-[inset_0_4px_12px_rgba(0,0,0,0.03)] ${mounted ? 'start-anim' : ''}`}>
             {/* SVG Viewport */}
             <svg className="w-full h-full" viewBox="0 0 1000 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
@@ -1445,29 +1531,40 @@ export default function CheckoutPage() {
               {/* Character 1: SUCCESS PATH */}
               <g className="success-char-group">
                 <g transform="translate(0, 53)">
-                  {/* Legs */}
+                  {/* Legs (Layered Pants & White Sneakers) */}
                   <g className="success-leg-l-group">
-                    <line x1="-4" y1="7" x2="-4" y2="21" stroke="#000" strokeWidth="3" strokeLinecap="round" />
-                    <circle cx="-4" cy="21" r="2" fill="#000" />
+                    <line x1="-4" y1="7" x2="-4" y2="21" stroke="#005bb5" strokeWidth="5.5" strokeLinecap="round" />
+                    <line x1="-4" y1="7" x2="-4" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+                    {/* Sneaker */}
+                    <path d="M-8,20 L-3,20 C-2,20 -2,23 -4,23 L-8,23 Z" fill="#fff" stroke="#000" strokeWidth="1.2" />
                   </g>
                   <g className="success-leg-r-group">
-                    <line x1="4" y1="7" x2="4" y2="21" stroke="#000" strokeWidth="3" strokeLinecap="round" />
-                    <circle cx="4" cy="21" r="2" fill="#000" />
+                    <line x1="4" y1="7" x2="4" y2="21" stroke="#005bb5" strokeWidth="5.5" strokeLinecap="round" />
+                    <line x1="4" y1="7" x2="4" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+                    {/* Sneaker */}
+                    <path d="M0,20 L5,20 C6,20 6,23 4,23 L0,23 Z" fill="#fff" stroke="#000" strokeWidth="1.2" />
                   </g>
-                  {/* Torso/Hoodie */}
-                  <rect x="-7" y="-14" width="14" height="21" rx="3" fill="#0074e4" stroke="#000" strokeWidth="2" />
+                  {/* Torso/Hoodie with Hood Detail & drawstrings */}
+                  <rect x="-8" y="-14" width="16" height="21" rx="4" fill="#0074e4" stroke="#000" strokeWidth="2" />
+                  <path d="M-8,-14 C-10,-18 10,-18 8,-14" fill="#005bb5" stroke="#000" strokeWidth="1.5" />
+                  <line x1="-2.5" y1="-8" x2="-2.5" y2="-2" stroke="#fff" strokeWidth="1.2" />
+                  <line x1="2.5" y1="-8" x2="2.5" y2="-2" stroke="#fff" strokeWidth="1.2" />
                   {/* Head */}
                   <circle cx="0" cy="-21" r="7" fill="#FFE600" stroke="#000" strokeWidth="2" />
                   {/* Eyes & Smile */}
                   <circle cx="-2.2" cy="-22.5" r="0.8" fill="#000" />
                   <circle cx="2.2" cy="-22.5" r="0.8" fill="#000" />
-                  <path d="M-2.5,-19.5 Q0,-17.5 2.5,-19.5" fill="none" stroke="#000" strokeWidth="1" strokeLinecap="round" />
-                  {/* Arms */}
+                  <path d="M-2.5,-19.5 Q0,-17.5 2.5,-19.5" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+                  {/* Arms (Hoodie Sleeves & Hands) */}
                   <g className="success-arm-l-group">
-                    <path d="M-7,-9 L-13,-4 L-8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M-7,-9 L-13,-4 L-9,1" fill="none" stroke="#0074e4" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M-7,-9 L-13,-4 L-9,1" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="-9" cy="1" r="2.2" fill="#FFE600" stroke="#000" strokeWidth="1" />
                   </g>
                   <g className="success-arm-r-group">
-                    <path d="M7,-9 L13,-4 L8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M7,-9 L13,-4 L9,1" fill="none" stroke="#0074e4" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7,-9 L13,-4 L9,1" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="9" cy="1" r="2.2" fill="#FFE600" stroke="#000" strokeWidth="1" />
                   </g>
                   {/* Carried Box (Detailed Cardboard Box) */}
                   <g className="carried-box">
@@ -1483,41 +1580,54 @@ export default function CheckoutPage() {
                 </g>
               </g>
 
-              {/* Character 2: FAIL PATH */}
+              {/* Character 2: FAIL PATH (THIEF DESIGN) */}
               <g className="fail-char-group">
                 <g transform="translate(0, 53)">
-                  {/* Legs */}
+                  {/* Thief Legs (Stealth pants & boots) */}
                   <g className="fail-leg-l-group">
-                    <line x1="-4" y1="7" x2="-4" y2="21" stroke="#000" strokeWidth="3" strokeLinecap="round" />
-                    <circle cx="-4" cy="21" r="2" fill="#000" />
+                    <line x1="-4" y1="7" x2="-4" y2="21" stroke="#222" strokeWidth="5.5" strokeLinecap="round" />
+                    <line x1="-4" y1="7" x2="-4" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+                    <path d="M-8,20 L-3,20 C-2,20 -2,23 -4,23 L-8,23 Z" fill="#111" stroke="#000" strokeWidth="1.2" />
                   </g>
                   <g className="fail-leg-r-group">
-                    <line x1="4" y1="7" x2="4" y2="21" stroke="#000" strokeWidth="3" strokeLinecap="round" />
-                    <circle cx="4" cy="21" r="2" fill="#000" />
+                    <line x1="4" y1="7" x2="4" y2="21" stroke="#222" strokeWidth="5.5" strokeLinecap="round" />
+                    <line x1="4" y1="7" x2="4" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+                    <path d="M0,20 L5,20 C6,20 6,23 4,23 L0,23 Z" fill="#111" stroke="#000" strokeWidth="1.2" />
                   </g>
-                  {/* Torso/Hoodie */}
-                  <rect x="-7" y="-14" width="14" height="21" rx="3" fill="#FF3131" stroke="#000" strokeWidth="2" />
-                  {/* Head */}
+                  {/* Thief Torso (Black-and-White Prison Burglar Stripes) */}
+                  <g>
+                    <rect x="-8" y="-14" width="16" height="21" rx="4" fill="#fff" stroke="#000" strokeWidth="2" />
+                    <rect x="-7" y="-11" width="14" height="3" fill="#111" />
+                    <rect x="-7" y="-5" width="14" height="3" fill="#111" />
+                    <rect x="-7" y="1" width="14" height="3" fill="#111" />
+                  </g>
+                  {/* Head with Thief Mask & Beanie */}
                   <circle cx="0" cy="-21" r="7" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                  {/* Thief Black Beanie (burglar cap) */}
+                  <path d="M-8,-22 C-8,-29 8,-29 8,-22 Z" fill="#222" stroke="#000" strokeWidth="1.5" />
+                  {/* Thief Black Burglar Eye Mask */}
+                  <rect x="-5.5" y="-23.5" width="11" height="3.5" fill="#111" rx="0.8" stroke="#000" strokeWidth="0.5" />
+                  <circle cx="-2.5" cy="-21.8" r="0.7" fill="#fff" />
+                  <circle cx="2.5" cy="-21.8" r="0.7" fill="#fff" />
                   {/* Face toggle */}
                   <g className="fail-face-happy">
-                    <circle cx="-2.2" cy="-22.5" r="0.8" fill="#000" />
-                    <circle cx="2.2" cy="-22.5" r="0.8" fill="#000" />
-                    <path d="M-2,-19 Q0,-19 2,-19" fill="none" stroke="#000" strokeWidth="1" strokeLinecap="round" />
+                    <path d="M-2,-18 Q0,-18 2,-18" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
                   </g>
                   <g className="fail-face-sad">
-                    <circle cx="-2.2" cy="-22.5" r="0.8" fill="#000" />
-                    <circle cx="2.2" cy="-22.5" r="0.8" fill="#000" />
-                    <circle cx="-2.5" cy="-20" r="0.6" fill="#00BFFF" />
-                    <circle cx="2.5" cy="-20" r="0.6" fill="#00BFFF" />
-                    <path d="M-2.5,-18 Q0,-20 2.5,-18" fill="none" stroke="#000" strokeWidth="1" strokeLinecap="round" />
+                    <circle cx="-2.5" cy="-19.5" r="0.5" fill="#00BFFF" />
+                    <circle cx="2.5" cy="-19.5" r="0.5" fill="#00BFFF" />
+                    <path d="M-2.5,-17.5 Q0,-19.5 2.5,-17.5" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
                   </g>
-                  {/* Arms */}
+                  {/* Thief Arms (Striped Sleeves & Black gloves) */}
                   <g className="fail-arm-l-group">
-                    <path d="M-7,-9 L-13,-4 L-8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M-7,-9 L-13,-4 L-9,1" fill="none" stroke="#222" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M-7,-9 L-13,-4 L-9,1" fill="none" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="-9" cy="1" r="2.2" fill="#111" stroke="#000" strokeWidth="1" />
                   </g>
                   <g className="fail-arm-r-group">
-                    <path d="M7,-9 L13,-4 L8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M7,-9 L13,-4 L9,1" fill="none" stroke="#222" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7,-9 L13,-4 L9,1" fill="none" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="9" cy="1" r="2.2" fill="#111" stroke="#000" strokeWidth="1" />
                   </g>
                   {/* Carried Box (thrown Detailed Cardboard Box) */}
                   <g className="fail-box-group">
@@ -1541,15 +1651,19 @@ export default function CheckoutPage() {
 
               {/* SECURITY GUARD CHARACTER */}
               <g className="guard-group" transform="translate(538, 53)">
-                {/* Legs */}
-                <line x1="-3" y1="7" x2="-3" y2="21" stroke="#000" strokeWidth="3" />
-                <line x1="3" y1="7" x2="3" y2="21" stroke="#000" strokeWidth="3" />
-                <circle cx="-3" cy="21" r="2.2" fill="#000" />
-                <circle cx="3" cy="21" r="2.2" fill="#000" />
-                {/* Body/Shirt (dark blue/black uniform) */}
-                <rect x="-7" y="-14" width="14" height="21" rx="2" fill="#1b2030" stroke="#000" strokeWidth="2" />
-                {/* Gold Officer Badge */}
-                <polygon points="0,-8 3,-5 0,-2 -3,-5" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+                {/* Legs (Layered navy trousers & black boots) */}
+                <line x1="-3" y1="7" x2="-3" y2="21" stroke="#1b2030" strokeWidth="5.5" strokeLinecap="round" />
+                <line x1="-3" y1="7" x2="-3" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+                <line x1="3" y1="7" x2="3" y2="21" stroke="#1b2030" strokeWidth="5.5" strokeLinecap="round" />
+                <line x1="3" y1="7" x2="3" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+                <path d="M-7,20 L-2,20 C-1,20 -1,23 -3,23 L-7,23 Z" fill="#111" stroke="#000" strokeWidth="1.2" />
+                <path d="M-1,20 L4,20 C5,20 5,23 3,23 L-1,23 Z" fill="#111" stroke="#000" strokeWidth="1.2" />
+                {/* Body/Shirt (dark blue uniform, collar, pockets, belt & badge) */}
+                <rect x="-8" y="-14" width="16" height="21" rx="2" fill="#1b2030" stroke="#000" strokeWidth="2" />
+                <rect x="-9" y="4" width="18" height="3" fill="#111" stroke="#000" strokeWidth="1" />
+                <rect x="-2" y="3.5" width="4" height="4" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+                <polygon points="0,-14 -3,-9 0,-5 3,-9" fill="#111" />
+                <polygon points="3,-8 5,-5 3,-2 1,-5" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
                 {/* Head */}
                 <circle cx="0" cy="-21" r="7" fill="#FFE600" stroke="#000" strokeWidth="2" />
                 {/* Sunglasses */}
@@ -1564,11 +1678,15 @@ export default function CheckoutPage() {
                 {/* Visor Brim */}
                 <path d="M-7,-22 L-10,-20 L-8,-20 Z" fill="#000" />
                 {/* Left Arm (holding security stick / baton) */}
-                <path d="M-7,-9 L-12,-4 L-10,4" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
-                <line x1="-10" y1="4" x2="-8" y2="10" stroke="#FFE600" strokeWidth="2" strokeLinecap="round" />
+                <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#1b2030" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="-10" cy="4" r="2.2" fill="#FFE600" stroke="#000" strokeWidth="1" />
+                <line x1="-10" y1="4" x2="-8" y2="10" stroke="#FFE600" strokeWidth="2.5" strokeLinecap="round" />
                 {/* Right Arm (pointing / waving list) */}
                 <g className="guard-arm-r-group">
-                  <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#1b2030" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="10" cy="3" r="2.2" fill="#FFE600" stroke="#000" strokeWidth="1" />
                 </g>
               </g>
 
