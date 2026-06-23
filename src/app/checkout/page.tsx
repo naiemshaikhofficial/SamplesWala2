@@ -1510,8 +1510,8 @@ export default function CheckoutPage() {
                     onChange={(e) => setNewsletterOptIn(e.target.checked)}
                     className="w-3.5 h-3.5 rounded bg-transparent border border-white/20 text-studio-yellow focus:ring-0 focus:outline-none cursor-pointer accent-studio-yellow"
                   />
-                  <label htmlFor="checkout-newsletter" className="text-[9px] font-black text-neutral-400 tracking-wider cursor-pointer select-none uppercase">
-                    Email me updates and special offers
+                  <label htmlFor="checkout-newsletter" className="text-[8.5px] font-bold text-neutral-400 tracking-wider cursor-pointer select-none leading-relaxed uppercase">
+                    Email me with news, offers, free downloads and new packs. You can unsubscribe at any time.
                   </label>
                 </div>
 
