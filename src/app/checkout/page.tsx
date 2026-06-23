@@ -936,125 +936,253 @@ export default function CheckoutPage() {
           <style dangerouslySetInnerHTML={{
             __html: `
             :root {
-              --conveyor-dur: 0.8s;
               --item-dur: 12s;
             }
-            @keyframes beltScroll {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-100px); }
+            .success-char-group {
+              animation: successWalkRun 12s infinite linear;
+              transform-box: fill-box;
             }
-            @keyframes gearSpin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
+            .fail-char-group {
+              animation: failWalkSad 12s infinite linear;
+              transform-box: fill-box;
             }
-            @keyframes itemMove {
-              0% { transform: translateX(-150px); }
-              100% { transform: translateX(1150px); }
+            
+            .success-leg-l-group {
+              transform-box: fill-box;
+              transform-origin: -4px 7px;
+              animation: successLegLeftAnim 12s infinite ease-in-out;
             }
-            @keyframes itemBounce {
-              0% { transform: translateY(0); }
-              100% { transform: translateY(-5px); }
+            .success-leg-r-group {
+              transform-box: fill-box;
+              transform-origin: 4px 7px;
+              animation: successLegRightAnim 12s infinite ease-in-out;
             }
-            @keyframes laserPulse {
-              0% { transform: scaleX(0.85); opacity: 0.6; }
-              100% { transform: scaleX(1.15); opacity: 0.95; }
+            .success-arm-l-group {
+              transform-box: fill-box;
+              transform-origin: -7px -9px;
+              animation: successArmLeftAnim 12s infinite ease-in-out;
             }
-            @keyframes laserScanColor {
-              0%, 10% {
-                fill: url(#laserGreen);
-                opacity: 0.95;
-              }
-              15%, 100% {
-                fill: url(#laserRed);
-                opacity: 0.7;
-              }
+            .success-arm-r-group {
+              transform-box: fill-box;
+              transform-origin: 7px -9px;
+              animation: successArmRightAnim 12s infinite ease-in-out;
             }
-            @keyframes splashPulse {
-              0%, 10% {
-                fill: #00FF94;
-                opacity: 0.85;
-                transform: scale(1.4);
-              }
-              15%, 100% {
-                fill: #FF0055;
-                opacity: 0.45;
-                transform: scale(1.0);
-              }
+            
+            .fail-leg-l-group {
+              transform-box: fill-box;
+              transform-origin: -4px 7px;
+              animation: failLegLeftAnim 12s infinite ease-in-out;
             }
-            @keyframes comicTextPop {
-              0% {
-                transform: translate(500px, 45px) scale(0) rotate(-15deg);
-                opacity: 0;
-              }
-              2% {
-                transform: translate(500px, 25px) scale(1.2) rotate(10deg);
-                opacity: 1;
-              }
-              8% {
-                transform: translate(500px, 20px) scale(1) rotate(-5deg);
-                opacity: 1;
-              }
-              15% {
-                transform: translate(500px, 10px) scale(0.7) rotate(0deg);
-                opacity: 0;
-              }
-              100% {
-                transform: translate(500px, 10px) scale(0) rotate(0deg);
-                opacity: 0;
-              }
+            .fail-leg-r-group {
+              transform-box: fill-box;
+              transform-origin: 4px 7px;
+              animation: failLegRightAnim 12s infinite ease-in-out;
             }
+            .fail-arm-l-group {
+              transform-box: fill-box;
+              transform-origin: -7px -9px;
+              animation: failArmLeftAnim 12s infinite ease-in-out;
+            }
+            .fail-arm-r-group {
+              transform-box: fill-box;
+              transform-origin: 7px -9px;
+              animation: failArmRightAnim 12s infinite ease-in-out;
+            }
+            
+            .fail-box-group {
+              transform-box: fill-box;
+              transform-origin: 0px 0px;
+              animation: failBoxAnim 12s infinite ease-in-out;
+            }
+            
+            .fail-face-happy {
+              animation: failFaceHappyTimeline 12s infinite;
+            }
+            .fail-face-sad {
+              animation: failFaceSadTimeline 12s infinite;
+            }
+            
+            .pop-success-text {
+              transform-box: fill-box;
+              transform-origin: center;
+              animation: popSuccessTimeline 12s infinite ease-in-out;
+            }
+            .pop-fail-text {
+              transform-box: fill-box;
+              transform-origin: center;
+              animation: popFailTimeline 12s infinite ease-in-out;
+            }
+            .scanner-light {
+              animation: scannerLightTimeline 12s infinite;
+            }
+            .laser-beam-timeline {
+              transform-origin: top center;
+              animation: laserScanTimeline 12s infinite ease-in-out;
+            }
+            
+            @keyframes successWalkRun {
+              0% { transform: translateX(-100px); }
+              25% { transform: translateX(500px); }
+              37.5% { transform: translateX(500px); }
+              50% { transform: translateX(1100px); }
+              100% { transform: translateX(1100px); }
+            }
+            @keyframes failWalkSad {
+              0% { transform: translateX(-100px); }
+              50% { transform: translateX(-100px); }
+              75% { transform: translateX(500px); }
+              87.5% { transform: translateX(500px); }
+              100% { transform: translateX(380px); opacity: 0; }
+            }
+            
+            @keyframes successLegLeftAnim {
+              0% { transform: rotate(-25deg); }
+              5.2% { transform: rotate(25deg); }
+              10.4% { transform: rotate(-25deg); }
+              15.6% { transform: rotate(25deg); }
+              20.8% { transform: rotate(-25deg); }
+              25% { transform: rotate(0deg); }
+              37.5% { transform: rotate(0deg); }
+              37.5% { transform: rotate(-45deg); }
+              40% { transform: rotate(45deg); }
+              42.5% { transform: rotate(-45deg); }
+              45% { transform: rotate(45deg); }
+              47.5% { transform: rotate(-45deg); }
+              50% { transform: rotate(0deg); }
+              100% { transform: rotate(0deg); }
+            }
+            @keyframes successLegRightAnim {
+              0% { transform: rotate(25deg); }
+              5.2% { transform: rotate(-25deg); }
+              10.4% { transform: rotate(25deg); }
+              15.6% { transform: rotate(-25deg); }
+              20.8% { transform: rotate(25deg); }
+              25% { transform: rotate(0deg); }
+              37.5% { transform: rotate(0deg); }
+              37.5% { transform: rotate(45deg); }
+              40% { transform: rotate(-45deg); }
+              42.5% { transform: rotate(45deg); }
+              45% { transform: rotate(-45deg); }
+              47.5% { transform: rotate(45deg); }
+              50% { transform: rotate(0deg); }
+              100% { transform: rotate(0deg); }
+            }
+            @keyframes successArmLeftAnim {
+              0% { transform: rotate(-10deg); }
+              25% { transform: rotate(0deg); }
+              37.5% { transform: rotate(0deg); }
+              37.5% { transform: translateY(0) rotate(0deg); }
+              50% { transform: translateY(-8px) rotate(-130deg); }
+              100% { transform: translateY(-8px) rotate(-130deg); }
+            }
+            @keyframes successArmRightAnim {
+              0% { transform: rotate(10deg); }
+              25% { transform: rotate(0deg); }
+              37.5% { transform: rotate(0deg); }
+              37.5% { transform: translateY(0) rotate(0deg); }
+              50% { transform: translateY(-8px) rotate(130deg); }
+              100% { transform: translateY(-8px) rotate(130deg); }
+            }
+            
+            @keyframes failLegLeftAnim {
+              0%, 50% { transform: rotate(0deg); }
+              50% { transform: rotate(-25deg); }
+              55.2% { transform: rotate(25deg); }
+              60.4% { transform: rotate(-25deg); }
+              65.6% { transform: rotate(25deg); }
+              70.8% { transform: rotate(-25deg); }
+              75% { transform: rotate(0deg); }
+              87.5% { transform: rotate(0deg); }
+              87.5% { transform: rotate(15deg); }
+              90.6% { transform: rotate(-15deg); }
+              93.7% { transform: rotate(15deg); }
+              96.8% { transform: rotate(-15deg); }
+              100% { transform: rotate(0deg); }
+            }
+            @keyframes failLegRightAnim {
+              0%, 50% { transform: rotate(0deg); }
+              50% { transform: rotate(25deg); }
+              55.2% { transform: rotate(-25deg); }
+              60.4% { transform: rotate(25deg); }
+              65.6% { transform: rotate(-25deg); }
+              70.8% { transform: rotate(25deg); }
+              75% { transform: rotate(0deg); }
+              87.5% { transform: rotate(0deg); }
+              87.5% { transform: rotate(-15deg); }
+              90.6% { transform: rotate(15deg); }
+              93.7% { transform: rotate(-15deg); }
+              96.8% { transform: rotate(15deg); }
+              100% { transform: rotate(0deg); }
+            }
+            @keyframes failArmLeftAnim {
+              0%, 87.5% { transform: rotate(0deg); }
+              90% { transform: rotate(-70deg); }
+              95% { transform: rotate(40deg); }
+              100% { transform: rotate(40deg); }
+            }
+            @keyframes failArmRightAnim {
+              0%, 87.5% { transform: rotate(0deg); }
+              90% { transform: rotate(70deg); }
+              95% { transform: rotate(-40deg); }
+              100% { transform: rotate(-40deg); }
+            }
+            
+            @keyframes failBoxAnim {
+              0%, 87.5% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+              87.5% { transform: translate(0, 0) rotate(0deg); }
+              92% { transform: translate(50px, -35px) rotate(180deg); }
+              96% { transform: translate(90px, 12px) rotate(360deg); }
+              99% { transform: translate(90px, 12px) rotate(360deg); opacity: 1; }
+              100% { transform: translate(90px, 12px) rotate(360deg); opacity: 0; }
+            }
+            
+            @keyframes failFaceHappyTimeline {
+              0%, 87.4% { opacity: 1; }
+              87.5%, 100% { opacity: 0; }
+            }
+            @keyframes failFaceSadTimeline {
+              0%, 87.4% { opacity: 0; }
+              87.5%, 100% { opacity: 1; }
+            }
+            
+            @keyframes popSuccessTimeline {
+              0%, 37.4% { transform: translate(500px, 20px) scale(0); opacity: 0; }
+              37.5% { transform: translate(500px, 20px) scale(1.2) rotate(5deg); opacity: 1; }
+              45% { transform: translate(500px, 15px) scale(1) rotate(-5deg); opacity: 1; }
+              50% { transform: translate(500px, 10px) scale(0); opacity: 0; }
+              100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
+            }
+            @keyframes popFailTimeline {
+              0%, 87.4% { transform: translate(500px, 20px) scale(0); opacity: 0; }
+              87.5% { transform: translate(500px, 20px) scale(1.2) rotate(-5deg); opacity: 1; }
+              95% { transform: translate(500px, 15px) scale(1) rotate(5deg); opacity: 1; }
+              100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
+            }
+            
+            @keyframes laserScanTimeline {
+              0%, 24% { fill: rgba(0, 191, 255, 0.05); opacity: 0.1; transform: scaleX(0.5); }
+              25% { fill: #00FF94; opacity: 0.8; transform: scaleX(0.85); }
+              31.25% { fill: #00FF94; opacity: 0.95; transform: scaleX(1.15); }
+              37.5% { fill: #00FF94; opacity: 0.8; transform: scaleX(0.85); }
+              38%, 74% { fill: rgba(0, 191, 255, 0.05); opacity: 0.1; transform: scaleX(0.5); }
+              75% { fill: #FF3131; opacity: 0.8; transform: scaleX(0.85); }
+              81.25% { fill: #FF3131; opacity: 0.95; transform: scaleX(1.15); }
+              87.5% { fill: #FF3131; opacity: 0.8; transform: scaleX(0.85); }
+              88%, 100% { fill: rgba(0, 191, 255, 0.05); opacity: 0.1; transform: scaleX(0.5); }
+            }
+            
+            @keyframes scannerLightTimeline {
+              0%, 24% { fill: #333; }
+              25%, 37.5% { fill: #00FF94; filter: drop-shadow(0 0 4px #00FF94); }
+              38%, 74% { fill: #333; }
+              75%, 87.5% { fill: #FF3131; filter: drop-shadow(0 0 4px #FF3131); }
+              88%, 100% { fill: #333; }
+            }
+            
             @keyframes eqWave {
               0% { transform: scaleY(0.25); }
               100% { transform: scaleY(1.25); }
             }
-            .belt-plates {
-              animation: beltScroll var(--conveyor-dur) linear infinite;
-            }
-            .gear-spin {
-              transform-box: fill-box;
-              transform-origin: center;
-              animation: gearSpin 2s linear infinite;
-            }
-            .item-1 { animation: itemMove var(--item-dur) linear infinite; animation-delay: 0s; }
-            .item-2 { animation: itemMove var(--item-dur) linear infinite; animation-delay: 3s; }
-            .item-3 { animation: itemMove var(--item-dur) linear infinite; animation-delay: 6s; }
-            .item-4 { animation: itemMove var(--item-dur) linear infinite; animation-delay: 9s; }
-            
-            .tape-reel-spin {
-              transform-box: fill-box;
-              transform-origin: center;
-              animation: gearSpin 1.5s linear infinite;
-            }
-            .vinyl-spin {
-              transform-box: fill-box;
-              transform-origin: center;
-              animation: gearSpin 3s linear infinite;
-            }
-            .dial-spin {
-              transform-box: fill-box;
-              transform-origin: center;
-              animation: gearSpin 4s linear infinite;
-            }
-            .coin-bounce {
-              animation: itemBounce 0.8s ease-in-out infinite alternate;
-            }
-            .laser-beam {
-              transform-origin: top center;
-              animation: laserScanColor 3s steps(120) infinite, laserPulse 1.5s ease-in-out infinite alternate;
-            }
-            .laser-splash {
-              transform-origin: 500px 75px;
-              animation: splashPulse 3s infinite;
-            }
-            .pop-text-1, .pop-text-2, .pop-text-3, .pop-text-4 {
-              transform-box: fill-box;
-              transform-origin: center;
-            }
-            .pop-text-1 { animation: comicTextPop var(--item-dur) infinite; animation-delay: 6s; }
-            .pop-text-2 { animation: comicTextPop var(--item-dur) infinite; animation-delay: 9s; }
-            .pop-text-3 { animation: comicTextPop var(--item-dur) infinite; animation-delay: 0s; }
-            .pop-text-4 { animation: comicTextPop var(--item-dur) infinite; animation-delay: 3s; }
-            
             .eq-bars rect {
               transform-box: fill-box;
               transform-origin: bottom;
@@ -1078,14 +1206,6 @@ export default function CheckoutPage() {
             {/* SVG Viewport */}
             <svg className="w-full h-full" viewBox="0 0 1000 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="laserRed" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#FF0080" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#FF0080" stopOpacity="0" />
-                </linearGradient>
-                <linearGradient id="laserGreen" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#00FF94" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="#00FF94" stopOpacity="0" />
-                </linearGradient>
                 <pattern id="conveyorGrid" width="40" height="40" patternUnits="userSpaceOnUse">
                   <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#16161b" strokeWidth="1" />
                 </pattern>
@@ -1095,7 +1215,7 @@ export default function CheckoutPage() {
               <rect width="1000" height="100" fill="url(#conveyorGrid)" />
 
               {/* Sound visualizer bars in background */}
-              <g className="eq-bars" opacity="0.15">
+              <g className="eq-bars" opacity="0.12">
                 <rect x="50" y="20" width="5" height="45" rx="2" fill="#00BFFF" className="eq-bar-1" />
                 <rect x="60" y="10" width="5" height="55" rx="2" fill="#FF0080" className="eq-bar-2" />
                 <rect x="70" y="25" width="5" height="40" rx="2" fill="#00FF94" className="eq-bar-3" />
@@ -1111,197 +1231,125 @@ export default function CheckoutPage() {
               <g transform="translate(180, 20)">
                 <rect x="-75" y="-10" width="150" height="20" rx="3" fill="#000" stroke="#222" strokeWidth="1" />
                 <rect x="-73" y="-8" width="146" height="16" rx="2" fill="#FFE600" />
-                <text y="3" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">SECURE SYSTEM v2.0</text>
+                <text y="3.5" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">SECURE SYSTEM v2.0</text>
               </g>
 
               <g transform="translate(820, 20)">
                 <rect x="-75" y="-10" width="150" height="20" rx="3" fill="#000" stroke="#222" strokeWidth="1" />
                 <rect x="-73" y="-8" width="146" height="16" rx="2" fill="#00FF94" />
-                <text y="3" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">100% INSTANT DELIVERY</text>
+                <text y="3.5" textAnchor="middle" fill="#000" fontSize="7.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">100% INSTANT DELIVERY</text>
               </g>
 
-              {/* Laser Scanner Machine */}
-              {/* Emitter head hanger */}
-              <rect x="496" y="0" width="8" height="26" fill="#18181c" stroke="#000" strokeWidth="2" />
-              <rect x="491" y="2" width="18" height="4" fill="#00BFFF" stroke="#000" strokeWidth="1.5" />
-              <rect x="491" y="12" width="18" height="4" fill="#00FF94" stroke="#000" strokeWidth="1.5" />
-
-              {/* Pulsing Emitter Beam */}
-              <polygon className="laser-beam" points="492,30 508,30 535,75 465,75" />
-
-              {/* Contact splash glow */}
-              <ellipse className="laser-splash" cx="500" cy="75" rx="16" ry="3.5" />
-
-              {/* Scanner head */}
-              <path d="M480,24 L520,24 L514,35 Q500,40 486,35 Z" fill="#25252b" stroke="#000" strokeWidth="2" />
-              <rect x="490" y="31" width="20" height="3" rx="0.5" fill="#FF0055" />
-
-              {/* Conveyor Belt Gears/Rollers supporting the belt */}
-              <g className="gear-spin">
-                <circle cx="60" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
-                <line x1="60" y1="80" x2="60" y2="92" stroke="#000" strokeWidth="1.5" />
-                <line x1="54" y1="86" x2="66" y2="86" stroke="#000" strokeWidth="1.5" />
-              </g>
-              <g className="gear-spin">
-                <circle cx="180" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
-                <line x1="180" y1="80" x2="180" y2="92" stroke="#000" strokeWidth="1.5" />
-                <line x1="174" y1="86" x2="186" y2="86" stroke="#000" strokeWidth="1.5" />
-              </g>
-              <g className="gear-spin">
-                <circle cx="300" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
-                <line x1="300" y1="80" x2="300" y2="92" stroke="#000" strokeWidth="1.5" />
-                <line x1="294" y1="86" x2="306" y2="86" stroke="#000" strokeWidth="1.5" />
-              </g>
-              <g className="gear-spin">
-                <circle cx="420" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
-                <line x1="420" y1="80" x2="420" y2="92" stroke="#000" strokeWidth="1.5" />
-                <line x1="414" y1="86" x2="426" y2="86" stroke="#000" strokeWidth="1.5" />
-              </g>
-              <g className="gear-spin">
-                <circle cx="540" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
-                <line x1="540" y1="80" x2="540" y2="92" stroke="#000" strokeWidth="1.5" />
-                <line x1="534" y1="86" x2="546" y2="86" stroke="#000" strokeWidth="1.5" />
-              </g>
-              <g className="gear-spin">
-                <circle cx="660" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
-                <line x1="660" y1="80" x2="660" y2="92" stroke="#000" strokeWidth="1.5" />
-                <line x1="654" y1="86" x2="666" y2="86" stroke="#000" strokeWidth="1.5" />
-              </g>
-              <g className="gear-spin">
-                <circle cx="780" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
-                <line x1="780" y1="80" x2="780" y2="92" stroke="#000" strokeWidth="1.5" />
-                <line x1="774" y1="86" x2="786" y2="86" stroke="#000" strokeWidth="1.5" />
-              </g>
-              <g className="gear-spin">
-                <circle cx="900" cy="86" r="6" fill="#333" stroke="#000" strokeWidth="1.5" />
-                <line x1="900" y1="80" x2="900" y2="92" stroke="#000" strokeWidth="1.5" />
-                <line x1="894" y1="86" x2="906" y2="86" stroke="#000" strokeWidth="1.5" />
-              </g>
-
-              {/* Conveyor Belt plates */}
-              <g className="belt-plates">
-                <rect x="-50" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="0" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="50" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="100" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="150" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="200" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="250" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="300" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="350" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="400" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="450" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="500" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="550" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="600" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="650" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="700" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="750" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="800" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="850" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="900" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="950" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="1000" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="1050" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="1100" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="1150" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="1200" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-                <rect x="1250" y="75" width="46" height="8" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <rect x="1300" y="75" width="46" height="8" fill="#111" stroke="#000" strokeWidth="2" />
-              </g>
-
-              {/* Conveyor base plate */}
-              <rect x="0" y="82" width="1000" height="4" fill="#000" />
-
-              {/* MOVING ITEMS */}
-              {/* Item 1: Cassette Tape */}
-              <g className="item-1">
-                <g transform="translate(0, 52)">
-                  <rect x="-24" y="-14" width="48" height="28" rx="2" fill="#000" transform="translate(3, 3)" />
-                  <rect x="-24" y="-14" width="48" height="28" rx="2" fill="#FF0080" stroke="#000" strokeWidth="2" />
-                  <rect x="-18" y="-9" width="36" height="18" rx="1" fill="#fff" stroke="#000" strokeWidth="1.5" />
-                  <g transform="translate(-8, 0)" className="tape-reel-spin">
-                    <circle cx="0" cy="0" r="3.5" fill="#000" />
-                    <line x1="-3" y1="0" x2="3" y2="0" stroke="#fff" strokeWidth="0.8" />
-                    <line x1="0" y1="-3" x2="0" y2="3" stroke="#fff" strokeWidth="0.8" />
+              {/* Character 1: SUCCESS PATH */}
+              <g className="success-char-group">
+                <g transform="translate(0, 53)">
+                  {/* Legs */}
+                  <g className="success-leg-l-group">
+                    <line x1="-4" y1="7" x2="-4" y2="21" stroke="#000" strokeWidth="3" strokeLinecap="round" />
+                    <circle cx="-4" cy="21" r="2" fill="#000" />
                   </g>
-                  <g transform="translate(8, 0)" className="tape-reel-spin">
-                    <circle cx="0" cy="0" r="3.5" fill="#000" />
-                    <line x1="-3" y1="0" x2="3" y2="0" stroke="#fff" strokeWidth="0.8" />
-                    <line x1="0" y1="-3" x2="0" y2="3" stroke="#fff" strokeWidth="0.8" />
+                  <g className="success-leg-r-group">
+                    <line x1="4" y1="7" x2="4" y2="21" stroke="#000" strokeWidth="3" strokeLinecap="round" />
+                    <circle cx="4" cy="21" r="2" fill="#000" />
                   </g>
-                  <text y="-2" textAnchor="middle" fill="#000" fontSize="4.5" fontWeight="900" fontFamily="sans-serif">BASS</text>
-                </g>
-              </g>
-
-              {/* Item 2: Vinyl Record */}
-              <g className="item-2">
-                <g transform="translate(0, 52)">
-                  <circle cx="0" cy="0" r="16" fill="#000" transform="translate(3, 3)" />
-                  <g className="vinyl-spin">
-                    <circle cx="0" cy="0" r="16" fill="#111" stroke="#000" strokeWidth="2" />
-                    <circle cx="0" cy="0" r="12" fill="none" stroke="#222" strokeWidth="1" />
-                    <circle cx="0" cy="0" r="8" fill="none" stroke="#333" strokeWidth="0.8" />
-                    <circle cx="0" cy="0" r="5" fill="#00BFFF" stroke="#000" strokeWidth="1" />
-                    <circle cx="0" cy="0" r="1.2" fill="#000" />
-                    <path d="M-10,-10 Q-5,-15 0,-10 Q-5,-5 -10,-10 Z" fill="#fff" opacity="0.15" />
+                  {/* Torso/Hoodie */}
+                  <rect x="-7" y="-14" width="14" height="21" rx="3" fill="#0074e4" stroke="#000" strokeWidth="2" />
+                  {/* Head */}
+                  <circle cx="0" cy="-21" r="7" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                  {/* Eyes & Smile */}
+                  <circle cx="-2.2" cy="-22.5" r="0.8" fill="#000" />
+                  <circle cx="2.2" cy="-22.5" r="0.8" fill="#000" />
+                  <path d="M-2.5,-19.5 Q0,-17.5 2.5,-19.5" fill="none" stroke="#000" strokeWidth="1" strokeLinecap="round" />
+                  {/* Arms */}
+                  <g className="success-arm-l-group">
+                    <path d="M-7,-9 L-13,-4 L-8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                  </g>
+                  <g className="success-arm-r-group">
+                    <path d="M7,-9 L13,-4 L8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                  </g>
+                  {/* Carried Box */}
+                  <g className="carried-box">
+                    <rect x="-16" y="-6" width="32" height="18" fill="#FFE600" stroke="#000" strokeWidth="2" rx="1.5" />
+                    <line x1="-16" y1="3" x2="16" y2="3" stroke="#000" strokeWidth="1.5" />
+                    <text y="0" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.1">SAMPLES</text>
+                    <text y="8" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.1">WALA</text>
                   </g>
                 </g>
               </g>
 
-              {/* Item 3: Sound Vault Safe Box */}
-              <g className="item-3">
-                <g transform="translate(0, 52)">
-                  <rect x="-14" y="-14" width="28" height="28" rx="2" fill="#000" transform="translate(3, 3)" />
-                  <rect x="-14" y="-14" width="28" height="28" rx="2" fill="#00FF94" stroke="#000" strokeWidth="2" />
-                  <rect x="-10" y="-10" width="20" height="20" fill="none" stroke="#000" strokeWidth="1.5" />
-                  <g className="dial-spin">
-                    <circle cx="0" cy="0" r="6" fill="#fff" stroke="#000" strokeWidth="1.5" />
-                    <line x1="0" y1="-6" x2="0" y2="6" stroke="#000" strokeWidth="1" />
-                    <line x1="-6" y1="0" x2="6" y2="0" stroke="#000" strokeWidth="1" />
-                    <circle cx="0" cy="0" r="2" fill="#000" />
+              {/* Character 2: FAIL PATH */}
+              <g className="fail-char-group">
+                <g transform="translate(0, 53)">
+                  {/* Legs */}
+                  <g className="fail-leg-l-group">
+                    <line x1="-4" y1="7" x2="-4" y2="21" stroke="#000" strokeWidth="3" strokeLinecap="round" />
+                    <circle cx="-4" cy="21" r="2" fill="#000" />
+                  </g>
+                  <g className="fail-leg-r-group">
+                    <line x1="4" y1="7" x2="4" y2="21" stroke="#000" strokeWidth="3" strokeLinecap="round" />
+                    <circle cx="4" cy="21" r="2" fill="#000" />
+                  </g>
+                  {/* Torso/Hoodie */}
+                  <rect x="-7" y="-14" width="14" height="21" rx="3" fill="#FF3131" stroke="#000" strokeWidth="2" />
+                  {/* Head */}
+                  <circle cx="0" cy="-21" r="7" fill="#FFE600" stroke="#000" strokeWidth="2" />
+                  {/* Face toggle */}
+                  <g className="fail-face-happy">
+                    <circle cx="-2.2" cy="-22.5" r="0.8" fill="#000" />
+                    <circle cx="2.2" cy="-22.5" r="0.8" fill="#000" />
+                    <path d="M-2,-19 Q0,-19 2,-19" fill="none" stroke="#000" strokeWidth="1" strokeLinecap="round" />
+                  </g>
+                  <g className="fail-face-sad">
+                    <circle cx="-2.2" cy="-22.5" r="0.8" fill="#000" />
+                    <circle cx="2.2" cy="-22.5" r="0.8" fill="#000" />
+                    <circle cx="-2.5" cy="-20" r="0.6" fill="#00BFFF" />
+                    <circle cx="2.5" cy="-20" r="0.6" fill="#00BFFF" />
+                    <path d="M-2.5,-18 Q0,-20 2.5,-18" fill="none" stroke="#000" strokeWidth="1" strokeLinecap="round" />
+                  </g>
+                  {/* Arms */}
+                  <g className="fail-arm-l-group">
+                    <path d="M-7,-9 L-13,-4 L-8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                  </g>
+                  <g className="fail-arm-r-group">
+                    <path d="M7,-9 L13,-4 L8,2" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+                  </g>
+                  {/* Carried Box (thrown) */}
+                  <g className="fail-box-group">
+                    <rect x="-16" y="-6" width="32" height="18" fill="#FFE600" stroke="#000" strokeWidth="2" rx="1.5" />
+                    <line x1="-16" y1="3" x2="16" y2="3" stroke="#000" strokeWidth="1.5" />
+                    <text y="0" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.1">SAMPLES</text>
+                    <text y="8" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.1">WALA</text>
                   </g>
                 </g>
               </g>
 
-              {/* Item 4: Coin Stack */}
-              <g className="item-4">
-                <g transform="translate(0, 52)" className="coin-bounce">
-                  <path d="M-12,8 Q0,13 12,8 L12,12 Q0,17 -12,12 Z" fill="#000" />
-                  <ellipse cx="0" cy="6" rx="12" ry="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
-                  <rect x="-12" y="1" width="24" height="5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
-                  <ellipse cx="0" cy="1" rx="12" ry="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
-                  <rect x="-12" y="-4" width="24" height="5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
-                  <ellipse cx="0" cy="-4" rx="12" ry="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
-                  <rect x="-12" y="-9" width="24" height="5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
-                  <ellipse cx="0" cy="-9" rx="12" ry="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.8" />
-                  <text y="-8" textAnchor="middle" fill="#000" fontSize="6.5" fontWeight="900" fontFamily="sans-serif">₹</text>
-                </g>
+              {/* SECURITY SCANNER GATE */}
+              {/* Left post */}
+              <rect x="480" y="20" width="6" height="55" fill="#18181c" stroke="#000" strokeWidth="2" />
+              {/* Right post */}
+              <rect x="514" y="20" width="6" height="55" fill="#18181c" stroke="#000" strokeWidth="2" />
+              {/* Top scanner arch */}
+              <rect x="474" y="12" width="52" height="10" rx="2" fill="#25252b" stroke="#000" strokeWidth="2" />
+              {/* Scanner indicator light */}
+              <circle cx="500" cy="17" r="3" fill="#333" stroke="#000" strokeWidth="1" className="scanner-light" />
+
+              {/* Pulsing Scan Beam */}
+              <polygon points="484,22 516,22 522,75 478,75" className="laser-beam-timeline" />
+
+              {/* Floor walkway ground line */}
+              <rect x="0" y="74" width="1000" height="4" fill="#000" />
+              <rect x="0" y="78" width="1000" height="2" fill="#FFE600" opacity="0.3" />
+
+              {/* Pop success bubble */}
+              <g className="pop-success-text" transform="translate(500, 20)">
+                <polygon points="-30,-10 30,-10 25,10 -25,10" fill="#00FF94" stroke="#000" strokeWidth="2" />
+                <text y="3.5" textAnchor="middle" fill="#000" fontSize="8" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.5">PASS!</text>
               </g>
 
-              {/* Comic popup text overlay labels */}
-              {/* Text 1 (pops when Item 1 is scanned) */}
-              <g className="pop-text-1">
-                <polygon points="-30,-10 30,-10 25,10 -25,10" fill="#FF0080" stroke="#000" strokeWidth="2" />
-                <text y="3.5" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.5">BASS!</text>
-              </g>
-
-              {/* Text 2 (pops when Item 2 is scanned) */}
-              <g className="pop-text-2">
-                <polygon points="-30,-10 30,-10 25,10 -25,10" fill="#00BFFF" stroke="#000" strokeWidth="2" />
-                <text y="3.5" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.5">BEAT!</text>
-              </g>
-
-              {/* Text 3 (pops when Item 3 is scanned) */}
-              <g className="pop-text-3">
-                <polygon points="-45,-10 45,-10 40,10 -40,10" fill="#00FF94" stroke="#000" strokeWidth="2" />
-                <text y="3.5" textAnchor="middle" fill="#000" fontSize="8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.5">APPROVED!</text>
-              </g>
-
-              {/* Text 4 (pops when Item 4 is scanned) */}
-              <g className="pop-text-4">
-                <polygon points="-35,-10 35,-10 30,10 -30,10" fill="#FFE600" stroke="#000" strokeWidth="2" />
-                <text y="3.5" textAnchor="middle" fill="#000" fontSize="8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.5">SAVED!</text>
+              {/* Pop fail bubble */}
+              <g className="pop-fail-text" transform="translate(500, 20)">
+                <polygon points="-30,-10 30,-10 25,10 -25,10" fill="#FF3131" stroke="#000" strokeWidth="2" />
+                <text y="3.5" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="900" fontFamily="'Luckiest Guy', sans-serif" letterSpacing="0.5">FAIL!</text>
               </g>
             </svg>
           </div>
