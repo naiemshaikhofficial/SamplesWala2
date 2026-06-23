@@ -1109,50 +1109,51 @@ export default function CheckoutPage() {
             }
             
             @keyframes successLegLeftAnim {
-              0% { transform: rotate(-25deg); }
-              5.2% { transform: rotate(25deg); }
-              10.4% { transform: rotate(-25deg); }
-              15.6% { transform: rotate(25deg); }
-              20.8% { transform: rotate(-25deg); }
+              0% { transform: rotate(0deg); }
+              4.16% { transform: rotate(25deg); }
+              8.33% { transform: rotate(-25deg); }
+              12.5% { transform: rotate(25deg); }
+              16.6% { transform: rotate(-25deg); }
+              20.8% { transform: rotate(25deg); }
               25% { transform: rotate(0deg); }
               35% { transform: rotate(-15deg); }
               36.25% { transform: rotate(-30deg); }
               37.5% { transform: rotate(-15deg); }
               38.75% { transform: rotate(-30deg); }
               40% { transform: rotate(0deg); }
-              41.6% { transform: rotate(-45deg); }
               43.3% { transform: rotate(45deg); }
-              45% { transform: rotate(-45deg); }
-              46.6% { transform: rotate(45deg); }
-              48.3% { transform: rotate(-45deg); }
+              45% { transform: rotate(0deg); }
+              46.6% { transform: rotate(-45deg); }
+              48.3% { transform: rotate(0deg); }
               50% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes successLegRightAnim {
-              0% { transform: rotate(25deg); }
-              5.2% { transform: rotate(-25deg); }
-              10.4% { transform: rotate(25deg); }
-              15.6% { transform: rotate(-25deg); }
-              20.8% { transform: rotate(25deg); }
+              0% { transform: rotate(0deg); }
+              4.16% { transform: rotate(-25deg); }
+              8.33% { transform: rotate(25deg); }
+              12.5% { transform: rotate(-25deg); }
+              16.6% { transform: rotate(25deg); }
+              20.8% { transform: rotate(-25deg); }
               25% { transform: rotate(0deg); }
               35% { transform: rotate(15deg); }
               36.25% { transform: rotate(30deg); }
               37.5% { transform: rotate(15deg); }
               38.75% { transform: rotate(30deg); }
               40% { transform: rotate(0deg); }
-              41.6% { transform: rotate(45deg); }
               43.3% { transform: rotate(-45deg); }
-              45% { transform: rotate(45deg); }
-              46.6% { transform: rotate(-45deg); }
-              48.3% { transform: rotate(45deg); }
+              45% { transform: rotate(0deg); }
+              46.6% { transform: rotate(45deg); }
+              48.3% { transform: rotate(0deg); }
               50% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes successArmLeftAnim {
-              0% { transform: rotate(-15deg); }
-              5.2% { transform: rotate(15deg); }
-              10.4% { transform: rotate(-15deg); }
-              15.6% { transform: rotate(15deg); }
+              0% { transform: rotate(0deg); }
+              4.16% { transform: rotate(-15deg); }
+              8.33% { transform: rotate(15deg); }
+              12.5% { transform: rotate(-15deg); }
+              16.6% { transform: rotate(15deg); }
               20.8% { transform: rotate(-15deg); }
               25% { transform: rotate(0deg); }
               35% { transform: rotate(-120deg); }
@@ -1169,10 +1170,11 @@ export default function CheckoutPage() {
               100% { transform: rotate(0deg); }
             }
             @keyframes successArmRightAnim {
-              0% { transform: rotate(15deg); }
-              5.2% { transform: rotate(-15deg); }
-              10.4% { transform: rotate(15deg); }
-              15.6% { transform: rotate(-15deg); }
+              0% { transform: rotate(0deg); }
+              4.16% { transform: rotate(15deg); }
+              8.33% { transform: rotate(-15deg); }
+              12.5% { transform: rotate(15deg); }
+              16.6% { transform: rotate(-15deg); }
               20.8% { transform: rotate(15deg); }
               25% { transform: rotate(0deg); }
               35% { transform: rotate(120deg); }
@@ -1192,13 +1194,9 @@ export default function CheckoutPage() {
             @keyframes failLegLeftAnim {
               0%, 47.9% { transform: rotate(0deg); }
               48% { transform: rotate(0deg); }
-              50.125% { transform: rotate(-20deg); }
               52.25% { transform: rotate(20deg); }
-              54.375% { transform: rotate(-20deg); }
-              56.5% { transform: rotate(20deg); }
-              58.625% { transform: rotate(-20deg); }
+              56.5% { transform: rotate(-20deg); }
               60.75% { transform: rotate(20deg); }
-              62.875% { transform: rotate(-20deg); }
               65% { transform: rotate(0deg); }
               74.9% { transform: rotate(0deg); }
               75% { transform: rotate(0deg); }
@@ -1208,21 +1206,21 @@ export default function CheckoutPage() {
               79% { transform: rotate(4deg); }
               80% { transform: rotate(0deg); }
               84% { transform: rotate(25deg); }
+              86% { transform: rotate(0deg); }
               88% { transform: rotate(-25deg); }
+              90% { transform: rotate(0deg); }
               92% { transform: rotate(25deg); }
+              94% { transform: rotate(0deg); }
               96% { transform: rotate(-25deg); }
+              98% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failLegRightAnim {
               0%, 47.9% { transform: rotate(0deg); }
               48% { transform: rotate(0deg); }
-              50.125% { transform: rotate(20deg); }
               52.25% { transform: rotate(-20deg); }
-              54.375% { transform: rotate(20deg); }
-              56.5% { transform: rotate(-20deg); }
-              58.625% { transform: rotate(20deg); }
+              56.5% { transform: rotate(20deg); }
               60.75% { transform: rotate(-20deg); }
-              62.875% { transform: rotate(20deg); }
               65% { transform: rotate(0deg); }
               74.9% { transform: rotate(0deg); }
               75% { transform: rotate(0deg); }
@@ -1232,9 +1230,13 @@ export default function CheckoutPage() {
               79% { transform: rotate(-4deg); }
               80% { transform: rotate(0deg); }
               84% { transform: rotate(-25deg); }
+              86% { transform: rotate(0deg); }
               88% { transform: rotate(25deg); }
+              90% { transform: rotate(0deg); }
               92% { transform: rotate(-25deg); }
+              94% { transform: rotate(0deg); }
               96% { transform: rotate(25deg); }
+              98% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failArmLeftAnim {
@@ -1247,10 +1249,14 @@ export default function CheckoutPage() {
               74.9% { transform: rotate(0deg); }
               75% { transform: rotate(-120deg); }
               80% { transform: rotate(-120deg); }
-              84% { transform: rotate(15deg); }
-              88% { transform: rotate(5deg); }
-              92% { transform: rotate(15deg); }
-              96% { transform: rotate(5deg); }
+              84% { transform: rotate(-12deg); }
+              86% { transform: rotate(0deg); }
+              88% { transform: rotate(12deg); }
+              90% { transform: rotate(0deg); }
+              92% { transform: rotate(-12deg); }
+              94% { transform: rotate(0deg); }
+              96% { transform: rotate(12deg); }
+              98% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failArmRightAnim {
@@ -1263,10 +1269,14 @@ export default function CheckoutPage() {
               74.9% { transform: rotate(0deg); }
               75% { transform: rotate(120deg); }
               80% { transform: rotate(120deg); }
-              84% { transform: rotate(-15deg); }
-              88% { transform: rotate(-5deg); }
-              92% { transform: rotate(-15deg); }
-              96% { transform: rotate(-5deg); }
+              84% { transform: rotate(12deg); }
+              86% { transform: rotate(0deg); }
+              88% { transform: rotate(-12deg); }
+              90% { transform: rotate(0deg); }
+              92% { transform: rotate(12deg); }
+              94% { transform: rotate(0deg); }
+              96% { transform: rotate(-12deg); }
+              98% { transform: rotate(0deg); }
               100% { transform: rotate(0deg); }
             }
             
