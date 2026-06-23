@@ -184,6 +184,31 @@ const ConfettiEffect = () => {
         .animate-bounce-slow {
           animation: bounceSlow 2s ease-in-out infinite;
         }
+        @keyframes shineSweep {
+          0% { transform: translateX(-200%) skewX(-25deg); }
+          100% { transform: translateX(300%) skewX(-25deg); }
+        }
+        .animate-shine-sweep {
+          animation: shineSweep 3.5s infinite ease-in-out;
+        }
+        @keyframes wiggleFast {
+          0%, 100% { transform: rotate(-10deg) scale(1); }
+          50% { transform: rotate(10deg) scale(1.25); }
+        }
+        .animate-wiggle-fast {
+          animation: wiggleFast 0.4s ease-in-out infinite;
+        }
+        @keyframes neoGlow {
+          0%, 100% {
+            box-shadow: 4px 4px 0px #000, 0 0 0px rgba(255, 230, 0, 0);
+          }
+          50% {
+            box-shadow: 4px 4px 0px #000, 0 0 16px rgba(255, 230, 0, 0.75);
+          }
+        }
+        .animate-neo-glow:not(:hover):not(:active) {
+          animation: neoGlow 2.5s infinite ease-in-out;
+        }
       `}</style>
     </div>
   );
@@ -1477,15 +1502,15 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 mt-2 px-1 opacity-30 hover:opacity-75 transition-opacity duration-200">
+                <div className="flex items-center gap-1.5 mt-2 px-1 opacity-[0.12] hover:opacity-50 transition-opacity duration-200">
                   <input
                     id="checkout-newsletter"
                     type="checkbox"
                     checked={newsletterOptIn}
                     onChange={(e) => setNewsletterOptIn(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded bg-transparent border border-white/20 text-studio-yellow focus:ring-0 focus:outline-none cursor-pointer"
+                    className="w-3 h-3 rounded bg-transparent border border-white/10 text-neutral-800 focus:ring-0 focus:outline-none cursor-pointer accent-neutral-800"
                   />
-                  <label htmlFor="checkout-newsletter" className="text-[9px] font-black text-neutral-400 tracking-wider cursor-pointer select-none">
+                  <label htmlFor="checkout-newsletter" className="text-[8.5px] font-black text-neutral-500 tracking-wider cursor-pointer select-none uppercase">
                     Email me updates and special offers
                   </label>
                 </div>
@@ -1517,20 +1542,26 @@ export default function CheckoutPage() {
                       <button
                         onClick={handleCheckout}
                         disabled={loading || paymentStatus === 'processing'}
-                        className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black]"
+                        className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
                       >
                         {loading ? (
                           <Loader2 className="animate-spin" size={13} />
                         ) : (
                           <>
-                            <Image 
-                              src="/icons8-pay-96.png" 
-                              alt="Pay" 
-                              width={14} 
-                              height={14} 
-                              className="object-contain shrink-0"
-                            />
+                            <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
+                              <Image 
+                                src="/icons8-pay-96.png" 
+                                alt="Pay" 
+                                width={14} 
+                                height={14} 
+                                className="object-contain"
+                              />
+                            </div>
                             <span>{activeTotal === 0 ? 'Get Free' : 'Complete Payment'}</span>
+                            {/* Glassmorphism shine sweep animation */}
+                            <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                              <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
+                            </div>
                           </>
                         )}
                       </button>
@@ -1661,20 +1692,26 @@ export default function CheckoutPage() {
               <button
                 onClick={handleCheckout}
                 disabled={loading || paymentStatus === 'processing'}
-                className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black]"
+                className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
               >
                 {loading ? (
                   <Loader2 className="animate-spin" size={13} />
                 ) : (
                   <>
-                    <Image 
-                      src="/icons8-pay-96.png" 
-                      alt="Pay" 
-                      width={14} 
-                      height={14} 
-                      className="object-contain shrink-0"
-                    />
+                    <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
+                      <Image 
+                        src="/icons8-pay-96.png" 
+                        alt="Pay" 
+                        width={14} 
+                        height={14} 
+                        className="object-contain"
+                      />
+                    </div>
                     <span>{activeTotal === 0 ? 'Get Free' : `Complete Payment — ${currency === 'USD' ? `$${activeTotal.toFixed(2)}` : `₹${total - activeCouponDiscount}`}`}</span>
+                    {/* Glassmorphism shine sweep animation */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                      <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
+                    </div>
                   </>
                 )}
               </button>
