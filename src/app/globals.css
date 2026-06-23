@@ -184,7 +184,7 @@ body {
   }
 
   .graffiti-title-text {
-    font-family: var(--font-permanent-marker), cursive;
+    font-family: var(--font-luckiest-guy), sans-serif;
     -webkit-text-stroke: 2px black;
     paint-order: stroke fill;
     text-shadow: 
@@ -196,6 +196,7 @@ body {
 
   @media (min-width: 768px) {
     .graffiti-title-text {
+      font-family: var(--font-luckiest-guy), sans-serif;
       -webkit-text-stroke: 3.5px black;
       text-shadow: 
         4px 4px 0px black, 

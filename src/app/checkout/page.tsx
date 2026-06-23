@@ -257,7 +257,7 @@ export default function CheckoutPage() {
     country: 'India'
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
-   const [newsletterOptIn, setNewsletterOptIn] = useState(false)
+  const [newsletterOptIn, setNewsletterOptIn] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -284,8 +284,8 @@ export default function CheckoutPage() {
 
   // 1. Setup client-side dynamic pricing calculations
   const itemsWithPrices = items.map(item => {
-    const priceUsd = item.price_usd ? Number(item.price_usd) : 
-      (item.type === 'preset' 
+    const priceUsd = item.price_usd ? Number(item.price_usd) :
+      (item.type === 'preset'
         ? (item.price === 0 ? 0 : Math.round((item.price / 80) * 100) / 100 || 2.99)
         : Math.round(item.price / 80))
     return {
@@ -328,7 +328,7 @@ export default function CheckoutPage() {
     }
   }
 
-  const activeTotal = Math.max(0, currency === 'USD' 
+  const activeTotal = Math.max(0, currency === 'USD'
     ? Number((activeSubtotal - activeCouponDiscount).toFixed(2))
     : (total - activeCouponDiscount)
   )
@@ -362,7 +362,7 @@ export default function CheckoutPage() {
         setError('PayPal Client ID is not configured.')
         return
       }
-      
+
       loadPayPal(clientId).then((success) => {
         if (success) {
           setPaypalLoaded(true)
@@ -380,7 +380,7 @@ export default function CheckoutPage() {
       if (container) {
         container.innerHTML = ''
       }
-      
+
       try {
         (window as any).paypal.Buttons({
           style: {
@@ -389,10 +389,10 @@ export default function CheckoutPage() {
             shape: 'rect',
             label: 'pay'
           },
-          createOrder: async function(data: any, actions: any) {
+          createOrder: async function (data: any, actions: any) {
             setError('')
             setLoading(true)
-            
+
             if (!validateForm()) {
               setLoading(false)
               const billingSection = document.getElementById('billing-details-section')
@@ -422,10 +422,10 @@ export default function CheckoutPage() {
               throw err
             }
           },
-          onApprove: async function(data: any, actions: any) {
+          onApprove: async function (data: any, actions: any) {
             setPaymentStatus('processing')
             setLoading(true)
-            
+
             try {
               const verifyRes = await fetch('/api/paypal/capture-order', {
                 method: 'POST',
@@ -473,12 +473,12 @@ export default function CheckoutPage() {
               setLoading(false)
             }
           },
-          onError: function(err: any) {
+          onError: function (err: any) {
             console.error('[PAYPAL_BUTTON_ERROR]', err)
             setError('An error occurred during the PayPal transaction.')
             setLoading(false)
           },
-          onCancel: function() {
+          onCancel: function () {
             setLoading(false)
           }
         }).render('#paypal-button-container')
@@ -917,14 +917,24 @@ export default function CheckoutPage() {
           <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic text-white graffiti-title-text">
             Checkout
           </h1>
-          <p className="text-[9px] text-studio-yellow font-black uppercase tracking-[0.2em] mt-2">
-            ⚡ Secure checkout / instant delivery
-          </p>
+          <div className="flex items-center justify-center gap-1.5 mt-2.5 select-none">
+            <Image
+              src="/icons8-secure-48.png"
+              alt="Secure"
+              width={12}
+              height={12}
+              className="object-contain shrink-0 animate-pulse"
+            />
+            <p className="text-[9.5px] text-studio-yellow font-black uppercase tracking-[0.2em] leading-relaxed">
+              SECURE CHECKOUT &amp; INSTANT DELIVERY
+            </p>
+          </div>
         </div>
 
         {/* Cinematic Sound-Scanner & Checkout Conveyor Belt Divider */}
         <div className="mb-12 border-2 border-black rounded-sm shadow-[6px_6px_0px_#FFE600] overflow-hidden relative z-20">
-          <style dangerouslySetInnerHTML={{ __html: `
+          <style dangerouslySetInnerHTML={{
+            __html: `
             :root {
               --conveyor-dur: 0.8s;
               --item-dur: 12s;
@@ -1090,7 +1100,7 @@ export default function CheckoutPage() {
                 <rect x="60" y="10" width="5" height="55" rx="2" fill="#FF0080" className="eq-bar-2" />
                 <rect x="70" y="25" width="5" height="40" rx="2" fill="#00FF94" className="eq-bar-3" />
                 <rect x="80" y="15" width="5" height="50" rx="2" fill="#FFE600" className="eq-bar-4" />
-                
+
                 <rect x="910" y="15" width="5" height="50" rx="2" fill="#FFE600" className="eq-bar-4" />
                 <rect x="920" y="25" width="5" height="40" rx="2" fill="#00FF94" className="eq-bar-3" />
                 <rect x="930" y="10" width="5" height="55" rx="2" fill="#FF0080" className="eq-bar-2" />
@@ -1115,10 +1125,10 @@ export default function CheckoutPage() {
               <rect x="496" y="0" width="8" height="26" fill="#18181c" stroke="#000" strokeWidth="2" />
               <rect x="491" y="2" width="18" height="4" fill="#00BFFF" stroke="#000" strokeWidth="1.5" />
               <rect x="491" y="12" width="18" height="4" fill="#00FF94" stroke="#000" strokeWidth="1.5" />
-              
+
               {/* Pulsing Emitter Beam */}
               <polygon className="laser-beam" points="492,30 508,30 535,75 465,75" />
-              
+
               {/* Contact splash glow */}
               <ellipse className="laser-splash" cx="500" cy="75" rx="16" ry="3.5" />
 
@@ -1533,9 +1543,9 @@ export default function CheckoutPage() {
                             Loading PayPal...
                           </div>
                         )}
-                        <div 
-                          id="paypal-button-container" 
-                          className={`w-full mt-2 relative z-10 ${!paypalLoaded ? 'hidden' : ''}`} 
+                        <div
+                          id="paypal-button-container"
+                          className={`w-full mt-2 relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
                         />
                       </div>
                     ) : (
@@ -1549,11 +1559,11 @@ export default function CheckoutPage() {
                         ) : (
                           <>
                             <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
-                              <Image 
-                                src="/icons8-pay-96.png" 
-                                alt="Pay" 
-                                width={14} 
-                                height={14} 
+                              <Image
+                                src="/icons8-pay-96.png"
+                                alt="Pay"
+                                width={14}
+                                height={14}
                                 className="object-contain"
                               />
                             </div>
@@ -1647,11 +1657,11 @@ export default function CheckoutPage() {
             {/* Minimalistic Supported Payments Logos */}
             <div className="pt-4 space-y-4.5">
               <div className="flex items-center justify-center gap-2.5 opacity-65 select-none">
-                <Image 
-                  src="/icons8-payment-100 (1).png" 
-                  alt="Payment Methods" 
-                  width={11} 
-                  height={11} 
+                <Image
+                  src="/icons8-payment-100 (1).png"
+                  alt="Payment Methods"
+                  width={11}
+                  height={11}
                   className="object-contain shrink-0 animate-pulse"
                 />
                 <p className="text-[7.5px] font-black uppercase tracking-[0.12em] text-neutral-400 leading-relaxed">
@@ -1683,9 +1693,9 @@ export default function CheckoutPage() {
                     Loading PayPal...
                   </div>
                 )}
-                <div 
-                  id="paypal-button-container" 
-                  className={`w-full mt-2 relative z-10 ${!paypalLoaded ? 'hidden' : ''}`} 
+                <div
+                  id="paypal-button-container"
+                  className={`w-full mt-2 relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
                 />
               </div>
             ) : (
@@ -1699,11 +1709,11 @@ export default function CheckoutPage() {
                 ) : (
                   <>
                     <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
-                      <Image 
-                        src="/icons8-pay-96.png" 
-                        alt="Pay" 
-                        width={14} 
-                        height={14} 
+                      <Image
+                        src="/icons8-pay-96.png"
+                        alt="Pay"
+                        width={14}
+                        height={14}
                         className="object-contain"
                       />
                     </div>
