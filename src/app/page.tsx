@@ -154,9 +154,15 @@ export default async function HomePage() {
           {/* Hero Secure Payments Row */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-6 border-t border-white/5 relative z-30">
             <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-studio-neon animate-pulse flex-shrink-0" />
-              <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.15em] md:tracking-[0.25em] text-white/55 leading-relaxed">
-                ⚡ WE ACCEPT DOMESTIC &amp; INTERNATIONAL PAYMENTS
+              <Image 
+                src="/icons8-payment-100 (1).png" 
+                alt="Payment Methods" 
+                width={14} 
+                height={14} 
+                className="object-contain shrink-0"
+              />
+              <p className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] md:tracking-[0.25em] text-white/55 leading-relaxed">
+                WE ACCEPT DOMESTIC &amp; INTERNATIONAL PAYMENTS
               </p>
             </div>
             <PaymentAccepted variant="full" className="lg:justify-end" />
@@ -910,16 +916,7 @@ export default async function HomePage() {
             <div className="h-1.5 md:h-2 bg-studio-neon w-16 md:w-24 mx-auto border-2 border-black shadow-[4px_4px_0px_black]" />
           </div>
 
-          {/* Secure Payments Banner */}
-          <div className="text-center space-y-6 max-w-4xl mx-auto pb-10 border-b border-white/5">
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/50">
-              WE ACCEPT DOMESTIC &amp; INTERNATIONAL PAYMENTS
-            </h3>
-            <PaymentAccepted variant="full" />
-            <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.15em]">
-              ⚡ UPI (GPAY, PHONEPE, PAYTM) • RUPAY • VISA • MASTERCARD • AMERICAN EXPRESS
-            </p>
-          </div>
+
 
           <div className="grid grid-cols-3 gap-2 md:gap-12">
             <div className="flex-1 space-y-2 md:space-y-4 text-center md:text-left p-2 md:p-8 bg-studio-red border-2 md:border-4 border-black shadow-[3px_3px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:-translate-y-1 md:hover:-translate-y-2 transition-all group">

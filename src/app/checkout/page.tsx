@@ -1529,9 +1529,18 @@ export default function CheckoutPage() {
                         )}
                       </button>
                     )}
-                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider text-center">
-                      We accept all international & domestic payments
-                    </p>
+                    <div className="flex items-center justify-center gap-2 pt-2 select-none">
+                      <Image 
+                        src="/icons8-payment-100 (1).png" 
+                        alt="Payment Methods" 
+                        width={14} 
+                        height={14} 
+                        className="object-contain shrink-0"
+                      />
+                      <p className="text-[9px] font-black uppercase tracking-[0.15em] text-neutral-500 leading-relaxed">
+                        WE ACCEPT DOMESTIC &amp; INTERNATIONAL PAYMENTS
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1616,6 +1625,11 @@ export default function CheckoutPage() {
                   <span className="text-[8px] font-medium uppercase tracking-wider text-neutral-400">128-bit SSL Secure Transaction</span>
                 </div>
               </div>
+            </div>
+
+            {/* Minimalistic Supported Payments Logos */}
+            <div className="pt-2">
+              <PaymentAccepted variant="compact" className="opacity-40 hover:opacity-80 transition-opacity duration-300 justify-center" />
             </div>
           </div>
         </div>

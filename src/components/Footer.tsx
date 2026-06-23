@@ -40,13 +40,13 @@ export function Footer() {
             <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed max-w-sm">
               Premium sound design for the modern producer. Industry standard sample packs, loops, and presets for Indian &amp; global music production.
             </p>
-            {/* ⚡ Value Proposition Sticker Badges (Highly stylized comic style) */}
-            <div className="flex flex-col gap-3 pt-2">
-              <div className="inline-block w-fit px-4 py-2 bg-studio-blue text-white text-[9px] font-black uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_black] -rotate-2 select-none hover:rotate-0 hover:scale-105 transition-all duration-300">
-                🛡️ 100% ROYALTY-FREE
+            {/* Value Proposition Tags */}
+            <div className="flex flex-col gap-2 pt-2 text-[8px] font-black uppercase tracking-wider text-white/30 select-none">
+              <div className="flex items-center gap-2">
+                <span className="text-studio-neon">✓</span> 100% Royalty-Free
               </div>
-              <div className="inline-block w-fit px-4 py-2 bg-studio-yellow text-black text-[9px] font-black uppercase tracking-[0.2em] border-4 border-black shadow-[4px_4px_0px_black] rotate-1 select-none hover:rotate-0 hover:scale-105 transition-all duration-300">
-                ⚡ INSTANT DOWNLOAD
+              <div className="flex items-center gap-2">
+                <span className="text-studio-yellow">✓</span> Instant Download
               </div>
             </div>
           </div>
@@ -212,11 +212,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Secure Payments Row */}
-        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col items-center justify-center gap-4 text-center">
-          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-white/35">We Accept Domestic &amp; International Payments</p>
-          <PaymentAccepted />
-        </div>
+
 
         {/* Bottom Section */}
         <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-10 border-t border-white/5 pt-8">
@@ -228,29 +224,16 @@ export function Footer() {
             <Link href="/dmca" className="hover:text-white transition-colors duration-200">DMCA</Link>
           </div>
 
-          {/* ULTRA MASSIVE Made In Bharat Text Badge */}
-          <div className="relative w-full max-w-[450px] flex flex-col items-center md:items-end justify-center py-6 group select-none">
-            <div className="relative z-10 transform -rotate-3 transition-all duration-500 group-hover:rotate-0">
-              {/* MADE IN - Small brutalist tag */}
-              <div className="absolute -top-7 left-4 md:left-auto md:-right-2 z-20 
-                bg-white text-black px-3 py-0.5 font-permanent-marker text-xs md:text-md uppercase italic 
-                border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] 
-                skew-x-[-12deg] transition-transform">
-                Made In
-              </div>
-
-              {/* भारत - Main massive text in Hindi with Flag Colors */}
-              <h2 className="text-[70px] md:text-[110px] font-kalam font-bold leading-none tracking-tight
-                drop-shadow-[6px_6px_0px_#000] drop-shadow-[6px_6px_15px_rgba(0,0,0,0.5)]
-                relative z-10 flex items-center">
-                <span className="text-[#FF9933]">भा</span>
-                <span className="text-white">र</span>
-                <span className="text-[#128807]">त</span>
-              </h2>
-
-              {/* Glow Accent */}
-              <div className="absolute -inset-6 -z-10 overflow-visible pointer-events-none opacity-20 blur-[50px] rounded-full bg-gradient-to-r from-studio-orange via-white to-studio-neon" />
-            </div>
+          {/* Minimalist Made In Bharat Tag */}
+          <div className="flex items-center gap-1.5 text-[8px] font-black uppercase tracking-[0.3em] text-white/20 select-none">
+            <span>Made with</span>
+            <span className="text-studio-pink">❤️</span>
+            <span>in</span>
+            <span className="flex items-center font-bold tracking-tight">
+              <span className="text-[#FF9933]">भा</span>
+              <span className="text-white">र</span>
+              <span className="text-[#128807]">त</span>
+            </span>
           </div>
         </div>
 
