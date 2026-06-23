@@ -935,9 +935,6 @@ export default function CheckoutPage() {
         <div className="mb-12 border-2 border-black rounded-sm shadow-[6px_6px_0px_#FFE600] overflow-hidden relative z-20">
           <style dangerouslySetInnerHTML={{
             __html: `
-            :root {
-              --item-dur: 12s;
-            }
             .success-char-group {
             }
             .start-anim .success-char-group {
@@ -1082,31 +1079,33 @@ export default function CheckoutPage() {
             }
             @keyframes failWalkSad {
               0% { transform: translate(-100px, 0px); }
-              50% { transform: translate(-100px, 0px); }
-              52.08% { transform: translate(-50px, -1.5px); }
-              54.16% { transform: translate(0px, 0px); }
-              56.25% { transform: translate(50px, -1.5px); }
-              58.33% { transform: translate(100px, 0px); }
-              60.4% { transform: translate(150px, -1.5px); }
-              62.5% { transform: translate(200px, 0px); }
-              64.5% { transform: translate(250px, -1.5px); }
-              66.6% { transform: translate(300px, 0px); }
-              68.7% { transform: translate(350px, -1.5px); }
-              70.8% { transform: translate(400px, 0px); }
-              72.9% { transform: translate(450px, -1.5px); }
-              75% { transform: translate(500px, 0px); }
-              83% { transform: translate(500px, 0px); }
-              84% { transform: translate(498px, -1px); }
-              85% { transform: translate(502px, 1px); }
-              86% { transform: translate(499px, -1px); }
-              87% { transform: translate(501px, 0px); }
-              88% { transform: translate(500px, 0px); }
-              90% { transform: translate(460px, -1.5px); }
-              92% { transform: translate(420px, 0px); }
-              94% { transform: translate(380px, -1.5px); }
-              96% { transform: translate(340px, 0px); }
-              98% { transform: translate(300px, -1.5px); opacity: 1; }
-              100% { transform: translate(280px, 0px); opacity: 0; }
+              47.9% { transform: translate(-100px, 0px); }
+              48% { transform: translate(-100px, 0px); }
+              50.125% { transform: translate(-25px, -1.5px); }
+              52.25% { transform: translate(50px, 0px); }
+              54.375% { transform: translate(125px, -1.5px); }
+              56.5% { transform: translate(200px, 0px); }
+              58.625% { transform: translate(275px, -1.5px); }
+              60.75% { transform: translate(350px, 0px); }
+              62.875% { transform: translate(425px, -1.5px); }
+              65% { transform: translate(500px, 0px); }
+              74.9% { transform: translate(500px, 0px); }
+              75% { transform: translate(500px, 0px) rotate(0deg); }
+              76% { transform: translate(498px, -1px) rotate(0deg); }
+              77% { transform: translate(502px, 1px) rotate(0deg); }
+              78% { transform: translate(499px, -1px) rotate(0deg); }
+              79% { transform: translate(501px, 0px) rotate(0deg); }
+              80% { transform: translate(500px, 0px) rotate(0deg); }
+              82% { transform: translate(440px, -1.5px) rotate(-8deg); }
+              84% { transform: translate(380px, 0px) rotate(-8deg); }
+              86% { transform: translate(320px, -1.5px) rotate(-8deg); }
+              88% { transform: translate(260px, 0px) rotate(-8deg); }
+              90% { transform: translate(200px, -1.5px) rotate(-8deg); }
+              92% { transform: translate(140px, 0px) rotate(-8deg); }
+              94% { transform: translate(80px, -1.5px) rotate(-8deg); }
+              96% { transform: translate(20px, 0px) rotate(-8deg); }
+              98% { transform: translate(-40px, -1.5px) rotate(-8deg); opacity: 1; }
+              100% { transform: translate(-100px, 0px) rotate(0deg); opacity: 0; }
             }
             
             @keyframes successLegLeftAnim {
@@ -1191,95 +1190,106 @@ export default function CheckoutPage() {
             }
             
             @keyframes failLegLeftAnim {
-              0%, 50% { transform: rotate(0deg); }
-              52.08% { transform: rotate(-20deg); }
-              57.2% { transform: rotate(20deg); }
-              62.4% { transform: rotate(-20deg); }
-              67.6% { transform: rotate(20deg); }
-              72.8% { transform: rotate(-20deg); }
+              0%, 47.9% { transform: rotate(0deg); }
+              48% { transform: rotate(0deg); }
+              50.125% { transform: rotate(-20deg); }
+              52.25% { transform: rotate(20deg); }
+              54.375% { transform: rotate(-20deg); }
+              56.5% { transform: rotate(20deg); }
+              58.625% { transform: rotate(-20deg); }
+              60.75% { transform: rotate(20deg); }
+              62.875% { transform: rotate(-20deg); }
+              65% { transform: rotate(0deg); }
+              74.9% { transform: rotate(0deg); }
               75% { transform: rotate(0deg); }
-              83% { transform: rotate(-4deg); }
-              84% { transform: rotate(4deg); }
-              85% { transform: rotate(-4deg); }
-              86% { transform: rotate(4deg); }
-              87% { transform: rotate(-4deg); }
-              88% { transform: rotate(0deg); }
-              90% { transform: rotate(40deg); }
-              92% { transform: rotate(-40deg); }
-              94% { transform: rotate(40deg); }
-              96% { transform: rotate(-40deg); }
-              98% { transform: rotate(0deg); }
+              76% { transform: rotate(-4deg); }
+              77% { transform: rotate(4deg); }
+              78% { transform: rotate(-4deg); }
+              79% { transform: rotate(4deg); }
+              80% { transform: rotate(0deg); }
+              84% { transform: rotate(25deg); }
+              88% { transform: rotate(-25deg); }
+              92% { transform: rotate(25deg); }
+              96% { transform: rotate(-25deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failLegRightAnim {
-              0%, 50% { transform: rotate(0deg); }
-              52.08% { transform: rotate(20deg); }
-              57.2% { transform: rotate(-20deg); }
-              62.4% { transform: rotate(20deg); }
-              67.6% { transform: rotate(-20deg); }
-              72.8% { transform: rotate(20deg); }
+              0%, 47.9% { transform: rotate(0deg); }
+              48% { transform: rotate(0deg); }
+              50.125% { transform: rotate(20deg); }
+              52.25% { transform: rotate(-20deg); }
+              54.375% { transform: rotate(20deg); }
+              56.5% { transform: rotate(-20deg); }
+              58.625% { transform: rotate(20deg); }
+              60.75% { transform: rotate(-20deg); }
+              62.875% { transform: rotate(20deg); }
+              65% { transform: rotate(0deg); }
+              74.9% { transform: rotate(0deg); }
               75% { transform: rotate(0deg); }
-              83% { transform: rotate(4deg); }
-              84% { transform: rotate(-4deg); }
-              85% { transform: rotate(4deg); }
-              86% { transform: rotate(-4deg); }
-              87% { transform: rotate(4deg); }
-              88% { transform: rotate(0deg); }
-              90% { transform: rotate(-40deg); }
-              92% { transform: rotate(40deg); }
-              94% { transform: rotate(-40deg); }
-              96% { transform: rotate(40deg); }
-              98% { transform: rotate(0deg); }
+              76% { transform: rotate(4deg); }
+              77% { transform: rotate(-4deg); }
+              78% { transform: rotate(4deg); }
+              79% { transform: rotate(-4deg); }
+              80% { transform: rotate(0deg); }
+              84% { transform: rotate(-25deg); }
+              88% { transform: rotate(25deg); }
+              92% { transform: rotate(-25deg); }
+              96% { transform: rotate(25deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failArmLeftAnim {
-              0%, 50% { transform: rotate(0deg); }
-              52.08% { transform: rotate(-10deg); }
-              62.4% { transform: rotate(10deg); }
-              72.8% { transform: rotate(-10deg); }
-              75% { transform: rotate(0deg); }
-              83% { transform: rotate(-8deg); }
-              84% { transform: rotate(8deg); }
-              85% { transform: rotate(-8deg); }
-              86% { transform: rotate(8deg); }
-              87% { transform: rotate(-8deg); }
-              88% { transform: rotate(0deg); }
-              90% { transform: rotate(-120deg); }
-              98% { transform: rotate(-120deg); }
+              0%, 47.9% { transform: rotate(0deg); }
+              48% { transform: rotate(0deg); }
+              52.25% { transform: rotate(-10deg); }
+              56.5% { transform: rotate(10deg); }
+              60.75% { transform: rotate(-10deg); }
+              65% { transform: rotate(0deg); }
+              74.9% { transform: rotate(0deg); }
+              75% { transform: rotate(-120deg); }
+              80% { transform: rotate(-120deg); }
+              84% { transform: rotate(15deg); }
+              88% { transform: rotate(5deg); }
+              92% { transform: rotate(15deg); }
+              96% { transform: rotate(5deg); }
               100% { transform: rotate(0deg); }
             }
             @keyframes failArmRightAnim {
-              0%, 50% { transform: rotate(0deg); }
-              52.08% { transform: rotate(10deg); }
-              62.4% { transform: rotate(-10deg); }
-              72.8% { transform: rotate(10deg); }
-              75% { transform: rotate(0deg); }
-              83% { transform: rotate(8deg); }
-              84% { transform: rotate(-8deg); }
-              85% { transform: rotate(8deg); }
-              86% { transform: rotate(-8deg); }
-              87% { transform: rotate(8deg); }
-              88% { transform: rotate(0deg); }
-              90% { transform: rotate(120deg); }
-              98% { transform: rotate(120deg); }
+              0%, 47.9% { transform: rotate(0deg); }
+              48% { transform: rotate(0deg); }
+              52.25% { transform: rotate(10deg); }
+              56.5% { transform: rotate(-10deg); }
+              60.75% { transform: rotate(10deg); }
+              65% { transform: rotate(0deg); }
+              74.9% { transform: rotate(0deg); }
+              75% { transform: rotate(120deg); }
+              80% { transform: rotate(120deg); }
+              84% { transform: rotate(-15deg); }
+              88% { transform: rotate(-5deg); }
+              92% { transform: rotate(-15deg); }
+              96% { transform: rotate(-5deg); }
               100% { transform: rotate(0deg); }
             }
             
             @keyframes failBoxAnim {
-              0%, 88% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-              91% { transform: translate(80px, -30px) rotate(180deg); }
-              94% { transform: translate(180px, 15px) rotate(360deg); }
-              98% { transform: translate(180px, 15px) rotate(360deg); opacity: 1; }
-              100% { transform: translate(180px, 15px) rotate(360deg); opacity: 0; }
+              0%, 80% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+              83% { transform: translate(80px, -30px) rotate(180deg); }
+              86% { transform: translate(180px, 15px) rotate(360deg); }
+              88% { transform: translate(240px, 21px) rotate(360deg); }
+              90% { transform: translate(300px, 21px) rotate(360deg); }
+              92% { transform: translate(360px, 21px) rotate(360deg); }
+              94% { transform: translate(420px, 21px) rotate(360deg); }
+              96% { transform: translate(480px, 21px) rotate(360deg); }
+              98% { transform: translate(540px, 21px) rotate(360deg); opacity: 1; }
+              100% { transform: translate(600px, 21px) rotate(360deg); opacity: 0; }
             }
             
             @keyframes failFaceHappyTimeline {
-              0%, 82.9% { opacity: 1; }
-              83%, 100% { opacity: 0; }
+              0%, 74.9% { opacity: 1; }
+              75%, 100% { opacity: 0; }
             }
             @keyframes failFaceSadTimeline {
-              0%, 82.9% { opacity: 0; }
-              83%, 100% { opacity: 1; }
+              0%, 74.9% { opacity: 0; }
+              75%, 100% { opacity: 1; }
             }
             
             @keyframes guardArmRightAnim {
@@ -1288,13 +1298,13 @@ export default function CheckoutPage() {
               37% { transform: rotate(-35deg); }
               39% { transform: rotate(-60deg); }
               41% { transform: rotate(-35deg); }
-              43%, 82.9% { transform: rotate(0deg); }
+              42%, 74.9% { transform: rotate(0deg); }
+              75% { transform: rotate(115deg); }
+              77% { transform: rotate(90deg); }
+              79% { transform: rotate(115deg); }
+              81% { transform: rotate(90deg); }
               83% { transform: rotate(115deg); }
-              85% { transform: rotate(90deg); }
-              87% { transform: rotate(115deg); }
-              89% { transform: rotate(90deg); }
-              91% { transform: rotate(115deg); }
-              93%, 100% { transform: rotate(0deg); }
+              85%, 100% { transform: rotate(0deg); }
             }
             
             @keyframes popSuccessTimeline {
@@ -1305,10 +1315,10 @@ export default function CheckoutPage() {
               100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
             }
             @keyframes popFailTimeline {
-              0%, 82.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
-              83% { transform: translate(500px, 20px) scale(1.2) rotate(-5deg); opacity: 1; }
-              91% { transform: translate(500px, 15px) scale(1) rotate(5deg); opacity: 1; }
-              96% { transform: translate(500px, 10px) scale(0); opacity: 0; }
+              0%, 74.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
+              75% { transform: translate(500px, 20px) scale(1.2) rotate(-5deg); opacity: 1; }
+              80% { transform: translate(500px, 15px) scale(1) rotate(5deg); opacity: 1; }
+              85% { transform: translate(500px, 10px) scale(0); opacity: 0; }
               100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
             }
             
@@ -1320,23 +1330,23 @@ export default function CheckoutPage() {
               35% { fill: rgba(0, 255, 148, 0.4); opacity: 0.95; transform: scaleX(1.1); }
               39% { fill: rgba(0, 255, 148, 0.4); opacity: 0.95; transform: scaleX(1.1); }
               40% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
-              41%, 74% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
-              75% { fill: rgba(0, 191, 255, 0.35); opacity: 0.85; transform: scaleX(0.85); }
-              80% { fill: rgba(0, 191, 255, 0.45); opacity: 0.95; transform: scaleX(1.15); }
-              82% { fill: rgba(0, 191, 255, 0.35); opacity: 0.85; transform: scaleX(0.85); }
-              83% { fill: rgba(255, 49, 49, 0.4); opacity: 0.95; transform: scaleX(1.1); }
-              87% { fill: rgba(255, 49, 49, 0.4); opacity: 0.95; transform: scaleX(1.1); }
-              88%, 100% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
+              41%, 64% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
+              65% { fill: rgba(0, 191, 255, 0.35); opacity: 0.85; transform: scaleX(0.85); }
+              70% { fill: rgba(0, 191, 255, 0.45); opacity: 0.95; transform: scaleX(1.15); }
+              74% { fill: rgba(0, 191, 255, 0.35); opacity: 0.85; transform: scaleX(0.85); }
+              75% { fill: rgba(255, 49, 49, 0.4); opacity: 0.95; transform: scaleX(1.1); }
+              80% { fill: rgba(255, 49, 49, 0.4); opacity: 0.95; transform: scaleX(1.1); }
+              81%, 100% { fill: rgba(0, 191, 255, 0.08); opacity: 0.12; transform: scaleX(0.5); }
             }
             
             @keyframes scannerLightTimeline {
               0%, 24% { fill: #333; }
               25%, 34% { fill: #00BFFF; filter: drop-shadow(0 0 4px #00BFFF); }
               35%, 40% { fill: #00FF94; filter: drop-shadow(0 0 6px #00FF94); }
-              41%, 74% { fill: #333; }
-              75%, 82% { fill: #00BFFF; filter: drop-shadow(0 0 4px #00BFFF); }
-              83%, 88% { fill: #FF3131; filter: drop-shadow(0 0 6px #FF3131); }
-              89%, 100% { fill: #333; }
+              41%, 64% { fill: #333; }
+              65%, 74% { fill: #00BFFF; filter: drop-shadow(0 0 4px #00BFFF); }
+              75%, 80% { fill: #FF3131; filter: drop-shadow(0 0 6px #FF3131); }
+              81%, 100% { fill: #333; }
             }
             
             @keyframes eqWave {
