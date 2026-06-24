@@ -16,12 +16,12 @@ export function CheckoutConveyor() {
         .success-char-group {
         }
         .start-anim .success-char-group {
-          animation: successWalkRun 12s infinite linear;
+          animation: successWalkRun 18s infinite linear;
         }
         .fail-char-group {
         }
         .start-anim .fail-char-group {
-          animation: failWalkSad 12s infinite linear;
+          animation: failWalkSad 18s infinite linear;
         }
         
         /* ─── WALKING BOBBING (UP & DOWN BODIES) ─── */
@@ -68,7 +68,7 @@ export function CheckoutConveyor() {
           transform-origin: bottom center;
         }
         .start-anim .thief-body-wrapper {
-          animation: thiefScaredTimeline 12s infinite linear;
+          animation: thiefScaredTimeline 18s infinite linear;
         }
 
         /* ─── LEO ROTATION (SWINGING LEGS) ─── */
@@ -77,28 +77,28 @@ export function CheckoutConveyor() {
           transform-origin: 50% 0%;
         }
         .start-anim .success-leg-l-group {
-          animation: successLegLeftAnim 12s infinite ease-in-out;
+          animation: successLegLeftAnim 18s infinite ease-in-out;
         }
         .success-leg-r-group {
           transform-box: fill-box;
           transform-origin: 50% 0%;
         }
         .start-anim .success-leg-r-group {
-          animation: successLegRightAnim 12s infinite ease-in-out;
+          animation: successLegRightAnim 18s infinite ease-in-out;
         }
         .success-arm-l-group {
           transform-box: fill-box;
           transform-origin: 100% 0%;
         }
         .start-anim .success-arm-l-group {
-          animation: successArmLeftAnim 12s infinite ease-in-out;
+          animation: successArmLeftAnim 18s infinite ease-in-out;
         }
         .success-arm-r-group {
           transform-box: fill-box;
           transform-origin: 0% 0%;
         }
         .start-anim .success-arm-r-group {
-          animation: successArmRightAnim 12s infinite ease-in-out;
+          animation: successArmRightAnim 18s infinite ease-in-out;
         }
         
         .fail-leg-l-group {
@@ -106,63 +106,70 @@ export function CheckoutConveyor() {
           transform-origin: 50% 0%;
         }
         .start-anim .fail-leg-l-group {
-          animation: failLegLeftAnim 12s infinite ease-in-out;
+          animation: failLegLeftAnim 18s infinite ease-in-out;
         }
         .fail-leg-r-group {
           transform-box: fill-box;
           transform-origin: 50% 0%;
         }
         .start-anim .fail-leg-r-group {
-          animation: failLegRightAnim 12s infinite ease-in-out;
+          animation: failLegRightAnim 18s infinite ease-in-out;
         }
         .fail-arm-l-group {
           transform-box: fill-box;
           transform-origin: 100% 0%;
         }
         .start-anim .fail-arm-l-group {
-          animation: failArmLeftAnim 12s infinite ease-in-out;
+          animation: failArmLeftAnim 18s infinite ease-in-out;
         }
         .fail-arm-r-group {
           transform-box: fill-box;
           transform-origin: 0% 0%;
         }
         .start-anim .fail-arm-r-group {
-          animation: failArmRightAnim 12s infinite ease-in-out;
+          animation: failArmRightAnim 18s infinite ease-in-out;
         }
         
         .guard-group {
           transform-box: fill-box;
         }
         .start-anim .guard-group {
-          animation: guardWalkAnim 12s infinite linear;
+          animation: guardWalkAnim 18s infinite linear;
         }
         .guard-bob-container {
           transform-box: fill-box;
           transform-origin: bottom center;
         }
         .start-anim .guard-bob-container {
-          animation: guardBobTimeline 12s infinite ease-in-out;
+          animation: guardBobTimeline 18s infinite ease-in-out;
         }
         .guard-leg-l-group {
           transform-box: fill-box;
           transform-origin: 50% 0%;
         }
         .start-anim .guard-leg-l-group {
-          animation: guardLegLeftAnim 12s infinite ease-in-out;
+          animation: guardLegLeftAnim 18s infinite ease-in-out;
         }
         .guard-leg-r-group {
           transform-box: fill-box;
           transform-origin: 50% 0%;
         }
         .start-anim .guard-leg-r-group {
-          animation: guardLegRightAnim 12s infinite ease-in-out;
+          animation: guardLegRightAnim 18s infinite ease-in-out;
+        }
+        .guard-upper-body {
+          transform-box: fill-box;
+          transform-origin: 50% 90%;
+        }
+        .start-anim .guard-upper-body {
+          animation: guardUpperBodyTimeline 18s infinite ease-in-out;
         }
         .guard-arm-r-group {
           transform-box: fill-box;
           transform-origin: 0% 0%;
         }
         .start-anim .guard-arm-r-group {
-          animation: guardArmRightAnim 12s infinite ease-in-out;
+          animation: guardArmRightAnim 18s infinite ease-in-out;
         }
 
         /* ─── DROP & ROLL DYNAMIC PHYSICS ─── */
@@ -171,14 +178,14 @@ export function CheckoutConveyor() {
           transform-origin: center;
         }
         .start-anim .fail-box-group {
-          animation: failBoxAnim 12s infinite ease-in-out;
+          animation: failBoxAnim 18s infinite ease-in-out;
         }
         
         .start-anim .fail-face-happy {
-          animation: failFaceHappyTimeline 12s infinite;
+          animation: failFaceHappyTimeline 18s infinite;
         }
         .start-anim .fail-face-sad {
-          animation: failFaceSadTimeline 12s infinite;
+          animation: failFaceSadTimeline 18s infinite;
         }
         
         /* ─── BUBBLE TEXT DISPLAY ─── */
@@ -186,13 +193,13 @@ export function CheckoutConveyor() {
           transform-origin: center;
         }
         .start-anim .pop-success-text {
-          animation: popSuccessTimeline 12s infinite ease-in-out;
+          animation: popSuccessTimeline 18s infinite ease-in-out;
         }
         .pop-fail-text {
           transform-origin: center;
         }
         .start-anim .pop-fail-text {
-          animation: popFailTimeline 12s infinite ease-in-out;
+          animation: popFailTimeline 18s infinite ease-in-out;
         }
         
         .thief-handcuffs {
@@ -201,23 +208,23 @@ export function CheckoutConveyor() {
           transform-origin: center;
         }
         .start-anim .thief-handcuffs {
-          animation: thiefHandcuffsTimeline 12s infinite;
+          animation: thiefHandcuffsTimeline 18s infinite;
         }
         @keyframes thiefHandcuffsTimeline {
-          0%, 79.9% { opacity: 0; }
-          80%, 98% { opacity: 1; }
-          100% { opacity: 0; }
+          0%, 44.3% { opacity: 0; }
+          44.4%, 65% { opacity: 1; }
+          65.1%, 100% { opacity: 0; }
         }
         
         /* ─── DETECTOR LIGHTS ─── */
         .start-anim .scanner-light {
-          animation: scannerLightTimeline 12s infinite;
+          animation: scannerLightTimeline 18s infinite;
         }
         .laser-beam-timeline {
           transform-origin: top center;
         }
         .start-anim .laser-beam-timeline {
-          animation: laserScanTimeline 12s infinite ease-in-out;
+          animation: laserScanTimeline 18s infinite ease-in-out;
         }
 
         /* ─── BACKGROUND VISUALIZERS ─── */
@@ -294,358 +301,365 @@ export function CheckoutConveyor() {
 
         /* 7. Guard Anime Glare */
         @keyframes glareSlide {
-          0%, 72%, 100% { transform: translateX(-4px); opacity: 0; }
-          75% { opacity: 1; transform: translateX(0px); }
-          78% { opacity: 1; transform: translateX(5px); }
-          82% { opacity: 0; transform: translateX(9px); }
+          0%, 41.5%, 100% { transform: translateX(-4px); opacity: 0; }
+          41.6% { opacity: 1; transform: translateX(0px); }
+          42.5% { opacity: 1; transform: translateX(5px); }
+          44.4% { opacity: 0; transform: translateX(9px); }
         }
         .glasses-glare {
-          animation: glareSlide 12s infinite ease-in-out;
+          animation: glareSlide 18s infinite ease-in-out;
         }
 
         /* ─── KEYFRAME DATA ─── */
         @keyframes successWalkRun {
           0% { transform: translate(-100px, 0px); }
-          2.08% { transform: translate(-50px, -1px); }
-          4.16% { transform: translate(0px, 0px); }
-          6.25% { transform: translate(50px, -1px); }
-          8.33% { transform: translate(100px, 0px); }
-          10.4% { transform: translate(150px, -1px); }
-          12.5% { transform: translate(200px, 0px); }
-          14.5% { transform: translate(250px, -1px); }
-          16.6% { transform: translate(300px, 0px); }
-          18.7% { transform: translate(350px, -1px); }
-          20.8% { transform: translate(400px, 0px); }
-          22.9% { transform: translate(450px, -1px); }
-          25% { transform: translate(500px, 0px); }
-          35% { transform: translate(500px, 0px); }
-          36.25% { transform: translate(500px, -6px); }
-          37.5% { transform: translate(500px, 0px); }
-          38.75% { transform: translate(500px, -6px); }
-          40% { transform: translate(500px, 0px); }
-          41.6% { transform: translate(600px, -1px); }
-          43.3% { transform: translate(700px, 0px); }
-          45% { transform: translate(800px, -1px); }
-          46.6% { transform: translate(900px, 0px); }
-          48.3% { transform: translate(1000px, -1px); }
-          50% { transform: translate(1100px, 0px); }
+          1.6% { transform: translate(-20px, -1px); }
+          3.2% { transform: translate(60px, 0px); }
+          4.8% { transform: translate(140px, -1px); }
+          6.4% { transform: translate(220px, 0px); }
+          8% { transform: translate(300px, -1px); }
+          10% { transform: translate(500px, 0px); }
+          16% { transform: translate(500px, 0px); }
+          17% { transform: translate(500px, -6px); }
+          18% { transform: translate(500px, 0px); }
+          19% { transform: translate(500px, 0px); }
+          20.3% { transform: translate(700px, -1px); }
+          21.6% { transform: translate(900px, 0px); }
+          23% { transform: translate(1100px, 0px); }
           100% { transform: translate(1100px, 0px); }
         }
         @keyframes failWalkSad {
-          0% { transform: translate(-100px, 0px); }
-          47.9% { transform: translate(-100px, 0px); }
-          48% { transform: translate(-100px, 0px); }
-          50.125% { transform: translate(-25px, -1px); }
-          52.25% { transform: translate(50px, 0px); }
-          54.375% { transform: translate(125px, -1px); }
-          56.5% { transform: translate(200px, 0px); }
-          58.625% { transform: translate(275px, -1px); }
-          60.75% { transform: translate(350px, 0px); }
-          62.875% { transform: translate(425px, -1px); }
-          65% { transform: translate(500px, 0px); }
-          79.9% { transform: translate(500px, 0px); }
-          80% { transform: translate(500px, 0px) rotate(0deg); }
-          82% { transform: translate(440px, -1px) rotate(-5deg); }
-          84% { transform: translate(380px, 0px) rotate(-5deg); }
-          86% { transform: translate(320px, -1px) rotate(-5deg); }
-          88% { transform: translate(260px, 0px) rotate(-5deg); }
-          90% { transform: translate(200px, -1px) rotate(-5deg); }
-          92% { transform: translate(140px, 0px) rotate(-5deg); }
-          94% { transform: translate(80px, -1px) rotate(-5deg); }
-          96% { transform: translate(20px, 0px) rotate(-5deg); }
-          98% { transform: translate(-40px, -1px) rotate(-5deg); opacity: 1; }
-          100% { transform: translate(-100px, 0px) rotate(0deg); opacity: 0; }
+          0% { transform: translate(-100px, 0px); opacity: 0; }
+          24.9% { transform: translate(-100px, 0px); opacity: 0; }
+          25% { transform: translate(-100px, 0px); opacity: 1; }
+          27% { transform: translate(20px, -1px); }
+          29% { transform: translate(140px, 0px); }
+          31% { transform: translate(260px, -1px); }
+          33% { transform: translate(380px, 0px); }
+          35% { transform: translate(500px, 0px); }
+          44.3% { transform: translate(500px, 0px); }
+          44.4% { transform: translate(500px, 0px) rotate(0deg); }
+          47% { transform: translate(420px, -1px) rotate(-5deg); }
+          50% { transform: translate(340px, 0px) rotate(-5deg); }
+          53% { transform: translate(260px, -1px) rotate(-5deg); }
+          56% { transform: translate(180px, 0px) rotate(-5deg); }
+          59% { transform: translate(100px, -1px) rotate(-5deg); }
+          62% { transform: translate(20px, 0px) rotate(-5deg); }
+          65% { transform: translate(-100px, 0px) rotate(0deg); opacity: 1; }
+          65.1%, 100% { transform: translate(-100px, 0px); opacity: 0; }
         }
 
         /* Scared shaking schedule for shoplifter thief */
         @keyframes thiefScaredTimeline {
-          0%, 74.9% { transform: scale(1) translate(0, 0) rotate(0deg); }
-          75% { transform: scale(1.05) translate(-1px, 0px) rotate(-2deg); }
-          76% { transform: scale(1.05) translate(1.5px, -1px) rotate(1.5deg); }
-          77% { transform: scale(1.05) translate(-1.5px, 0.5px) rotate(-1.5deg); }
-          78% { transform: scale(1.05) translate(1px, -1px) rotate(2deg); }
-          79% { transform: scale(1.05) translate(-1px, 1px) rotate(-2deg); }
-          80%, 100% { transform: scale(1) translate(0, 0) rotate(0deg); }
+          0%, 41.5% { transform: scale(1) translate(0, 0) rotate(0deg); }
+          41.6% { transform: scale(1.05) translate(-1px, 0px) rotate(-2deg); }
+          42.2% { transform: scale(1.05) translate(1.5px, -1px) rotate(1.5deg); }
+          42.8% { transform: scale(1.05) translate(-1.5px, 0.5px) rotate(-1.5deg); }
+          43.4% { transform: scale(1.05) translate(1px, -1px) rotate(2deg); }
+          44% { transform: scale(1.05) translate(-1px, 1px) rotate(-2deg); }
+          44.4%, 100% { transform: scale(1) translate(0, 0) rotate(0deg); }
         }
         
         @keyframes successLegLeftAnim {
           0% { transform: rotate(0deg); }
-          4.16% { transform: rotate(28deg); }
-          8.33% { transform: rotate(-28deg); }
-          12.5% { transform: rotate(28deg); }
-          16.6% { transform: rotate(-28deg); }
-          20.8% { transform: rotate(28deg); }
-          25% { transform: rotate(0deg); }
-          35% { transform: rotate(-10deg); }
-          36.25% { transform: rotate(-20deg); }
-          37.5% { transform: rotate(-10deg); }
-          38.75% { transform: rotate(-20deg); }
-          40% { transform: rotate(0deg); }
-          43.3% { transform: rotate(45deg); }
-          45% { transform: rotate(0deg); }
-          46.6% { transform: rotate(-45deg); }
-          48.3% { transform: rotate(0deg); }
-          50% { transform: rotate(0deg); }
-          100% { transform: rotate(0deg); }
+          1.6% { transform: rotate(28deg); }
+          3.2% { transform: rotate(-28deg); }
+          4.8% { transform: rotate(28deg); }
+          6.4% { transform: rotate(-28deg); }
+          8% { transform: rotate(28deg); }
+          10% { transform: rotate(0deg); }
+          16% { transform: rotate(-10deg); }
+          17% { transform: rotate(-20deg); }
+          18% { transform: rotate(-10deg); }
+          19% { transform: rotate(0deg); }
+          20.3% { transform: rotate(28deg); }
+          21.6% { transform: rotate(-28deg); }
+          23%, 100% { transform: rotate(0deg); }
         }
         @keyframes successLegRightAnim {
           0% { transform: rotate(0deg); }
-          4.16% { transform: rotate(-28deg); }
-          8.33% { transform: rotate(28deg); }
-          12.5% { transform: rotate(-28deg); }
-          16.6% { transform: rotate(28deg); }
-          20.8% { transform: rotate(-28deg); }
-          25% { transform: rotate(0deg); }
-          35% { transform: rotate(10deg); }
-          36.25% { transform: rotate(20deg); }
-          37.5% { transform: rotate(10deg); }
-          38.75% { transform: rotate(20deg); }
-          40% { transform: rotate(0deg); }
-          43.3% { transform: rotate(-45deg); }
-          45% { transform: rotate(0deg); }
-          46.6% { transform: rotate(45deg); }
-          48.3% { transform: rotate(0deg); }
-          50% { transform: rotate(0deg); }
-          100% { transform: rotate(0deg); }
+          1.6% { transform: rotate(-28deg); }
+          3.2% { transform: rotate(28deg); }
+          4.8% { transform: rotate(-28deg); }
+          6.4% { transform: rotate(28deg); }
+          8% { transform: rotate(-28deg); }
+          10% { transform: rotate(0deg); }
+          16% { transform: rotate(10deg); }
+          17% { transform: rotate(20deg); }
+          18% { transform: rotate(10deg); }
+          19% { transform: rotate(0deg); }
+          20.3% { transform: rotate(-28deg); }
+          21.6% { transform: rotate(28deg); }
+          23%, 100% { transform: rotate(0deg); }
         }
         @keyframes successArmLeftAnim {
           0% { transform: rotate(0deg); }
-          4.16% { transform: rotate(-20deg); }
-          8.33% { transform: rotate(20deg); }
-          12.5% { transform: rotate(-20deg); }
-          16.6% { transform: rotate(20deg); }
-          20.8% { transform: rotate(-20deg); }
-          25% { transform: rotate(0deg); }
-          35% { transform: rotate(-120deg); }
-          36.25% { transform: rotate(-140deg); }
-          37.5% { transform: rotate(-120deg); }
-          38.75% { transform: rotate(-140deg); }
-          40% { transform: rotate(-120deg); }
-          41.6% { transform: translateY(-4px) rotate(-110deg); }
-          43.3% { transform: translateY(-8px) rotate(-130deg); }
-          45% { transform: translateY(-4px) rotate(-110deg); }
-          46.6% { transform: translateY(-8px) rotate(-130deg); }
-          48.3% { transform: translateY(-4px) rotate(-110deg); }
-          50% { transform: translateY(0) rotate(0deg); }
-          100% { transform: rotate(0deg); }
+          1.6% { transform: rotate(-20deg); }
+          3.2% { transform: rotate(20deg); }
+          4.8% { transform: rotate(-20deg); }
+          6.4% { transform: rotate(20deg); }
+          8% { transform: rotate(-20deg); }
+          10% { transform: rotate(0deg); }
+          16% { transform: rotate(-120deg); }
+          17% { transform: rotate(-140deg); }
+          18% { transform: rotate(-120deg); }
+          19% { transform: rotate(-120deg); }
+          20.3% { transform: translateY(-4px) rotate(-110deg); }
+          21.6% { transform: translateY(-8px) rotate(-130deg); }
+          23%, 100% { transform: translateY(0) rotate(0deg); }
         }
         @keyframes successArmRightAnim {
           0% { transform: rotate(0deg); }
-          4.16% { transform: rotate(20deg); }
-          8.33% { transform: rotate(-20deg); }
-          12.5% { transform: rotate(20deg); }
-          16.6% { transform: rotate(-20deg); }
-          20.8% { transform: rotate(20deg); }
-          25% { transform: rotate(0deg); }
-          35% { transform: rotate(120deg); }
-          36.25% { transform: rotate(140deg); }
-          37.5% { transform: rotate(120deg); }
-          38.75% { transform: rotate(140deg); }
-          40% { transform: rotate(120deg); }
-          41.6% { transform: translateY(-4px) rotate(110deg); }
-          43.3% { transform: translateY(-8px) rotate(130deg); }
-          45% { transform: translateY(-4px) rotate(110deg); }
-          46.6% { transform: translateY(-8px) rotate(130deg); }
-          48.3% { transform: translateY(-4px) rotate(110deg); }
-          50% { transform: translateY(0) rotate(0deg); }
-          100% { transform: rotate(0deg); }
+          1.6% { transform: rotate(20deg); }
+          3.2% { transform: rotate(-20deg); }
+          4.8% { transform: rotate(20deg); }
+          6.4% { transform: rotate(-20deg); }
+          8% { transform: rotate(20deg); }
+          10% { transform: rotate(0deg); }
+          16% { transform: rotate(120deg); }
+          17% { transform: rotate(140deg); }
+          18% { transform: rotate(120deg); }
+          19% { transform: rotate(120deg); }
+          20.3% { transform: translateY(-4px) rotate(110deg); }
+          21.6% { transform: translateY(-8px) rotate(130deg); }
+          23%, 100% { transform: translateY(0) rotate(0deg); }
         }
         
         @keyframes failLegLeftAnim {
-          0%, 47.9% { transform: rotate(0deg); }
-          48% { transform: rotate(0deg); }
-          52.25% { transform: rotate(22deg); }
-          56.5% { transform: rotate(-22deg); }
-          60.75% { transform: rotate(22deg); }
-          65% { transform: rotate(0deg); }
-          79.9% { transform: rotate(0deg); }
-          80% { transform: rotate(0deg); }
-          84% { transform: rotate(32deg); }
-          86% { transform: rotate(0deg); }
-          88% { transform: rotate(-32deg); }
-          90% { transform: rotate(0deg); }
-          92% { transform: rotate(32deg); }
-          94% { transform: rotate(0deg); }
-          96% { transform: rotate(-32deg); }
-          98% { transform: rotate(0deg); }
-          100% { transform: rotate(0deg); }
+          0%, 24.9% { transform: rotate(0deg); }
+          27% { transform: rotate(22deg); }
+          29% { transform: rotate(-22deg); }
+          31% { transform: rotate(22deg); }
+          33% { transform: rotate(-22deg); }
+          35% { transform: rotate(0deg); }
+          44.3% { transform: rotate(0deg); }
+          46% { transform: rotate(28deg); }
+          49% { transform: rotate(-28deg); }
+          52% { transform: rotate(28deg); }
+          55% { transform: rotate(-28deg); }
+          58% { transform: rotate(28deg); }
+          61% { transform: rotate(-28deg); }
+          64%, 100% { transform: rotate(0deg); }
         }
         @keyframes failLegRightAnim {
-          0%, 47.9% { transform: rotate(0deg); }
-          48% { transform: rotate(0deg); }
-          52.25% { transform: rotate(-22deg); }
-          56.5% { transform: rotate(22deg); }
-          60.75% { transform: rotate(-22deg); }
-          65% { transform: rotate(0deg); }
-          79.9% { transform: rotate(0deg); }
-          80% { transform: rotate(0deg); }
-          84% { transform: rotate(-32deg); }
-          86% { transform: rotate(0deg); }
-          88% { transform: rotate(32deg); }
-          90% { transform: rotate(0deg); }
-          92% { transform: rotate(-32deg); }
-          94% { transform: rotate(0deg); }
-          96% { transform: rotate(32deg); }
-          98% { transform: rotate(0deg); }
-          100% { transform: rotate(0deg); }
+          0%, 24.9% { transform: rotate(0deg); }
+          27% { transform: rotate(-22deg); }
+          29% { transform: rotate(22deg); }
+          31% { transform: rotate(-22deg); }
+          33% { transform: rotate(22deg); }
+          35% { transform: rotate(0deg); }
+          44.3% { transform: rotate(0deg); }
+          46% { transform: rotate(-28deg); }
+          49% { transform: rotate(28deg); }
+          52% { transform: rotate(-28deg); }
+          55% { transform: rotate(28deg); }
+          58% { transform: rotate(-28deg); }
+          61% { transform: rotate(28deg); }
+          64%, 100% { transform: rotate(0deg); }
         }
         @keyframes failArmLeftAnim {
-          0%, 47.9% { transform: rotate(0deg); }
-          48%, 74.9% { transform: rotate(-120deg); }
-          75% { transform: rotate(-145deg) translateY(-2px); }
-          77% { transform: rotate(-135deg) translateY(-1px); }
-          79% { transform: rotate(-145deg); }
-          80%, 98% { transform: rotate(-40deg); }
-          100% { transform: rotate(0deg); }
+          0%, 24.9% { transform: rotate(0deg); }
+          25%, 41.5% { transform: rotate(-120deg); }
+          41.6% { transform: rotate(-145deg) translateY(-2px); }
+          42.8% { transform: rotate(-135deg) translateY(-1px); }
+          44% { transform: rotate(-145deg); }
+          44.4%, 65% { transform: rotate(-40deg); }
+          65.1%, 100% { transform: rotate(0deg); }
         }
         @keyframes failArmRightAnim {
-          0%, 47.9% { transform: rotate(0deg); }
-          48%, 74.9% { transform: rotate(120deg); }
-          75% { transform: rotate(145deg) translateY(-2px); }
-          77% { transform: rotate(135deg) translateY(-1px); }
-          79% { transform: rotate(145deg); }
-          80%, 98% { transform: rotate(40deg); }
-          100% { transform: rotate(0deg); }
+          0%, 24.9% { transform: rotate(0deg); }
+          25%, 41.5% { transform: rotate(120deg); }
+          41.6% { transform: rotate(145deg) translateY(-2px); }
+          42.8% { transform: rotate(135deg) translateY(-1px); }
+          44% { transform: rotate(145deg); }
+          44.4%, 65% { transform: rotate(40deg); }
+          65.1%, 100% { transform: rotate(0deg); }
         }
 
-        /* Box dropped & ROLLING/BOUNCING away on asphalt road */
+        /* Box dropped & ROLLING/BOUNCING away on wood shop floor */
         @keyframes failBoxAnim {
-          0% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
-          64.9% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
-          /* Caught at 65%. Stays in hand shaking. */
-          65%, 79.9% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
-          /* Dropped at 80% - flies outwards/downwards */
-          82% { transform: translate(50px, -20px) rotate(160deg); }
-          /* Hits road at 84.5% (approx Y=15 lower than sidewalk hand height) */
-          84.5% { transform: translate(110px, 16px) rotate(320deg); }
-          /* First bounce */
-          86% { transform: translate(140px, 2px) rotate(380deg); }
-          /* Hits road again */
-          87.5% { transform: translate(170px, 16px) rotate(440deg); }
-          /* Second bounce (smaller) */
-          89% { transform: translate(200px, 9px) rotate(480deg); }
-          /* Settles and starts rolling/sliding with asphalt parallax velocity */
-          90.5% { transform: translate(230px, 16px) rotate(520deg); }
-          93% { transform: translate(300px, 16px) rotate(580deg); }
-          96% { transform: translate(370px, 16px) rotate(640deg); opacity: 1; }
-          98% { transform: translate(440px, 16px) rotate(700deg); opacity: 0.8; }
-          100% { transform: translate(500px, 16px) rotate(760deg); opacity: 0; }
+          0%, 34.9% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
+          35%, 44.3% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
+          44.4% { transform: translate(0px, 0px) rotate(0deg) opacity: 1; }
+          46.4% { transform: translate(50px, -20px) rotate(160deg); }
+          48.9% { transform: translate(110px, 16px) rotate(320deg); }
+          50.4% { transform: translate(140px, 2px) rotate(380deg); }
+          51.9% { transform: translate(170px, 16px) rotate(440deg); }
+          53.4% { transform: translate(200px, 9px) rotate(480deg); }
+          54.9% { transform: translate(230px, 16px) rotate(520deg); }
+          57.4% { transform: translate(300px, 16px) rotate(580deg); }
+          60% { transform: translate(370px, 16px) rotate(640deg); }
+          62.5% { transform: translate(440px, 16px) rotate(700deg) opacity: 0.8; }
+          65% { transform: translate(500px, 16px) rotate(760deg) opacity: 0; }
+          65.1%, 100% { opacity: 0; }
         }
         
         @keyframes failFaceHappyTimeline {
-          0%, 74.9% { opacity: 1; }
-          75%, 100% { opacity: 0; }
+          0%, 41.5% { opacity: 1; }
+          41.6%, 100% { opacity: 0; }
         }
         @keyframes failFaceSadTimeline {
-          0%, 74.9% { opacity: 0; }
-          75%, 100% { opacity: 1; }
+          0%, 41.5% { opacity: 0; }
+          41.6%, 100% { opacity: 1; }
         }
         
         @keyframes guardArmRightAnim {
-          0%, 34.9% { transform: rotate(0deg); }
-          35% { transform: rotate(-50deg); }
-          37% { transform: rotate(-25deg); }
-          39% { transform: rotate(-50deg); }
-          41% { transform: rotate(-25deg); }
-          42%, 74.9% { transform: rotate(0deg); }
+          0%, 9.9% { transform: rotate(0deg); }
+          10% { transform: rotate(-50deg); }
+          12% { transform: rotate(-25deg); }
+          14% { transform: rotate(-50deg); }
+          16% { transform: rotate(-25deg); }
+          17%, 41.5% { transform: rotate(0deg); }
           /* Caught shoplifter! Points angrily at first. */
-          75% { transform: rotate(90deg); }
-          77% { transform: rotate(70deg); }
-          79% { transform: rotate(90deg); }
+          41.6% { transform: rotate(90deg); }
+          42.5% { transform: rotate(70deg); }
+          43.5% { transform: rotate(90deg); }
           /* Escorting thief: keeps right arm pointing forward/pushing */
-          80%, 98% { transform: rotate(80deg); }
+          44.4%, 65% { transform: rotate(80deg); }
+          /* Walking back tired: droops hanging loose */
+          70%, 90% { transform: rotate(-15deg); }
           100% { transform: rotate(0deg); }
         }
 
         @keyframes guardWalkAnim {
-          0%, 74.9% { transform: translate(535px, 50px); opacity: 1; }
-          75%, 80% { transform: translate(515px, 50px); opacity: 1; }
-          82% { transform: translate(455px, 50px); opacity: 1; }
-          84% { transform: translate(395px, 50px); opacity: 1; }
-          86% { transform: translate(335px, 50px); opacity: 1; }
-          88% { transform: translate(275px, 50px); opacity: 1; }
-          90% { transform: translate(215px, 50px); opacity: 1; }
-          92% { transform: translate(155px, 50px); opacity: 1; }
-          94% { transform: translate(95px, 50px); opacity: 1; }
-          96% { transform: translate(35px, 50px); opacity: 1; }
-          98% { transform: translate(-25px, 50px); opacity: 1; }
-          98.1%, 99.9% { transform: translate(-25px, 50px); opacity: 0; }
-          100% { transform: translate(535px, 50px); opacity: 1; }
+          0%, 41.5% { transform: translate(535px, 50px); opacity: 1; }
+          41.6%, 44.3% { transform: translate(515px, 50px); opacity: 1; }
+          44.4% { transform: translate(515px, 50px); opacity: 1; }
+          47% { transform: translate(435px, 50px); }
+          50% { transform: translate(355px, 50px); }
+          53% { transform: translate(275px, 50px); }
+          56% { transform: translate(195px, 50px); }
+          59% { transform: translate(115px, 50px); }
+          62% { transform: translate(35px, 50px); }
+          65% { transform: translate(-45px, 50px); opacity: 1; }
+          65.1%, 69.9% { transform: translate(-45px, 50px); opacity: 1; }
+          /* Walking back tired (70% - 90%) */
+          70% { transform: translate(-45px, 50px); }
+          72.5% { transform: translate(25px, 50px); }
+          75% { transform: translate(95px, 50px); }
+          77.5% { transform: translate(165px, 50px); }
+          80% { transform: translate(235px, 50px); }
+          82.5% { transform: translate(305px, 50px); }
+          85% { transform: translate(375px, 50px); }
+          87.5% { transform: translate(445px, 50px); }
+          90% { transform: translate(535px, 50px); }
+          90.1%, 100% { transform: translate(535px, 50px); opacity: 1; }
         }
 
         @keyframes guardBobTimeline {
-          0%, 79.9% { transform: translateY(0px); }
-          80% { transform: translateY(0px); }
-          82.25% { transform: translateY(-3px); }
-          84.5% { transform: translateY(0px); }
-          86.75% { transform: translateY(-3px); }
-          89% { transform: translateY(0px); }
-          91.25% { transform: translateY(-3px); }
-          93.5% { transform: translateY(0px); }
-          95.75% { transform: translateY(-3px); }
-          98%, 100% { transform: translateY(0px); }
+          0%, 44.3% { transform: translateY(0px); }
+          /* Escort bobbing */
+          46% { transform: translateY(-2.5px); }
+          49% { transform: translateY(0px); }
+          52% { transform: translateY(-2.5px); }
+          55% { transform: translateY(0px); }
+          58% { transform: translateY(-2.5px); }
+          61% { transform: translateY(0px); }
+          64% { transform: translateY(0px); }
+          65%, 69.9% { transform: translateY(0px); }
+          /* Tired return bobbing (deeper downwards movement to show heavy step) */
+          71.25% { transform: translateY(1.5px); }
+          73.75% { transform: translateY(-1.5px); }
+          76.25% { transform: translateY(1.5px); }
+          78.75% { transform: translateY(-1.5px); }
+          81.25% { transform: translateY(1.5px); }
+          83.75% { transform: translateY(-1.5px); }
+          86.25% { transform: translateY(1.5px); }
+          88.75% { transform: translateY(-1.5px); }
+          90%, 100% { transform: translateY(0px); }
         }
 
         @keyframes guardLegLeftAnim {
-          0%, 79.9% { transform: rotate(0deg); }
-          83% { transform: rotate(28deg); }
-          86% { transform: rotate(-28deg); }
-          89% { transform: rotate(28deg); }
-          92% { transform: rotate(-28deg); }
-          95% { transform: rotate(28deg); }
-          98%, 100% { transform: rotate(0deg); }
+          0%, 44.3% { transform: rotate(0deg); }
+          /* Escorting thief (44.4% - 65%) */
+          46% { transform: rotate(28deg); }
+          49% { transform: rotate(-28deg); }
+          52% { transform: rotate(28deg); }
+          55% { transform: rotate(-28deg); }
+          58% { transform: rotate(28deg); }
+          61% { transform: rotate(-28deg); }
+          64% { transform: rotate(0deg); }
+          65%, 69.9% { transform: rotate(0deg); }
+          /* Walking back tired (70% - 90%) - slower steps */
+          72.5% { transform: rotate(-20deg); }
+          75% { transform: rotate(20deg); }
+          77.5% { transform: rotate(-20deg); }
+          80% { transform: rotate(20deg); }
+          82.5% { transform: rotate(-20deg); }
+          85% { transform: rotate(20deg); }
+          87.5% { transform: rotate(-20deg); }
+          90%, 100% { transform: rotate(0deg); }
         }
 
         @keyframes guardLegRightAnim {
-          0%, 79.9% { transform: rotate(0deg); }
-          83% { transform: rotate(-28deg); }
-          86% { transform: rotate(28deg); }
-          89% { transform: rotate(-28deg); }
-          92% { transform: rotate(28deg); }
-          95% { transform: rotate(-28deg); }
-          98%, 100% { transform: rotate(0deg); }
+          0%, 44.3% { transform: rotate(0deg); }
+          /* Escorting thief (44.4% - 65%) */
+          46% { transform: rotate(-28deg); }
+          49% { transform: rotate(28deg); }
+          52% { transform: rotate(-28deg); }
+          55% { transform: rotate(28deg); }
+          58% { transform: rotate(-28deg); }
+          61% { transform: rotate(28deg); }
+          64% { transform: rotate(0deg); }
+          65%, 69.9% { transform: rotate(0deg); }
+          /* Walking back tired (70% - 90%) */
+          72.5% { transform: rotate(20deg); }
+          75% { transform: rotate(-20deg); }
+          77.5% { transform: rotate(20deg); }
+          80% { transform: rotate(-20deg); }
+          82.5% { transform: rotate(20deg); }
+          85% { transform: rotate(-20deg); }
+          87.5% { transform: rotate(20deg); }
+          90%, 100% { transform: rotate(0deg); }
+        }
+
+        @keyframes guardUpperBodyTimeline {
+          0%, 69.9% { transform: rotate(0deg); }
+          /* Slouched walk back */
+          70%, 90% { transform: rotate(-12deg) translateY(1.5px); }
+          /* Slowly recover at post */
+          95%, 100% { transform: rotate(0deg); }
         }
         
         @keyframes popSuccessTimeline {
-          0%, 34.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
-          35% { transform: translate(500px, 20px) scale(1.1) rotate(4deg); opacity: 1; }
-          43% { transform: translate(500px, 15px) scale(1) rotate(-4deg); opacity: 1; }
-          48% { transform: translate(500px, 10px) scale(0); opacity: 0; }
+          0%, 15.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
+          16% { transform: translate(500px, 20px) scale(1.1) rotate(4deg); opacity: 1; }
+          18% { transform: translate(500px, 15px) scale(1) rotate(-4deg); opacity: 1; }
+          20% { transform: translate(500px, 10px) scale(0); opacity: 0; }
           100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
         }
         @keyframes popFailTimeline {
-          0%, 74.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
-          75% { transform: translate(500px, 20px) scale(1.1) rotate(-4deg); opacity: 1; }
-          82% { transform: translate(500px, 15px) scale(1) rotate(4deg); opacity: 1; }
-          88% { transform: translate(500px, 10px) scale(0); opacity: 0; }
+          0%, 41.5% { transform: translate(500px, 20px) scale(0); opacity: 0; }
+          41.6% { transform: translate(500px, 20px) scale(1.1) rotate(-4deg); opacity: 1; }
+          44% { transform: translate(500px, 15px) scale(1) rotate(4deg); opacity: 1; }
+          46% { transform: translate(500px, 10px) scale(0); opacity: 0; }
           100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
         }
         
         @keyframes laserScanTimeline {
-          0%, 24% { fill: rgba(0, 191, 255, 0.05); opacity: 0.12; transform: scaleX(0.5); }
-          25% { fill: rgba(0, 191, 255, 0.3); opacity: 0.8; transform: scaleX(0.85); }
-          30% { fill: rgba(0, 191, 255, 0.4); opacity: 0.9; transform: scaleX(1.15); }
-          34% { fill: rgba(0, 191, 255, 0.3); opacity: 0.8; transform: scaleX(0.85); }
-          35% { fill: rgba(0, 255, 148, 0.3); opacity: 0.9; transform: scaleX(1.1); }
-          39% { fill: rgba(0, 255, 148, 0.3); opacity: 0.9; transform: scaleX(1.1); }
-          40% { fill: rgba(0, 191, 255, 0.05); opacity: 0.12; transform: scaleX(0.5); }
-          41%, 64% { fill: rgba(0, 191, 255, 0.05); opacity: 0.12; transform: scaleX(0.5); }
-          65% { fill: rgba(0, 191, 255, 0.35); opacity: 0.8; transform: scaleX(0.85); }
-          70% { fill: rgba(0, 191, 255, 0.4); opacity: 0.9; transform: scaleX(1.15); }
-          74% { fill: rgba(0, 191, 255, 0.35); opacity: 0.8; transform: scaleX(0.85); }
-          75% { fill: rgba(255, 49, 49, 0.3); opacity: 0.9; transform: scaleX(1.1); }
-          79% { fill: rgba(255, 49, 49, 0.3); opacity: 0.9; transform: scaleX(1.1); }
-          80%, 100% { fill: rgba(0, 191, 255, 0.05); opacity: 0.12; transform: scaleX(0.5); }
+          0%, 9.9% { fill: rgba(0, 191, 255, 0.05); opacity: 0.12; transform: scaleX(0.5); }
+          10% { fill: rgba(0, 191, 255, 0.35); opacity: 0.8; transform: scaleX(0.85); }
+          13% { fill: rgba(0, 191, 255, 0.4); opacity: 0.9; transform: scaleX(1.15); }
+          15.9% { fill: rgba(0, 191, 255, 0.35); opacity: 0.8; transform: scaleX(0.85); }
+          16% { fill: rgba(0, 255, 148, 0.3); opacity: 0.9; transform: scaleX(1.1); }
+          19% { fill: rgba(0, 255, 148, 0.3); opacity: 0.9; transform: scaleX(1.1); }
+          19.1%, 34.9% { fill: rgba(0, 191, 255, 0.05); opacity: 0.12; transform: scaleX(0.5); }
+          35% { fill: rgba(0, 191, 255, 0.35); opacity: 0.8; transform: scaleX(0.85); }
+          38% { fill: rgba(0, 191, 255, 0.4); opacity: 0.9; transform: scaleX(1.15); }
+          41.5% { fill: rgba(0, 191, 255, 0.35); opacity: 0.8; transform: scaleX(0.85); }
+          41.6% { fill: rgba(255, 49, 49, 0.3); opacity: 0.9; transform: scaleX(1.1); }
+          44.4% { fill: rgba(255, 49, 49, 0.3); opacity: 0.9; transform: scaleX(1.1); }
+          44.5%, 100% { fill: rgba(0, 191, 255, 0.05); opacity: 0.12; transform: scaleX(0.5); }
         }
         
         @keyframes scannerLightTimeline {
-          0%, 24% { fill: #333; }
-          25%, 34% { fill: #00BFFF; filter: drop-shadow(0 0 3px #00BFFF); }
-          35%, 39% { fill: #00FF94; filter: drop-shadow(0 0 5px #00FF94); }
-          40%, 64% { fill: #333; }
-          65%, 74% { fill: #00BFFF; filter: drop-shadow(0 0 3px #00BFFF); }
-          75%, 79% { fill: #FF3131; filter: drop-shadow(0 0 5px #FF3131); }
-          80%, 100% { fill: #333; }
+          0%, 9.9% { fill: #333; }
+          10%, 15.9% { fill: #00BFFF; filter: drop-shadow(0 0 3px #00BFFF); }
+          16%, 19% { fill: #00FF94; filter: drop-shadow(0 0 5px #00FF94); }
+          19.1%, 34.9% { fill: #333; }
+          35%, 41.5% { fill: #00BFFF; filter: drop-shadow(0 0 3px #00BFFF); }
+          41.6%, 44.4% { fill: #FF3131; filter: drop-shadow(0 0 5px #FF3131); }
+          44.5%, 100% { fill: #333; }
         }
         
         @keyframes eqWave {
@@ -949,39 +963,43 @@ export function CheckoutConveyor() {
               <line x1="3" y1="7" x2="3" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
               <path d="M-1,20 L4,20 C5,20 5,23 3,23 L-1,23 Z" fill="#0f172a" stroke="#000" strokeWidth="1.2" />
             </g>
-            {/* Uniform shirt & belt */}
-            <rect x="-8" y="-14" width="16" height="21" rx="2" fill="#1e293b" stroke="#000" strokeWidth="2" />
-            <rect x="-9" y="4" width="18" height="3" fill="#111" stroke="#000" strokeWidth="1.2" />
-            <rect x="-2" y="3.5" width="4" height="4" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
-            <polygon points="0,-14 -3,-9 0,-5 3,-9" fill="#111" />
-            {/* Shield Badge */}
-            <polygon points="2,-7 5,-4 3,-1 1,-4" fill="#FFE600" stroke="#000" strokeWidth="0.6" />
-            {/* Head */}
-            <circle cx="0" cy="-21" r="7.5" fill="#FFE600" stroke="#000" strokeWidth="2" />
-            {/* Cap */}
-            <path d="M-8,-26 L8,-26 L9,-22 L-9,-22 Z" fill="#0f172a" stroke="#000" strokeWidth="1.5" />
-            <rect x="-4" y="-25" width="8" height="2.2" fill="#FFE600" />
-            {/* Sunglasses with Glare Shine */}
-            <g className="guard-glasses">
-              <rect x="-4.5" y="-23.2" width="3.5" height="2.0" fill="#000" rx="0.5" />
-              <rect x="1" y="-23.2" width="3.5" height="2.0" fill="#000" rx="0.5" />
-              <line x1="-6" y1="-23" x2="-3.5" y2="-21" stroke="#fff" strokeWidth="0.7" className="glasses-glare" />
-              <line x1="-0.5" y1="-23" x2="2" y2="-21" stroke="#fff" strokeWidth="0.7" className="glasses-glare" />
-            </g>
-            {/* Serious mouth line */}
-            <path d="M-2.5,-18 L2.5,-18" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
             
-            {/* Left Arm holding security wand */}
-            <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#1e293b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="-10" cy="4" r="2" fill="#FFE600" stroke="#000" strokeWidth="1" />
-            <line x1="-10" y1="4" x2="-8" y2="10" stroke="#FFE600" strokeWidth="2.5" strokeLinecap="round" />
-            
-            {/* Right Arm (angry pointer) */}
-            <g className="guard-arm-r-group">
-              <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#1e293b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="10" cy="3" r="2" fill="#FFE600" stroke="#000" strokeWidth="1" />
+            {/* Upper body container to hunch when tired */}
+            <g className="guard-upper-body">
+              {/* Uniform shirt & belt */}
+              <rect x="-8" y="-14" width="16" height="21" rx="2" fill="#1e293b" stroke="#000" strokeWidth="2" />
+              <rect x="-9" y="4" width="18" height="3" fill="#111" stroke="#000" strokeWidth="1.2" />
+              <rect x="-2" y="3.5" width="4" height="4" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+              <polygon points="0,-14 -3,-9 0,-5 3,-9" fill="#111" />
+              {/* Shield Badge */}
+              <polygon points="2,-7 5,-4 3,-1 1,-4" fill="#FFE600" stroke="#000" strokeWidth="0.6" />
+              {/* Head */}
+              <circle cx="0" cy="-21" r="7.5" fill="#FFE600" stroke="#000" strokeWidth="2" />
+              {/* Cap */}
+              <path d="M-8,-26 L8,-26 L9,-22 L-9,-22 Z" fill="#0f172a" stroke="#000" strokeWidth="1.5" />
+              <rect x="-4" y="-25" width="8" height="2.2" fill="#FFE600" />
+              {/* Sunglasses with Glare Shine */}
+              <g className="guard-glasses">
+                <rect x="-4.5" y="-23.2" width="3.5" height="2.0" fill="#000" rx="0.5" />
+                <rect x="1" y="-23.2" width="3.5" height="2.0" fill="#000" rx="0.5" />
+                <line x1="-6" y1="-23" x2="-3.5" y2="-21" stroke="#fff" strokeWidth="0.7" className="glasses-glare" />
+                <line x1="-0.5" y1="-23" x2="2" y2="-21" stroke="#fff" strokeWidth="0.7" className="glasses-glare" />
+              </g>
+              {/* Serious mouth line */}
+              <path d="M-2.5,-18 L2.5,-18" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+              
+              {/* Left Arm holding security wand */}
+              <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#1e293b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="-10" cy="4" r="2" fill="#FFE600" stroke="#000" strokeWidth="1" />
+              <line x1="-10" y1="4" x2="-8" y2="10" stroke="#FFE600" strokeWidth="2.5" strokeLinecap="round" />
+              
+              {/* Right Arm (angry pointer) */}
+              <g className="guard-arm-r-group">
+                <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#1e293b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="10" cy="3" r="2" fill="#FFE600" stroke="#000" strokeWidth="1" />
+              </g>
             </g>
           </g>
         </g>
