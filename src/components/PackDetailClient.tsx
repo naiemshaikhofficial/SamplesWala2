@@ -477,61 +477,6 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
         {/* Right Section: Sound Stats, Previews, Details, and FAQ */}
         <div className="lg:col-span-8 space-y-8">
-          {/* Sound Statistics Grid */}
-          {(() => {
-            const activeStats = [
-              { label: 'Melodies', count: pack.melody_count, icon: Music, bg: 'bg-[#FF0080]', shadow: 'shadow-[2.5px_2.5px_0px_#00BFFF] md:shadow-[4px_4px_0px_#00BFFF]', text: 'text-white' },
-              { label: 'Loops', count: pack.loop_count, icon: Layers, bg: 'bg-[#00FF94]', shadow: 'shadow-[2.5px_2.5px_0px_#FF3131] md:shadow-[4px_4px_0px_#FF3131]', text: 'text-black' },
-              { label: 'One-shots', count: pack.one_shot_count, icon: Disc, bg: 'bg-[#FFAA00]', shadow: 'shadow-[2.5px_2.5px_0px_#00BFFF] md:shadow-[4px_4px_0px_#00BFFF]', text: 'text-black' },
-              { label: 'Presets', count: pack.preset_count, icon: SlidersHorizontal, bg: 'bg-[#FFE600]', shadow: 'shadow-[2.5px_2.5px_0px_#FF3131] md:shadow-[4px_4px_0px_#FF3131]', text: 'text-black' }
-            ].filter(stat => stat.count !== undefined && stat.count !== null && stat.count > 0);
-
-            if (activeStats.length === 0) return null;
-
-            const gridColsMap: Record<number, string> = {
-              1: 'grid-cols-2', // Keep half width on mobile for single item
-              2: 'grid-cols-2',
-              3: 'grid-cols-3',
-              4: 'grid-cols-4'
-            };
-            const mobileGridClass = gridColsMap[activeStats.length] || 'grid-cols-4';
-
-            return (
-              <div className={`grid ${mobileGridClass} md:grid-cols-4 gap-2 md:gap-4`}>
-                {activeStats.map((stat, i) => {
-                  const Icon = stat.icon;
-                  return (
-                    <motion.div 
-                      key={i} 
-                      whileHover={{ y: -4 }}
-                      className={`p-2.5 md:p-5 rounded-xl md:rounded-2xl border-2 border-black ${stat.bg} ${stat.shadow} ${stat.text} flex flex-col justify-between h-20 md:h-28 relative overflow-hidden group transition-all duration-300`}
-                    >
-                      <div className="absolute right-1 top-1 opacity-5 md:opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Icon className={`w-8 h-8 md:w-12 md:h-12 ${stat.text === 'text-white' ? 'text-white' : 'text-black'}`} />
-                      </div>
-                      <div className="flex items-center gap-1 opacity-80 min-w-0 z-10">
-                        <Icon className={`w-2.5 h-2.5 md:w-3 md:h-3 flex-shrink-0 ${stat.text === 'text-white' ? 'text-white' : 'text-black'}`} />
-                        <span className="text-[7px] md:text-[9px] font-black uppercase tracking-wider font-mono truncate">{stat.label}</span>
-                      </div>
-                      <span className="text-xl md:text-3xl font-black italic tracking-tight font-mono leading-none z-10">{stat.count}</span>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            );
-          })()}
-
-          {/* Sound Count Fallback block */}
-          {(!pack.melody_count && !pack.loop_count && !pack.one_shot_count && !pack.preset_count) && (
-            <div className="p-6 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between shadow-inner">
-              <div className="space-y-1">
-                <span className="text-[9px] font-black uppercase tracking-wider text-white/40 block font-mono">Collection Content Info</span>
-                <span className="text-base font-black uppercase tracking-wide text-white">{pack.total_contents_summary || 'Premium Quality Audio Assets'}</span>
-              </div>
-              <Sparkles className="text-studio-yellow animate-pulse" size={24} />
-            </div>
-          )}
-
           {/* Preview Theatre */}
           {videoIds.length > 0 ? (
             <div id="video-demo-section" className="space-y-4">
@@ -579,6 +524,61 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">Overview</h2>
             </div>
             <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-lg">
+              {/* Sound Statistics Grid */}
+              {(() => {
+                const activeStats = [
+                  { label: 'Melodies', count: pack.melody_count, icon: Music, bg: 'bg-[#FF0080]', shadow: 'shadow-[2.5px_2.5px_0px_#00BFFF] md:shadow-[4px_4px_0px_#00BFFF]', text: 'text-white' },
+                  { label: 'Loops', count: pack.loop_count, icon: Layers, bg: 'bg-[#00FF94]', shadow: 'shadow-[2.5px_2.5px_0px_#FF3131] md:shadow-[4px_4px_0px_#FF3131]', text: 'text-black' },
+                  { label: 'One-shots', count: pack.one_shot_count, icon: Disc, bg: 'bg-[#FFAA00]', shadow: 'shadow-[2.5px_2.5px_0px_#00BFFF] md:shadow-[4px_4px_0px_#00BFFF]', text: 'text-black' },
+                  { label: 'Presets', count: pack.preset_count, icon: SlidersHorizontal, bg: 'bg-[#FFE600]', shadow: 'shadow-[2.5px_2.5px_0px_#FF3131] md:shadow-[4px_4px_0px_#FF3131]', text: 'text-black' }
+                ].filter(stat => stat.count !== undefined && stat.count !== null && stat.count > 0);
+
+                if (activeStats.length === 0) return null;
+
+                const gridColsMap: Record<number, string> = {
+                  1: 'grid-cols-2', // Keep half width on mobile for single item
+                  2: 'grid-cols-2',
+                  3: 'grid-cols-3',
+                  4: 'grid-cols-4'
+                };
+                const mobileGridClass = gridColsMap[activeStats.length] || 'grid-cols-4';
+
+                return (
+                  <div className={`grid ${mobileGridClass} md:grid-cols-4 gap-2 md:gap-4`}>
+                    {activeStats.map((stat, i) => {
+                      const Icon = stat.icon;
+                      return (
+                        <motion.div 
+                          key={i} 
+                          whileHover={{ y: -4 }}
+                          className={`p-2.5 md:p-5 rounded-xl md:rounded-2xl border-2 border-black ${stat.bg} ${stat.shadow} ${stat.text} flex flex-col justify-between h-20 md:h-28 relative overflow-hidden group transition-all duration-300`}
+                        >
+                          <div className="absolute right-1 top-1 opacity-5 md:opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Icon className={`w-8 h-8 md:w-12 md:h-12 ${stat.text === 'text-white' ? 'text-white' : 'text-black'}`} />
+                          </div>
+                          <div className="flex items-center gap-1 opacity-80 min-w-0 z-10">
+                            <Icon className={`w-2.5 h-2.5 md:w-3 md:h-3 flex-shrink-0 ${stat.text === 'text-white' ? 'text-white' : 'text-black'}`} />
+                            <span className="text-[7px] md:text-[9px] font-black uppercase tracking-wider font-mono truncate">{stat.label}</span>
+                          </div>
+                          <span className="text-xl md:text-3xl font-black italic tracking-tight font-mono leading-none z-10">{stat.count}</span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              {/* Sound Count Fallback block */}
+              {(!pack.melody_count && !pack.loop_count && !pack.one_shot_count && !pack.preset_count) && (
+                <div className="p-6 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between shadow-inner">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-white/40 block font-mono">Collection Content Info</span>
+                    <span className="text-base font-black uppercase tracking-wide text-white">{pack.total_contents_summary || 'Premium Quality Audio Assets'}</span>
+                  </div>
+                  <Sparkles className="text-studio-yellow animate-pulse" size={24} />
+                </div>
+              )}
+
               <FormattedDescription text={pack.description} />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
@@ -678,28 +678,30 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         </div>
       </div>
 
-      {/* Guide & Tips */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-12 border-t border-white/5 pb-12">
-         <div className="space-y-3 p-6 bg-black/40 border border-white/10 rounded-2xl">
-            <div className="flex items-center gap-2 mb-1">
-               <ShieldCheck className="text-studio-pink" size={16} />
-               <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-pink font-mono">Pro Tip</h3>
+      {/* Installation Guide - Centered & Clean */}
+      <section className="max-w-2xl mx-auto pt-12 border-t border-white/5 pb-12 space-y-6">
+         <div className="flex flex-col items-center text-center gap-2 mb-4">
+            <div className="w-10 h-10 rounded-full bg-studio-yellow/10 flex items-center justify-center text-studio-yellow border border-studio-yellow/20">
+               <Download size={20} />
             </div>
-            <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider font-mono">
-               For best results, use high-quality studio monitors or headphones to hear the full sub-bass frequency range. Organize your library by bpm and key for faster, more creative workflows.
-            </p>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-studio-yellow font-mono">Installation Guide</h3>
          </div>
-         <div className="space-y-3 p-6 bg-black/40 border border-white/10 rounded-2xl">
-            <div className="flex items-center gap-2 mb-1">
-               <Download className="text-studio-yellow" size={16} />
-               <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-yellow font-mono">Installation Guide</h3>
-            </div>
-            <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider font-mono">
-               1. Extract the downloaded ZIP archive file.<br />
-               2. Drag the folder directly into your DAW's file browser (FL Studio, Ableton, Logic).<br />
-               3. Add the folder path to your 'Places' or 'Bookmarks' for quick drag-and-drop access.<br />
-               4. Start creating!
-            </p>
+         
+         <div className="p-6 md:p-8 bg-[#0a0a0af0] border border-white/10 rounded-2xl shadow-lg">
+            <ol className="space-y-4 text-[10px] md:text-xs font-bold text-white/70 uppercase tracking-widest font-mono list-decimal pl-6">
+               <li className="leading-relaxed">
+                  Extract the downloaded <span className="text-white underline decoration-studio-yellow decoration-2">ZIP archive file</span>.
+               </li>
+               <li className="leading-relaxed">
+                  Drag the folder directly into your DAW's file browser (FL Studio, Ableton, Logic).
+               </li>
+               <li className="leading-relaxed">
+                  Add the folder path to your 'Places' or 'Bookmarks' for quick drag-and-drop access.
+               </li>
+               <li className="leading-relaxed text-studio-neon">
+                  Start creating!
+               </li>
+            </ol>
          </div>
       </section>
 

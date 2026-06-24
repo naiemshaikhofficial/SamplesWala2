@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Youtube, Download, ShieldCheck, Zap, Music, ShoppingBag, CheckCircle2, Layout, HelpCircle, Plus, Check, CreditCard, Loader2 } from 'lucide-react'
+import { ArrowLeft, Youtube, Download, ShieldCheck, Zap, Music, ShoppingBag, CheckCircle2, Layout, HelpCircle, Plus, Check, CreditCard, Loader2, Layers } from 'lucide-react'
 import { AddToCartButton } from '@/components/AddToCartButton'
 import { ShareButton } from '@/components/ShareButton'
 import { DownloadButton } from '@/components/DownloadButton'
@@ -202,91 +202,88 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
       <Link href="/browse/presets" className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-studio-pink transition-colors group">
         <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
         Back to Presets
-      </Link>
+      </Link>      {/* Cinematic Title Header (Desktop Only, hidden on mobile to avoid duplication) */}
+      <div className="hidden lg:flex flex-col gap-3">
+        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-black bg-[#FFE600] px-3 py-1 border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm w-fit -rotate-1">
+          {preset.type || 'Preset Collection'}
+        </span>
+        <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
+          {preset.name}
+        </h1>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        {/* Mobile: 1. Video Preview | Desktop: Right Column */}
-        <div className="lg:col-span-7 lg:order-2 space-y-8">
-           {vId ? (
-              <div id="video-demo-section" className="space-y-6">
-                 <div className="flex items-center gap-3">
-                    <div className="h-6 w-1 bg-studio-pink shadow-[0_0_10px_#ff0080]" />
-                    <h2 className="text-lg font-black uppercase tracking-tighter italic">Preset Demo</h2>
-                 </div>
-                 <div className="aspect-video rounded-sm overflow-hidden border-4 border-black shadow-[12px_12px_0px_rgba(0,0,0,1)] bg-black">
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={`https://www.youtube.com/embed/${vId}?rel=0&modestbranding=1`}
-                      title={`${preset.name} Demo`}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                 </div>
-              </div>
-           ) : (
-              <div className="aspect-video rounded-sm border-4 border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/10">
-                 <Music size={64} strokeWidth={1} />
-                 <p className="text-xs font-black uppercase tracking-[0.4em]">Audio preview coming soon</p>
-              </div>
-           )}
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-8">
+        {/* Left Section: Cover Art & Checkout Deck (sticky) */}
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+          {/* Cover Art with 3D Hover & Glow */}
+          <motion.div 
+            whileHover={{ y: -6, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="w-full aspect-square relative rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] group/image"
+          >
+            <Image 
+              src={preset.cover_url || '/placeholder.jpg'} 
+              alt={`${preset.name} - Premium Preset | SamplesWala`} 
+              fill 
+              priority
+              sizes="(max-width: 768px) 100vw, 400px"
+              className="object-cover transition-transform duration-700 group-hover/image:scale-105"
+            />
+            
+            <div className="absolute top-4 right-4 z-20">
+               <ShareButton 
+                 title={preset.name} 
+                 text={`Check out ${preset.name} on SamplesWala!`} 
+                 url={typeof window !== 'undefined' ? window.location.href : ''}
+                 className="w-9 h-9 bg-black/60 backdrop-blur-md border border-white/15 rounded-full hover:bg-studio-red hover:border-studio-red hover:rotate-12 transition-all flex items-center justify-center text-white cursor-pointer"
+               />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+          </motion.div>
 
-        {/* Mobile: 2. Info & Actions | Desktop: Left Column */}
-        <div className="lg:col-span-5 lg:order-1 space-y-8 lg:sticky lg:top-24">
-           <div className="space-y-4">
-              <div className="inline-block px-3 py-1 bg-[#FFE600] text-black text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm -rotate-2">
-                {preset.type}
-              </div>
-              <h1 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic comic-text drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
-                {preset.name}
-              </h1>
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col">
+          {/* Mobile Title (Only shown on mobile) */}
+          <div className="flex lg:hidden flex-col gap-3">
+            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black bg-[#FFE600] px-2.5 py-0.5 border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm w-fit -rotate-1">
+              {preset.type || 'Preset Collection'}
+            </span>
+            <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none text-white">
+              {preset.name}
+            </h1>
+          </div>
+
+          {/* Pricing Card Deck */}
+          <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Price & Value</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-white italic tracking-tight font-mono">
+                    {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
+                  </span>
                   {preset.mrp_inr && (
-                    <span className="text-sm text-white/40 line-through font-bold">
+                    <span className="text-xs text-white/35 line-through font-bold font-mono">
                       {formatPrice(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
                     </span>
                   )}
-                  <p className="text-3xl font-black text-studio-neon uppercase italic tracking-widest">
-                    {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
-                  </p>
                 </div>
-                {preset.mrp_inr && preset.price_inr > 0 && (
-                  <div className="bg-studio-red px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2">
-                    <span className="text-[11px] font-black text-white uppercase italic">
-                      {Math.round((1 - (getAmount(preset.price_inr, preset.price_usd) / getAmount(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)}% OFF
-                    </span>
-                  </div>
-                )}
-                {preset.price_inr === 0 && (
-                   <div className="px-3 py-1 bg-studio-yellow text-black text-[10px] font-black uppercase tracking-widest jagged-border rotate-2">
-                      COMMUNITY GIFT
-                   </div>
-                )}
               </div>
-           </div>
+              
+              {preset.mrp_inr && preset.price_inr > 0 && (
+                <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
+                  <span className="text-xs font-black text-white uppercase italic font-mono">
+                    {Math.round((1 - (getAmount(preset.price_inr, preset.price_usd) / getAmount(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)}% OFF
+                  </span>
+                </div>
+              )}
+              {preset.price_inr === 0 && (
+                 <div className="px-3 py-1 bg-studio-yellow text-black text-[10px] font-black uppercase tracking-widest jagged-border rotate-2">
+                    GIFT
+                 </div>
+              )}
+            </div>
 
-           {/* Compatibility */}
-           <div className="space-y-4">
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-neon">Compatibility</h3>
-              <div className="flex flex-wrap gap-3">
-                 {preset.daws.map((daw: string) => (
-                    <div key={daw} className="px-4 py-2 bg-[#FFE600] text-black border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm flex items-center gap-2">
-                       {daw === 'FL Studio' && (
-                          <div className="relative w-4 h-4">
-                             <Image src="/logos/Fl-Studio.png" alt="FL Studio" fill sizes="16px" className="object-contain" />
-                          </div>
-                       )}
-                       <span className="text-[10px] font-black uppercase">{daw}</span>
-                    </div>
-                 ))}
-              </div>
-           </div>
-
-           {/* Purchase Buttons */}
-           <div className="pt-4">
+            {/* CTAs */}
+            <div id="main-buy-button-container" className="flex flex-col gap-3">
               {isOwned ? (
                  <div className="space-y-4">
                     <div className="flex items-center gap-3 text-studio-neon font-black uppercase tracking-widest text-[10px]">
@@ -296,76 +293,167 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                     <DownloadButton itemId={preset.id} type="preset" />
                  </div>
               ) : (
-                  <div id="main-buy-button-container" className="grid grid-cols-1 gap-4">
-                     <AddToCartButton 
-                       item={{
-                         id: preset.id,
-                         name: preset.name,
-                         price: Number(preset.price_inr),
-                         price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
-                         slug: preset.slug,
-                         cover_url: preset.cover_url || undefined,
-                         type: 'preset'
-                       }} 
-                     />
-                     <Link 
-                        href={`/checkout?direct=${preset.id}&type=preset`}
-                        className="w-full h-14 md:h-16 bg-studio-neon text-black font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-white transition-all shadow-[4px_4px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] border-4 border-black"
-                     >
-                        <Zap size={18} className="md:w-5 md:h-5" fill="currentColor" />
-                        {isFree ? 'GET FOR FREE' : `BUY NOW — ${formatPrice(preset.price_inr, preset.price_usd)}`}
-                     </Link>
-                  </div>
-               )}
-               
-               <div className="pt-2">
-                 <ShareButton title={preset.name} text={`Check out this ${preset.type} preset on SamplesWala: ${preset.name}`} />
-               </div>
-           </div>
-
-            <div className="bg-black/40 backdrop-blur-md p-6 border border-white/10 rounded-sm">
-               <FormattedDescription text={preset.description || `Take your sound to the next level with ${preset.name}. Professionally crafted for high-quality music production.`} />
-            </div>
-
-           {/* Plugins Used Section - Moved Below Description & Compact for Mobile */}
-           {preset.plugins_used && preset.plugins_used.flat().length > 0 && (
-             <div className="space-y-4 pt-6 border-t border-white/5">
-                <div className="flex items-center gap-3">
-                   <div className="h-5 w-1 bg-studio-neon shadow-[0_0_10px_#a6e22e]" />
-                   <h2 className="text-sm font-black uppercase tracking-tighter italic">Plugins Used</h2>
+                <div className="flex flex-col gap-3">
+                  <AddToCartButton 
+                    item={{
+                      id: preset.id,
+                      name: preset.name,
+                      price: Number(preset.price_inr),
+                      price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+                      slug: preset.slug,
+                      cover_url: preset.cover_url || undefined,
+                      type: 'preset'
+                    }} 
+                  />
+                  <Link 
+                     href={`/checkout?direct=${preset.id}&type=preset`}
+                     className="w-full h-14 md:h-16 bg-studio-neon text-black font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-white transition-all shadow-[4px_4px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] border-4 border-black"
+                  >
+                     <Zap size={18} className="md:w-5 md:h-5" fill="currentColor" />
+                     {isFree ? 'GET FOR FREE' : `BUY NOW — ${formatPrice(preset.price_inr, preset.price_usd)}`}
+                  </Link>
                 </div>
-                <div className="grid grid-cols-3 gap-3 md:gap-4">
-                   {preset.plugins_used.flat().map((plugin: string, i: number) => {
-                      const colors = [
-                        { bg: 'bg-studio-neon', shadow: 'shadow-[3px_3px_0px_#a6e22e]', text: 'text-black' },
-                        { bg: 'bg-studio-pink', shadow: 'shadow-[3px_3px_0px_#ff0080]', text: 'text-white' },
-                        { bg: 'bg-studio-yellow', shadow: 'shadow-[3px_3px_0px_#ffc800]', text: 'text-black' }
-                      ];
-                      const style = colors[i % colors.length];
-                      return (
-                        <div 
-                          key={plugin} 
-                          className={`p-2 ${style.bg} border-2 border-black ${style.shadow} flex flex-col gap-0.5 transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_black] active:translate-x-0 active:translate-y-0 active:shadow-none`}
-                        >
-                           <span className={`text-[8px] md:text-[10px] font-black uppercase ${style.text} tracking-tight leading-tight truncate`}>{plugin}</span>
-                           <span className={`text-[5px] md:text-[7px] font-black ${style.text} opacity-40 uppercase tracking-tighter`}>Required</span>
-                        </div>
-                      );
-                   })}
+              )}
+            </div>
+          </div>
+
+          {/* Compatibility */}
+          <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-4 shadow-lg">
+             <h3 className="text-[10px] font-black uppercase tracking-widest text-studio-neon font-mono">Compatibility</h3>
+             <div className="flex flex-wrap gap-3">
+                {preset.daws.map((daw: string) => (
+                   <div key={daw} className="px-4 py-2 bg-[#FFE600] text-black border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm flex items-center gap-2">
+                      {daw === 'FL Studio' && (
+                         <div className="relative w-4 h-4">
+                            <Image src="/logos/Fl-Studio.png" alt="FL Studio" fill sizes="16px" className="object-contain" />
+                         </div>
+                      )}
+                      <span className="text-[10px] font-black uppercase">{daw}</span>
+                   </div>
+                ))}
+             </div>
+          </div>
+        </div>
+
+        {/* Right Section: Sound Stats, Previews, Details, and FAQ */}
+        <div className="lg:col-span-8 space-y-8">
+          {/* Preview Theatre */}
+          {vId ? (
+             <div id="video-demo-section" className="space-y-4">
+                <div className="flex items-center gap-2">
+                   <div className="h-4 w-1 bg-studio-neon" />
+                   <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">Preset Demo</h2>
+                </div>
+                <div className="aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black shadow-lg">
+                   <iframe
+                     width="100%"
+                     height="100%"
+                     src={`https://www.youtube.com/embed/${vId}?rel=0&modestbranding=1`}
+                     title={`${preset.name} Demo`}
+                     frameBorder="0"
+                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                     allowFullScreen
+                     className="w-full h-full"
+                   ></iframe>
                 </div>
              </div>
-           )}
+          ) : (
+             <div className="aspect-video rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/20 bg-black/10">
+                <Music size={40} className="text-white/20 animate-pulse" />
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 font-mono">Audio preview coming soon</p>
+             </div>
+          )}
 
-           <div className="flex items-center justify-center gap-6 py-4 border-t border-white/5">
-              <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
-                <ShieldCheck size={14} className="text-studio-neon" />
-                100% Royalty Free
+          {/* Details Panel */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-1 bg-studio-blue" />
+              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">Overview</h2>
+            </div>
+            <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-lg">
+              {/* Plugins Used (inside Overview) */}
+              {preset.plugins_used && preset.plugins_used.flat().length > 0 && (
+                <div className="space-y-4">
+                   <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Required Plugins</span>
+                   </div>
+                   <div className="grid grid-cols-3 gap-3 md:gap-4">
+                      {preset.plugins_used.flat().map((plugin: string, i: number) => {
+                         const colors = [
+                           { bg: 'bg-[#FF0080]', shadow: 'shadow-[2.5px_2.5px_0px_#00BFFF] md:shadow-[4px_4px_0px_#00BFFF]', text: 'text-white' },
+                           { bg: 'bg-[#00FF94]', shadow: 'shadow-[2.5px_2.5px_0px_#FF3131] md:shadow-[4px_4px_0px_#FF3131]', text: 'text-black' },
+                           { bg: 'bg-[#FFAA00]', shadow: 'shadow-[2.5px_2.5px_0px_#00BFFF] md:shadow-[4px_4px_0px_#00BFFF]', text: 'text-black' },
+                           { bg: 'bg-[#FFE600]', shadow: 'shadow-[2.5px_2.5px_0px_#FF3131] md:shadow-[4px_4px_0px_#FF3131]', text: 'text-black' }
+                         ];
+                         const style = colors[i % colors.length];
+                         return (
+                           <motion.div 
+                             key={plugin} 
+                             whileHover={{ y: -2 }}
+                             className={`p-3 ${style.bg} border-2 border-black ${style.shadow} flex flex-col justify-between h-16 md:h-20 rounded-xl relative overflow-hidden group transition-all duration-300`}
+                           >
+                              <span className={`text-[8px] md:text-[10px] font-black uppercase ${style.text} tracking-tight leading-tight truncate`}>{plugin}</span>
+                              <span className={`text-[5px] md:text-[7px] font-black ${style.text} opacity-55 uppercase tracking-tighter`}>Required</span>
+                           </motion.div>
+                         );
+                      })}
+                   </div>
+                </div>
+              )}
+
+              <FormattedDescription text={preset.description || `Take your sound to the next level with ${preset.name}. Professionally crafted for high-quality music production.`} />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-neon font-mono">Format Details</h3>
+                  <ul className="space-y-2 text-[9px] font-bold text-white/40 uppercase font-mono">
+                    <li className="flex items-center gap-2"><span className="text-studio-neon">•</span> Type: Professional DAW {preset.type}</li>
+                    <li className="flex items-center gap-2"><span className="text-studio-neon">•</span> Compatibility: {preset.daws.join(', ')}</li>
+                    <li className="flex items-center gap-2"><span className="text-studio-neon">•</span> License: 100% Royalty-Free Commercial Usage</li>
+                    <li className="flex items-center gap-2"><span className="text-studio-neon">•</span> Delivery: Secure Direct Digital Download</li>
+                  </ul>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-yellow font-mono">Sound Quality</h3>
+                  <p className="text-[9px] font-bold text-white/40 leading-relaxed uppercase tracking-wider font-mono">
+                    Crafted by professional sound engineers to deliver instantly mix-ready vocals and sounds. No complex routing required — just load and create.
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
-                <Zap size={14} className="text-studio-yellow" />
-                Immediate Access
-              </div>
-           </div>
+            </div>
+          </div>
+
+          {/* Quick specs pills */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Format', value: 'DAW Preset', icon: Music },
+              { label: 'Type', value: preset.type || 'Vocal Chain', icon: Layers },
+              { label: 'Licensing', value: 'Royalty Free', icon: ShieldCheck },
+              { label: 'Delivery', value: 'Instant', icon: Zap }
+            ].map((spec, i) => {
+              const Icon = spec.icon
+              return (
+                <div key={i} className="p-4 bg-[#00BFFF] text-black border-2 border-black rounded-2xl flex items-center justify-between shadow-[4px_4px_0px_#FFE600] transition-transform hover:-translate-y-1 duration-300">
+                  <div>
+                    <span className="text-[8px] font-black text-black/55 uppercase tracking-widest font-mono block">{spec.label}</span>
+                    <p className="text-[10px] font-bold uppercase text-black font-mono mt-0.5">{spec.value}</p>
+                  </div>
+                  <Icon className="text-black/35" size={18} />
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="flex items-center justify-center gap-6 py-4 border-t border-white/5">
+             <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
+               <ShieldCheck size={14} className="text-studio-neon" />
+               100% Royalty Free
+             </div>
+             <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
+               <Zap size={14} className="text-studio-yellow" />
+               Immediate Access
+             </div>
+          </div>
         </div>
       </div>
 
@@ -428,29 +516,33 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
          </div>
       </section>
 
-      {/* Installation Guide - ABSOLUTE BOTTOM */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-12 border-t border-white/5 pb-12">
-         <div className="space-y-4 p-8 bg-black/40 border border-white/10 rounded-sm">
-            <div className="flex items-center gap-3 mb-2">
-               <ShieldCheck className="text-studio-pink" size={20} />
-               <h3 className="text-[12px] font-black uppercase tracking-widest text-studio-pink">Pro Tip</h3>
+      {/* Installation Guide - Centered & Clean */}
+      <section className="max-w-2xl mx-auto pt-12 border-t border-white/5 pb-12 space-y-6">
+         <div className="flex flex-col items-center text-center gap-2 mb-4">
+            <div className="w-10 h-10 rounded-full bg-studio-yellow/10 flex items-center justify-center text-studio-yellow border border-studio-yellow/20">
+               <Download size={20} />
             </div>
-            <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">
-               For best results, make sure you have the latest versions of both stock and external plugins installed. Always check your gain staging before applying vocal chains.
-            </p>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-studio-yellow font-mono">Installation Guide</h3>
          </div>
-         <div className="space-y-4 p-8 bg-black/40 border border-white/10 rounded-sm">
-            <div className="flex items-center gap-3 mb-2">
-               <Download className="text-studio-yellow" size={20} />
-               <h3 className="text-[12px] font-black uppercase tracking-widest text-studio-yellow">Installation Guide</h3>
-            </div>
-            <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">
-               1. Extract the downloaded ZIP file.<br />
-               2. Drag and drop the preset file directly onto your mixer bus.<br />
-               3. The preset will be applied automatically.<br />
-               4. Ensure you have the required plugins installed as mentioned.<br />
-               5. Start creating!
-            </p>
+         
+         <div className="p-6 md:p-8 bg-[#0a0a0af0] border border-white/10 rounded-2xl shadow-lg">
+            <ol className="space-y-4 text-[10px] md:text-xs font-bold text-white/70 uppercase tracking-widest font-mono list-decimal pl-6">
+               <li className="leading-relaxed">
+                  Extract the downloaded <span className="text-white underline decoration-studio-yellow decoration-2">ZIP archive file</span>.
+               </li>
+               <li className="leading-relaxed">
+                  Drag and drop the preset file directly onto your mixer bus.
+               </li>
+               <li className="leading-relaxed">
+                  The preset will be applied automatically.
+               </li>
+               <li className="leading-relaxed">
+                  Ensure you have the required plugins installed as mentioned.
+               </li>
+               <li className="leading-relaxed text-studio-neon">
+                  Start creating!
+               </li>
+            </ol>
          </div>
       </section>
 
