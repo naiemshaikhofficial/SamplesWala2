@@ -85,42 +85,47 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {relatedPacks.map((item: any) => (
-                <Link 
-                  key={item.id} 
-                  href={`/packs/${item.slug}`}
-                  className="group block space-y-4"
-                >
-                  <div className="aspect-square relative overflow-hidden rounded-sm border border-white/5 group-hover:border-studio-yellow/30 transition-all">
-                    <Image 
-                      src={item.cover_url || '/placeholder.jpg'} 
-                      alt={item.name}
-                      fill
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                       <span className="px-4 py-2 bg-studio-yellow text-black text-[8px] font-black uppercase tracking-widest translate-y-4 group-hover:translate-y-0 transition-all">
-                         View Details
-                       </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <h3 className="font-black uppercase tracking-tight text-xs group-hover:text-studio-yellow transition-colors">{item.name}</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[8px] text-white/40 line-through font-bold">
-                        ₹{item.mrp_inr || (Number(item.price_inr) * 3)}
-                      </span>
-                      <p className="text-[10px] font-black text-studio-neon uppercase italic tracking-tighter">₹{item.price_inr}</p>
-                      <div className="bg-studio-yellow px-1 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
-                        <span className="text-[7px] font-black text-black uppercase italic">
-                          {Math.round((1 - (Number(item.price_inr) / (item.mrp_inr || (Number(item.price_inr) * 3)))) * 100)}% OFF
-                        </span>
+              {relatedPacks.map((item: any) => {
+                const itemMrp = item.mrp_inr || (Number(item.price_inr) * 3)
+                const discount = Math.round((1 - (Number(item.price_inr) / itemMrp)) * 100)
+                
+                return (
+                  <Link 
+                    key={item.id} 
+                    href={`/packs/${item.slug}`}
+                    className="group block space-y-4"
+                  >
+                    <div className="aspect-square relative overflow-hidden rounded-xl border border-white/10 group-hover:border-studio-yellow/20 transition-all duration-300">
+                      <Image 
+                        src={item.cover_url || '/placeholder.jpg'} 
+                        alt={item.name}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                         <span className="px-4 py-2 bg-studio-yellow text-black text-[9px] font-black uppercase tracking-widest rounded-full translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                           View Details
+                         </span>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                    <div className="flex flex-col gap-1">
+                      <h3 className="font-black uppercase tracking-tight text-xs group-hover:text-studio-yellow transition-colors">{item.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] text-white/35 line-through font-bold font-mono">
+                          ₹{itemMrp}
+                        </span>
+                        <p className="text-[11px] font-black text-studio-neon uppercase italic tracking-tighter font-mono">₹{item.price_inr}</p>
+                        {discount > 0 && (
+                          <div className="bg-studio-red px-1.5 py-0.5 rounded text-[8px] font-black text-white uppercase italic font-mono shadow-[0_2px_6px_rgba(255,49,49,0.2)]">
+                            {discount}% OFF
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </section>

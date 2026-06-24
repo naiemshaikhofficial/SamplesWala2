@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { ArrowLeft, PlayCircle, ShieldCheck, Zap, HelpCircle, Plus, Download, Clock, ShoppingBag, Check, CreditCard, Loader2 } from 'lucide-react'
+import { ArrowLeft, PlayCircle, ShieldCheck, Zap, HelpCircle, Plus, Download, Clock, ShoppingBag, Check, CreditCard, Loader2, Music, Layers, Disc, SlidersHorizontal, Sparkles, Share2, Volume2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DownloadButton } from '@/components/DownloadButton'
 import { PaymentButton } from '@/components/PaymentButton'
@@ -100,7 +100,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   }
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetch(`/api/auth/ownership?itemId=${pack.id}`)
         .then(res => res.ok ? res.json() : { owned: false })
         .then(data => setOwned(data.owned))
@@ -108,7 +108,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
     } else {
       setOwned(false)
     }
-  }, [user, pack.id])
+  }, [user?.id, pack.id])
 
   const priceDetails = React.useMemo(() => {
     return getPackPriceDetails(pack)
@@ -190,31 +190,259 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
-      <Link href="/browse" className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-studio-yellow transition-colors group">
-        <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
+      {/* Back Button */}
+      <Link href="/browse" className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white px-3 py-1.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all duration-300 group w-fit">
+        <ArrowLeft className="mr-2 h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
         Back to Library
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        {/* Mobile Order 1: Video Preview & Technical Specs */}
-        <div className="lg:col-span-8 lg:col-start-5 lg:row-start-1 space-y-10 order-1 lg:order-2">
+      {/* Cinematic Title Header (Desktop Only, hidden on mobile to avoid duplication) */}
+      <div className="hidden lg:flex flex-col gap-3">
+        <span className="text-[9px] font-black uppercase tracking-[0.25em] text-studio-yellow bg-studio-yellow/10 px-3 py-1 border border-studio-yellow/20 rounded-full w-fit">
+          {pack.categories?.[0]?.name || 'Sound Collection'}
+        </span>
+        <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
+          {pack.name}
+        </h1>
+        {pack.total_contents_summary && (
+          <p className="text-white/40 text-xs font-bold uppercase tracking-widest font-mono">
+            {pack.total_contents_summary}
+          </p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-8">
+        {/* Left Section: Cover Art & Checkout Deck (sticky) */}
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+          {/* Cover Art with 3D Hover & Glow */}
+          <motion.div 
+            whileHover={{ y: -6, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="w-full aspect-square relative rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] group/image"
+          >
+            <Image 
+              src={pack.cover_url || '/placeholder.jpg'} 
+              alt={`${pack.name} - Premium Indian Sample Pack | SamplesWala`} 
+              fill 
+              priority
+              sizes="(max-width: 768px) 100vw, 400px"
+              className="object-cover transition-transform duration-700 group-hover/image:scale-105"
+            />
+            
+            <div className="absolute top-4 right-4 z-20">
+               <ShareButton 
+                 title={pack.name} 
+                 text={`Check out ${pack.name} on SamplesWala!`} 
+                 url={typeof window !== 'undefined' ? window.location.href : ''}
+                 className="w-9 h-9 bg-black/60 backdrop-blur-md border border-white/15 rounded-full hover:bg-studio-red hover:border-studio-red hover:rotate-12 transition-all flex items-center justify-center text-white cursor-pointer"
+               />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+          </motion.div>
+
+          {/* Mobile Title (Only shown on mobile) */}
+          <div className="flex lg:hidden flex-col gap-3">
+            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-studio-yellow bg-studio-yellow/10 px-2.5 py-0.5 border border-studio-yellow/20 rounded-full w-fit">
+              {pack.categories?.[0]?.name || 'Sound Collection'}
+            </span>
+            <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none text-white">
+              {pack.name}
+            </h1>
+            {pack.total_contents_summary && (
+              <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest font-mono">
+                {pack.total_contents_summary}
+              </p>
+            )}
+          </div>
+
+          {/* Pricing Card Deck */}
+          <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Price & Value</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-white italic tracking-tight font-mono">{displayPrice}</span>
+                  <span className="text-xs text-white/35 line-through font-bold font-mono">{displayMrp}</span>
+                </div>
+              </div>
+              
+              <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
+                <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
+                {!pack.is_downloadable && (
+                  <span className={`text-[7px] font-black uppercase tracking-tighter px-1.5 rounded-sm mt-0.5 ${isExpired ? 'bg-black/40 text-white/60' : 'bg-white text-studio-red'}`}>
+                    {isExpired ? 'Regular' : 'Pre-order'}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* CTAs */}
+            <div className="flex flex-col gap-3">
+              {owned ? (
+                pack.is_downloadable ? (
+                  <DownloadButton itemId={pack.id} />
+                ) : (
+                  <div className="w-full p-6 bg-studio-neon/5 border border-studio-neon/20 border-dashed rounded-xl text-center space-y-2 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-2 opacity-10">
+                      <Zap size={32} className="text-studio-neon" />
+                    </div>
+                    <p className="text-xs font-black uppercase tracking-widest text-studio-neon italic font-mono">Pre-ordered Successfully!</p>
+                    <p className="text-[9px] font-bold text-white/40 uppercase tracking-wider leading-relaxed">
+                      This pack is currently in production. We will email you once it is released.
+                    </p>
+                  </div>
+                )
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {!pack.is_downloadable && isPreorderActive && (
+                    <div className="bg-studio-red/10 border border-studio-red/20 p-2.5 rounded-xl text-center">
+                      <p className="text-[9px] font-black text-studio-red uppercase tracking-widest animate-pulse font-mono">
+                        🔥 Special Pre-order Offer Active
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-col gap-3">
+                    <AddToCartButton 
+                      label={isPreorderActive ? "Pre-order" : "Add to Cart"}
+                      item={{
+                        id: pack.id,
+                        name: pack.name,
+                        price: Number(pack.price_inr),
+                        price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+                        slug: pack.slug,
+                        cover_url: pack.cover_url || undefined,
+                        type: 'pack',
+                        is_downloadable: pack.is_downloadable
+                      }} 
+                    />
+                    <PaymentButton 
+                      label={isPreorderActive ? `PRE-ORDER NOW — ${displayPrice}` : `BUY NOW — ${displayPrice}`}
+                      packId={pack.id} 
+                      packName={pack.name} 
+                      price={currentPriceInr} 
+                      price_usd={pack.price_usd ? Number(pack.price_usd) : undefined}
+                      slug={pack.slug}
+                      cover_url={pack.cover_url || ''}
+                      userId={user?.id}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Countdown timer */}
+            {!owned && !pack.is_downloadable && isPreorderActive && (
+              <div className="pt-4 border-t border-white/5 space-y-3">
+                <div className="flex items-center gap-1.5 text-white/50 justify-center">
+                  <Clock size={12} />
+                  <span className="text-[9px] font-black uppercase tracking-widest font-mono">Ends In:</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 text-center font-mono text-white">
+                  <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
+                    <span className="text-lg font-black block leading-none">{mounted ? String(days).padStart(2, '0') : '00'}</span>
+                    <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Days</span>
+                  </div>
+                  <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
+                    <span className="text-lg font-black block leading-none">{mounted ? String(hours).padStart(2, '0') : '00'}</span>
+                    <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Hrs</span>
+                  </div>
+                  <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
+                    <span className="text-lg font-black block leading-none">{mounted ? String(minutes).padStart(2, '0') : '00'}</span>
+                    <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Mins</span>
+                  </div>
+                  <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
+                    <span className="text-lg font-black block leading-none">{mounted ? String(seconds).padStart(2, '0') : '00'}</span>
+                    <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Secs</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Pre-order notices */}
+          {!pack.is_downloadable && (
+            <div className="p-5 rounded-2xl border border-studio-yellow/20 bg-studio-yellow/5 text-left space-y-3 shadow-lg">
+              <div className="flex items-center gap-2 text-studio-yellow">
+                <Clock size={14} className="animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-wider font-mono">Pre-order Notice</span>
+              </div>
+              <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider leading-relaxed">
+                Our sample packs are mostly <span className="text-studio-yellow">live-recorded</span> or highly <span className="text-studio-red">time-consuming</span> to produce, <span className="text-studio-neon">but we are trying hard to release them ASAP!</span>
+              </p>
+              <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
+                🚀 Usually takes <span className="text-white underline decoration-studio-yellow">1-2 months to deliver</span>. You will be notified instantly via email upon completion.
+              </p>
+              <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest leading-relaxed pt-2 border-t border-white/5">
+                📧 Inquiries: email us at{' '}
+                <a href="mailto:contact@sampleswala.com" className="text-studio-yellow hover:text-white underline font-black transition-colors lowercase">
+                  contact@sampleswala.com
+                </a>
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Right Section: Sound Stats, Previews, Details, and FAQ */}
+        <div className="lg:col-span-8 space-y-8">
+          {/* Sound Statistics Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Melodies', count: pack.melody_count, icon: Music, color: 'text-studio-pink', bg: 'bg-studio-pink/5', border: 'border-studio-pink/15' },
+              { label: 'Loops', count: pack.loop_count, icon: Layers, color: 'text-studio-neon', bg: 'bg-studio-neon/5', border: 'border-studio-neon/15' },
+              { label: 'One-shots', count: pack.one_shot_count, icon: Disc, color: 'text-studio-orange', bg: 'bg-studio-orange/5', border: 'border-studio-orange/15' },
+              { label: 'Presets', count: pack.preset_count, icon: SlidersHorizontal, color: 'text-studio-yellow', bg: 'bg-studio-yellow/5', border: 'border-studio-yellow/15' }
+            ].map((stat, i) => {
+              if (stat.count === undefined || stat.count === null || stat.count === 0) return null;
+              const Icon = stat.icon;
+              return (
+                <motion.div 
+                  key={i} 
+                  whileHover={{ y: -4 }}
+                  className={`p-5 rounded-2xl border ${stat.border} ${stat.bg} flex flex-col justify-between h-28 relative overflow-hidden group transition-all duration-300`}
+                >
+                  <div className="absolute right-2 top-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Icon size={48} className={stat.color} />
+                  </div>
+                  <div className="flex items-center gap-1.5 text-white/40">
+                    <Icon size={12} className={stat.color} />
+                    <span className="text-[9px] font-black uppercase tracking-wider font-mono">{stat.label}</span>
+                  </div>
+                  <span className="text-3xl font-black text-white italic tracking-tight font-mono">{stat.count}</span>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Sound Count Fallback block */}
+          {(!pack.melody_count && !pack.loop_count && !pack.one_shot_count && !pack.preset_count) && (
+            <div className="p-6 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between shadow-inner">
+              <div className="space-y-1">
+                <span className="text-[9px] font-black uppercase tracking-wider text-white/40 block font-mono">Collection Content Info</span>
+                <span className="text-base font-black uppercase tracking-wide text-white">{pack.total_contents_summary || 'Premium Quality Audio Assets'}</span>
+              </div>
+              <Sparkles className="text-studio-yellow animate-pulse" size={24} />
+            </div>
+          )}
+
+          {/* Preview Theatre */}
           {videoIds.length > 0 ? (
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="h-6 w-1 bg-studio-neon shadow-[0_0_10px_#a6e22e]" />
-                <h2 className="text-lg font-black uppercase tracking-tighter">
-                  {videoIds.length > 1 ? 'Demos' : 'Demo'}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-1 bg-studio-neon" />
+                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 font-mono">
+                  {videoIds.length > 1 ? 'Product Demos' : 'Product Demo'}
                 </h2>
               </div>
               <div className={videoIds.length > 1 ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "w-full"}>
                 {videoIds.map((id, index) => (
-                  <div key={id} className="space-y-2">
+                  <div key={id} className="space-y-2 group">
                     {videoIds.length > 1 && (
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white/40 block">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-white/40 block font-mono">
                         Demo {index + 1}
                       </span>
                     )}
-                    <div className="aspect-video rounded-sm overflow-hidden border-2 border-white/5 bg-black">
+                    <div className="aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black shadow-lg group-hover:border-white/20 transition-all duration-300">
                       <iframe
                         width="100%"
                         height="100%"
@@ -223,6 +451,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
+                        className="w-full h-full"
                       ></iframe>
                     </div>
                   </div>
@@ -230,214 +459,72 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               </div>
             </div>
           ) : (
-            <div className="aspect-video rounded-sm border border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/10">
-               <PlayCircle size={48} strokeWidth={1} />
-               <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Preview Signal Found</p>
+            <div className="aspect-video rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/20 bg-black/10">
+               <Volume2 size={40} className="text-white/20 animate-pulse" />
+               <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 font-mono">No Preview Audio Signal Available</p>
             </div>
           )}
 
-          {/* Technical Specs / Features - Shown on mobile here */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-white/5">
-             <div className="space-y-4">
-                <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-neon">Technical Specifications</h3>
-                <ul className="space-y-2 text-[10px] font-bold text-white/40 uppercase">
-                   <li>• Format: Professional 24-Bit / 44.1kHz WAV</li>
-                   <li>• Compatibility: All DAWs (FL Studio, Ableton, Logic, etc.)</li>
-                   <li>• License: Personal & Commercial Royalty-Free</li>
-                   <li>• Delivery: Secure Digital Download</li>
-                </ul>
-             </div>
-             <div className="space-y-4 hidden md:block">
-                <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-yellow">Production Details</h3>
-                <p className="text-[10px] font-medium text-white/40 leading-relaxed uppercase">
-                   Expertly mixed and mastered using industry-standard equipment. Designed to cut through the mix and provide instant inspiration for modern music producers.
-                </p>
-             </div>
-          </div>
-        </div>
-
-        {/* Mobile Order 2: Name & Purchase */}
-        <div className="lg:col-span-4 lg:col-start-1 lg:row-span-2 lg:row-start-1 space-y-5 order-2 lg:order-1 lg:sticky lg:top-24">
-          <div className="w-full max-w-[280px] lg:max-w-[260px] mx-auto lg:mx-0 aspect-square relative rounded-sm overflow-hidden border border-white/5 shadow-2xl group/image">
-            <Image 
-              src={pack.cover_url || '/placeholder.jpg'} 
-              alt={`${pack.name} - Premium Indian Sample Pack | SamplesWala`} 
-              fill 
-              priority
-              sizes="(max-width: 768px) 100vw, 500px"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            
-            <div className="absolute top-4 right-4 z-20">
-               <ShareButton 
-                 title={pack.name} 
-                 text={`Check out ${pack.name} on SamplesWala!`} 
-                 url={typeof window !== 'undefined' ? window.location.href : ''}
-                 className="w-10 h-10 bg-black/40 backdrop-blur-md border border-white/20 hover:bg-studio-red hover:border-studio-red hover:rotate-12"
-               />
+          {/* Details Panel */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-1 bg-studio-blue" />
+              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 font-mono">Overview</h2>
             </div>
-          </div>
-
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic comic-text drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
-                {pack.name}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex flex-col">
-                  <span className="text-[12px] text-white/50 line-through font-bold">
-                    {displayMrp}
-                  </span>
-                  <p className="text-3xl font-black text-studio-neon uppercase italic tracking-widest leading-none">
-                    {displayPrice}
+            <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-lg">
+              <p className="text-xs text-white/80 leading-relaxed font-medium whitespace-pre-wrap">
+                {pack.description || "No description available for this collection."}
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-neon font-mono">Technical Specifications</h3>
+                  <ul className="space-y-2 text-[9px] font-bold text-white/40 uppercase font-mono">
+                    <li className="flex items-center gap-2"><span className="text-studio-neon">•</span> Format: Professional 24-Bit / 44.1kHz WAV</li>
+                    <li className="flex items-center gap-2"><span className="text-studio-neon">•</span> Compatibility: All DAWs (FL Studio, Ableton, Logic, etc.)</li>
+                    <li className="flex items-center gap-2"><span className="text-studio-neon">•</span> License: 100% Royalty-Free Commercial Usage</li>
+                    <li className="flex items-center gap-2"><span className="text-studio-neon">•</span> Delivery: Secure Direct Digital Download</li>
+                  </ul>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-yellow font-mono">Production Quality</h3>
+                  <p className="text-[9px] font-bold text-white/40 leading-relaxed uppercase tracking-wider font-mono">
+                    Expertly mixed and mastered using industry-standard equipment. Designed to cut through the mix and provide instant inspiration for modern music producers.
                   </p>
                 </div>
-                <div className="bg-studio-red px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] rotate-2 flex flex-col items-center">
-                  <span className="text-[11px] font-black text-white uppercase italic">
-                    {discountPercent}% OFF
-                  </span>
-                  {!pack.is_downloadable && (
-                    <span className={`text-[7px] font-black uppercase tracking-tighter px-2 rounded-sm mt-0.5 ${isExpired ? 'bg-studio-charcoal text-white' : 'bg-white text-studio-red'}`}>
-                      {isExpired ? 'Regular Price' : 'Pre-order Offer'}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <div className="flex flex-col gap-3">
-                {owned ? (
-                  pack.is_downloadable ? (
-                    <DownloadButton itemId={pack.id} />
-                  ) : (
-                    <div className="w-full p-8 bg-studio-neon/5 border-2 border-studio-neon/20 border-dashed rounded-sm text-center space-y-3 relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 p-2 opacity-10">
-                        <Zap size={40} className="text-studio-neon" />
-                      </div>
-                      <p className="text-[12px] font-black uppercase tracking-[0.2em] text-studio-neon italic">Pre-ordered Successfully!</p>
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
-                        This pack is currently in production.<br/>We will notify you via email once it's available for download.
-                      </p>
-                    </div>
-                  )
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {!pack.is_downloadable && isPreorderActive && (
-                      <div className="bg-studio-red p-3 rounded-sm mb-1 border-2 border-black shadow-[4px_4px_0px_black] rotate-1">
-                        <p className="text-[9px] font-black text-white uppercase tracking-[0.2em] animate-pulse text-center">
-                          🔥 PRE-ORDER OFFER: SECURE THIS PRICE NOW!
-                        </p>
-                      </div>
-                    )}
-                    {!pack.is_downloadable && isPreorderActive && (
-                      <div className="p-4 rounded-sm border-2 border-black shadow-[4px_4px_0px_black] bg-studio-neon/10 text-studio-neon border-studio-neon mb-1">
-                        <div className="flex items-center gap-2 mb-2 justify-center">
-                          <Zap size={14} className="text-studio-neon animate-pulse" />
-                          <span className="text-[9px] font-black uppercase tracking-widest text-white">Pre-Order Offer Ends In:</span>
-                                         <div className="grid grid-cols-4 gap-2 text-center font-mono text-white">
-                          <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{mounted ? String(days).padStart(2, '0') : '00'}</span>
-                            <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Days</span>
-                          </div>
-                          <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{mounted ? String(hours).padStart(2, '0') : '00'}</span>
-                            <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Hours</span>
-                          </div>
-                          <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{mounted ? String(minutes).padStart(2, '0') : '00'}</span>
-                            <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Mins</span>
-                          </div>
-                          <div className="bg-black/60 p-1.5 border border-white/10 rounded-sm">
-                            <span className="text-base font-black block leading-none">{mounted ? String(seconds).padStart(2, '0') : '00'}</span>
-                            <span className="text-[6px] font-bold text-white/40 uppercase tracking-wider">Secs</span>
-                          </div>
-                        </div>         </div>
-                      </div>
-                    )}
-                    <div className="hidden lg:flex flex-col gap-3">
-                      <AddToCartButton 
-                        label={isPreorderActive ? "Pre-order" : "Add to Cart"}
-                        item={{
-                          id: pack.id,
-                          name: pack.name,
-                          price: Number(pack.price_inr),
-                          price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
-                          slug: pack.slug,
-                          cover_url: pack.cover_url || undefined,
-                          type: 'pack',
-                          is_downloadable: pack.is_downloadable
-                        }} 
-                      />
-                      <PaymentButton 
-                        label={isPreorderActive ? `PRE-ORDER NOW — ${displayPrice}` : `BUY NOW — ${displayPrice}`}
-                        packId={pack.id} 
-                        packName={pack.name} 
-                        price={currentPriceInr} 
-                        price_usd={pack.price_usd ? Number(pack.price_usd) : undefined}
-                        slug={pack.slug}
-                        cover_url={pack.cover_url || ''}
-                        userId={user?.id}
-                      />
-                    </div>
-                    {!pack.is_downloadable && (
-                      <div className="p-5 rounded-sm border-2 border-[#FFC800] bg-black/60 shadow-[4px_4px_0px_#FF0080] text-left space-y-3 mt-2">
-                        <div className="flex items-center gap-2.5 text-[#FFC800]">
-                          <div className="p-1 bg-[#FFC800] text-black border-2 border-black rounded-xs -rotate-6">
-                            <Clock size={14} className="animate-pulse" />
-                          </div>
-                          <span className="text-[10px] font-black uppercase tracking-wider text-white">Pre-order Notice</span>
-                        </div>
-                        <p className="text-[9px] font-bold text-white/70 uppercase tracking-widest leading-relaxed">
-                          Please note: our sample packs are mostly <span className="text-[#FFC800]">live-recorded</span> or highly <span className="text-[#FF0080]">time-consuming</span> to curate & produce, <span className="text-studio-neon">but we are trying hard to make it available as soon as possible!</span>
-                        </p>
-                        <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest leading-relaxed">
-                          🚀 It may take <span className="text-white underline decoration-[#FFC800]">1-2 months to deliver</span>. Once released, you will be notified immediately via social media & email.
-                        </p>
-                        <p className="text-[9px] font-bold text-white/50 uppercase tracking-widest leading-relaxed pt-1 border-t border-white/10">
-                          📧 For availability queries, feel free to personally email us at{' '}
-                          <a href="mailto:contact@sampleswala.com" className="text-[#FFC800] hover:text-white underline font-black transition-colors lowercase">
-                            contact@sampleswala.com
-                          </a>
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Mobile Order 3: Description & Details */}
-        <div className="lg:col-span-8 lg:col-start-5 lg:row-start-2 lg:grid lg:grid-cols-12 gap-12 order-3">
-          <div className="lg:col-span-8 space-y-8">
-            <p className="text-xs text-white/80 leading-relaxed font-medium bg-black/40 backdrop-blur-md p-6 border border-white/10 rounded-sm whitespace-pre-wrap">
-              {pack.description || "No description available for this collection."}
-            </p>
-          </div>
-          
-          <div className="lg:col-span-4 space-y-8 mt-8 lg:mt-0">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-black/30 backdrop-blur-md border border-white/10 rounded-sm space-y-1">
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Type</span>
-                <p className="text-[10px] font-bold uppercase text-white">{pack.categories?.[0]?.name || 'Sound Kits'}</p>
+          {/* Quick specs pills */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-4 bg-white/5 border border-white/15 rounded-2xl flex items-center justify-between">
+              <div>
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest font-mono block">Format</span>
+                <p className="text-[10px] font-bold uppercase text-white font-mono mt-0.5">24-Bit WAV</p>
               </div>
-              <div className="p-4 bg-black/30 backdrop-blur-md border border-white/10 rounded-sm space-y-1">
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Quality</span>
-                <p className="text-[10px] font-bold uppercase text-white">24-Bit WAV</p>
-              </div>
+              <Music className="text-white/20" size={18} />
             </div>
-            
-            <div className="flex items-center justify-center gap-6 py-4 border-t border-white/5">
-               <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
-                 <ShieldCheck size={14} className="text-studio-neon" />
-                 100% Royalty Free
-               </div>
-               <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase">
-                 <Zap size={14} className="text-studio-yellow" />
-                 Immediate Access
-               </div>
+            <div className="p-4 bg-white/5 border border-white/15 rounded-2xl flex items-center justify-between">
+              <div>
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest font-mono block">Category</span>
+                <p className="text-[10px] font-bold uppercase text-white font-mono mt-0.5">{pack.categories?.[0]?.name || 'Sound Kits'}</p>
+              </div>
+              <Layers className="text-white/20" size={18} />
+            </div>
+            <div className="p-4 bg-white/5 border border-white/15 rounded-2xl flex items-center justify-between">
+              <div>
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest font-mono block">Licensing</span>
+                <p className="text-[10px] font-bold uppercase text-white font-mono mt-0.5">Royalty Free</p>
+              </div>
+              <ShieldCheck className="text-white/20" size={18} />
+            </div>
+            <div className="p-4 bg-white/5 border border-white/15 rounded-2xl flex items-center justify-between">
+              <div>
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest font-mono block">Delivery</span>
+                <p className="text-[10px] font-bold uppercase text-white font-mono mt-0.5">Instant</p>
+              </div>
+              <Zap className="text-white/20" size={18} />
             </div>
           </div>
         </div>
@@ -445,23 +532,23 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
       {/* FAQ Section */}
       <div className="pt-12 border-t border-white/5 space-y-8">
-        <div className="flex items-center gap-3">
-          <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_10px_rgba(255,200,0,0.5)]" />
-          <h2 className="text-lg font-black uppercase tracking-tighter italic">Frequently Asked Questions</h2>
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-1 bg-studio-yellow shadow-[0_0_10px_rgba(255,200,0,0.5)]" />
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 font-mono">Frequently Asked Questions</h2>
         </div>
 
-        <div className="max-w-4xl space-y-4">
+        <div className="max-w-4xl space-y-3">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="border-2 border-black shadow-[4px_4px_0px_black] bg-studio-charcoal">
+            <div key={idx} className="border border-white/10 rounded-2xl overflow-hidden bg-black/40 backdrop-blur-md transition-all duration-300 hover:border-white/20 shadow-md">
               <button
                 onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                className="w-full p-6 flex items-center justify-between group text-left"
+                className="w-full p-5 flex items-center justify-between group text-left cursor-pointer"
               >
                 <div className="flex items-center gap-4">
                   <div className={`transition-colors duration-300 ${activeFaq === idx ? 'text-studio-yellow' : 'text-white/20'}`}>
-                    <HelpCircle size={20} />
+                    <HelpCircle size={18} />
                   </div>
-                  <span className={`text-[11px] font-black uppercase tracking-widest transition-colors duration-300 ${activeFaq === idx ? 'text-studio-yellow' : 'text-white/80 group-hover:text-white'}`}>
+                  <span className={`text-[10px] font-black uppercase tracking-wider transition-colors duration-300 ${activeFaq === idx ? 'text-studio-yellow' : 'text-white/80 group-hover:text-white'}`}>
                     {faq.q}
                   </span>
                 </div>
@@ -471,21 +558,21 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                   transition={{ duration: 0.3, ease: "circOut" }}
                   className={`flex-shrink-0 transition-colors duration-300 ${activeFaq === idx ? 'text-studio-yellow' : 'text-white/40 group-hover:text-white'}`}
                 >
-                  <Plus size={24} />
+                  <Plus size={20} />
                 </motion.div>
               </button>
 
               <AnimatePresence>
                 {activeFaq === idx && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
-                    className="overflow-hidden"
+                     initial={{ height: 0, opacity: 0 }}
+                     animate={{ height: "auto", opacity: 1 }}
+                     exit={{ height: 0, opacity: 0 }}
+                     transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+                     className="overflow-hidden"
                   >
-                    <div className="pb-8 px-6 pl-14">
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] leading-relaxed">
+                    <div className="pb-6 px-5 pl-14 border-t border-white/5 pt-4">
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] leading-relaxed font-mono">
                         {faq.a}
                       </p>
                     </div>
@@ -497,26 +584,26 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         </div>
       </div>
 
-      {/* Installation Guide - ABSOLUTE BOTTOM */}
+      {/* Guide & Tips */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-12 border-t border-white/5 pb-12">
-         <div className="space-y-4 p-8 bg-black/40 border border-white/10 rounded-sm">
-            <div className="flex items-center gap-3 mb-2">
-               <ShieldCheck className="text-studio-pink" size={20} />
-               <h3 className="text-[12px] font-black uppercase tracking-widest text-studio-pink">Pro Tip</h3>
+         <div className="space-y-3 p-6 bg-black/40 border border-white/10 rounded-2xl">
+            <div className="flex items-center gap-2 mb-1">
+               <ShieldCheck className="text-studio-pink" size={16} />
+               <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-pink font-mono">Pro Tip</h3>
             </div>
-            <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">
-               For best results, use high-quality monitors or headphones to hear the full frequency range. Organize your library by bpm and key for faster workflow.
+            <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider font-mono">
+               For best results, use high-quality studio monitors or headphones to hear the full sub-bass frequency range. Organize your library by bpm and key for faster, more creative workflows.
             </p>
          </div>
-         <div className="space-y-4 p-8 bg-black/40 border border-white/10 rounded-sm">
-            <div className="flex items-center gap-3 mb-2">
-               <Download className="text-studio-yellow" size={20} />
-               <h3 className="text-[12px] font-black uppercase tracking-widest text-studio-yellow">Installation Guide</h3>
+         <div className="space-y-3 p-6 bg-black/40 border border-white/10 rounded-2xl">
+            <div className="flex items-center gap-2 mb-1">
+               <Download className="text-studio-yellow" size={16} />
+               <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-yellow font-mono">Installation Guide</h3>
             </div>
-            <p className="text-[11px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">
-               1. Extract the downloaded ZIP file.<br />
-               2. Drag the folder into your DAW's browser or sample library.<br />
-               3. Add the folder to your 'Places' for quick access.<br />
+            <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-wider font-mono">
+               1. Extract the downloaded ZIP archive file.<br />
+               2. Drag the folder directly into your DAW's file browser (FL Studio, Ableton, Logic).<br />
+               3. Add the folder path to your 'Places' or 'Bookmarks' for quick drag-and-drop access.<br />
                4. Start creating!
             </p>
          </div>
@@ -530,90 +617,93 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <div className="max-w-4xl mx-auto px-4">
-              <motion.div
-                initial={{ y: 100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 100, opacity: 0 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="pointer-events-auto w-full bg-[#0a0a0a]/95 backdrop-blur-md border border-white/10 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.8)] px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 md:gap-6"
-              >
-                {/* Product Image and info */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
-                    <Image
-                      src={pack.cover_url || '/placeholder.jpg'}
-                      alt={pack.name}
-                      fill
-                      sizes="40px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[100px] sm:max-w-[200px] md:max-w-[300px]">
-                      {pack.name}
-                    </span>
-                    <span className="text-[8px] md:text-[9px] text-white/40 font-bold uppercase tracking-wider truncate">
-                      {pack.categories?.[0]?.name || 'Sound Kits'} • 24-Bit WAV
-                    </span>
-                  </div>
-                </div>
+               <motion.div
+                 initial={{ y: 100, opacity: 0 }}
+                 animate={{ y: 0, opacity: 1 }}
+                 exit={{ y: 100, opacity: 0 }}
+                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                 className="pointer-events-auto w-full bg-[#0a0a0ae0] backdrop-blur-xl border border-white/10 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_30px_rgba(0,116,228,0.12)] px-4 md:px-6 py-3 flex items-center justify-between gap-3 md:gap-6 hover:border-white/20 transition-all duration-300 group/float-bar"
+               >
+                 {/* Product Image and info */}
+                 <div 
+                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                   className="flex items-center gap-3 min-w-0 cursor-pointer group/float-info"
+                 >
+                   <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-white/15 shadow-lg group-hover/float-info:scale-105 transition-transform duration-300">
+                     <Image
+                       src={pack.cover_url || '/placeholder.jpg'}
+                       alt={pack.name}
+                       fill
+                       sizes="40px"
+                       className="object-cover"
+                     />
+                   </div>
+                   <div className="flex flex-col min-w-0">
+                     <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[100px] sm:max-w-[200px] md:max-w-[300px] group-hover/float-info:text-studio-yellow transition-colors">
+                       {pack.name}
+                     </span>
+                     <span className="text-[8px] md:text-[9px] text-white/40 font-bold uppercase tracking-wider truncate font-mono">
+                       {pack.categories?.[0]?.name || 'Sound Kits'} • 24-Bit WAV
+                     </span>
+                   </div>
+                 </div>
 
-                {/* Price Info */}
-                <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                  <span className="text-[9px] md:text-xs text-white/30 line-through font-bold">
-                    {displayMrp}
-                  </span>
-                  <span className="text-xs md:text-sm font-black text-studio-neon leading-none italic uppercase tracking-wider">
-                    {displayPrice}
-                  </span>
-                </div>
+                 {/* Price Info */}
+                 <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                   <span className="text-[9px] md:text-xs text-white/25 line-through font-bold font-mono tracking-wider">
+                     {displayMrp}
+                   </span>
+                   <span className="text-xs md:text-sm font-black text-studio-neon leading-none italic uppercase tracking-wider font-mono drop-shadow-[0_0_8px_rgba(0,255,148,0.3)]">
+                     {displayPrice}
+                   </span>
+                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-                  {/* Add to Cart Button - Green Pill */}
-                  <button
-                    onClick={handleFloatingAddToCart}
-                    className={`h-9 px-3.5 md:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] ${
-                      isAlreadyInCart
-                        ? 'bg-white/5 text-white hover:bg-white/10'
-                        : 'bg-[#00FF94] text-black hover:bg-white hover:scale-105 shadow-[0_0_15px_rgba(0,255,148,0.2)]'
-                    }`}
-                  >
-                    {isAlreadyInCart ? (
-                      <>
-                        <Check size={10} />
-                        <span>In Cart</span>
-                      </>
-                    ) : added ? (
-                      <>
-                        <Check size={10} />
-                        <span>Added!</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingBag size={10} />
-                        <span>Add to cart</span>
-                      </>
-                    )}
-                  </button>
+                 {/* Action Buttons */}
+                 <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+                   {/* Add to Cart Button - Green Pill / Glass style */}
+                   <button
+                     onClick={handleFloatingAddToCart}
+                     className={`h-9 px-4 md:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 ${
+                       isAlreadyInCart
+                         ? 'bg-white/5 text-white border border-white/15 hover:bg-white/10 hover:border-white/30 shadow-inner'
+                         : 'bg-[#00FF94] text-black border border-[#00FF94]/20 hover:bg-white hover:border-white hover:scale-105 shadow-[0_0_15px_rgba(0,255,148,0.25)]'
+                     }`}
+                   >
+                     {isAlreadyInCart ? (
+                       <>
+                         <Check size={10} strokeWidth={3} />
+                         <span>In Cart</span>
+                       </>
+                     ) : added ? (
+                       <>
+                         <Check size={10} strokeWidth={3} />
+                         <span>Added!</span>
+                       </>
+                     ) : (
+                       <>
+                         <ShoppingBag size={10} />
+                         <span>Add to cart</span>
+                       </>
+                     )}
+                   </button>
 
-                  {/* Buy Now Button - Yellow Pill */}
-                  <button
-                    disabled={buyLoading}
-                    onClick={handleFloatingBuyNow}
-                    className="h-9 px-3.5 md:px-5 bg-[#FFC800] text-black font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center gap-1.5 rounded-full transition-all hover:bg-white hover:scale-105 disabled:opacity-50 border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
-                  >
-                    {buyLoading ? (
-                      <Loader2 className="animate-spin" size={10} />
-                    ) : (
-                      <>
-                        <CreditCard size={10} />
-                        <span>Buy Now</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </motion.div>
+                   {/* Buy Now Button - Yellow to Orange Gradient */}
+                   <button
+                     disabled={buyLoading}
+                     onClick={handleFloatingBuyNow}
+                     className="h-9 px-4 md:px-5 bg-gradient-to-r from-studio-yellow to-[#FFAA00] text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full border border-studio-yellow/20 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,230,0,0.45)] transition-all duration-300 active:scale-95 disabled:opacity-50 shadow-[0_0_15px_rgba(255,230,0,0.25)]"
+                   >
+                     {buyLoading ? (
+                       <Loader2 className="animate-spin" size={10} />
+                     ) : (
+                       <>
+                         <CreditCard size={10} />
+                         <span>Buy Now</span>
+                       </>
+                     )}
+                   </button>
+                 </div>
+               </motion.div>
             </div>
           </div>
         )}

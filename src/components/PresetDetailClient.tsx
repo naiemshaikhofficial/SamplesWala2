@@ -47,7 +47,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
   }, [])
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetch(`/api/auth/ownership?itemId=${preset.id}`)
         .then(res => res.ok ? res.json() : { owned: false })
         .then(data => setIsOwned(data.owned))
@@ -55,7 +55,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
     } else {
       setIsOwned(false)
     }
-  }, [user, preset.id])
+  }, [user?.id, preset.id])
 
   useEffect(() => {
     const handleScroll = () => {
