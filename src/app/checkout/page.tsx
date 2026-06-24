@@ -1384,7 +1384,7 @@ export default function CheckoutPage() {
           {/* Scenery + Conveyor Belt */}
           <div className={`h-28 bg-white relative overflow-hidden select-none pointer-events-none border-y border-black/15 shadow-[inset_0_4px_12px_rgba(0,0,0,0.03)] ${mounted ? 'start-anim' : ''}`}>
             {/* SVG Viewport */}
-            <svg className="w-full h-full" viewBox="0 0 1000 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-full h-full" viewBox="0 0 1000 100" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="conveyorGrid" width="40" height="40" patternUnits="userSpaceOnUse">
                   <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f2f6" strokeWidth="1" />
