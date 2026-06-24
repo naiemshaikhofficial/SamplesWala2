@@ -85,6 +85,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
   const [showFloatingBar, setShowFloatingBar] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const faqRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { addItem, items: cartItems, setSidebarOpen } = useCart()
   const isAlreadyInCart = cartItems.some(i => i.id === pack.id)
@@ -110,20 +111,28 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      const faqEl = document.getElementById('faq-section')
-      if (faqEl) {
-        const rect = faqEl.getBoundingClientRect()
-        // Show floating bar exactly when the FAQ section starts scrolling into view (rect.top < 350)
-        if (rect.top < 350) {
+      const isMobileDevice = window.innerWidth < 1024
+      if (isMobileDevice) {
+        if (window.scrollY > 300) {
           setShowFloatingBar(true)
         } else {
           setShowFloatingBar(false)
         }
       } else {
-        if (window.scrollY > 800) {
-          setShowFloatingBar(true)
+        if (faqRef.current) {
+          const rect = faqRef.current.getBoundingClientRect()
+          // Show floating bar exactly when the FAQ section header reaches the upper part of viewport (rect.top < 300)
+          if (rect.top < 300) {
+            setShowFloatingBar(true)
+          } else {
+            setShowFloatingBar(false)
+          }
         } else {
-          setShowFloatingBar(false)
+          if (window.scrollY > 800) {
+            setShowFloatingBar(true)
+          } else {
+            setShowFloatingBar(false)
+          }
         }
       }
     }
@@ -604,7 +613,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
       </div>
 
       {/* FAQ Section */}
-      <div id="faq-section" className="pt-12 border-t border-white/5 space-y-8">
+      <div id="faq-section" ref={faqRef} className="pt-12 border-t border-white/5 space-y-8">
         <div className="flex items-center gap-2">
           <div className="h-4 w-1 bg-studio-yellow shadow-[0_0_10px_rgba(255,200,0,0.5)]" />
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">Frequently Asked Questions</h2>
