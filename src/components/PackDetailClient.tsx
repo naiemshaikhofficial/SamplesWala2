@@ -198,7 +198,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
       {/* Cinematic Title Header (Desktop Only, hidden on mobile to avoid duplication) */}
       <div className="hidden lg:flex flex-col gap-3">
-        <span className="text-[9px] font-black uppercase tracking-[0.25em] text-studio-yellow bg-studio-yellow/10 px-3 py-1 border border-studio-yellow/20 rounded-full w-fit">
+        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-black bg-[#FFE600] px-3 py-1 border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm w-fit -rotate-1">
           {pack.categories?.[0]?.name || 'Sound Collection'}
         </span>
         <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
@@ -242,7 +242,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
           {/* Mobile Title (Only shown on mobile) */}
           <div className="flex lg:hidden flex-col gap-3">
-            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-studio-yellow bg-studio-yellow/10 px-2.5 py-0.5 border border-studio-yellow/20 rounded-full w-fit">
+            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black bg-[#FFE600] px-2.5 py-0.5 border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm w-fit -rotate-1">
               {pack.categories?.[0]?.name || 'Sound Collection'}
             </span>
             <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none text-white">
@@ -430,7 +430,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <div className="h-4 w-1 bg-studio-neon" />
-                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 font-mono">
+                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">
                   {videoIds.length > 1 ? 'Product Demos' : 'Product Demo'}
                 </h2>
               </div>
@@ -438,7 +438,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                 {videoIds.map((id, index) => (
                   <div key={id} className="space-y-2 group">
                     {videoIds.length > 1 && (
-                      <span className="text-[9px] font-black uppercase tracking-widest text-white/40 block font-mono">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-white/75 block font-mono">
                         Demo {index + 1}
                       </span>
                     )}
@@ -469,7 +469,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="h-4 w-1 bg-studio-blue" />
-              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 font-mono">Overview</h2>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">Overview</h2>
             </div>
             <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-lg">
               <p className="text-xs text-white/80 leading-relaxed font-medium whitespace-pre-wrap">
@@ -498,34 +498,23 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
           {/* Quick specs pills */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-white/5 border border-white/15 rounded-2xl flex items-center justify-between">
-              <div>
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest font-mono block">Format</span>
-                <p className="text-[10px] font-bold uppercase text-white font-mono mt-0.5">24-Bit WAV</p>
-              </div>
-              <Music className="text-white/20" size={18} />
-            </div>
-            <div className="p-4 bg-white/5 border border-white/15 rounded-2xl flex items-center justify-between">
-              <div>
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest font-mono block">Category</span>
-                <p className="text-[10px] font-bold uppercase text-white font-mono mt-0.5">{pack.categories?.[0]?.name || 'Sound Kits'}</p>
-              </div>
-              <Layers className="text-white/20" size={18} />
-            </div>
-            <div className="p-4 bg-white/5 border border-white/15 rounded-2xl flex items-center justify-between">
-              <div>
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest font-mono block">Licensing</span>
-                <p className="text-[10px] font-bold uppercase text-white font-mono mt-0.5">Royalty Free</p>
-              </div>
-              <ShieldCheck className="text-white/20" size={18} />
-            </div>
-            <div className="p-4 bg-white/5 border border-white/15 rounded-2xl flex items-center justify-between">
-              <div>
-                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest font-mono block">Delivery</span>
-                <p className="text-[10px] font-bold uppercase text-white font-mono mt-0.5">Instant</p>
-              </div>
-              <Zap className="text-white/20" size={18} />
-            </div>
+            {[
+              { label: 'Format', value: '24-Bit WAV', icon: Music },
+              { label: 'Category', value: pack.categories?.[0]?.name || 'Sound Kits', icon: Layers },
+              { label: 'Licensing', value: 'Royalty Free', icon: ShieldCheck },
+              { label: 'Delivery', value: 'Instant', icon: Zap }
+            ].map((spec, i) => {
+              const Icon = spec.icon
+              return (
+                <div key={i} className="p-4 bg-[#FFE600] text-black border-2 border-black rounded-2xl flex items-center justify-between shadow-[4px_4px_0px_#FF3131] transition-transform hover:-translate-y-1 duration-300">
+                  <div>
+                    <span className="text-[8px] font-black text-black/55 uppercase tracking-widest font-mono block">{spec.label}</span>
+                    <p className="text-[10px] font-bold uppercase text-black font-mono mt-0.5">{spec.value}</p>
+                  </div>
+                  <Icon className="text-black/35" size={18} />
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -534,7 +523,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
       <div className="pt-12 border-t border-white/5 space-y-8">
         <div className="flex items-center gap-2">
           <div className="h-4 w-1 bg-studio-yellow shadow-[0_0_10px_rgba(255,200,0,0.5)]" />
-          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 font-mono">Frequently Asked Questions</h2>
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">Frequently Asked Questions</h2>
         </div>
 
         <div className="max-w-4xl space-y-3">
@@ -638,14 +627,11 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                        className="object-cover"
                      />
                    </div>
-                   <div className="flex flex-col min-w-0">
-                     <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[100px] sm:max-w-[200px] md:max-w-[300px] group-hover/float-info:text-studio-yellow transition-colors">
-                       {pack.name}
-                     </span>
-                     <span className="text-[8px] md:text-[9px] text-white/40 font-bold uppercase tracking-wider truncate font-mono">
-                       {pack.categories?.[0]?.name || 'Sound Kits'} • 24-Bit WAV
-                     </span>
-                   </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[120px] sm:max-w-[250px] lg:max-w-none group-hover/float-info:text-studio-yellow transition-colors">
+                        {pack.name.split(/[-–—]/)[0].trim()}
+                      </span>
+                    </div>
                  </div>
 
                  {/* Price Info */}
@@ -659,11 +645,11 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                  </div>
 
                  {/* Action Buttons */}
-                 <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+                 <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
                    {/* Add to Cart Button - Green Pill / Glass style */}
                    <button
                      onClick={handleFloatingAddToCart}
-                     className={`h-9 px-4 md:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 ${
+                     className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 ${
                        isAlreadyInCart
                          ? 'bg-white/5 text-white border border-white/15 hover:bg-white/10 hover:border-white/30 shadow-inner'
                          : 'bg-[#00FF94] text-black border border-[#00FF94]/20 hover:bg-white hover:border-white hover:scale-105 shadow-[0_0_15px_rgba(0,255,148,0.25)]'
@@ -671,18 +657,18 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                    >
                      {isAlreadyInCart ? (
                        <>
-                         <Check size={10} strokeWidth={3} />
-                         <span>In Cart</span>
+                         <Check size={12} strokeWidth={3} />
+                         <span className="hidden sm:inline">In Cart</span>
                        </>
                      ) : added ? (
                        <>
-                         <Check size={10} strokeWidth={3} />
-                         <span>Added!</span>
+                         <Check size={12} strokeWidth={3} />
+                         <span className="hidden sm:inline">Added!</span>
                        </>
                      ) : (
                        <>
-                         <ShoppingBag size={10} />
-                         <span>Add to cart</span>
+                         <ShoppingBag size={12} />
+                         <span className="hidden sm:inline">Add to cart</span>
                        </>
                      )}
                    </button>
@@ -691,13 +677,13 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                    <button
                      disabled={buyLoading}
                      onClick={handleFloatingBuyNow}
-                     className="h-9 px-4 md:px-5 bg-gradient-to-r from-studio-yellow to-[#FFAA00] text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full border border-studio-yellow/20 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,230,0,0.45)] transition-all duration-300 active:scale-95 disabled:opacity-50 shadow-[0_0_15px_rgba(255,230,0,0.25)]"
+                     className="h-9 px-6 sm:px-5 bg-gradient-to-r from-studio-yellow to-[#FFAA00] text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 rounded-full border border-studio-yellow/20 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,230,0,0.45)] transition-all duration-300 active:scale-95 disabled:opacity-50 shadow-[0_0_15px_rgba(255,230,0,0.25)] flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
                    >
                      {buyLoading ? (
-                       <Loader2 className="animate-spin" size={10} />
+                       <Loader2 className="animate-spin" size={12} />
                      ) : (
                        <>
-                         <CreditCard size={10} />
+                         <CreditCard size={12} />
                          <span>Buy Now</span>
                        </>
                      )}

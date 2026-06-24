@@ -144,7 +144,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
         {/* Mobile: 2. Info & Actions | Desktop: Left Column */}
         <div className="lg:col-span-5 lg:order-1 space-y-8 lg:sticky lg:top-24">
            <div className="space-y-4">
-              <div className="inline-block px-3 py-1 bg-studio-pink text-white text-[10px] font-black uppercase tracking-widest jagged-border -rotate-2">
+              <div className="inline-block px-3 py-1 bg-[#FFE600] text-black text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm -rotate-2">
                 {preset.type}
               </div>
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic comic-text drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
@@ -181,7 +181,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
               <h3 className="text-[11px] font-black uppercase tracking-widest text-studio-neon">Compatibility</h3>
               <div className="flex flex-wrap gap-3">
                  {preset.daws.map((daw: string) => (
-                    <div key={daw} className="px-4 py-2 bg-white/5 border-2 border-black shadow-[4px_4px_0px_black] rounded-sm flex items-center gap-2">
+                    <div key={daw} className="px-4 py-2 bg-[#FFE600] text-black border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm flex items-center gap-2">
                        {daw === 'FL Studio' && (
                           <div className="relative w-4 h-4">
                              <Image src="/logos/Fl-Studio.png" alt="FL Studio" fill sizes="16px" className="object-contain" />
@@ -389,11 +389,8 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                     />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[100px] sm:max-w-[200px] md:max-w-[300px]">
-                      {preset.name}
-                    </span>
-                    <span className="text-[8px] md:text-[9px] text-white/40 font-bold uppercase tracking-wider truncate">
-                      {preset.type || 'Preset'} • {preset.daws?.[0] || 'All DAWs'}
+                    <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[120px] sm:max-w-[250px] lg:max-w-none">
+                      {preset.name.split(/[-–—]/)[0].trim()}
                     </span>
                   </div>
                 </div>
@@ -411,11 +408,11 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
                   {/* Add to Cart Button - Green Pill */}
                   <button
                     onClick={handleFloatingAddToCart}
-                    className={`h-9 px-3.5 md:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] ${
+                    className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex-shrink-0 ${
                       isAlreadyInCart
                         ? 'bg-white/5 text-white hover:bg-white/10'
                         : 'bg-[#00FF94] text-black hover:bg-white hover:scale-105 shadow-[0_0_15px_rgba(0,255,148,0.2)]'
@@ -423,18 +420,18 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                   >
                     {isAlreadyInCart ? (
                       <>
-                        <Check size={10} />
-                        <span>In Cart</span>
+                        <Check size={12} />
+                        <span className="hidden sm:inline">In Cart</span>
                       </>
                     ) : added ? (
                       <>
-                        <Check size={10} />
-                        <span>Added!</span>
+                        <Check size={12} />
+                        <span className="hidden sm:inline">Added!</span>
                       </>
                     ) : (
                       <>
-                        <ShoppingBag size={10} />
-                        <span>Add to cart</span>
+                        <ShoppingBag size={12} />
+                        <span className="hidden sm:inline">Add to cart</span>
                       </>
                     )}
                   </button>
@@ -443,13 +440,13 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                   <button
                     disabled={buyLoading}
                     onClick={handleFloatingBuyNow}
-                    className="h-9 px-3.5 md:px-5 bg-[#FFC800] text-black font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center gap-1.5 rounded-full transition-all hover:bg-white hover:scale-105 disabled:opacity-50 border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                    className="h-9 px-6 sm:px-5 bg-[#FFC800] text-black font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center gap-1.5 rounded-full transition-all hover:bg-white hover:scale-105 disabled:opacity-50 border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
                   >
                     {buyLoading ? (
-                      <Loader2 className="animate-spin" size={10} />
+                      <Loader2 className="animate-spin" size={12} />
                     ) : (
                       <>
-                        <CreditCard size={10} />
+                        <CreditCard size={12} />
                         <span>{isFree ? 'GET FREE' : 'Buy Now'}</span>
                       </>
                     )}
