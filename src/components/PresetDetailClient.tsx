@@ -118,16 +118,17 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
 
   useEffect(() => {
     const handleScroll = () => {
-      const buttonEl = document.getElementById('main-buy-button-container')
-      if (buttonEl) {
-        const rect = buttonEl.getBoundingClientRect()
-        if (rect.bottom < 0) {
+      const faqEl = document.getElementById('faq-section')
+      if (faqEl) {
+        const rect = faqEl.getBoundingClientRect()
+        // Show floating bar exactly when the FAQ section starts scrolling into view (rect.top < 350)
+        if (rect.top < 350) {
           setShowFloatingBar(true)
         } else {
           setShowFloatingBar(false)
         }
       } else {
-        if (window.scrollY > 450) {
+        if (window.scrollY > 800) {
           setShowFloatingBar(true)
         } else {
           setShowFloatingBar(false)
@@ -348,7 +349,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
       </div>
 
       {/* FAQ Section */}
-      <section className="pt-12 border-t border-white/5 space-y-8">
+      <section id="faq-section" className="pt-12 border-t border-white/5 space-y-8">
          <div className="flex items-center gap-3">
             <div className="h-6 w-1 bg-studio-yellow shadow-[0_0_10px_#FFE600]" />
             <h2 className="text-lg md:text-xl font-black uppercase tracking-tighter italic">Common Questions</h2>
