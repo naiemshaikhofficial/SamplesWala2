@@ -321,12 +321,13 @@ export function CheckoutConveyor() {
 
         /* Scared shaking schedule for shoplifter thief */
         @keyframes thiefScaredTimeline {
-          0%, 64.9% { transform: scale(1) rotate(0deg); }
-          65%, 79.9% {
-            /* Thief caught shaking */
-            animation: thiefScaredShaking 0.15s infinite;
-          }
-          80%, 100% { transform: scale(1) rotate(0deg); }
+          0%, 74.9% { transform: scale(1) translate(0, 0) rotate(0deg); }
+          75% { transform: scale(1.05) translate(-1px, 0px) rotate(-2deg); }
+          76% { transform: scale(1.05) translate(1.5px, -1px) rotate(1.5deg); }
+          77% { transform: scale(1.05) translate(-1.5px, 0.5px) rotate(-1.5deg); }
+          78% { transform: scale(1.05) translate(1px, -1px) rotate(2deg); }
+          79% { transform: scale(1.05) translate(-1px, 1px) rotate(-2deg); }
+          80%, 100% { transform: scale(1) translate(0, 0) rotate(0deg); }
         }
         
         @keyframes successLegLeftAnim {
@@ -452,41 +453,29 @@ export function CheckoutConveyor() {
         }
         @keyframes failArmLeftAnim {
           0%, 47.9% { transform: rotate(0deg); }
-          48% { transform: rotate(0deg); }
-          52.25% { transform: rotate(-10deg); }
-          56.5% { transform: rotate(10deg); }
-          60.75% { transform: rotate(-10deg); }
-          65% { transform: rotate(0deg); }
-          65% { transform: rotate(-120deg); }
-          79.9% { transform: rotate(-120deg); }
+          48%, 74.9% { transform: rotate(-120deg); }
+          75% { transform: rotate(-145deg) translateY(-2px); }
+          77% { transform: rotate(-135deg) translateY(-1px); }
+          79% { transform: rotate(-145deg); }
           80% { transform: rotate(0deg); }
-          84% { transform: rotate(-15deg); }
-          86% { transform: rotate(0deg); }
-          88% { stroke-width: 1.5px; transform: rotate(15deg); }
-          90% { transform: rotate(0deg); }
-          92% { transform: rotate(-15deg); }
-          94% { transform: rotate(0deg); }
-          96% { transform: rotate(15deg); }
+          84% { transform: rotate(-25deg); }
+          88% { transform: rotate(25deg); }
+          92% { transform: rotate(-25deg); }
+          96% { transform: rotate(25deg); }
           98% { transform: rotate(0deg); }
           100% { transform: rotate(0deg); }
         }
         @keyframes failArmRightAnim {
           0%, 47.9% { transform: rotate(0deg); }
-          48% { transform: rotate(0deg); }
-          52.25% { transform: rotate(10deg); }
-          56.5% { transform: rotate(-10deg); }
-          60.75% { transform: rotate(10deg); }
-          65% { transform: rotate(0deg); }
-          65% { transform: rotate(120deg); }
-          79.9% { transform: rotate(120deg); }
+          48%, 74.9% { transform: rotate(120deg); }
+          75% { transform: rotate(145deg) translateY(-2px); }
+          77% { transform: rotate(135deg) translateY(-1px); }
+          79% { transform: rotate(145deg); }
           80% { transform: rotate(0deg); }
-          84% { transform: rotate(15deg); }
-          86% { transform: rotate(0deg); }
-          88% { transform: rotate(-15deg); }
-          90% { transform: rotate(0deg); }
-          92% { transform: rotate(15deg); }
-          94% { transform: rotate(0deg); }
-          96% { transform: rotate(-15deg); }
+          84% { transform: rotate(25deg); }
+          88% { transform: rotate(-25deg); }
+          92% { transform: rotate(25deg); }
+          96% { transform: rotate(-25deg); }
           98% { transform: rotate(0deg); }
           100% { transform: rotate(0deg); }
         }
@@ -516,12 +505,12 @@ export function CheckoutConveyor() {
         }
         
         @keyframes failFaceHappyTimeline {
-          0%, 64.9% { opacity: 1; }
-          65%, 100% { opacity: 0; }
+          0%, 74.9% { opacity: 1; }
+          75%, 100% { opacity: 0; }
         }
         @keyframes failFaceSadTimeline {
-          0%, 64.9% { opacity: 0; }
-          65%, 100% { opacity: 1; }
+          0%, 74.9% { opacity: 0; }
+          75%, 100% { opacity: 1; }
         }
         
         @keyframes guardArmRightAnim {
@@ -530,14 +519,14 @@ export function CheckoutConveyor() {
           37% { transform: rotate(-25deg); }
           39% { transform: rotate(-50deg); }
           41% { transform: rotate(-25deg); }
-          42%, 64.9% { transform: rotate(0deg); }
+          42%, 74.9% { transform: rotate(0deg); }
           /* Caught shoplifter! Points angrily with security wand. */
-          65% { transform: rotate(90deg); }
-          68% { transform: rotate(70deg); }
-          71% { transform: rotate(90deg); }
-          74% { transform: rotate(70deg); }
-          77% { transform: rotate(90deg); }
-          80%, 100% { transform: rotate(0deg); }
+          75% { transform: rotate(90deg); }
+          77% { transform: rotate(70deg); }
+          79% { transform: rotate(90deg); }
+          81% { transform: rotate(70deg); }
+          83% { transform: rotate(90deg); }
+          85%, 100% { transform: rotate(0deg); }
         }
         
         @keyframes popSuccessTimeline {
@@ -548,10 +537,10 @@ export function CheckoutConveyor() {
           100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
         }
         @keyframes popFailTimeline {
-          0%, 64.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
-          65% { transform: translate(500px, 20px) scale(1.1) rotate(-4deg); opacity: 1; }
-          72% { transform: translate(500px, 15px) scale(1) rotate(4deg); opacity: 1; }
-          78% { transform: translate(500px, 10px) scale(0); opacity: 0; }
+          0%, 74.9% { transform: translate(500px, 20px) scale(0); opacity: 0; }
+          75% { transform: translate(500px, 20px) scale(1.1) rotate(-4deg); opacity: 1; }
+          82% { transform: translate(500px, 15px) scale(1) rotate(4deg); opacity: 1; }
+          88% { transform: translate(500px, 10px) scale(0); opacity: 0; }
           100% { transform: translate(500px, 10px) scale(0); opacity: 0; }
         }
         
