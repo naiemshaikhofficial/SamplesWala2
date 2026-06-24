@@ -133,6 +133,30 @@ export function CheckoutConveyor() {
         .guard-group {
           transform-box: fill-box;
         }
+        .start-anim .guard-group {
+          animation: guardWalkAnim 12s infinite linear;
+        }
+        .guard-bob-container {
+          transform-box: fill-box;
+          transform-origin: bottom center;
+        }
+        .start-anim .guard-bob-container {
+          animation: guardBobTimeline 12s infinite ease-in-out;
+        }
+        .guard-leg-l-group {
+          transform-box: fill-box;
+          transform-origin: 50% 0%;
+        }
+        .start-anim .guard-leg-l-group {
+          animation: guardLegLeftAnim 12s infinite ease-in-out;
+        }
+        .guard-leg-r-group {
+          transform-box: fill-box;
+          transform-origin: 50% 0%;
+        }
+        .start-anim .guard-leg-r-group {
+          animation: guardLegRightAnim 12s infinite ease-in-out;
+        }
         .guard-arm-r-group {
           transform-box: fill-box;
           transform-origin: 0% 0%;
@@ -171,6 +195,20 @@ export function CheckoutConveyor() {
           animation: popFailTimeline 12s infinite ease-in-out;
         }
         
+        .thief-handcuffs {
+          opacity: 0;
+          transform-box: fill-box;
+          transform-origin: center;
+        }
+        .start-anim .thief-handcuffs {
+          animation: thiefHandcuffsTimeline 12s infinite;
+        }
+        @keyframes thiefHandcuffsTimeline {
+          0%, 79.9% { opacity: 0; }
+          80%, 98% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        
         /* ─── DETECTOR LIGHTS ─── */
         .start-anim .scanner-light {
           animation: scannerLightTimeline 12s infinite;
@@ -194,13 +232,13 @@ export function CheckoutConveyor() {
 
         /* ─── NEW STOREFRONT ROAD STYLES ─── */
         
-        /* 1. Scrolling Dashed Yellow Road Markings */
-        @keyframes roadScroll {
-          from { stroke-dashoffset: 0; }
-          to { stroke-dashoffset: -30; }
+        /* 1. Scrolling Wooden Plank Floor Joints */
+        @keyframes floorScroll {
+          from { transform: translateX(0px); }
+          to { transform: translateX(-80px); }
         }
-        .road-dashed-line {
-          animation: roadScroll 0.8s linear infinite;
+        .scrolling-floor {
+          /* Steady wood floor - conveyor scroll disabled */
         }
 
         /* 2. Glowing Awning Canopy Neon Stripe */
@@ -457,12 +495,7 @@ export function CheckoutConveyor() {
           75% { transform: rotate(-145deg) translateY(-2px); }
           77% { transform: rotate(-135deg) translateY(-1px); }
           79% { transform: rotate(-145deg); }
-          80% { transform: rotate(0deg); }
-          84% { transform: rotate(-25deg); }
-          88% { transform: rotate(25deg); }
-          92% { transform: rotate(-25deg); }
-          96% { transform: rotate(25deg); }
-          98% { transform: rotate(0deg); }
+          80%, 98% { transform: rotate(-40deg); }
           100% { transform: rotate(0deg); }
         }
         @keyframes failArmRightAnim {
@@ -471,12 +504,7 @@ export function CheckoutConveyor() {
           75% { transform: rotate(145deg) translateY(-2px); }
           77% { transform: rotate(135deg) translateY(-1px); }
           79% { transform: rotate(145deg); }
-          80% { transform: rotate(0deg); }
-          84% { transform: rotate(25deg); }
-          88% { transform: rotate(-25deg); }
-          92% { transform: rotate(25deg); }
-          96% { transform: rotate(-25deg); }
-          98% { transform: rotate(0deg); }
+          80%, 98% { transform: rotate(40deg); }
           100% { transform: rotate(0deg); }
         }
 
@@ -520,13 +548,62 @@ export function CheckoutConveyor() {
           39% { transform: rotate(-50deg); }
           41% { transform: rotate(-25deg); }
           42%, 74.9% { transform: rotate(0deg); }
-          /* Caught shoplifter! Points angrily with security wand. */
+          /* Caught shoplifter! Points angrily at first. */
           75% { transform: rotate(90deg); }
           77% { transform: rotate(70deg); }
           79% { transform: rotate(90deg); }
-          81% { transform: rotate(70deg); }
-          83% { transform: rotate(90deg); }
-          85%, 100% { transform: rotate(0deg); }
+          /* Escorting thief: keeps right arm pointing forward/pushing */
+          80%, 98% { transform: rotate(80deg); }
+          100% { transform: rotate(0deg); }
+        }
+
+        @keyframes guardWalkAnim {
+          0%, 74.9% { transform: translate(535px, 50px); opacity: 1; }
+          75%, 80% { transform: translate(515px, 50px); opacity: 1; }
+          82% { transform: translate(455px, 50px); opacity: 1; }
+          84% { transform: translate(395px, 50px); opacity: 1; }
+          86% { transform: translate(335px, 50px); opacity: 1; }
+          88% { transform: translate(275px, 50px); opacity: 1; }
+          90% { transform: translate(215px, 50px); opacity: 1; }
+          92% { transform: translate(155px, 50px); opacity: 1; }
+          94% { transform: translate(95px, 50px); opacity: 1; }
+          96% { transform: translate(35px, 50px); opacity: 1; }
+          98% { transform: translate(-25px, 50px); opacity: 1; }
+          98.1%, 99.9% { transform: translate(-25px, 50px); opacity: 0; }
+          100% { transform: translate(535px, 50px); opacity: 1; }
+        }
+
+        @keyframes guardBobTimeline {
+          0%, 79.9% { transform: translateY(0px); }
+          80% { transform: translateY(0px); }
+          82.25% { transform: translateY(-3px); }
+          84.5% { transform: translateY(0px); }
+          86.75% { transform: translateY(-3px); }
+          89% { transform: translateY(0px); }
+          91.25% { transform: translateY(-3px); }
+          93.5% { transform: translateY(0px); }
+          95.75% { transform: translateY(-3px); }
+          98%, 100% { transform: translateY(0px); }
+        }
+
+        @keyframes guardLegLeftAnim {
+          0%, 79.9% { transform: rotate(0deg); }
+          83% { transform: rotate(28deg); }
+          86% { transform: rotate(-28deg); }
+          89% { transform: rotate(28deg); }
+          92% { transform: rotate(-28deg); }
+          95% { transform: rotate(28deg); }
+          98%, 100% { transform: rotate(0deg); }
+        }
+
+        @keyframes guardLegRightAnim {
+          0%, 79.9% { transform: rotate(0deg); }
+          83% { transform: rotate(-28deg); }
+          86% { transform: rotate(28deg); }
+          89% { transform: rotate(-28deg); }
+          92% { transform: rotate(28deg); }
+          95% { transform: rotate(-28deg); }
+          98%, 100% { transform: rotate(0deg); }
         }
         
         @keyframes popSuccessTimeline {
@@ -660,13 +737,77 @@ export function CheckoutConveyor() {
           <rect x="194" y="26" width="4" height="18" rx="1" fill="#00BFFF" className="eq-bar-3" />
         </g>
 
-        {/* 4. Concrete sidewalk path */}
-        <rect x="0" y="72" width="1000" height="10" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.5" />
-        <line x1="0" y1="82" x2="1000" y2="82" stroke="#64748b" strokeWidth="1.5" />
+        {/* 4. Polished Wooden Shop Floor */}
+        <g className="scrolling-floor">
+          {/* Main floor rect, width extended on the left to cover scroll buffer */}
+          <rect x="-160" y="72" width="1320" height="28" fill="#583c27" />
+          
+          {/* Floor Planks Horizontal Borders */}
+          <line x1="-160" y1="72" x2="1160" y2="72" stroke="#3d2719" strokeWidth="1.2" />
+          <line x1="-160" y1="81" x2="1160" y2="81" stroke="#3d2719" strokeWidth="0.8" />
+          <line x1="-160" y1="90" x2="1160" y2="90" stroke="#3d2719" strokeWidth="0.8" />
+          <line x1="-160" y1="99" x2="1160" y2="99" stroke="#3d2719" strokeWidth="1.2" />
 
-        {/* 5. Asphalt Road */}
-        <rect x="0" y="82" width="1000" height="18" fill="#1b1c20" />
-        <line x1="0" y1="91" x2="1000" y2="91" stroke="#eab308" strokeWidth="1" strokeDasharray="15 15" className="road-dashed-line" />
+          {/* Vertical joints for wood planks (offset on each row for realism) */}
+          <g stroke="#3d2719" strokeWidth="0.8">
+            {/* Top row joints (spaced every 80px) */}
+            <line x1="-80" y1="72" x2="-80" y2="81" />
+            <line x1="0" y1="72" x2="0" y2="81" />
+            <line x1="80" y1="72" x2="80" y2="81" />
+            <line x1="160" y1="72" x2="160" y2="81" />
+            <line x1="240" y1="72" x2="240" y2="81" />
+            <line x1="320" y1="72" x2="320" y2="81" />
+            <line x1="400" y1="72" x2="400" y2="81" />
+            <line x1="480" y1="72" x2="480" y2="81" />
+            <line x1="560" y1="72" x2="560" y2="81" />
+            <line x1="640" y1="72" x2="640" y2="81" />
+            <line x1="720" y1="72" x2="720" y2="81" />
+            <line x1="800" y1="72" x2="800" y2="81" />
+            <line x1="880" y1="72" x2="880" y2="81" />
+            <line x1="960" y1="72" x2="960" y2="81" />
+            <line x1="1040" y1="72" x2="1040" y2="81" />
+            <line x1="1120" y1="72" x2="1120" y2="81" />
+
+            {/* Middle row joints (shifted by 40px) */}
+            <line x1="-40" y1="81" x2="-40" y2="90" />
+            <line x1="40" y1="81" x2="40" y2="90" />
+            <line x1="120" y1="81" x2="120" y2="90" />
+            <line x1="200" y1="81" x2="200" y2="90" />
+            <line x1="280" y1="81" x2="280" y2="90" />
+            <line x1="360" y1="81" x2="360" y2="90" />
+            <line x1="440" y1="81" x2="440" y2="90" />
+            <line x1="520" y1="81" x2="520" y2="90" />
+            <line x1="600" y1="81" x2="600" y2="90" />
+            <line x1="680" y1="81" x2="680" y2="90" />
+            <line x1="760" y1="81" x2="760" y2="90" />
+            <line x1="840" y1="81" x2="840" y2="90" />
+            <line x1="920" y1="81" x2="920" y2="90" />
+            <line x1="1000" y1="81" x2="1000" y2="90" />
+            <line x1="1080" y1="81" x2="1080" y2="90" />
+            <line x1="1160" y1="81" x2="1160" y2="90" />
+
+            {/* Bottom row joints (shifted by 20px) */}
+            <line x1="-60" y1="90" x2="-60" y2="99" />
+            <line x1="20" y1="90" x2="20" y2="99" />
+            <line x1="100" y1="90" x2="100" y2="99" />
+            <line x1="180" y1="90" x2="180" y2="99" />
+            <line x1="260" y1="90" x2="260" y2="99" />
+            <line x1="340" y1="90" x2="340" y2="99" />
+            <line x1="420" y1="90" x2="420" y2="99" />
+            <line x1="500" y1="90" x2="500" y2="99" />
+            <line x1="580" y1="90" x2="580" y2="99" />
+            <line x1="660" y1="90" x2="660" y2="99" />
+            <line x1="740" y1="90" x2="740" y2="99" />
+            <line x1="820" y1="90" x2="820" y2="99" />
+            <line x1="900" y1="90" x2="900" y2="99" />
+            <line x1="980" y1="90" x2="980" y2="99" />
+            <line x1="1060" y1="90" x2="1060" y2="99" />
+            <line x1="1140" y1="90" x2="1140" y2="99" />
+          </g>
+
+          {/* Polished wood highlight reflection overlay */}
+          <rect x="-160" y="72" width="1320" height="28" fill="#fff" opacity="0.04" />
+        </g>
 
         {/* ─── CHARACTER 1: SUCCESS CUSTOMER ─── */}
         <g className="success-char-group">
@@ -781,6 +922,13 @@ export function CheckoutConveyor() {
                   <rect x="-3.5" y="-7" width="7" height="17" fill="#00BFFF" stroke="#000" strokeWidth="0.8" />
                   <text y="7.5" textAnchor="middle" fill="#000" fontSize="3.5" fontWeight="950" fontFamily="'Luckiest Guy', sans-serif">DRUMS</text>
                 </g>
+                
+                {/* Handcuffs */}
+                <g className="thief-handcuffs">
+                  <circle cx="-3.5" cy="2" r="3.2" fill="none" stroke="#94a3b8" strokeWidth="1.5" />
+                  <circle cx="3.5" cy="2" r="3.2" fill="none" stroke="#94a3b8" strokeWidth="1.5" />
+                  <line x1="-2.0" y1="2" x2="2.0" y2="2" stroke="#94a3b8" strokeWidth="1.5" />
+                </g>
               </g>
             </g>
           </g>
@@ -788,46 +936,53 @@ export function CheckoutConveyor() {
 
         {/* ─── SECURITY GUARD / BOUNCER ─── */}
         <g className="guard-group" transform="translate(535, 50)">
-          {/* Trousers */}
-          <line x1="-3" y1="7" x2="-3" y2="21" stroke="#1e293b" strokeWidth="5.5" strokeLinecap="round" />
-          <line x1="-3" y1="7" x2="-3" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="3" y1="7" x2="3" y2="21" stroke="#1e293b" strokeWidth="5.5" strokeLinecap="round" />
-          <line x1="3" y1="7" x2="3" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
-          <path d="M-7,20 L-2,20 C-1,20 -1,23 -3,23 L-7,23 Z" fill="#0f172a" stroke="#000" strokeWidth="1.2" />
-          <path d="M-1,20 L4,20 C5,20 5,23 3,23 L-1,23 Z" fill="#0f172a" stroke="#000" strokeWidth="1.2" />
-          {/* Uniform shirt & belt */}
-          <rect x="-8" y="-14" width="16" height="21" rx="2" fill="#1e293b" stroke="#000" strokeWidth="2" />
-          <rect x="-9" y="4" width="18" height="3" fill="#111" stroke="#000" strokeWidth="1.2" />
-          <rect x="-2" y="3.5" width="4" height="4" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
-          <polygon points="0,-14 -3,-9 0,-5 3,-9" fill="#111" />
-          {/* Shield Badge */}
-          <polygon points="2,-7 5,-4 3,-1 1,-4" fill="#FFE600" stroke="#000" strokeWidth="0.6" />
-          {/* Head */}
-          <circle cx="0" cy="-21" r="7.5" fill="#FFE600" stroke="#000" strokeWidth="2" />
-          {/* Cap */}
-          <path d="M-8,-26 L8,-26 L9,-22 L-9,-22 Z" fill="#0f172a" stroke="#000" strokeWidth="1.5" />
-          <rect x="-4" y="-25" width="8" height="2.2" fill="#FFE600" />
-          {/* Sunglasses with Glare Shine */}
-          <g className="guard-glasses">
-            <rect x="-4.5" y="-23.2" width="3.5" height="2.0" fill="#000" rx="0.5" />
-            <rect x="1" y="-23.2" width="3.5" height="2.0" fill="#000" rx="0.5" />
-            <line x1="-6" y1="-23" x2="-3.5" y2="-21" stroke="#fff" strokeWidth="0.7" className="glasses-glare" />
-            <line x1="-0.5" y1="-23" x2="2" y2="-21" stroke="#fff" strokeWidth="0.7" className="glasses-glare" />
-          </g>
-          {/* Serious mouth line */}
-          <path d="M-2.5,-18 L2.5,-18" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
-          
-          {/* Left Arm holding security wand */}
-          <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#1e293b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="-10" cy="4" r="2" fill="#FFE600" stroke="#000" strokeWidth="1" />
-          <line x1="-10" y1="4" x2="-8" y2="10" stroke="#FFE600" strokeWidth="2.5" strokeLinecap="round" />
-          
-          {/* Right Arm (angry pointer) */}
-          <g className="guard-arm-r-group">
-            <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#1e293b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="10" cy="3" r="2" fill="#FFE600" stroke="#000" strokeWidth="1" />
+          <g className="guard-bob-container">
+            {/* Left Leg */}
+            <g className="guard-leg-l-group">
+              <line x1="-3" y1="7" x2="-3" y2="21" stroke="#1e293b" strokeWidth="5.5" strokeLinecap="round" />
+              <line x1="-3" y1="7" x2="-3" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M-7,20 L-2,20 C-1,20 -1,23 -3,23 L-7,23 Z" fill="#0f172a" stroke="#000" strokeWidth="1.2" />
+            </g>
+            {/* Right Leg */}
+            <g className="guard-leg-r-group">
+              <line x1="3" y1="7" x2="3" y2="21" stroke="#1e293b" strokeWidth="5.5" strokeLinecap="round" />
+              <line x1="3" y1="7" x2="3" y2="21" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M-1,20 L4,20 C5,20 5,23 3,23 L-1,23 Z" fill="#0f172a" stroke="#000" strokeWidth="1.2" />
+            </g>
+            {/* Uniform shirt & belt */}
+            <rect x="-8" y="-14" width="16" height="21" rx="2" fill="#1e293b" stroke="#000" strokeWidth="2" />
+            <rect x="-9" y="4" width="18" height="3" fill="#111" stroke="#000" strokeWidth="1.2" />
+            <rect x="-2" y="3.5" width="4" height="4" fill="#FFE600" stroke="#000" strokeWidth="0.5" />
+            <polygon points="0,-14 -3,-9 0,-5 3,-9" fill="#111" />
+            {/* Shield Badge */}
+            <polygon points="2,-7 5,-4 3,-1 1,-4" fill="#FFE600" stroke="#000" strokeWidth="0.6" />
+            {/* Head */}
+            <circle cx="0" cy="-21" r="7.5" fill="#FFE600" stroke="#000" strokeWidth="2" />
+            {/* Cap */}
+            <path d="M-8,-26 L8,-26 L9,-22 L-9,-22 Z" fill="#0f172a" stroke="#000" strokeWidth="1.5" />
+            <rect x="-4" y="-25" width="8" height="2.2" fill="#FFE600" />
+            {/* Sunglasses with Glare Shine */}
+            <g className="guard-glasses">
+              <rect x="-4.5" y="-23.2" width="3.5" height="2.0" fill="#000" rx="0.5" />
+              <rect x="1" y="-23.2" width="3.5" height="2.0" fill="#000" rx="0.5" />
+              <line x1="-6" y1="-23" x2="-3.5" y2="-21" stroke="#fff" strokeWidth="0.7" className="glasses-glare" />
+              <line x1="-0.5" y1="-23" x2="2" y2="-21" stroke="#fff" strokeWidth="0.7" className="glasses-glare" />
+            </g>
+            {/* Serious mouth line */}
+            <path d="M-2.5,-18 L2.5,-18" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+            
+            {/* Left Arm holding security wand */}
+            <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#1e293b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M-7,-9 L-13,-4 L-10,4" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="-10" cy="4" r="2" fill="#FFE600" stroke="#000" strokeWidth="1" />
+            <line x1="-10" y1="4" x2="-8" y2="10" stroke="#FFE600" strokeWidth="2.5" strokeLinecap="round" />
+            
+            {/* Right Arm (angry pointer) */}
+            <g className="guard-arm-r-group">
+              <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#1e293b" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M7,-9 L13,-4 L10,3" fill="none" stroke="#000" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="10" cy="3" r="2" fill="#FFE600" stroke="#000" strokeWidth="1" />
+            </g>
           </g>
         </g>
 
