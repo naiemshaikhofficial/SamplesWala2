@@ -426,19 +426,19 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
           {/* Quick specs pills */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Format', value: 'DAW Preset', icon: Music },
-              { label: 'Type', value: preset.type || 'Vocal Chain', icon: Layers },
-              { label: 'Licensing', value: 'Royalty Free', icon: ShieldCheck },
-              { label: 'Delivery', value: 'Instant', icon: Zap }
+              { label: 'Format', value: 'DAW Preset', icon: Music, bg: 'bg-[#FF0080]', shadow: 'shadow-[4px_4px_0px_#00BFFF]', text: 'text-white', subtext: 'text-white/70', iconColor: 'text-white/40' },
+              { label: 'Type', value: preset.type || 'Vocal Chain', icon: Layers, bg: 'bg-[#00FF94]', shadow: 'shadow-[4px_4px_0px_#FF3131]', text: 'text-black', subtext: 'text-black/55', iconColor: 'text-black/35' },
+              { label: 'Licensing', value: 'Royalty Free', icon: ShieldCheck, bg: 'bg-[#FFE600]', shadow: 'shadow-[4px_4px_0px_black]', text: 'text-black', subtext: 'text-black/55', iconColor: 'text-black/35' },
+              { label: 'Delivery', value: 'Instant', icon: Zap, bg: 'bg-[#00BFFF]', shadow: 'shadow-[4px_4px_0px_#FFE600]', text: 'text-black', subtext: 'text-black/55', iconColor: 'text-black/35' }
             ].map((spec, i) => {
               const Icon = spec.icon
               return (
-                <div key={i} className="p-4 bg-[#00BFFF] text-black border-2 border-black rounded-2xl flex items-center justify-between shadow-[4px_4px_0px_#FFE600] transition-transform hover:-translate-y-1 duration-300">
+                <div key={i} className={`p-4 ${spec.bg} ${spec.text} border-2 border-black rounded-2xl flex items-center justify-between ${spec.shadow} transition-transform hover:-translate-y-1 duration-300`}>
                   <div>
-                    <span className="text-[8px] font-black text-black/55 uppercase tracking-widest font-mono block">{spec.label}</span>
-                    <p className="text-[10px] font-bold uppercase text-black font-mono mt-0.5">{spec.value}</p>
+                    <span className={`text-[8px] font-black uppercase tracking-widest font-mono block ${spec.subtext}`}>{spec.label}</span>
+                    <p className="text-[10px] font-bold uppercase font-mono mt-0.5">{spec.value}</p>
                   </div>
-                  <Icon className="text-black/35" size={18} />
+                  <Icon className={spec.iconColor} size={18} />
                 </div>
               )
             })}
