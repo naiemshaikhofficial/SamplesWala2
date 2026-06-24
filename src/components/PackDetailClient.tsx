@@ -15,6 +15,65 @@ import { useCurrency } from '@/context/CurrencyContext'
 import { useCart } from '@/context/CartContext'
 
 
+function FormattedDescription({ text }: { text: string }) {
+  if (!text) return <p className="text-xs text-white/50">No description available.</p>;
+
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  let currentList: React.ReactNode[] = [];
+  let listKey = 0;
+
+  const flushList = () => {
+    if (currentList.length > 0) {
+      elements.push(
+        <ul key={`list-${listKey++}`} className="list-none space-y-2.5 my-3.5 pl-5">
+          {currentList}
+        </ul>
+      );
+      currentList = [];
+    }
+  };
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      flushList();
+      elements.push(<div key={`spacer-${index}`} className="h-4" />);
+      return;
+    }
+
+    if (trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.startsWith('•')) {
+      const content = trimmed.substring(1).trim();
+      currentList.push(
+        <li key={`li-${index}`} className="flex items-start gap-2 text-[13px] text-white/80 font-medium">
+          <span className="text-studio-neon mt-1 flex-shrink-0 text-xs">⚡</span>
+          <span>{content}</span>
+        </li>
+      );
+    } else {
+      flushList();
+      const hasEmoji = /^[^\w\s\d]/.test(trimmed);
+      if (hasEmoji) {
+        elements.push(
+          <h3 key={`h3-${index}`} className="text-[13px] font-black uppercase tracking-wider text-studio-yellow mt-5 mb-2.5 font-mono flex items-center gap-2">
+            {trimmed}
+          </h3>
+        );
+      } else {
+        elements.push(
+          <p key={`p-${index}`} className="text-[13px] text-white/95 leading-relaxed mb-3.5 font-medium">
+            {trimmed}
+          </p>
+        );
+      }
+    }
+  });
+
+  flushList();
+
+  return <div className="space-y-1">{elements}</div>;
+}
+
 export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const pack = initialPack
   const { user } = useAuth()
@@ -51,13 +110,24 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 450) {
-        setShowFloatingBar(true)
+      const buttonEl = document.getElementById('main-buy-button-container')
+      if (buttonEl) {
+        const rect = buttonEl.getBoundingClientRect()
+        if (rect.bottom < 0) {
+          setShowFloatingBar(true)
+        } else {
+          setShowFloatingBar(false)
+        }
       } else {
-        setShowFloatingBar(false)
+        if (window.scrollY > 450) {
+          setShowFloatingBar(true)
+        } else {
+          setShowFloatingBar(false)
+        }
       }
     }
     window.addEventListener('scroll', handleScroll)
+    handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -277,7 +347,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col gap-3">
+            <div id="main-buy-button-container" className="flex flex-col gap-3">
               {owned ? (
                 pack.is_downloadable ? (
                   <DownloadButton itemId={pack.id} />
@@ -386,33 +456,48 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         {/* Right Section: Sound Stats, Previews, Details, and FAQ */}
         <div className="lg:col-span-8 space-y-8">
           {/* Sound Statistics Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Melodies', count: pack.melody_count, icon: Music, color: 'text-studio-pink', bg: 'bg-studio-pink/5', border: 'border-studio-pink/15' },
-              { label: 'Loops', count: pack.loop_count, icon: Layers, color: 'text-studio-neon', bg: 'bg-studio-neon/5', border: 'border-studio-neon/15' },
-              { label: 'One-shots', count: pack.one_shot_count, icon: Disc, color: 'text-studio-orange', bg: 'bg-studio-orange/5', border: 'border-studio-orange/15' },
-              { label: 'Presets', count: pack.preset_count, icon: SlidersHorizontal, color: 'text-studio-yellow', bg: 'bg-studio-yellow/5', border: 'border-studio-yellow/15' }
-            ].map((stat, i) => {
-              if (stat.count === undefined || stat.count === null || stat.count === 0) return null;
-              const Icon = stat.icon;
-              return (
-                <motion.div 
-                  key={i} 
-                  whileHover={{ y: -4 }}
-                  className={`p-5 rounded-2xl border ${stat.border} ${stat.bg} flex flex-col justify-between h-28 relative overflow-hidden group transition-all duration-300`}
-                >
-                  <div className="absolute right-2 top-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Icon size={48} className={stat.color} />
-                  </div>
-                  <div className="flex items-center gap-1.5 text-white/40">
-                    <Icon size={12} className={stat.color} />
-                    <span className="text-[9px] font-black uppercase tracking-wider font-mono">{stat.label}</span>
-                  </div>
-                  <span className="text-3xl font-black text-white italic tracking-tight font-mono">{stat.count}</span>
-                </motion.div>
-              );
-            })}
-          </div>
+          {(() => {
+            const activeStats = [
+              { label: 'Melodies', count: pack.melody_count, icon: Music, bg: 'bg-[#FF0080]', shadow: 'shadow-[2.5px_2.5px_0px_#00BFFF] md:shadow-[4px_4px_0px_#00BFFF]', text: 'text-white' },
+              { label: 'Loops', count: pack.loop_count, icon: Layers, bg: 'bg-[#00FF94]', shadow: 'shadow-[2.5px_2.5px_0px_#FF3131] md:shadow-[4px_4px_0px_#FF3131]', text: 'text-black' },
+              { label: 'One-shots', count: pack.one_shot_count, icon: Disc, bg: 'bg-[#FFAA00]', shadow: 'shadow-[2.5px_2.5px_0px_#00BFFF] md:shadow-[4px_4px_0px_#00BFFF]', text: 'text-black' },
+              { label: 'Presets', count: pack.preset_count, icon: SlidersHorizontal, bg: 'bg-[#FFE600]', shadow: 'shadow-[2.5px_2.5px_0px_#FF3131] md:shadow-[4px_4px_0px_#FF3131]', text: 'text-black' }
+            ].filter(stat => stat.count !== undefined && stat.count !== null && stat.count > 0);
+
+            if (activeStats.length === 0) return null;
+
+            const gridColsMap: Record<number, string> = {
+              1: 'grid-cols-2', // Keep half width on mobile for single item
+              2: 'grid-cols-2',
+              3: 'grid-cols-3',
+              4: 'grid-cols-4'
+            };
+            const mobileGridClass = gridColsMap[activeStats.length] || 'grid-cols-4';
+
+            return (
+              <div className={`grid ${mobileGridClass} md:grid-cols-4 gap-2 md:gap-4`}>
+                {activeStats.map((stat, i) => {
+                  const Icon = stat.icon;
+                  return (
+                    <motion.div 
+                      key={i} 
+                      whileHover={{ y: -4 }}
+                      className={`p-2.5 md:p-5 rounded-xl md:rounded-2xl border-2 border-black ${stat.bg} ${stat.shadow} ${stat.text} flex flex-col justify-between h-20 md:h-28 relative overflow-hidden group transition-all duration-300`}
+                    >
+                      <div className="absolute right-1 top-1 opacity-5 md:opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Icon className={`w-8 h-8 md:w-12 md:h-12 ${stat.text === 'text-white' ? 'text-white' : 'text-black'}`} />
+                      </div>
+                      <div className="flex items-center gap-1 opacity-80 min-w-0 z-10">
+                        <Icon className={`w-2.5 h-2.5 md:w-3 md:h-3 flex-shrink-0 ${stat.text === 'text-white' ? 'text-white' : 'text-black'}`} />
+                        <span className="text-[7px] md:text-[9px] font-black uppercase tracking-wider font-mono truncate">{stat.label}</span>
+                      </div>
+                      <span className="text-xl md:text-3xl font-black italic tracking-tight font-mono leading-none z-10">{stat.count}</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           {/* Sound Count Fallback block */}
           {(!pack.melody_count && !pack.loop_count && !pack.one_shot_count && !pack.preset_count) && (
@@ -472,9 +557,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">Overview</h2>
             </div>
             <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-lg">
-              <p className="text-xs text-white/80 leading-relaxed font-medium whitespace-pre-wrap">
-                {pack.description || "No description available for this collection."}
-              </p>
+              <FormattedDescription text={pack.description} />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
                 <div className="space-y-3">
@@ -506,7 +589,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             ].map((spec, i) => {
               const Icon = spec.icon
               return (
-                <div key={i} className="p-4 bg-[#FFE600] text-black border-2 border-black rounded-2xl flex items-center justify-between shadow-[4px_4px_0px_#FF3131] transition-transform hover:-translate-y-1 duration-300">
+                <div key={i} className="p-4 bg-[#00BFFF] text-black border-2 border-black rounded-2xl flex items-center justify-between shadow-[4px_4px_0px_#FFE600] transition-transform hover:-translate-y-1 duration-300">
                   <div>
                     <span className="text-[8px] font-black text-black/55 uppercase tracking-widest font-mono block">{spec.label}</span>
                     <p className="text-[10px] font-bold uppercase text-black font-mono mt-0.5">{spec.value}</p>
@@ -600,7 +683,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
       {/* Floating Sticky CTA Bar */}
       <AnimatePresence>
-        {(showFloatingBar || isMobile) && !owned && mounted && (
+        {showFloatingBar && !owned && mounted && (
           <div 
             className="fixed left-0 right-0 z-50 pointer-events-none" 
             style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
@@ -611,83 +694,102 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                  animate={{ y: 0, opacity: 1 }}
                  exit={{ y: 100, opacity: 0 }}
                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                 className="pointer-events-auto w-full bg-[#0a0a0ae0] backdrop-blur-xl border border-white/10 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_30px_rgba(0,116,228,0.12)] px-4 md:px-6 py-3 flex items-center justify-between gap-3 md:gap-6 hover:border-white/20 transition-all duration-300 group/float-bar"
+                 className="pointer-events-auto w-full relative"
                >
-                 {/* Product Image and info */}
-                 <div 
-                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                   className="flex items-center gap-3 min-w-0 cursor-pointer group/float-info"
+                 {/* Animated shadow backdrop */}
+                 <motion.div
+                   className="absolute inset-0 bg-[#00BFFF] border-2 border-black rounded-full"
+                   animate={{ 
+                     x: [3, 7, 3],
+                     y: [3, 7, 3],
+                   }}
+                   transition={{
+                     duration: 4,
+                     repeat: Infinity,
+                     ease: "easeInOut",
+                   }}
+                 />
+
+                 {/* Foreground Yellow Capsule */}
+                 <div
+                   className="relative w-full bg-[#FFE600] border-2 border-black rounded-full px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 md:gap-6 group/float-bar"
                  >
-                   <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-white/15 shadow-lg group-hover/float-info:scale-105 transition-transform duration-300">
-                     <Image
-                       src={pack.cover_url || '/placeholder.jpg'}
-                       alt={pack.name}
-                       fill
-                       sizes="40px"
-                       className="object-cover"
-                     />
+                   {/* Product Image and info */}
+                   <div 
+                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                     className="flex items-center gap-3 min-w-0 cursor-pointer group/float-info"
+                   >
+                     <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-black shadow-md group-hover/float-info:scale-105 transition-transform duration-300">
+                       <Image
+                         src={pack.cover_url || '/placeholder.jpg'}
+                         alt={pack.name}
+                         fill
+                         sizes="40px"
+                         className="object-cover"
+                       />
+                     </div>
+                     <div className="flex flex-col min-w-0">
+                       <span className="text-black text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[120px] sm:max-w-[250px] lg:max-w-none group-hover/float-info:text-studio-red transition-colors">
+                         {pack.name.split(/[-–—]/)[0].trim()}
+                       </span>
+                     </div>
                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[120px] sm:max-w-[250px] lg:max-w-none group-hover/float-info:text-studio-yellow transition-colors">
-                        {pack.name.split(/[-–—]/)[0].trim()}
-                      </span>
-                    </div>
-                 </div>
 
-                 {/* Price Info */}
-                 <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                   <span className="text-[9px] md:text-xs text-white/25 line-through font-bold font-mono tracking-wider">
-                     {displayMrp}
-                   </span>
-                   <span className="text-xs md:text-sm font-black text-studio-neon leading-none italic uppercase tracking-wider font-mono drop-shadow-[0_0_8px_rgba(0,255,148,0.3)]">
-                     {displayPrice}
-                   </span>
-                 </div>
+                   {/* Price Info */}
+                   <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                     <span className="text-[9px] md:text-xs text-black/50 line-through font-bold font-mono tracking-wider">
+                       {displayMrp}
+                     </span>
+                     <span className="text-xs md:text-sm font-black text-black leading-none italic uppercase tracking-wider font-mono">
+                       {displayPrice}
+                     </span>
+                   </div>
 
-                 {/* Action Buttons */}
-                 <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
-                   {/* Add to Cart Button - Green Pill / Glass style */}
-                   <button
-                     onClick={handleFloatingAddToCart}
-                     className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 ${
-                       isAlreadyInCart
-                         ? 'bg-white/5 text-white border border-white/15 hover:bg-white/10 hover:border-white/30 shadow-inner'
-                         : 'bg-[#00FF94] text-black border border-[#00FF94]/20 hover:bg-white hover:border-white hover:scale-105 shadow-[0_0_15px_rgba(0,255,148,0.25)]'
-                     }`}
-                   >
-                     {isAlreadyInCart ? (
-                       <>
-                         <Check size={12} strokeWidth={3} />
-                         <span className="hidden sm:inline">In Cart</span>
-                       </>
-                     ) : added ? (
-                       <>
-                         <Check size={12} strokeWidth={3} />
-                         <span className="hidden sm:inline">Added!</span>
-                       </>
-                     ) : (
-                       <>
-                         <ShoppingBag size={12} />
-                         <span className="hidden sm:inline">Add to cart</span>
-                       </>
-                     )}
-                   </button>
+                   {/* Action Buttons */}
+                   <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
+                     {/* Add to Cart Button - Green Pill / Glass style */}
+                     <button
+                       onClick={handleFloatingAddToCart}
+                       className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 border-2 border-black shadow-[2px_2px_0px_black] ${
+                         isAlreadyInCart
+                           ? 'bg-black/10 text-black border-black/20 shadow-none'
+                           : 'bg-[#00FF94] text-black hover:bg-white'
+                       }`}
+                     >
+                       {isAlreadyInCart ? (
+                         <>
+                           <Check size={12} strokeWidth={3} />
+                           <span className="hidden sm:inline">In Cart</span>
+                         </>
+                       ) : added ? (
+                         <>
+                           <Check size={12} strokeWidth={3} />
+                           <span className="hidden sm:inline">Added!</span>
+                         </>
+                       ) : (
+                         <>
+                           <ShoppingBag size={12} />
+                           <span className="hidden sm:inline">Add to cart</span>
+                         </>
+                       )}
+                     </button>
 
-                   {/* Buy Now Button - Yellow to Orange Gradient */}
-                   <button
-                     disabled={buyLoading}
-                     onClick={handleFloatingBuyNow}
-                     className="h-9 px-6 sm:px-5 bg-gradient-to-r from-studio-yellow to-[#FFAA00] text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 rounded-full border border-studio-yellow/20 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,230,0,0.45)] transition-all duration-300 active:scale-95 disabled:opacity-50 shadow-[0_0_15px_rgba(255,230,0,0.25)] flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
-                   >
-                     {buyLoading ? (
-                       <Loader2 className="animate-spin" size={12} />
-                     ) : (
-                       <>
-                         <CreditCard size={12} />
-                         <span>Buy Now</span>
-                       </>
-                     )}
-                   </button>
+                     {/* Buy Now Button - Black Pill with comic shadow */}
+                     <button
+                       disabled={buyLoading}
+                       onClick={handleFloatingBuyNow}
+                       className="h-9 px-6 sm:px-5 bg-black text-white hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_black] transition-all duration-300 active:scale-95 disabled:opacity-50 flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
+                     >
+                       {buyLoading ? (
+                         <Loader2 className="animate-spin" size={12} />
+                       ) : (
+                         <>
+                           <CreditCard size={12} />
+                           <span>Buy Now</span>
+                         </>
+                       )}
+                     </button>
+                   </div>
                  </div>
                </motion.div>
             </div>

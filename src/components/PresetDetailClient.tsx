@@ -18,6 +18,65 @@ interface PresetDetailClientProps {
   vId: string | null
 }
 
+function FormattedDescription({ text }: { text: string }) {
+  if (!text) return <p className="text-xs text-white/50">No description available.</p>;
+
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  let currentList: React.ReactNode[] = [];
+  let listKey = 0;
+
+  const flushList = () => {
+    if (currentList.length > 0) {
+      elements.push(
+        <ul key={`list-${listKey++}`} className="list-none space-y-2.5 my-3.5 pl-5">
+          {currentList}
+        </ul>
+      );
+      currentList = [];
+    }
+  };
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      flushList();
+      elements.push(<div key={`spacer-${index}`} className="h-4" />);
+      return;
+    }
+
+    if (trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.startsWith('•')) {
+      const content = trimmed.substring(1).trim();
+      currentList.push(
+        <li key={`li-${index}`} className="flex items-start gap-2 text-[13px] text-white/80 font-medium">
+          <span className="text-studio-neon mt-1 flex-shrink-0 text-xs">⚡</span>
+          <span>{content}</span>
+        </li>
+      );
+    } else {
+      flushList();
+      const hasEmoji = /^[^\w\s\d]/.test(trimmed);
+      if (hasEmoji) {
+        elements.push(
+          <h3 key={`h3-${index}`} className="text-[13px] font-black uppercase tracking-wider text-studio-yellow mt-5 mb-2.5 font-mono flex items-center gap-2">
+            {trimmed}
+          </h3>
+        );
+      } else {
+        elements.push(
+          <p key={`p-${index}`} className="text-[13px] text-white/95 leading-relaxed mb-3.5 font-medium">
+            {trimmed}
+          </p>
+        );
+      }
+    }
+  });
+
+  flushList();
+
+  return <div className="space-y-1">{elements}</div>;
+}
+
 export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientProps) {
   const { user } = useAuth()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
@@ -59,13 +118,24 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 450) {
-        setShowFloatingBar(true)
+      const buttonEl = document.getElementById('main-buy-button-container')
+      if (buttonEl) {
+        const rect = buttonEl.getBoundingClientRect()
+        if (rect.bottom < 0) {
+          setShowFloatingBar(true)
+        } else {
+          setShowFloatingBar(false)
+        }
       } else {
-        setShowFloatingBar(false)
+        if (window.scrollY > 450) {
+          setShowFloatingBar(true)
+        } else {
+          setShowFloatingBar(false)
+        }
       }
     }
     window.addEventListener('scroll', handleScroll)
+    handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -204,7 +274,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                     <DownloadButton itemId={preset.id} type="preset" />
                  </div>
               ) : (
-                  <div className="hidden lg:grid grid-cols-1 gap-4">
+                  <div id="main-buy-button-container" className="grid grid-cols-1 gap-4">
                      <AddToCartButton 
                        item={{
                          id: preset.id,
@@ -231,9 +301,9 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                </div>
            </div>
 
-           <p className="text-xs text-white/60 leading-relaxed font-medium bg-black/40 backdrop-blur-md p-6 border border-white/10 rounded-sm">
-              {preset.description || `Take your sound to the next level with ${preset.name}. Professionally crafted for high-quality music production.`}
-           </p>
+            <div className="bg-black/40 backdrop-blur-md p-6 border border-white/10 rounded-sm">
+               <FormattedDescription text={preset.description || `Take your sound to the next level with ${preset.name}. Professionally crafted for high-quality music production.`} />
+            </div>
 
            {/* Plugins Used Section - Moved Below Description & Compact for Mobile */}
            {preset.plugins_used && preset.plugins_used.flat().length > 0 && (
@@ -364,7 +434,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
 
       {/* Floating Sticky CTA Bar */}
       <AnimatePresence>
-        {(showFloatingBar || isMobile) && !isOwned && mounted && (
+        {showFloatingBar && !isOwned && mounted && (
           <div 
             className="fixed left-0 right-0 z-50 pointer-events-none" 
             style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
@@ -375,82 +445,101 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 100, opacity: 0 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="pointer-events-auto w-full bg-[#0a0a0a]/95 backdrop-blur-md border border-white/10 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.8)] px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 md:gap-6"
+                className="pointer-events-auto w-full relative"
               >
-                {/* Product Image and info */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
-                    <Image
-                      src={preset.cover_url || '/placeholder.jpg'}
-                      alt={preset.name}
-                      fill
-                      sizes="40px"
-                      className="object-cover"
-                    />
+                {/* Animated shadow backdrop */}
+                <motion.div
+                  className="absolute inset-0 bg-[#00BFFF] border-2 border-black rounded-full"
+                  animate={{ 
+                    x: [3, 7, 3],
+                    y: [3, 7, 3],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+
+                {/* Foreground Yellow Capsule */}
+                <div
+                  className="relative w-full bg-[#FFE600] border-2 border-black rounded-full px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 md:gap-6 group/float-bar"
+                >
+                  {/* Product Image and info */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
+                      <Image
+                        src={preset.cover_url || '/placeholder.jpg'}
+                        alt={preset.name}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-black text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[120px] sm:max-w-[250px] lg:max-w-none">
+                        {preset.name.split(/[-–—]/)[0].trim()}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-white text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[120px] sm:max-w-[250px] lg:max-w-none">
-                      {preset.name.split(/[-–—]/)[0].trim()}
+
+                  {/* Price Info */}
+                  <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                    {preset.mrp_inr && (
+                      <span className="text-[9px] md:text-xs text-black/50 line-through font-bold">
+                        {formatPrice(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
+                      </span>
+                    )}
+                    <span className="text-xs md:text-sm font-black text-black leading-none italic uppercase tracking-wider">
+                      {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
                     </span>
                   </div>
-                </div>
 
-                {/* Price Info */}
-                <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                  {preset.mrp_inr && (
-                    <span className="text-[9px] md:text-xs text-white/30 line-through font-bold">
-                      {formatPrice(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
-                    </span>
-                  )}
-                  <span className="text-xs md:text-sm font-black text-studio-neon leading-none italic uppercase tracking-wider">
-                    {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
-                  </span>
-                </div>
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
+                    {/* Add to Cart Button - Green Pill */}
+                    <button
+                      onClick={handleFloatingAddToCart}
+                      className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex-shrink-0 ${
+                        isAlreadyInCart
+                          ? 'bg-black/10 text-black border-black/20 shadow-none'
+                          : 'bg-[#00FF94] text-black hover:bg-white'
+                      }`}
+                    >
+                      {isAlreadyInCart ? (
+                        <>
+                          <Check size={12} />
+                          <span className="hidden sm:inline">In Cart</span>
+                        </>
+                      ) : added ? (
+                        <>
+                          <Check size={12} />
+                          <span className="hidden sm:inline">Added!</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingBag size={12} />
+                          <span className="hidden sm:inline">Add to cart</span>
+                        </>
+                      )}
+                    </button>
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
-                  {/* Add to Cart Button - Green Pill */}
-                  <button
-                    onClick={handleFloatingAddToCart}
-                    className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex-shrink-0 ${
-                      isAlreadyInCart
-                        ? 'bg-white/5 text-white hover:bg-white/10'
-                        : 'bg-[#00FF94] text-black hover:bg-white hover:scale-105 shadow-[0_0_15px_rgba(0,255,148,0.2)]'
-                    }`}
-                  >
-                    {isAlreadyInCart ? (
-                      <>
-                        <Check size={12} />
-                        <span className="hidden sm:inline">In Cart</span>
-                      </>
-                    ) : added ? (
-                      <>
-                        <Check size={12} />
-                        <span className="hidden sm:inline">Added!</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingBag size={12} />
-                        <span className="hidden sm:inline">Add to cart</span>
-                      </>
-                    )}
-                  </button>
-
-                  {/* Buy Now Button - Yellow Pill */}
-                  <button
-                    disabled={buyLoading}
-                    onClick={handleFloatingBuyNow}
-                    className="h-9 px-6 sm:px-5 bg-[#FFC800] text-black font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center gap-1.5 rounded-full transition-all hover:bg-white hover:scale-105 disabled:opacity-50 border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
-                  >
-                    {buyLoading ? (
-                      <Loader2 className="animate-spin" size={12} />
-                    ) : (
-                      <>
-                        <CreditCard size={12} />
-                        <span>{isFree ? 'GET FREE' : 'Buy Now'}</span>
-                      </>
-                    )}
-                  </button>
+                    {/* Buy Now Button - Black Pill with comic shadow */}
+                    <button
+                      disabled={buyLoading}
+                      onClick={handleFloatingBuyNow}
+                      className="h-9 px-6 sm:px-5 bg-black text-white hover:bg-white hover:text-black font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_black] transition-all duration-300 active:scale-95 disabled:opacity-50 flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
+                    >
+                      {buyLoading ? (
+                        <Loader2 className="animate-spin" size={12} />
+                      ) : (
+                        <>
+                          <CreditCard size={12} />
+                          <span>{isFree ? 'GET FREE' : 'Buy Now'}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             </div>
