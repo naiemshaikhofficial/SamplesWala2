@@ -121,10 +121,22 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
     const handleScroll = () => {
       const isMobileDevice = window.innerWidth < 1024
       if (isMobileDevice) {
-        if (window.scrollY > 300) {
-          setShowFloatingBar(true)
+        const demoEl = document.getElementById('video-demo-section')
+        if (demoEl) {
+          const rect = demoEl.getBoundingClientRect()
+          // Show floating bar exactly after the bottom of the demo video scrolls off the top of the viewport (rect.bottom < 100)
+          if (rect.bottom < 100) {
+            setShowFloatingBar(true)
+          } else {
+            setShowFloatingBar(false)
+          }
         } else {
-          setShowFloatingBar(false)
+          // Fallback if no demo video exists: show after scrolling past 500px
+          if (window.scrollY > 500) {
+            setShowFloatingBar(true)
+          } else {
+            setShowFloatingBar(false)
+          }
         }
       } else {
         if (faqRef.current) {
@@ -196,7 +208,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
         {/* Mobile: 1. Video Preview | Desktop: Right Column */}
         <div className="lg:col-span-7 lg:order-2 space-y-8">
            {vId ? (
-              <div className="space-y-6">
+              <div id="video-demo-section" className="space-y-6">
                  <div className="flex items-center gap-3">
                     <div className="h-6 w-1 bg-studio-pink shadow-[0_0_10px_#ff0080]" />
                     <h2 className="text-lg font-black uppercase tracking-tighter italic">Preset Demo</h2>

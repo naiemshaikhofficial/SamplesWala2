@@ -113,10 +113,22 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
     const handleScroll = () => {
       const isMobileDevice = window.innerWidth < 1024
       if (isMobileDevice) {
-        if (window.scrollY > 300) {
-          setShowFloatingBar(true)
+        const demoEl = document.getElementById('video-demo-section')
+        if (demoEl) {
+          const rect = demoEl.getBoundingClientRect()
+          // Show floating bar exactly after the bottom of the demo video scrolls off the top of the viewport (rect.bottom < 100)
+          if (rect.bottom < 100) {
+            setShowFloatingBar(true)
+          } else {
+            setShowFloatingBar(false)
+          }
         } else {
-          setShowFloatingBar(false)
+          // Fallback if no demo video exists: show after scrolling past 500px
+          if (window.scrollY > 500) {
+            setShowFloatingBar(true)
+          } else {
+            setShowFloatingBar(false)
+          }
         }
       } else {
         if (faqRef.current) {
@@ -522,7 +534,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
           {/* Preview Theatre */}
           {videoIds.length > 0 ? (
-            <div className="space-y-4">
+            <div id="video-demo-section" className="space-y-4">
               <div className="flex items-center gap-2">
                 <div className="h-4 w-1 bg-studio-neon" />
                 <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">
