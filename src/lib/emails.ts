@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const LOGO_URL = 'https://imagizer.imageshack.com/img924/3747/53oszD.png'
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sampleswala.com'
+const SITE_URL = 'https://www.sampleswala.com'
 
 export async function sendInvoiceEmail({
   email,
