@@ -1,0 +1,619 @@
+import React from 'react'
+
+export function TrainAnimation() {
+  return (
+    <div className="w-full relative overflow-hidden mb-12 select-none">
+      {/* Train Animation CSS */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        :root {
+          --wheel-dur: 1.6s;
+          --tender-wheel-dur: calc(var(--wheel-dur) * 0.5556);
+          --chug-dur: calc(var(--wheel-dur) / 2);
+          --scenery-far-dur: 110s;
+          --scenery-mid-dur: 55s;
+          --scenery-near-dur: 26s;
+        }
+        @media (max-width: 768px) {
+          :root {
+            --wheel-dur: 1.0s;
+            --scenery-far-dur: 60s;
+            --scenery-mid-dur: 30s;
+            --scenery-near-dur: 14s;
+          }
+        }
+        @keyframes wheelSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes sideRodMove {
+          0% { transform: translate(4.5px, 0px); }
+          25% { transform: translate(0px, 4.5px); }
+          50% { transform: translate(-4.5px, 0px); }
+          75% { transform: translate(0px, -4.5px); }
+          100% { transform: translate(4.5px, 0px); }
+        }
+        @keyframes mainRodMove {
+          0% { transform: translate(4.5px, 0px) rotate(0deg); }
+          25% { transform: translate(0px, 4.5px) rotate(4deg); }
+          50% { transform: translate(-4.5px, 0px) rotate(0deg); }
+          75% { transform: translate(0px, -4.5px) rotate(-4deg); }
+          100% { transform: translate(4.5px, 0px) rotate(0deg); }
+        }
+        @keyframes pistonSlider {
+          0% { transform: translateX(4.5px); }
+          50% { transform: translateX(-4.5px); }
+          100% { transform: translateX(4.5px); }
+        }
+        @keyframes trainChug {
+          0% { transform: translateY(0px) translateX(0px); }
+          25% { transform: translateY(-0.6px) translateX(0.3px); }
+          50% { transform: translateY(0px) translateX(0px); }
+          75% { transform: translateY(0.6px) translateX(-0.3px); }
+          100% { transform: translateY(0px) translateX(0px); }
+        }
+        @keyframes smokeTrail1 {
+          0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+          15% { opacity: 0.85; transform: translate(-12px, -8px) scale(0.9); }
+          50% { opacity: 0.45; transform: translate(-40px, -22px) scale(1.7); }
+          100% { opacity: 0; transform: translate(-80px, -36px) scale(2.6); }
+        }
+        @keyframes smokeTrail2 {
+          0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+          15% { opacity: 0.85; transform: translate(-12px, -8px) scale(0.9); }
+          50% { opacity: 0.45; transform: translate(-40px, -22px) scale(1.7); }
+          100% { opacity: 0; transform: translate(-80px, -36px) scale(2.6); }
+        }
+        @keyframes sceneryMove {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes trackScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-56.55px); }
+        }
+        .whl-large {
+          transform-origin: center;
+          animation: wheelSpin var(--wheel-dur) linear infinite;
+        }
+        .whl-tender {
+          transform-origin: center;
+          animation: wheelSpin var(--tender-wheel-dur) linear infinite;
+        }
+        .side-rod {
+          animation: sideRodMove var(--wheel-dur) linear infinite;
+        }
+        .main-rod {
+          transform-origin: 183px 34px;
+          animation: mainRodMove var(--wheel-dur) linear infinite;
+        }
+        .piston-crosshead {
+          animation: pistonSlider var(--wheel-dur) linear infinite;
+        }
+        .train-vibe {
+          animation: trainChug var(--chug-dur) ease-in-out infinite;
+        }
+        .sm1 { animation: smokeTrail1 1.2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+        .sm2 { animation: smokeTrail2 1.6s ease-out infinite 0.4s; transform-box: fill-box; transform-origin: center; }
+        .sm3 { animation: smokeTrail1 2.0s ease-out infinite 0.8s; transform-box: fill-box; transform-origin: center; }
+        .sm4 { animation: smokeTrail2 2.4s ease-out infinite 1.2s; transform-box: fill-box; transform-origin: center; }
+        
+        .scenery-scroll-far {
+          animation: sceneryMove var(--scenery-far-dur) linear infinite;
+        }
+        .scenery-scroll-mid {
+          animation: sceneryMove var(--scenery-mid-dur) linear infinite;
+        }
+        .scenery-scroll-near {
+          animation: sceneryMove var(--scenery-near-dur) linear infinite;
+        }
+        .track-scroll {
+          width: calc(100% + 56.55px);
+          animation: trackScroll var(--wheel-dur) linear infinite;
+        }
+      `}} />
+
+      {/* Tricolor stripe */}
+      <div className="h-1 bg-[#F5F0E8]" />
+      <div className="flex h-[3px]">
+        <div className="flex-1 bg-[#FF9933]" />
+        <div className="flex-1 bg-white" />
+        <div className="flex-1 bg-[#128807]" />
+      </div>
+
+      {/* Scenery + Railroad Area */}
+      <div className="h-20 bg-gradient-to-b from-[#e2d6c1] to-[#F5F0E8] relative overflow-hidden">
+
+        {/* Layer 1: Far Parallax (Distant, Slowest) */}
+        <div className="absolute bottom-[16px] left-0 h-[28px] flex w-[200%] scenery-scroll-far select-none pointer-events-none" style={{ willChange: 'transform' }}>
+          <svg className="w-1/2 h-full" viewBox="0 0 1600 28" preserveAspectRatio="none" fill="none">
+            {/* Distant Hills / Mountains */}
+            <path d="M0,28 L0,12 C100,6 180,24 280,18 C380,12 450,4 550,14 C650,24 750,8 850,16 C950,24 1050,6 1150,10 C1250,14 1350,22 1450,16 C1550,10 1600,14 1600,14 L1600,28 Z" fill="#e8ded0" opacity="0.6" />
+            {/* Soft Clouds */}
+            <ellipse cx="150" cy="6" rx="20" ry="4" fill="#f0e9dd" opacity="0.5" />
+            <ellipse cx="480" cy="4" rx="28" ry="5" fill="#f0e9dd" opacity="0.5" />
+            <ellipse cx="820" cy="8" rx="24" ry="4.5" fill="#f0e9dd" opacity="0.5" />
+            <ellipse cx="1180" cy="5" rx="30" ry="6" fill="#f0e9dd" opacity="0.5" />
+          </svg>
+          <svg className="w-1/2 h-full" viewBox="0 0 1600 28" preserveAspectRatio="none" fill="none">
+            <path d="M0,28 L0,12 C100,6 180,24 280,18 C380,12 450,4 550,14 C650,24 750,8 850,16 C950,24 1050,6 1150,10 C1250,14 1350,22 1450,16 C1550,10 1600,14 1600,14 L1600,28 Z" fill="#e8ded0" opacity="0.6" />
+            <ellipse cx="150" cy="6" rx="20" ry="4" fill="#f0e9dd" opacity="0.5" />
+            <ellipse cx="480" cy="4" rx="28" ry="5" fill="#f0e9dd" opacity="0.5" />
+            <ellipse cx="820" cy="8" rx="24" ry="4.5" fill="#f0e9dd" opacity="0.5" />
+            <ellipse cx="1180" cy="5" rx="30" ry="6" fill="#f0e9dd" opacity="0.5" />
+          </svg>
+        </div>
+
+        {/* Layer 2: Mid Parallax (Medium Speed) */}
+        <div className="absolute bottom-[14px] left-0 h-[36px] flex w-[200%] scenery-scroll-mid select-none pointer-events-none" style={{ willChange: 'transform' }}>
+          <svg className="w-1/2 h-full" viewBox="0 0 1600 36" preserveAspectRatio="none" fill="none">
+            {/* Village Hut 1 */}
+            <rect x="80" y="20" width="22" height="16" fill="#d2c4aa" />
+            <polygon points="75,20 91,8 107,20" fill="#c3b59a" />
+            <rect x="88" y="26" width="6" height="10" fill="#b5a68c" />
+
+            {/* Mandir / Temple */}
+            <rect x="260" y="16" width="18" height="20" fill="#d2c4aa" />
+            <polygon points="257,16 269,4 281,16" fill="#c3b59a" />
+            <line x1="269" y1="0" x2="269" y2="4" stroke="#d2c4aa" strokeWidth="1" />
+            <circle cx="269" cy="0" r="1.5" fill="#e1d4be" />
+            <rect x="265" y="22" width="8" height="4" fill="#c3b59a" />
+
+            {/* Taj Mahal Silhouette */}
+            <g transform="translate(480, 8)">
+              <rect x="20" y="12" width="40" height="16" fill="#d2c4aa" />
+              <ellipse cx="40" cy="12" rx="14" ry="11" fill="#c3b59a" />
+              <line x1="40" y1="0" x2="40" y2="3" stroke="#d2c4aa" strokeWidth="0.8" />
+              <circle cx="40" cy="0" r="1" fill="#e1d4be" />
+              {/* Minarets */}
+              <rect x="8" y="4" width="4" height="24" fill="#d2c4aa" />
+              <ellipse cx="10" cy="4" rx="3" ry="2.2" fill="#c3b59a" />
+              <rect x="68" y="4" width="4" height="24" fill="#d2c4aa" />
+              <ellipse cx="70" cy="4" rx="3" ry="2.2" fill="#c3b59a" />
+            </g>
+
+            {/* Samples Wala Station (Classic Platform, Clock Tower, Yellow Signboard) */}
+            <g transform="translate(580, 0)">
+              {/* Station building */}
+              <rect x="0" y="16" width="70" height="20" fill="#d2c4aa" />
+              {/* Arched entrance cutouts */}
+              <rect x="8" y="22" width="10" height="14" rx="2" fill="#c3b59a" />
+              <rect x="24" y="22" width="10" height="14" rx="2" fill="#c3b59a" />
+              <rect x="52" y="22" width="10" height="14" rx="2" fill="#c3b59a" />
+              {/* Slanted canopy */}
+              <polygon points="-5,16 75,16 70,12 0,12" fill="#c3b59a" />
+              {/* Central clock tower */}
+              <rect x="38" y="4" width="14" height="12" fill="#d2c4aa" />
+              <path d="M38,4 L45,0 L52,4 Z" fill="#b5a68c" />
+              <circle cx="45" cy="7" r="2.2" fill="#e1d4be" stroke="#d2c4aa" strokeWidth="0.5" />
+              {/* Station Signboard */}
+              <line x1="78" y1="20" x2="78" y2="36" stroke="#b5a68c" strokeWidth="0.8" />
+              <line x1="102" y1="20" x2="102" y2="36" stroke="#b5a68c" strokeWidth="0.8" />
+              <rect x="74" y="15" width="32" height="9" rx="1" fill="#ffe477" stroke="#ca9800" strokeWidth="0.6" />
+              {/* Black border inside yellow sign */}
+              <rect x="75" y="16" width="30" height="7" rx="0.5" fill="none" stroke="#222" strokeWidth="0.3" />
+              <text x="90" y="21.5" textAnchor="middle" fill="#000" fontSize="3.8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.2">SAMPLES WALA</text>
+            </g>
+
+            {/* Urban Cityscape */}
+            <rect x="740" y="12" width="16" height="24" fill="#d2c4aa" />
+            <rect x="758" y="16" width="14" height="20" fill="#c3b59a" />
+            <rect x="774" y="8" width="12" height="28" fill="#d2c4aa" />
+            <rect x="744" y="15" width="3" height="3" fill="#e1d4be" />
+            <rect x="744" y="21" width="3" height="3" fill="#e1d4be" />
+            <rect x="763" y="20" width="3" height="3" fill="#e1d4be" />
+            <rect x="763" y="25" width="3" height="3" fill="#e1d4be" />
+            <rect x="778" y="12" width="3" height="3" fill="#e1d4be" />
+            <rect x="778" y="18" width="3" height="3" fill="#e1d4be" />
+
+            {/* Mosque Dome */}
+            <rect x="980" y="16" width="22" height="20" fill="#d2c4aa" />
+            <ellipse cx="991" y="16" rx="11" ry="8" fill="#c3b59a" />
+            <line x1="991" y1="5" x2="991" y2="8" stroke="#d2c4aa" strokeWidth="0.8" />
+            <circle cx="991" cy="5" r="1.2" fill="#e1d4be" />
+
+            {/* Village Hut 2 */}
+            <rect x="1150" y="22" width="20" height="14" fill="#d2c4aa" />
+            <polygon points="1146,22 1160,11 1174,22" fill="#c3b59a" />
+
+            {/* India Gate Gateway Arch */}
+            <g transform="translate(1320, 6)">
+              <rect x="4" y="6" width="6" height="24" fill="#d2c4aa" />
+              <rect x="34" y="6" width="6" height="24" fill="#d2c4aa" />
+              <rect x="0" y="3" width="44" height="5" rx="1.2" fill="#c3b59a" />
+              <ellipse cx="22" y="7" rx="14" ry="9" fill="none" stroke="#d2c4aa" strokeWidth="1.2" />
+              <rect x="14" y="0" width="16" height="3" fill="#b5a68c" />
+            </g>
+          </svg>
+          <svg className="w-1/2 h-full" viewBox="0 0 1600 36" preserveAspectRatio="none" fill="none">
+            <rect x="80" y="20" width="22" height="16" fill="#d2c4aa" />
+            <polygon points="75,20 91,8 107,20" fill="#c3b59a" />
+            <rect x="88" y="26" width="6" height="10" fill="#b5a68c" />
+
+            <rect x="260" y="16" width="18" height="20" fill="#d2c4aa" />
+            <polygon points="257,16 269,4 281,16" fill="#c3b59a" />
+            <line x1="269" y1="0" x2="269" y2="4" stroke="#d2c4aa" strokeWidth="1" />
+            <circle cx="269" cy="0" r="1.5" fill="#e1d4be" />
+            <rect x="265" y="22" width="8" height="4" fill="#c3b59a" />
+
+            <g transform="translate(480, 8)">
+              <rect x="20" y="12" width="40" height="16" fill="#d2c4aa" />
+              <ellipse cx="40" cy="12" rx="14" ry="11" fill="#c3b59a" />
+              <line x1="40" y1="0" x2="40" y2="3" stroke="#d2c4aa" strokeWidth="0.8" />
+              <circle cx="40" cy="0" r="1" fill="#e1d4be" />
+              <rect x="8" y="4" width="4" height="24" fill="#d2c4aa" />
+              <ellipse cx="10" cy="4" rx="3" ry="2.2" fill="#c3b59a" />
+              <rect x="68" y="4" width="4" height="24" fill="#d2c4aa" />
+              <ellipse cx="70" cy="4" rx="3" ry="2.2" fill="#c3b59a" />
+            </g>
+
+            {/* Samples Wala Station (Classic Platform, Clock Tower, Yellow Signboard) */}
+            <g transform="translate(580, 0)">
+              {/* Station building */}
+              <rect x="0" y="16" width="70" height="20" fill="#d2c4aa" />
+              {/* Arched entrance cutouts */}
+              <rect x="8" y="22" width="10" height="14" rx="2" fill="#c3b59a" />
+              <rect x="24" y="22" width="10" height="14" rx="2" fill="#c3b59a" />
+              <rect x="52" y="22" width="10" height="14" rx="2" fill="#c3b59a" />
+              {/* Slanted canopy */}
+              <polygon points="-5,16 75,16 70,12 0,12" fill="#c3b59a" />
+              {/* Central clock tower */}
+              <rect x="38" y="4" width="14" height="12" fill="#d2c4aa" />
+              <path d="M38,4 L45,0 L52,4 Z" fill="#b5a68c" />
+              <circle cx="45" cy="7" r="2.2" fill="#e1d4be" stroke="#d2c4aa" strokeWidth="0.5" />
+              {/* Station Signboard */}
+              <line x1="78" y1="20" x2="78" y2="36" stroke="#b5a68c" strokeWidth="0.8" />
+              <line x1="102" y1="20" x2="102" y2="36" stroke="#b5a68c" strokeWidth="0.8" />
+              <rect x="74" y="15" width="32" height="9" rx="1" fill="#ffe477" stroke="#ca9800" strokeWidth="0.6" />
+              {/* Black border inside yellow sign */}
+              <rect x="75" y="16" width="30" height="7" rx="0.5" fill="none" stroke="#222" strokeWidth="0.3" />
+              <text x="90" y="21.5" textAnchor="middle" fill="#000" fontSize="3.8" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.2">SAMPLES WALA</text>
+            </g>
+
+            <rect x="740" y="12" width="16" height="24" fill="#d2c4aa" />
+            <rect x="758" y="16" width="14" height="20" fill="#c3b59a" />
+            <rect x="774" y="8" width="12" height="28" fill="#d2c4aa" />
+            <rect x="744" y="15" width="3" height="3" fill="#e1d4be" />
+            <rect x="744" y="21" width="3" height="3" fill="#e1d4be" />
+            <rect x="763" y="20" width="3" height="3" fill="#e1d4be" />
+            <rect x="763" y="25" width="3" height="3" fill="#e1d4be" />
+            <rect x="778" y="12" width="3" height="3" fill="#e1d4be" />
+            <rect x="778" y="18" width="3" height="3" fill="#e1d4be" />
+
+            <rect x="980" y="16" width="22" height="20" fill="#d2c4aa" />
+            <ellipse cx="991" y="16" rx="11" ry="8" fill="#c3b59a" />
+            <line x1="991" y1="5" x2="991" y2="8" stroke="#d2c4aa" strokeWidth="0.8" />
+            <circle cx="991" cy="5" r="1.2" fill="#e1d4be" />
+
+            <rect x="1150" y="22" width="20" height="14" fill="#d2c4aa" />
+            <polygon points="1146,22 1160,11 1174,22" fill="#c3b59a" />
+
+            <g transform="translate(1320, 6)">
+              <rect x="4" y="6" width="6" height="24" fill="#d2c4aa" />
+              <rect x="34" y="6" width="6" height="24" fill="#d2c4aa" />
+              <rect x="0" y="3" width="44" height="5" rx="1.2" fill="#c3b59a" />
+              <ellipse cx="22" y="7" rx="14" ry="9" fill="none" stroke="#d2c4aa" strokeWidth="1.2" />
+              <rect x="14" y="0" width="16" height="3" fill="#b5a68c" />
+            </g>
+          </svg>
+        </div>
+
+        {/* Layer 3: Near Parallax (Fastest Background) */}
+        <div className="absolute bottom-[14px] left-0 h-[46px] flex w-[200%] scenery-scroll-near select-none pointer-events-none" style={{ willChange: 'transform' }}>
+          <svg className="w-1/2 h-full" viewBox="0 0 1600 46" preserveAspectRatio="none" fill="none">
+            {/* Coconut Palms */}
+            <g transform="translate(40, 0)">
+              <line x1="15" y1="46" x2="20" y2="10" stroke="#bcae95" strokeWidth="1.8" />
+              <path d="M20,10 Q10,12 2,16 M20,10 Q12,6 8,0 M20,10 Q24,4 32,2 M20,10 Q28,10 38,13 M20,10 Q25,16 28,24" stroke="#a99b82" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="10" r="1.5" fill="#a99b82" />
+            </g>
+            <g transform="translate(320, 0)">
+              <line x1="25" y1="46" x2="20" y2="6" stroke="#bcae95" strokeWidth="1.8" />
+              <path d="M20,6 Q8,8 0,12 M20,6 Q10,2 6,-4 M20,6 Q25,-1 33,-2 M20,6 Q28,6 38,9 M20,6 Q25,12 26,20" stroke="#a99b82" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="6" r="1.5" fill="#a99b82" />
+            </g>
+
+            {/* Telegraph / Electric Pole */}
+            <g transform="translate(580, 4)">
+              <line x1="10" y1="42" x2="10" y2="0" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="2" y1="4" x2="18" y2="4" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="4" y1="8" x2="16" y2="8" stroke="#bcae95" strokeWidth="1" />
+              <circle cx="4" cy="2" r="1" fill="#a99b82" />
+              <circle cx="16" cy="2" r="1" fill="#a99b82" />
+            </g>
+
+            <g transform="translate(860, 0)">
+              <line x1="15" y1="46" x2="20" y2="10" stroke="#bcae95" strokeWidth="1.8" />
+              <path d="M20,10 Q10,12 2,16 M20,10 Q12,6 8,0 M20,10 Q24,4 32,2 M20,10 Q28,10 38,13 M20,10 Q25,16 28,24" stroke="#a99b82" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="10" r="1.5" fill="#a99b82" />
+            </g>
+
+            <g transform="translate(1120, 0)">
+              <line x1="25" y1="46" x2="20" y2="8" stroke="#bcae95" strokeWidth="1.8" />
+              <path d="M20,8 Q8,10 0,14 M20,8 Q10,4 6,-2 M20,8 Q25,1 33,0 M20,8 Q28,8 38,11 M20,8 Q25,14 26,22" stroke="#a99b82" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="8" r="1.5" fill="#a99b82" />
+            </g>
+
+            {/* Fence posts */}
+            <g transform="translate(1380, 26)">
+              <line x1="0" y1="20" x2="0" y2="0" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="30" y1="20" x2="30" y2="2" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="60" y1="20" x2="60" y2="0" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="0" y1="6" x2="60" y2="7" stroke="#a99b82" strokeWidth="0.8" />
+              <line x1="0" y1="12" x2="60" y2="13" stroke="#a99b82" strokeWidth="0.8" />
+            </g>
+          </svg>
+          <svg className="w-1/2 h-full" viewBox="0 0 1600 46" preserveAspectRatio="none" fill="none">
+            <g transform="translate(40, 0)">
+              <line x1="15" y1="46" x2="20" y2="10" stroke="#bcae95" strokeWidth="1.8" />
+              <path d="M20,10 Q10,12 2,16 M20,10 Q12,6 8,0 M20,10 Q24,4 32,2 M20,10 Q28,10 38,13 M20,10 Q25,16 28,24" stroke="#a99b82" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="10" r="1.5" fill="#a99b82" />
+            </g>
+            <g transform="translate(320, 0)">
+              <line x1="25" y1="46" x2="20" y2="6" stroke="#bcae95" strokeWidth="1.8" />
+              <path d="M20,6 Q8,8 0,12 M20,6 Q10,2 6,-4 M20,6 Q25,-1 33,-2 M20,6 Q28,6 38,9 M20,6 Q25,12 26,20" stroke="#a99b82" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="6" r="1.5" fill="#a99b82" />
+            </g>
+
+            <g transform="translate(580, 4)">
+              <line x1="10" y1="42" x2="10" y2="0" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="2" y1="4" x2="18" y2="4" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="4" y1="8" x2="16" y2="8" stroke="#bcae95" strokeWidth="1" />
+              <circle cx="4" cy="2" r="1" fill="#a99b82" />
+              <circle cx="16" cy="2" r="1" fill="#a99b82" />
+            </g>
+
+            <g transform="translate(860, 0)">
+              <line x1="15" y1="46" x2="20" y2="10" stroke="#bcae95" strokeWidth="1.8" />
+              <path d="M20,10 Q10,12 2,16 M20,10 Q12,6 8,0 M20,10 Q24,4 32,2 M20,10 Q28,10 38,13 M20,10 Q25,16 28,24" stroke="#a99b82" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="10" r="1.5" fill="#a99b82" />
+            </g>
+
+            <g transform="translate(1120, 0)">
+              <line x1="25" y1="46" x2="20" y2="8" stroke="#bcae95" strokeWidth="1.8" />
+              <path d="M20,8 Q8,10 0,14 M20,8 Q10,4 6,-2 M20,8 Q25,1 33,0 M20,8 Q28,8 38,11 M20,8 Q25,14 26,22" stroke="#a99b82" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="8" r="1.5" fill="#a99b82" />
+            </g>
+
+            <g transform="translate(1380, 26)">
+              <line x1="0" y1="20" x2="0" y2="0" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="30" y1="20" x2="30" y2="2" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="60" y1="20" x2="60" y2="0" stroke="#bcae95" strokeWidth="1.5" />
+              <line x1="0" y1="6" x2="60" y2="7" stroke="#a99b82" strokeWidth="0.8" />
+              <line x1="0" y1="12" x2="60" y2="13" stroke="#a99b82" strokeWidth="0.8" />
+            </g>
+          </svg>
+        </div>
+
+        {/* Railroad Track (Scrolling perfectly in sync with wheel rotation) */}
+        <div className="absolute bottom-0 left-0 h-[14px] track-scroll select-none pointer-events-none">
+          <svg className="w-full h-full" preserveAspectRatio="none">
+            <defs>
+              <pattern id="movingTiesSeries" x="0" y="0" width="56.55" height="14" patternUnits="userSpaceOnUse">
+                {/* Sleeper 1 */}
+                <rect x="8" y="4" width="12" height="5" rx="0.5" fill="#bcaea0" stroke="#8c7d6e" strokeWidth="0.5" />
+                <line x1="10" y1="5.5" x2="18" y2="5.5" stroke="#9e8f80" strokeWidth="0.3" />
+                <line x1="9" y1="7.5" x2="19" y2="7.5" stroke="#9e8f80" strokeWidth="0.3" />
+                {/* Sleeper 2 */}
+                <rect x="36" y="4" width="12" height="5" rx="0.5" fill="#bcaea0" stroke="#8c7d6e" strokeWidth="0.5" />
+                <line x1="38" y1="5.5" x2="46" y2="5.5" stroke="#9e8f80" strokeWidth="0.3" />
+                <line x1="37" y1="7.5" x2="47" y2="7.5" stroke="#9e8f80" strokeWidth="0.3" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="14" fill="url(#movingTiesSeries)" />
+          </svg>
+        </div>
+
+        {/* Steel Rails (static overlay on top of sleepers) */}
+        <div className="absolute bottom-[3px] left-0 w-full h-[2px] bg-[#c3b6a2] shadow-[0_1px_0_#9c8e7a] opacity-90" />
+        <div className="absolute bottom-[9px] left-0 w-full h-[2px] bg-[#c3b6a2] shadow-[0_1px_0_#9c8e7a] opacity-90" />
+
+        {/* === ANIMATED TRAIN IN CINEMATIC TRACKING POSITION === */}
+        <div className="absolute bottom-[3px] left-[8%] md:left-[18%] z-20 train-vibe" style={{ willChange: 'transform' }}>
+
+          {/* Smoke trailing behind (to the left) */}
+          <svg className="absolute overflow-visible" style={{ top: '-36px', left: '110px' }} width="120" height="42" viewBox="0 0 120 42" fill="none">
+            <circle className="sm1" cx="65" cy="38" r="4.5" fill="#eeeeee" />
+            <circle className="sm2" cx="65" cy="38" r="5.5" fill="#e6e6e6" />
+            <circle className="sm3" cx="65" cy="38" r="7.0" fill="#dddddd" />
+            <circle className="sm4" cx="65" cy="38" r="8.5" fill="#d0d0d0" />
+          </svg>
+
+          {/* Detailed High-Fidelity Steam Engine SVG */}
+          <svg width="240" height="48" viewBox="0 0 240 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              {/* Firebox Glow */}
+              <radialGradient id="fireboxGlowSeries" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ff5500" stopOpacity="0.95" />
+                <stop offset="45%" stopColor="#ffaa00" stopOpacity="0.75" />
+                <stop offset="100%" stopColor="#ff0000" stopOpacity="0" />
+              </radialGradient>
+              {/* Headlight Beam */}
+              <linearGradient id="headlightBeamSeries" x1="0" y1="0.5" x2="1" y2="0.5">
+                <stop offset="0%" stopColor="#fff294" stopOpacity="0.55" />
+                <stop offset="25%" stopColor="#ffde6a" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#ffde6a" stopOpacity="0" />
+              </linearGradient>
+              {/* Dark Metallic Steel */}
+              <linearGradient id="steelDarkSeries" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3c3d42" />
+                <stop offset="40%" stopColor="#25262a" />
+                <stop offset="85%" stopColor="#17181c" />
+                <stop offset="100%" stopColor="#0f1012" />
+              </linearGradient>
+              {/* Light Metallic Steel */}
+              <linearGradient id="steelLightSeries" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#80858c" />
+                <stop offset="25%" stopColor="#abb1b8" />
+                <stop offset="60%" stopColor="#606469" />
+                <stop offset="100%" stopColor="#3c3d42" />
+              </linearGradient>
+              {/* Brass / Gold Details */}
+              <linearGradient id="brassGoldSeries" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#ffe477" />
+                <stop offset="30%" stopColor="#f7c00e" />
+                <stop offset="70%" stopColor="#ca9800" />
+                <stop offset="100%" stopColor="#8d6800" />
+              </linearGradient>
+            </defs>
+
+            {/* === LOCOMOTIVE HEADLIGHT GLOW BEAM === */}
+            <polygon points="190,19 240,4 240,34" fill="url(#headlightBeamSeries)" opacity="0.8" pointerEvents="none" />
+
+            {/* === INDIA JOURNEY TENDER (Wood/Metal Carriage for Cart) === */}
+            <rect x="5" y="14" width="58" height="22" rx="2" fill="url(#steelDarkSeries)" stroke="#111" strokeWidth="0.8" />
+            {/* Plaque backing */}
+            <rect x="8" y="16" width="52" height="18" rx="1.5" fill="#1b1c20" stroke="#333" strokeWidth="0.5" />
+            {/* Plaque Gold Border */}
+            <rect x="9" y="17" width="50" height="16" rx="1" fill="none" stroke="url(#brassGoldSeries)" strokeWidth="0.8" />
+
+            {/* Plaque Text - Elegant Tricolor Style */}
+            <text x="34" y="24" textAnchor="middle" fill="#FF9933" fontSize="6.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">INDIA</text>
+            <text x="34" y="31" textAnchor="middle" fill="#128807" fontSize="5.5" fontWeight="900" fontFamily="'Outfit', 'Inter', sans-serif" letterSpacing="0.8">JOURNEY</text>
+
+            {/* Tender Wheels Suspension leaf springs */}
+            <path d="M12,36 Q20,32 28,36" stroke="#444" strokeWidth="1.2" fill="none" />
+            <path d="M40,36 Q48,32 56,36" stroke="#444" strokeWidth="1.2" fill="none" />
+
+            {/* Tender Wheels (r = 5, center y = 38 so bottom touches y = 43) */}
+            <g className="whl-tender" style={{ transformOrigin: '20px 38px' }}>
+              <circle cx="20" cy="38" r="5" fill="#222" stroke="#444" strokeWidth="0.8" />
+              <circle cx="20" cy="38" r="3.5" fill="none" stroke="#555" strokeWidth="0.6" />
+              <line x1="20" y1="33" x2="20" y2="43" stroke="#555" strokeWidth="0.5" />
+              <line x1="15" y1="38" x2="25" y2="38" stroke="#555" strokeWidth="0.5" />
+              <circle cx="20" cy="38" r="1.5" fill="url(#brassGoldSeries)" />
+            </g>
+            <g className="whl-tender" style={{ transformOrigin: '48px 38px' }}>
+              <circle cx="48" cy="38" r="5" fill="#222" stroke="#444" strokeWidth="0.8" />
+              <circle cx="48" cy="38" r="3.5" fill="none" stroke="#555" strokeWidth="0.6" />
+              <line x1="48" y1="33" x2="48" y2="43" stroke="#555" strokeWidth="0.5" />
+              <line x1="43" y1="38" x2="53" y2="38" stroke="#555" strokeWidth="0.5" />
+              <circle cx="48" cy="38" r="1.5" fill="url(#brassGoldSeries)" />
+            </g>
+
+            {/* === COUPLING LINK === */}
+            <rect x="63" y="28" width="8" height="2" rx="0.5" fill="#222" stroke="#444" strokeWidth="0.4" />
+            <circle cx="67" cy="29" r="1" fill="#444" />
+
+            {/* === STEAM LOCOMOTIVE ENGINE === */}
+
+            {/* Cab Firebox Window Glow Effect */}
+            <rect x="76" y="8" width="28" height="28" rx="1.5" fill="url(#steelDarkSeries)" stroke="#111" strokeWidth="0.8" />
+            {/* Glow from within */}
+            <rect x="80" y="12" width="10" height="10" rx="0.8" fill="url(#fireboxGlowSeries)" />
+            <rect x="92" y="12" width="9" height="10" rx="0.8" fill="url(#fireboxGlowSeries)" />
+            {/* Cabin silhouette of driver */}
+            <path d="M83,22 Q86,16 88,18 Q89,20 86,22 Z" fill="#111" opacity="0.85" />
+            {/* Gold Handrails on cabin */}
+            <line x1="73" y1="12" x2="73" y2="34" stroke="url(#brassGoldSeries)" strokeWidth="0.6" />
+            <line x1="105" y1="12" x2="105" y2="34" stroke="url(#brassGoldSeries)" strokeWidth="0.6" />
+            {/* Cab Roof */}
+            <path d="M72,8 L108,8 Q108,5 106,5 L74,5 Q72,5 72,8 Z" fill="url(#steelLightSeries)" stroke="#333" strokeWidth="0.5" />
+
+            {/* Boiler Body */}
+            <rect x="104" y="12" width="76" height="24" rx="1" fill="url(#steelDarkSeries)" stroke="#111" strokeWidth="0.8" />
+            {/* Boiler front dome cap (Smokebox) */}
+            <path d="M180,12 L185,14 Q187,24 185,34 L180,36 Z" fill="#17181c" stroke="#111" strokeWidth="0.5" />
+
+            {/* Shiny Brass/Gold Boiler Rings */}
+            <rect x="122" y="11.5" width="2" height="25" fill="url(#brassGoldSeries)" />
+            <rect x="142" y="11.5" width="2" height="25" fill="url(#brassGoldSeries)" />
+            <rect x="162" y="11.5" width="2" height="25" fill="url(#brassGoldSeries)" />
+
+            {/* Sand Dome & Steam Dome (Gold/Brass) */}
+            <path d="M130,12 Q130,5 135,5 Q140,5 140,12 Z" fill="url(#brassGoldSeries)" stroke="#977200" strokeWidth="0.5" />
+            <path d="M152,12 Q152,6 156,6 Q160,6 160,12 Z" fill="url(#brassGoldSeries)" stroke="#977200" strokeWidth="0.5" />
+
+            {/* Chimney / Smokestack with Gold Collar */}
+            <rect x="171" y="2" width="8" height="10" fill="url(#steelDarkSeries)" stroke="#111" strokeWidth="0.5" />
+            <rect x="169" y="0" width="12" height="2.5" rx="0.5" fill="url(#brassGoldSeries)" stroke="#977200" strokeWidth="0.4" />
+
+            {/* Headlight (Volumetric Gold Lantern) */}
+            <rect x="184" y="16" width="6" height="7" rx="0.5" fill="url(#brassGoldSeries)" stroke="#977200" strokeWidth="0.5" />
+            <circle cx="187" cy="19.5" r="2" fill="#fff" stroke="#ffdd6b" strokeWidth="0.6" />
+
+            {/* Cow Catcher (Grid-Style Pilot at Front) */}
+            <polygon points="184,36 198,36 192,44 184,44" fill="#3c3d42" stroke="#111" strokeWidth="0.5" />
+            <line x1="187" y1="36" x2="187" y2="44" stroke="url(#brassGoldSeries)" strokeWidth="0.8" />
+            <line x1="191" y1="36" x2="190" y2="44" stroke="url(#brassGoldSeries)" strokeWidth="0.8" />
+            <line x1="195" y1="36" x2="193" y2="44" stroke="url(#brassGoldSeries)" strokeWidth="0.8" />
+
+            {/* === GIANT DRIVE WHEELS (r = 9, center y = 34) === */}
+
+            {/* Wheel 1 */}
+            <g className="whl-large" style={{ transformOrigin: '110px 34px' }}>
+              <circle cx="110" cy="34" r="9" fill="#1b1c20" stroke="url(#steelLightSeries)" strokeWidth="1.5" />
+              {/* Heavy Steel Counterweight wedge */}
+              <path d="M101,34 A9,9 0 0,1 119,34 Z" fill="url(#steelDarkSeries)" opacity="0.85" />
+              {/* Spokes */}
+              <line x1="110" y1="25" x2="110" y2="43" stroke="#888" strokeWidth="0.5" />
+              <line x1="101" y1="34" x2="119" y2="34" stroke="#888" strokeWidth="0.5" />
+              <line x1="103.6" y1="27.6" x2="116.4" y2="40.4" stroke="#888" strokeWidth="0.5" />
+              <line x1="116.4" y1="27.6" x2="103.6" y2="40.4" stroke="#888" strokeWidth="0.5" />
+              {/* Brass Hub */}
+              <circle cx="110" cy="34" r="2.2" fill="url(#brassGoldSeries)" stroke="#222" strokeWidth="0.4" />
+              {/* Crank Pin */}
+              <circle cx="114.5" cy="34" r="1" fill="#fff" stroke="#111" strokeWidth="0.3" />
+            </g>
+
+            {/* Wheel 2 */}
+            <g className="whl-large" style={{ transformOrigin: '135px 34px' }}>
+              <circle cx="135" cy="34" r="9" fill="#1b1c20" stroke="url(#steelLightSeries)" strokeWidth="1.5" />
+              <path d="M126,34 A9,9 0 0,1 144,34 Z" fill="url(#steelDarkSeries)" opacity="0.85" />
+              <line x1="135" y1="25" x2="135" y2="43" stroke="#888" strokeWidth="0.5" />
+              <line x1="126" y1="34" x2="144" y2="34" stroke="#888" strokeWidth="0.5" />
+              <line x1="128.6" y1="27.6" x2="141.4" y2="40.4" stroke="#888" strokeWidth="0.5" />
+              <line x1="141.4" y1="27.6" x2="128.6" y2="40.4" stroke="#888" strokeWidth="0.5" />
+              <circle cx="135" cy="34" r="2.2" fill="url(#brassGoldSeries)" stroke="#222" strokeWidth="0.4" />
+              <circle cx="139.5" cy="34" r="1" fill="#fff" stroke="#111" strokeWidth="0.3" />
+            </g>
+
+            {/* Wheel 3 */}
+            <g className="whl-large" style={{ transformOrigin: '160px 34px' }}>
+              <circle cx="160" cy="34" r="9" fill="#1b1c20" stroke="url(#steelLightSeries)" strokeWidth="1.5" />
+              <path d="M151,34 A9,9 0 0,1 169,34 Z" fill="url(#steelDarkSeries)" opacity="0.85" />
+              <line x1="160" y1="25" x2="160" y2="43" stroke="#888" strokeWidth="0.5" />
+              <line x1="151" y1="34" x2="169" y2="34" stroke="#888" strokeWidth="0.5" />
+              <line x1="153.6" y1="27.6" x2="166.4" y2="40.4" stroke="#888" strokeWidth="0.5" />
+              <line x1="166.4" y1="27.6" x2="153.6" y2="40.4" stroke="#888" strokeWidth="0.5" />
+              <circle cx="160" cy="34" r="2.2" fill="url(#brassGoldSeries)" stroke="#222" strokeWidth="0.4" />
+              <circle cx="164.5" cy="34" r="1" fill="#fff" stroke="#111" strokeWidth="0.3" />
+            </g>
+
+            {/* === MECHANICAL LINKAGES (Pistons & Crankshafts) === */}
+
+            {/* Sliding Crosshead Joint (slides horizontally in cylinder) */}
+            <g className="piston-crosshead">
+              {/* Crosshead block slider */}
+              <rect x="180" y="32" width="6" height="4" rx="0.5" fill="url(#steelLightSeries)" stroke="#333" strokeWidth="0.4" />
+              {/* Piston shaft sliding into chamber */}
+              <line x1="186" y1="34" x2="198" y2="34" stroke="url(#steelLightSeries)" strokeWidth="1.5" />
+            </g>
+
+            {/* Steam Cylinder Piston Chamber (Static) */}
+            <rect x="194" y="31.5" width="16" height="5" rx="0.8" fill="url(#steelDarkSeries)" stroke="#111" strokeWidth="0.6" />
+            <rect x="193" y="31" width="1.5" height="6" fill="url(#brassGoldSeries)" />
+
+            {/* Side Coupling Rod (Stays perfectly horizontal, translates circularly to link wheels) */}
+            <g className="side-rod">
+              <rect x="110" y="33" width="50" height="2" rx="0.5" fill="url(#steelLightSeries)" stroke="#333" strokeWidth="0.5" />
+              {/* Joint caps on wheels */}
+              <circle cx="110" cy="34" r="1.8" fill="url(#steelLightSeries)" stroke="#333" strokeWidth="0.4" />
+              <circle cx="135" cy="34" r="1.8" fill="url(#steelLightSeries)" stroke="#333" strokeWidth="0.4" />
+              <circle cx="160" cy="34" r="1.8" fill="url(#steelLightSeries)" stroke="#333" strokeWidth="0.4" />
+            </g>
+
+            {/* Main Connecting Rod (Pivot-attaches to Wheel 2's crank and crosshead at x=183, y=34) */}
+            <g className="main-rod">
+              {/* Rod drawn from center of wheel 2 crank pin (x=139.5, y=34) to crosshead (x=183, y=34) */}
+              <line x1="139.5" y1="34" x2="183" y2="34" stroke="url(#steelLightSeries)" strokeWidth="1.3" strokeLinecap="round" />
+              <circle cx="139.5" cy="34" r="1.6" fill="url(#steelLightSeries)" stroke="#333" strokeWidth="0.4" />
+            </g>
+
+          </svg>
+        </div>
+      </div>
+      <div className="h-[1px] bg-[#c9bfa8]" />
+    </div>
+  )
+}
