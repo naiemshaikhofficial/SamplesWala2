@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (slug === 'india-journey') {
     return generatePageMetadata({
       title: 'Indian Sample Packs & Loops | India Journey Series | SamplesWala',
-      description: 'Download 100% royalty-free authentic Indian sample packs. Professional Tabla loops, Dholak beats, Sitar melodies, Bansuri flutes, and vocal chops for Bollywood, Hip-Hop, and Lofi.',
+      description: 'Download 100% royalty-free Indian sample packs, loops, and stems. Get authentic Tabla thekas, Dholak loops, traditional beats, Sitar melodies, and Bansuri flutes for Bollywood, Hip-Hop, Lofi, and Drill.',
       keywords: [
         'indian sample pack',
         'indian sample packs',
@@ -43,19 +43,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         'bollywood sample pack',
         'bollywood samples',
         'tabla loops free download',
+        'tabla theka loops',
         'dholak loops',
-        'indian music loops',
-        'sambhalpuri samples',
-        'sambhalpuri rythm',
-        'indian instrument samples',
-        'royalty free indian loops',
-        'sitar samples',
-        'indian flute loops',
-        'indian vocal samples',
-        'desi samples',
-        'punjabi sample pack',
-        'mumbai sample pack',
-        'desi loops'
+        'dholak theka loops',
+        'indian rhythm patterns',
+        'classical indian loops',
+        'sitar loops',
+        'bansuri loops',
+        'harmonium loops',
+        'indian flute stems',
+        'desi beats download',
+        'punjabi dholak loops',
+        'indian percussion samples',
+        'royalty free indian sounds',
+        'desi loops',
+        'indian music loops'
       ],
       path: `/series/${slug}`
     })
@@ -401,7 +403,7 @@ export default async function SeriesPage({ params }: Props) {
                 <span className="text-[#128807] drop-shadow-[4px_4px_0px_#000]">JOURNEY</span>.
               </h1>
               <p className="text-xs md:text-sm font-bold text-white/70 uppercase tracking-[0.2em] max-w-2xl border-l-2 border-[#FF9933] pl-3 leading-relaxed">
-                A premium production suite of high-fidelity Indian folk loops, traditional instrument stems, and authentic percussion. From organic North-Indian Tabla grooves to deep South-Indian Dholak beats, explore royalty-free sounds engineered for Bollywood, Hip-Hop, Drill, and global electronic fusion.
+                Download premium royalty-free Indian sample packs, loops, and traditional instrument stems. Get authentic Tabla theka loops, Dholak beats, Sitar melodies, and Bansuri flutes. Clean, high-fidelity sounds ready for Bollywood, Desi Hip-Hop, Punjabi Drill, and Lofi music.
               </p>
             </div>
           </div>
