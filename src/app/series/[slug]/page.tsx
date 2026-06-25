@@ -248,6 +248,55 @@ export default async function SeriesPage({ params }: Props) {
               ))}
             </svg>
           </div>
+
+          {/* Particle Floating Animation Styles */}
+          <style dangerouslySetInnerHTML={{
+            __html: `
+            @keyframes indianFloatUp {
+              0% {
+                transform: translateY(0) scale(0.8) rotate(0deg);
+                opacity: 0;
+              }
+              15% {
+                opacity: 0.55;
+              }
+              85% {
+                opacity: 0.55;
+              }
+              100% {
+                transform: translateY(-110vh) scale(0.4) rotate(360deg);
+                opacity: 0;
+              }
+            }
+            .animate-indian-float-up {
+              animation: indianFloatUp linear infinite;
+            }
+          `}} />
+
+          {/* Gentle Floating Indian Lights / Particles (Saffron & Green & Gold) */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+            {[...Array(20)].map((_, i) => {
+              const size = Math.floor(Math.random() * 8) + 4; // 4px to 12px
+              const left = Math.floor(Math.random() * 100); // 0% to 100%
+              const delay = Math.floor(Math.random() * 15); // 0s to 15s
+              const duration = Math.floor(Math.random() * 10) + 18; // 18s to 28s
+              const color = i % 3 === 0 ? 'bg-[#FF9933]' : i % 3 === 1 ? 'bg-[#128807]' : 'bg-[#ffe477]';
+              return (
+                <div
+                  key={i}
+                  className={`absolute rounded-full opacity-0 filter blur-[1.5px] ${color} animate-indian-float-up`}
+                  style={{
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    left: `${left}%`,
+                    bottom: `-20px`,
+                    animationDelay: `${delay}s`,
+                    animationDuration: `${duration}s`,
+                  }}
+                />
+              );
+            })}
+          </div>
         </div>
       )}
 
