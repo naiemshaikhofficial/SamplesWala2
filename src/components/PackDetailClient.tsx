@@ -303,14 +303,14 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-8">
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-12 lg:items-start mt-8">
         {/* Left Section: Cover Art & Checkout Deck (sticky) */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+        <div className="max-lg:contents lg:block lg:col-span-4 lg:space-y-6 lg:sticky lg:top-24">
           {/* Cover Art with 3D Hover & Glow */}
           <motion.div 
             whileHover={{ y: -6, scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="w-full aspect-square relative rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] group/image"
+            className="order-4 lg:order-none w-full aspect-square relative rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] group/image"
           >
             <Image 
               src={pack.cover_url || '/placeholder.jpg'} 
@@ -333,7 +333,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
           </motion.div>
 
           {/* Mobile Title (Only shown on mobile) */}
-          <div className="flex lg:hidden flex-col gap-3">
+          <div className="order-1 lg:order-none flex lg:hidden flex-col gap-3">
             <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black bg-[#FFE600] px-2.5 py-0.5 border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm w-fit -rotate-1">
               {pack.categories?.[0]?.name || 'Sound Collection'}
             </span>
@@ -348,7 +348,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
           </div>
 
           {/* Pricing Card Deck */}
-          <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+          <div className="order-3 lg:order-none p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Price & Value</span>
@@ -454,7 +454,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
           {/* Pre-order notices */}
           {!pack.is_downloadable && (
-            <div className="p-5 rounded-2xl border border-studio-yellow/20 bg-studio-yellow/5 text-left space-y-3 shadow-lg">
+            <div className="order-5 lg:order-none p-5 rounded-2xl border border-studio-yellow/20 bg-studio-yellow/5 text-left space-y-3 shadow-lg">
               <div className="flex items-center gap-2 text-studio-yellow">
                 <Clock size={14} className="animate-pulse" />
                 <span className="text-[10px] font-black uppercase tracking-wider font-mono">Pre-order Notice</span>
@@ -476,10 +476,10 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         </div>
 
         {/* Right Section: Sound Stats, Previews, Details, and FAQ */}
-        <div className="lg:col-span-8 space-y-8">
+        <div className="max-lg:contents lg:block lg:col-span-8 lg:space-y-8">
           {/* Preview Theatre */}
           {videoIds.length > 0 ? (
-            <div id="video-demo-section" className="space-y-4">
+            <div id="video-demo-section" className="order-2 lg:order-none space-y-4">
               <div className="flex items-center gap-2">
                 <div className="h-4 w-1 bg-studio-neon" />
                 <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">
@@ -511,14 +511,14 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               </div>
             </div>
           ) : (
-            <div className="aspect-video rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/20 bg-black/10">
+            <div className="order-2 lg:order-none aspect-video rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/20 bg-black/10">
                <Volume2 size={40} className="text-white/20 animate-pulse" />
                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 font-mono">No Preview Audio Signal Available</p>
             </div>
           )}
 
           {/* Details Panel */}
-          <div className="space-y-4">
+          <div className="order-6 lg:order-none space-y-4">
             <div className="flex items-center gap-2">
               <div className="h-4 w-1 bg-studio-blue" />
               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">Overview</h2>
@@ -602,7 +602,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
           </div>
 
           {/* Quick specs pills */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="order-7 lg:order-none grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { label: 'Format', value: '24-Bit WAV', icon: Music, bg: 'bg-[#FF0080]', shadow: 'shadow-[4px_4px_0px_#00BFFF]', text: 'text-white', subtext: 'text-white/70', iconColor: 'text-white/40' },
               { label: 'Category', value: pack.categories?.[0]?.name || 'Sound Kits', icon: Layers, bg: 'bg-[#00FF94]', shadow: 'shadow-[4px_4px_0px_#FF3131]', text: 'text-black', subtext: 'text-black/55', iconColor: 'text-black/35' },
