@@ -303,14 +303,14 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         )}
       </div>
 
-      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-12 lg:items-start mt-8">
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-12 lg:items-start mt-4 lg:mt-8">
         {/* Left Section: Cover Art & Checkout Deck (sticky) */}
         <div className="max-lg:contents lg:block lg:col-span-4 lg:space-y-6 lg:sticky lg:top-24">
           {/* Cover Art with 3D Hover & Glow */}
           <motion.div 
             whileHover={{ y: -6, scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="order-4 lg:order-none w-full aspect-square relative rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] group/image"
+            className="order-last lg:order-none w-full aspect-square relative rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] group/image"
           >
             <Image 
               src={pack.cover_url || '/placeholder.jpg'} 
@@ -333,15 +333,15 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
           </motion.div>
 
           {/* Mobile Title (Only shown on mobile) */}
-          <div className="order-1 lg:order-none flex lg:hidden flex-col gap-3">
+          <div className="order-1 lg:order-none flex lg:hidden flex-col gap-2">
             <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black bg-[#FFE600] px-2.5 py-0.5 border-2 border-black shadow-[3px_3px_0px_#FF3131] rounded-sm w-fit -rotate-1">
               {pack.categories?.[0]?.name || 'Sound Collection'}
             </span>
-            <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none text-white">
+            <h1 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tighter leading-tight text-white">
               {pack.name}
             </h1>
             {pack.total_contents_summary && (
-              <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest font-mono">
+              <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest font-mono">
                 {pack.total_contents_summary}
               </p>
             )}
@@ -479,16 +479,16 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         <div className="max-lg:contents lg:block lg:col-span-8 lg:space-y-8">
           {/* Preview Theatre */}
           {videoIds.length > 0 ? (
-            <div id="video-demo-section" className="order-2 lg:order-none space-y-4">
-              <div className="flex items-center gap-2">
+            <div id="video-demo-section" className="order-2 lg:order-none space-y-3 lg:space-y-4">
+              <div className="hidden lg:flex items-center gap-2">
                 <div className="h-4 w-1 bg-studio-neon" />
                 <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 font-mono">
                   {videoIds.length > 1 ? 'Product Demos' : 'Product Demo'}
                 </h2>
               </div>
-              <div className={videoIds.length > 1 ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "w-full"}>
+              <div className={videoIds.length > 1 ? "grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6" : "w-full"}>
                 {videoIds.map((id, index) => (
-                  <div key={id} className="space-y-2 group">
+                  <div key={id} className="space-y-1.5 group">
                     {videoIds.length > 1 && (
                       <span className="text-[9px] font-black uppercase tracking-widest text-white/75 block font-mono">
                         Demo {index + 1}
