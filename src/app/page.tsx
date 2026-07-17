@@ -872,33 +872,40 @@ export default async function HomePage() {
         <div className="h-1.5 bg-[#F5F0E8]" />
       </div>
 
-      {/* Featured Presets */}
-      <section className="py-24 bg-studio-charcoal/30 border-y border-white/5 overflow-hidden">
+      {/* Featured Presets (EGS Free Games Style Container) */}
+      <section className="py-20 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-12 gap-6">
-            <div className="space-y-4 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio-neon text-black text-[10px] font-black uppercase tracking-widest jagged-border -rotate-1">
-                <Sparkles size={12} fill="currentColor" />
-                Vocal Chains & Mix Presets
+          <div className="bg-[#18181c] border border-white/5 rounded-[8px] p-6 md:p-10 shadow-2xl relative">
+            
+            {/* Header Row */}
+            <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/5">
+              <div className="flex items-center gap-2.5">
+                <Image 
+                  src="/icons8-dj-64.png" 
+                  alt="DJ Icon" 
+                  width={36} 
+                  height={36} 
+                  className="object-contain brightness-0 invert" 
+                />
+                <h3 className="text-lg md:text-xl font-bold text-white tracking-wide">
+                  Producer Presets
+                </h3>
               </div>
-              <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
-                PRODUCER <span className="text-studio-neon">PRESETS</span>
-              </h2>
-              <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] md:tracking-[0.3em]">Professional FL Studio & DAW Chains</p>
+              <Link
+                href="/browse?type=presets"
+                className="px-4 py-1.5 border border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition-colors rounded-[4px]"
+              >
+                View More
+              </Link>
             </div>
-            <Link
-              href="/browse?type=presets"
-              className="px-8 py-3 border-2 border-white/10 hover:border-studio-neon hover:text-studio-neon transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group"
-            >
-              Explore Presets
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            {presets.slice(0, 4).map((preset: any) => (
-              <PresetCard key={preset.id} preset={preset} />
-            ))}
+            {/* Grid of Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              {presets.slice(0, 4).map((preset: any) => (
+                <PresetCard key={preset.id} preset={preset} />
+              ))}
+            </div>
+            
           </div>
         </div>
       </section>

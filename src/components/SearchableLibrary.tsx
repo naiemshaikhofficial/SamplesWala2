@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, Music, ArrowRight, X, ShieldCheck, ArrowLeft, Play, Pause, Download, Loader2, Sparkles, FolderHeart, Volume2, HelpCircle, Receipt } from 'lucide-react'
+import { Search, Music, ArrowRight, X, ShieldCheck, ArrowLeft, Play, Pause, Download, Loader2, Sparkles, FolderHeart, Volume2, Receipt } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { DownloadButton } from '@/components/DownloadButton'
@@ -198,10 +198,9 @@ export function SearchableLibrary({
   const presetCount = items.filter(p => p.type === 'preset').length
   const orderCount = billingItems?.length || 0
 
-  // Render Pack Explorer Mode
   if (activePack) {
     return (
-      <div className="space-y-8 animate-fadeIn">
+      <div className="space-y-8 animate-fadeIn max-w-6xl mx-auto">
         {/* Back breadcrumb */}
         <button 
           onClick={() => {
@@ -212,32 +211,32 @@ export function SearchableLibrary({
               setCurrentSampleId(null)
             }
           }}
-          className="inline-flex items-center text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-studio-yellow transition-colors group"
+          className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-white/40 hover:text-white transition-colors group cursor-pointer"
         >
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
           Back to Vault
         </button>
 
         {/* Pack Details Hero Banner */}
-        <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 p-8 bg-white/[0.02] border border-white/5 rounded-sm">
+        <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-8 p-8 bg-[#18181c] border border-white/5 rounded-lg shadow-lg">
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left w-full md:w-auto">
-            <div className="aspect-square relative w-24 md:w-36 h-24 md:h-36 bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] flex-shrink-0">
+            <div className="aspect-square relative w-32 md:w-40 h-32 md:h-40 bg-[#121212] border border-white/10 rounded-lg overflow-hidden flex-shrink-0">
               <Image 
                 src={activePack.cover_url || '/placeholder.jpg'} 
                 alt={activePack.name} 
                 fill 
-                sizes="(max-width: 768px) 96px, 144px"
+                sizes="(max-width: 768px) 128px, 160px"
                 className="object-cover"
               />
             </div>
-            <div className="space-y-2">
-              <span className="inline-block px-2.5 py-0.5 bg-studio-yellow text-black text-[8px] font-black uppercase tracking-widest rounded-xs rotate-[-1deg]">
+            <div className="space-y-3">
+              <span className="inline-block px-2.5 py-1 bg-[#2a2a2e] text-white text-[9px] font-bold uppercase tracking-wider rounded-[3px]">
                 SAMPLE PACK
               </span>
-              <h2 className="text-xl md:text-3xl font-black uppercase tracking-tight italic text-white line-clamp-2 leading-none">
+              <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-tight text-white line-clamp-2 leading-none">
                 {activePack.name}
               </h2>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-[9px] font-bold text-white/40 uppercase tracking-widest">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-[10px] font-medium text-white/40 uppercase tracking-wider">
                 <span>{loadingSamples ? '...' : samples.length} Cloud Sounds Loaded</span>
                 <span className="text-white/10">•</span>
                 {activePack.created_at && (
@@ -256,34 +255,34 @@ export function SearchableLibrary({
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-white/5 pb-6">
             <div className="flex items-center gap-3 w-full md:w-auto">
-              <Volume2 className="text-studio-neon" size={20} />
-              <h3 className="text-sm font-black uppercase tracking-widest italic text-white">Cloud Preview & STEM Downloads</h3>
+              <Volume2 className="text-studio-neon" size={22} />
+              <h3 className="text-base font-bold uppercase tracking-wider text-white">Cloud Preview & STEM Downloads</h3>
             </div>
 
             {/* In-pack search and tag switcher */}
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
               {/* Type Switcher */}
-              <div className="flex rounded-sm bg-white/5 border border-white/10 p-0.5 w-full sm:w-auto">
+              <div className="flex rounded-[4px] bg-white/5 border border-white/10 p-0.5 w-full sm:w-auto">
                 <button
                   onClick={() => setTypeFilter('all')}
-                  className={`flex-1 sm:flex-none px-4 py-1.5 text-[8px] font-black uppercase tracking-widest transition-all rounded-xs ${
-                    typeFilter === 'all' ? 'bg-studio-yellow text-black' : 'text-white/40 hover:text-white'
+                  className={`flex-1 sm:flex-none px-5 py-2 text-[9px] font-bold uppercase tracking-wider transition-all rounded-[3px] ${
+                    typeFilter === 'all' ? 'bg-[#2a2a2e] text-white' : 'text-white/40 hover:text-white'
                   }`}
                 >
                   All
                 </button>
                 <button
                   onClick={() => setTypeFilter('loop')}
-                  className={`flex-1 sm:flex-none px-4 py-1.5 text-[8px] font-black uppercase tracking-widest transition-all rounded-xs ${
-                    typeFilter === 'loop' ? 'bg-studio-yellow text-black' : 'text-white/40 hover:text-white'
+                  className={`flex-1 sm:flex-none px-5 py-2 text-[9px] font-bold uppercase tracking-wider transition-all rounded-[3px] ${
+                    typeFilter === 'loop' ? 'bg-[#2a2a2e] text-white' : 'text-white/40 hover:text-white'
                   }`}
                 >
                   Loops
                 </button>
                 <button
                   onClick={() => setTypeFilter('one_shot')}
-                  className={`flex-1 sm:flex-none px-4 py-1.5 text-[8px] font-black uppercase tracking-widest transition-all rounded-xs ${
-                    typeFilter === 'one_shot' ? 'bg-studio-yellow text-black' : 'text-white/40 hover:text-white'
+                  className={`flex-1 sm:flex-none px-5 py-2 text-[9px] font-bold uppercase tracking-wider transition-all rounded-[3px] ${
+                    typeFilter === 'one_shot' ? 'bg-[#2a2a2e] text-white' : 'text-white/40 hover:text-white'
                   }`}
                 >
                   One-shots
@@ -298,7 +297,7 @@ export function SearchableLibrary({
                   placeholder="Search pack sounds..."
                   value={searchPackText}
                   onChange={(e) => setSearchPackText(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-sm py-2 pl-9 pr-8 text-[9px] font-bold uppercase tracking-widest focus:outline-none focus:border-studio-neon/50 focus:bg-white/[0.08] transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-[4px] py-2 pl-9 pr-8 text-[10px] font-medium text-white focus:outline-none focus:border-white/20 transition-all"
                 />
                 {searchPackText && (
                   <button 
@@ -314,26 +313,26 @@ export function SearchableLibrary({
 
           {/* Sound list container */}
           {loadingSamples ? (
-            <div className="w-full text-center py-24 bg-white/[0.01] border border-white/5 rounded-sm flex flex-col items-center justify-center gap-4">
+            <div className="w-full text-center py-24 bg-white/[0.01] border border-white/5 rounded-lg flex flex-col items-center justify-center gap-4">
               <Loader2 className="animate-spin text-studio-neon" size={32} />
-              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Retrieving secure audio signals...</p>
+              <p className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Retrieving secure audio signals...</p>
             </div>
           ) : samplesError ? (
-            <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-red-500/10 rounded-sm text-red-500">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2">{samplesError}</p>
+            <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-red-500/10 rounded-lg text-red-500">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-2">{samplesError}</p>
               <button 
                 onClick={() => {
                   setSamplesError(null);
                   setActivePack(activePack); // re-trigger fetch
                 }}
-                className="text-[9px] font-black uppercase tracking-widest underline hover:text-white"
+                className="text-[10px] font-bold uppercase tracking-wider underline hover:text-white"
               >
                 Retry Request
               </button>
             </div>
           ) : filteredSamples.length === 0 ? (
-            <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-white/5 rounded-sm">
-              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
+            <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-white/5 rounded-lg">
+              <p className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">
                 {searchPackText || typeFilter !== 'all' ? 'No matches found in this pack' : 'No individual tracks found for this pre-ordered collection'}
               </p>
               {(searchPackText || typeFilter !== 'all') && (
@@ -342,7 +341,7 @@ export function SearchableLibrary({
                     setSearchPackText('');
                     setTypeFilter('all');
                   }}
-                  className="mt-4 text-[9px] font-black uppercase tracking-widest text-studio-neon hover:underline"
+                  className="mt-4 text-[10px] font-bold uppercase tracking-wider text-studio-neon hover:underline"
                 >
                   Clear Filters
                 </button>
@@ -359,9 +358,9 @@ export function SearchableLibrary({
                 return (
                   <div 
                     key={sample.id} 
-                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border rounded-sm transition-all duration-300 ${
+                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border rounded-lg transition-all duration-300 ${
                       currentSampleId === sample.id 
-                        ? 'bg-studio-neon/[0.04] border-studio-neon/30' 
+                        ? 'bg-white/5 border-white/10' 
                         : 'bg-white/[0.01] border-white/5 hover:bg-white/[0.03] hover:border-white/10'
                     }`}
                   >
@@ -369,26 +368,26 @@ export function SearchableLibrary({
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                       <button
                         onClick={() => togglePlay(sample)}
-                        className={`h-11 w-11 rounded-full flex items-center justify-center border-2 transition-all flex-shrink-0
+                        className={`h-10 w-10 rounded-full flex items-center justify-center border transition-all flex-shrink-0 cursor-pointer
                           ${currentSampleId === sample.id && isPlaying
-                            ? 'bg-studio-neon border-studio-neon text-black shadow-[0_0_15px_rgba(57,255,20,0.3)]'
-                            : 'bg-white/5 border-white/10 hover:border-studio-neon text-white hover:text-studio-neon'
+                            ? 'bg-[#2a2a2e] border-white/10 text-white'
+                            : 'bg-white/5 border-white/10 hover:border-white/30 text-white'
                           }
                         `}
                       >
                         {currentSampleId === sample.id && isPlaying ? (
-                          <Pause size={18} fill="currentColor" />
+                          <Pause size={16} fill="currentColor" />
                         ) : (
-                          <Play size={18} fill="currentColor" className="ml-0.5" />
+                          <Play size={16} fill="currentColor" className="ml-0.5" />
                         )}
                       </button>
 
                       <div className="min-w-0 space-y-1">
-                        <h4 className="text-[11px] md:text-[12px] font-black uppercase tracking-wider text-white truncate italic">
+                        <h4 className="text-[12px] md:text-[13px] font-bold uppercase tracking-wider text-white truncate italic">
                           {sample.name}
                         </h4>
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className={`text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-sm ${
+                          <span className={`text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[3px] ${
                             sample.type === 'loop' 
                               ? 'bg-studio-yellow/10 text-studio-yellow border border-studio-yellow/20' 
                               : 'bg-studio-pink/10 text-studio-pink border border-studio-pink/20'
@@ -396,12 +395,12 @@ export function SearchableLibrary({
                             {sample.type === 'loop' ? 'Loop' : 'One-shot'}
                           </span>
                           {sample.bpm && (
-                            <span className="text-[8px] font-mono font-bold text-white/40 uppercase">
+                            <span className="text-[9px] font-mono font-bold text-white/40 uppercase">
                               {sample.bpm} BPM
                             </span>
                           )}
                           {sample.key && (
-                            <span className="text-[8px] font-mono font-bold text-studio-neon/80 uppercase">
+                            <span className="text-[9px] font-mono font-bold text-studio-neon/80 uppercase">
                               {sample.key}
                             </span>
                           )}
@@ -422,7 +421,7 @@ export function SearchableLibrary({
                             <div
                               key={idx}
                               style={{ height: `${pt}%` }}
-                              className={`w-[3px] rounded-xs transition-colors duration-150 ${
+                              className={`w-[2.5px] rounded-xs transition-colors duration-150 ${
                                 currentSampleId === sample.id
                                   ? isPlayed
                                     ? 'bg-studio-neon'
@@ -438,7 +437,7 @@ export function SearchableLibrary({
                     {/* Right: Actions */}
                     <div className="flex items-center gap-3 self-end sm:self-center">
                       {currentSampleId === sample.id && duration > 0 && (
-                        <span className="text-[9px] font-mono text-white/40 hidden md:inline">
+                        <span className="text-[10px] font-mono text-white/40 hidden md:inline">
                           {formatTime(currentTime)} / {formatTime(duration)}
                         </span>
                       )}
@@ -447,13 +446,13 @@ export function SearchableLibrary({
                           href={sample.download_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="h-10 px-4 bg-white/5 hover:bg-studio-neon hover:text-black border border-white/10 hover:border-black text-[9px] font-black uppercase tracking-widest flex items-center gap-2 transition-all rounded-sm shadow-[3px_3px_0px_rgba(0,0,0,0.5)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                          className="h-9 px-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all rounded-[4px] cursor-pointer text-white"
                         >
                           <Download size={12} />
                           Download WAV
                         </a>
                       ) : (
-                        <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest">
+                        <span className="text-[9px] font-bold text-white/20 uppercase tracking-wider">
                           Unavailable
                         </span>
                       )}
@@ -468,206 +467,222 @@ export function SearchableLibrary({
     )
   }
 
-  // Render Grid Mode (Standard Vault Page)
   return (
-    <div className="space-y-12">
-      {/* Premium Dashboard Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-black border-4 border-black p-6 shadow-[8px_8px_0px_rgba(255,200,0,1)] hover:-translate-y-1 transition-all">
-          <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Sample Packs Unlocked</h4>
-          <p className="text-3xl font-black text-studio-yellow italic mt-1">{packCount} PACKS</p>
-        </div>
-        <div className="bg-black border-4 border-black p-6 shadow-[8px_8px_0px_rgba(255,0,128,1)] hover:-translate-y-1 transition-all">
-          <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Producer Presets</h4>
-          <p className="text-3xl font-black text-studio-pink italic mt-1">{presetCount} PRESETS</p>
-        </div>
-        <div className="bg-black border-4 border-black p-6 shadow-[8px_8px_0px_rgba(0,255,159,1)] hover:-translate-y-1 transition-all">
-          <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Total Orders</h4>
-          <p className="text-3xl font-black text-studio-neon italic mt-1">{orderCount} ORDERS</p>
-        </div>
-      </div>
-
-      {/* Category tabs and Search bar row */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-white/5">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-6 w-full lg:w-auto">
-          {/* Dashboard Tab Selector */}
-          <div className="flex flex-wrap rounded-sm bg-white/5 border border-white/10 p-0.5 w-full sm:w-auto">
+    <div className="flex flex-col md:flex-row gap-10 w-full max-w-6xl mx-auto px-2">
+      {/* 1. Left Sidebar Navigation (EGS Style - Larger sizing) */}
+      <div className="hidden md:flex flex-col w-60 border-r border-white/5 pr-8 space-y-8 flex-shrink-0">
+        <div className="space-y-2">
+          <Link 
+            href="/browse" 
+            className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-white/60 hover:text-white hover:bg-white/5 rounded-[4px] transition-all"
+          >
+            <Image src="/cart-bag.png" alt="Store" width={16} height={16} className="brightness-0 invert opacity-60" />
+            Store
+          </Link>
+          <div className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider bg-[#2a2a2e] text-white rounded-[4px]">
+            <FolderHeart size={16} className="text-white" />
+            Library
+          </div>
+          
+          {/* Nested Sub Tabs inside Library */}
+          <div className="pl-8 space-y-2 pt-3 border-l border-white/5 ml-6">
             <button
               onClick={() => setActiveTab('packs')}
-              className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
-                activeTab === 'packs' ? 'bg-studio-yellow text-black shadow-[2px_2px_0px_black]' : 'text-white/40 hover:text-white'
+              className={`w-full flex items-center justify-between px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-[4px] transition-all cursor-pointer ${
+                activeTab === 'packs' ? 'text-white bg-white/5' : 'text-white/40 hover:text-white/80'
               }`}
             >
-              <Music size={12} />
-              Sample Packs
-              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded-xs ${activeTab === 'packs' ? 'bg-black text-studio-yellow' : 'bg-white/10 text-white/60'}`}>
-                {packCount}
-              </span>
+              <span>Packs</span>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-[3px] ${
+                activeTab === 'packs' ? 'bg-[#2a2a2e] text-white' : 'bg-white/5 text-white/40'
+              }`}>{packCount}</span>
             </button>
             <button
               onClick={() => setActiveTab('presets')}
-              className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
-                activeTab === 'presets' ? 'bg-studio-pink text-white shadow-[2px_2px_0px_black]' : 'text-white/40 hover:text-white'
+              className={`w-full flex items-center justify-between px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-[4px] transition-all cursor-pointer ${
+                activeTab === 'presets' ? 'text-white bg-white/5' : 'text-white/40 hover:text-white/80'
               }`}
             >
-              <Sparkles size={12} />
-              Producer Presets
-              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded-xs ${activeTab === 'presets' ? 'bg-black text-white' : 'bg-white/10 text-white/60'}`}>
-                {presetCount}
-              </span>
+              <span>Presets</span>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-[3px] ${
+                activeTab === 'presets' ? 'bg-[#2a2a2e] text-white' : 'bg-white/5 text-white/40'
+              }`}>{presetCount}</span>
             </button>
             <button
               onClick={() => setActiveTab('orders')}
-              className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-xs flex items-center gap-2 ${
-                activeTab === 'orders' ? 'bg-studio-neon text-black shadow-[2px_2px_0px_black]' : 'text-white/40 hover:text-white'
+              className={`w-full flex items-center justify-between px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-[4px] transition-all cursor-pointer ${
+                activeTab === 'orders' ? 'text-white bg-white/5' : 'text-white/40 hover:text-white/80'
               }`}
             >
-              <Receipt size={12} />
-              Order History
-              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded-xs ${activeTab === 'orders' ? 'bg-black text-studio-neon' : 'bg-white/10 text-white/60'}`}>
-                {orderCount}
-              </span>
+              <span>Orders</span>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-[3px] ${
+                activeTab === 'orders' ? 'bg-[#2a2a2e] text-white' : 'bg-white/5 text-white/40'
+              }`}>{orderCount}</span>
             </button>
           </div>
         </div>
-
-        {/* Search Bar - hidden on Orders tab */}
-        {activeTab !== 'orders' && (
-          <div className="relative w-full lg:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
-            <input 
-              type="text"
-              placeholder={`Search unlocked ${activeTab === 'packs' ? 'packs' : 'presets'}...`}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-sm py-3 pl-12 pr-10 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-studio-neon/50 focus:bg-white/[0.08] transition-all"
-            />
-            {search && (
-              <button 
-                onClick={() => setSearch('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Dynamic Content Area */}
-      {activeTab === 'orders' ? (
-        <div className="animate-fadeIn !mt-0">
-          <BillingHistory items={billingItems} profile={profile} email={email} />
+      {/* 2. Main content area (Right Column) */}
+      <div className="flex-1 w-full min-w-0">
+        
+        {/* Mobile Horizontal Tabs Row (Hidden on desktop) */}
+        <div className="flex md:hidden rounded-[4px] bg-white/5 border border-white/10 p-0.5 mb-6 w-full">
+          <button
+            onClick={() => setActiveTab('packs')}
+            className={`flex-1 px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition-all rounded-[3px] flex items-center justify-center gap-1.5 ${
+              activeTab === 'packs' ? 'bg-[#2a2a2e] text-white' : 'text-white/40 hover:text-white'
+            }`}
+          >
+            <Music size={12} />
+            <span>Packs ({packCount})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('presets')}
+            className={`flex-1 px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition-all rounded-[3px] flex items-center justify-center gap-1.5 ${
+              activeTab === 'presets' ? 'bg-[#2a2a2e] text-white' : 'text-white/40 hover:text-white'
+            }`}
+          >
+            <Sparkles size={12} />
+            <span>Presets ({presetCount})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`flex-1 px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition-all rounded-[3px] flex items-center justify-center gap-1.5 ${
+              activeTab === 'orders' ? 'bg-[#2a2a2e] text-white' : 'text-white/40 hover:text-white'
+            }`}
+          >
+            <Receipt size={12} />
+            <span>Orders ({orderCount})</span>
+          </button>
         </div>
-      ) : (
-        /* Grid items */
-        filteredItems.length === 0 ? (
-          <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-white/5 rounded-sm">
-             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">
-               {search ? 'No matches found for your search' : `No ${activeTab === 'packs' ? 'sample packs' : 'producer presets'} found in your collection`}
-             </p>
-             {search ? (
-               <button 
-                 onClick={() => setSearch('')}
-                 className="mt-4 text-[9px] font-black uppercase tracking-widest text-studio-neon hover:underline"
-               >
-                 Clear Search
-               </button>
-             ) : (
-               <Link 
-                 href="/browse"
-                 className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-black uppercase text-[10px] tracking-widest hover:bg-studio-yellow transition-all border border-black shadow-[4px_4px_0px_rgba(255,200,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none"
-               >
-                 <Sparkles size={12} />
-                 Browse Sounds Store
-               </Link>
-             )}
+
+        {/* Sort/Filter bar with clean search */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/5 mb-8">
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] font-bold text-white/40 uppercase tracking-wider">Sort by:</span>
+            <span className="text-[12px] font-bold text-white uppercase tracking-wider cursor-pointer hover:text-white/80 select-none">
+              Alphabetical A-Z
+            </span>
+          </div>
+
+          {/* Search bar */}
+          {activeTab !== 'orders' && (
+            <div className="relative w-full sm:w-72">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+              <input 
+                type="text"
+                placeholder={`Search unlocked ${activeTab === 'packs' ? 'packs' : 'presets'}...`}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-[#18181c] border border-white/10 rounded-[4px] py-2 pl-11 pr-8 text-[11px] font-medium text-white focus:outline-none focus:border-white/20 focus:bg-white/[0.03] transition-all"
+              />
+              {search && (
+                <button 
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Dynamic content rendering */}
+        {activeTab === 'orders' ? (
+          <div className="animate-fadeIn">
+            <BillingHistory items={billingItems} profile={profile} email={email} />
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12 animate-fadeIn">
-            {filteredItems.map((item) => (
-              <div key={item.id} className="group flex flex-col space-y-4">
-                <div className="aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] block group-hover:border-studio-neon transition-all">
-                  <Image 
-                    src={item.cover_url || '/placeholder.jpg'} 
-                    alt={item.name} 
-                    fill 
-                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                  <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-1 border border-white/10 rounded-sm">
-                      <p className={`text-[7px] font-black uppercase tracking-widest ${item.type === 'pack' ? 'text-studio-yellow' : 'text-studio-pink'}`}>
-                        {item.type === 'pack' ? 'PACK' : 'PRESET'}
-                      </p>
-                  </div>
-                </div>
-                
-                <div className="space-y-4 px-1 flex-1 flex flex-col justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <ShieldCheck size={10} className="text-studio-neon" />
-                      <span className="text-[7px] font-black uppercase tracking-[0.2em] text-studio-neon/80 font-mono">Verified License</span>
-                    </div>
-                    <h3 className="text-[13px] font-black uppercase truncate italic tracking-tight text-white">{item.name}</h3>
-                    {item.created_at && (
-                      <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
-                        Purchased on {new Date(item.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.2em] text-white/20 pt-1">
-                      <span className="flex items-center gap-2"><Music size={10} /> Full {item.type === 'pack' ? 'Pack' : 'Preset'}</span>
-                      <span className="text-studio-neon/60">Unlocked</span>
+          filteredItems.length === 0 ? (
+            <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-white/5 rounded-lg">
+              <p className="text-[11px] font-bold text-white/20 uppercase tracking-wider">
+                {search ? 'No matches found' : `No ${activeTab === 'packs' ? 'packs' : 'presets'} found`}
+              </p>
+              {search ? (
+                <button 
+                  onClick={() => setSearch('')}
+                  className="mt-4 text-[10px] font-bold uppercase tracking-wider text-studio-neon hover:underline cursor-pointer"
+                >
+                  Clear Search
+                </button>
+              ) : (
+                <Link 
+                  href="/browse"
+                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold uppercase text-[11px] tracking-wider rounded-[4px]"
+                >
+                  <Sparkles size={14} />
+                  Browse Sounds Store
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 animate-fadeIn">
+              {filteredItems.map((item) => (
+                <div 
+                  key={item.id} 
+                  className="group flex flex-col space-y-3 cursor-pointer"
+                  onClick={() => {
+                    if (item.type === 'pack') {
+                      setActivePack(item)
+                    } else {
+                      window.location.href = `/browse/presets/${item.slug}`
+                    }
+                  }}
+                >
+                  {/* Larger Portrait/Square Cover image */}
+                  <div className="relative aspect-square overflow-hidden bg-[#121212] border border-white/5 rounded-lg group-hover:border-white/20 shadow-md transition-all duration-300">
+                    <Image 
+                      src={item.cover_url || '/placeholder.jpg'} 
+                      alt={item.name} 
+                      fill 
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                    <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-2 py-0.5 border border-white/10 rounded-[3px]">
+                        <p className={`text-[8px] font-bold uppercase tracking-wider ${item.type === 'pack' ? 'text-studio-yellow' : 'text-studio-pink'}`}>
+                          {item.type === 'pack' ? 'PACK' : 'PRESET'}
+                        </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 pt-2 items-start w-full">
-                    {item.is_downloadable ? (
-                      item.type === 'pack' ? (
-                        <div className="flex flex-col gap-2 w-full">
-                          <DownloadButton itemId={item.id} type={item.type} />
-                          <button
-                            onClick={() => setActivePack(item)}
-                            className="w-full h-11 border-2 border-black bg-studio-neon/10 hover:bg-studio-neon hover:text-black text-studio-neon text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-[4px_4px_0px_black] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
-                          >
-                            <Music size={12} />
-                            Explore Sounds
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2 w-full items-start">
-                          <div className="flex-1">
-                            <DownloadButton itemId={item.id} type={item.type} />
+                  {/* Card Title & Info */}
+                  <div className="space-y-1.5 mt-1 font-sans">
+                    <h3 className="text-[14px] font-bold text-white group-hover:text-white/80 transition-colors truncate">
+                      {item.name}
+                    </h3>
+                    
+                    <div className="flex items-center justify-between gap-3 mt-1.5">
+                      <div className="flex items-center gap-1.5 text-[11px] text-white/40 group-hover:text-white/60 transition-colors">
+                        {item.is_downloadable ? (
+                          <div className="flex items-center gap-1 text-[#128807] font-semibold">
+                            <ShieldCheck size={12} />
+                            <span>Purchased</span>
                           </div>
-                          <Link 
-                            href={`/browse/presets/${item.slug}`}
-                            className="h-16 w-16 border-4 border-black bg-white/5 shadow-[6px_6px_0px_black] flex-shrink-0 flex items-center justify-center hover:bg-white/10 transition-all group/link active:translate-x-1 active:translate-y-1 active:shadow-none"
-                          >
-                            <ArrowRight size={18} className="text-white/40 group-hover/link:text-white transition-colors" />
-                          </Link>
-                        </div>
-                      )
-                    ) : (
-                      <div className="w-full bg-studio-neon/5 border border-studio-neon/20 p-4 rounded-sm flex items-center justify-between group/pre">
-                        <div className="space-y-0.5">
-                          <p className="text-[10px] font-black text-studio-neon uppercase tracking-widest italic">Pre-ordered</p>
-                          <p className="text-[7px] font-bold text-white/40 uppercase tracking-tighter">Will be sent once available</p>
-                        </div>
-                        <Link 
-                          href={item.type === 'pack' ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`}
-                          className="h-10 w-10 bg-studio-neon/10 border border-studio-neon/20 flex items-center justify-center hover:bg-studio-neon hover:border-black transition-all group-hover/pre:rotate-12"
-                        >
-                          <ArrowRight size={14} className="text-studio-neon group-hover/pre:text-black" />
-                        </Link>
+                        ) : (
+                          <div className="flex items-center gap-1 text-studio-neon/80 font-semibold">
+                            <Sparkles size={12} />
+                            <span>Pre-ordered</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                      
+                      {item.is_downloadable && (
+                        <div onClick={(e) => e.stopPropagation()} className="w-28">
+                          <DownloadButton itemId={item.id} type={item.type} compact />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )
-      )}
+              ))}
+            </div>
+          )
+        )}
+
+      </div>
     </div>
   )
 }

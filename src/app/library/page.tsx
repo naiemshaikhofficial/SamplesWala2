@@ -1,12 +1,7 @@
 import React from 'react'
-import { FolderHeart, Download, ArrowRight, Music } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
-import { getOptimizedImageUrl } from '@/lib/images'
-
 import { SearchableLibrary } from '@/components/SearchableLibrary'
-
 
 export default async function LibraryPage() {
   const supabase = await createClient()
@@ -36,7 +31,7 @@ export default async function LibraryPage() {
   const packIds = vaultPacks.map(v => v.item_id)
   const presetIds = vaultPresets.map(v => v.item_id)
 
-  // Run all secondary details queries in parallel to drastically improve page generation speed
+  // Run queries in parallel
   const packsPromise = packIds.length > 0
     ? supabase
         .from('sample_packs')
@@ -87,33 +82,21 @@ export default async function LibraryPage() {
     })))
   }
 
-  // 3. Map names to billing items for the table
   const billingItems = allVaultItems?.map(item => ({
     ...item,
     item_name: libraryItems.find(p => p.id === item.item_id)?.name || item.item_name || 'Digital Asset'
   })) || []
 
   return (
-    <div className="container mx-auto px-4 py-32 space-y-16">
-      <div className="flex flex-col items-center text-center space-y-4">
-        <div className="h-16 w-16 bg-studio-yellow/10 flex items-center justify-center rounded-sm mb-4">
-          <FolderHeart className="text-studio-yellow" size={32} />
-        </div>
-        <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic">Your Vault</h1>
-        <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Unlocked High-Fidelity Artifacts</p>
+    <div className="w-full min-h-screen bg-[#121212] text-white pt-8 pb-20 relative z-10">
+      <div className="container mx-auto px-4 md:px-8">
+        <SearchableLibrary 
+          items={libraryItems} 
+          billingItems={billingItems}
+          profile={profile}
+          email={user.email}
+        />
       </div>
-      
-      <SearchableLibrary 
-        items={libraryItems} 
-        billingItems={billingItems}
-        profile={profile}
-        email={user.email}
-      />
     </div>
   )
 }
-
-
-
-
-
