@@ -815,6 +815,8 @@ export default async function HomePage() {
             className="object-cover opacity-20 mix-blend-screen pointer-events-none select-none"
             unoptimized
           />
+          {/* Black gradient overlay to fade top and bottom into the dark section */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d0d0d] via-transparent to-[#0d0d0d] pointer-events-none" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
