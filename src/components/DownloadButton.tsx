@@ -68,7 +68,7 @@ export function DownloadButton({
   }
 
   const btnBg = compact
-    ? (status === 'success' ? 'bg-[#128807] text-white' : 'bg-[#2a2a2e] hover:bg-[#34343a] text-white')
+    ? (status === 'success' ? 'bg-[#128807] text-white' : 'bg-white hover:bg-studio-neon text-black')
     : (status === 'success' ? 'bg-studio-blue text-white' : 'bg-studio-neon hover:bg-studio-neon/90 text-black')
 
   const containerHeight = compact ? 'h-8' : 'h-11'
@@ -76,10 +76,10 @@ export function DownloadButton({
 
   return (
     <div className={`space-y-1.5 ${compact ? 'w-full' : 'w-full md:w-52 min-w-[170px]'}`} onClick={(e) => e.stopPropagation()}>
-      <div className={`relative overflow-hidden rounded-[4px] ${containerHeight} w-full`}>
+      <div className={`relative overflow-hidden rounded-sm ${compact ? 'border-2 border-black shadow-[2px_2px_0px_black]' : 'border-4 border-black shadow-[4px_4px_0px_black]'} ${containerHeight} w-full`}>
         {/* Progress Bar overlay */}
         <motion.div
-          className={`absolute inset-0 z-0 origin-left ${compact ? 'bg-white/10' : 'bg-black/10'}`}
+          className={`absolute inset-0 z-0 origin-left ${compact ? 'bg-black/10' : 'bg-black/10'}`}
           initial={{ scaleX: 0 }}
           animate={{ scaleX: progress / 100 }}
           transition={{ duration: 0.1 }}
@@ -88,7 +88,7 @@ export function DownloadButton({
         <button
           disabled={status !== 'idle'}
           onClick={handleDownload}
-          className={`relative z-10 w-full h-full font-bold uppercase tracking-wider ${fontSize} flex items-center justify-center gap-2 transition-all rounded-[4px] cursor-pointer
+          className={`relative z-10 w-full h-full font-black uppercase tracking-wider ${fontSize} flex items-center justify-center gap-2 transition-all cursor-pointer
             ${btnBg}
             ${status === 'processing' ? 'cursor-wait' : ''}
           `}
