@@ -88,7 +88,7 @@ export default async function LibraryPage() {
   })) || []
 
   return (
-    <div className="w-full min-h-screen bg-[#121212] text-white pt-8 pb-20 relative z-10">
+    <div className="w-full min-h-screen bg-[#121212] text-white pt-24 md:pt-28 pb-20 relative z-10">
       <div className="container mx-auto px-4 md:px-8">
         <SearchableLibrary 
           items={libraryItems} 
