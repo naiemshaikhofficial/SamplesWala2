@@ -11,18 +11,18 @@ function isIpInSameSubnet(ip1: string, ip2: string): boolean {
   if (ip1 === 'unknown' || ip2 === 'unknown') return true
   if (ip1 === ip2) return true
 
-  // IPv4 - check if first 3 octets match (e.g. 192.168.1.X)
+  // IPv4 - check if first 2 octets match (e.g. 192.168.X.X) to handle dynamic mobile IPs smoothly
   if (ip1.includes('.') && ip2.includes('.')) {
     const p1 = ip1.split('.')
     const p2 = ip2.split('.')
-    return p1[0] === p2[0] && p1[1] === p2[1] && p1[2] === p2[2]
+    return p1[0] === p2[0] && p1[1] === p2[1]
   }
 
-  // IPv6 - check if first 3 blocks match (/48 routing prefix)
+  // IPv6 - check if first 2 blocks match
   if (ip1.includes(':') && ip2.includes(':')) {
     const p1 = ip1.split(':')
     const p2 = ip2.split(':')
-    return p1[0] === p2[0] && p1[1] === p2[1] && p1[2] === p2[2]
+    return p1[0] === p2[0] && p1[1] === p2[1]
   }
 
   return false
