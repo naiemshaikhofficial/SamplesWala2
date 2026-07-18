@@ -414,7 +414,7 @@ export async function getPresetsByCategory(categoryId: string) {
       const supabase = getAdminClient()
       const { data, error } = await supabase
         .from('presets')
-        .select('*')
+        .select('id, name, slug, description, type, price_inr, mrp_inr, youtube_url, cover_url, daws, plugins_used, created_at')
         .eq('category_id', categoryId)
         .order('created_at', { ascending: false })
 
@@ -422,7 +422,7 @@ export async function getPresetsByCategory(categoryId: string) {
         console.error('[GET_CATEGORY_PRESETS_ERROR]', error)
         return []
       }
-      return data
+      return data || []
     },
     [`presets-category-${categoryId}`],
     { revalidate: 3600, tags: ['presets', 'categories'] }

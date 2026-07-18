@@ -7,6 +7,7 @@ import { generatePageMetadata } from '@/lib/seo/metadata'
 export const metadata = generatePageMetadata({
   title: "Blog | Music Production Tips & Indian Sample Pack News",
   description: "Explore the Samples Wala blog for professional music production tips, Bollywood beat making guides, and the latest news on Indian sample packs and VSTs.",
+  path: '/blog'
 })
 
 const blogPosts = [

@@ -6,6 +6,7 @@ import ContactForm from './ContactForm';
 export const metadata = generatePageMetadata({
   title: 'Contact Us | SamplesWala',
   description: 'Have a question? We are here to help you make better music. Contact SamplesWala for support, collaborations, or inquiries.',
+  path: '/contact'
 });
 
 export default function ContactPage() {

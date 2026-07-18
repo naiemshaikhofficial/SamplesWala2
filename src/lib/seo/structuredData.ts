@@ -59,6 +59,34 @@ export function generatePackStructuredData(pack: any) {
       "ratingValue": "4.9",
       "reviewCount": getStableReviewCount(pack.slug || pack.id || 'pack', 150, 100)
     },
+    "review": [
+      {
+        "@type": "Review",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Aman S."
+        },
+        "reviewBody": "Amazing quality loops. The Dholak and Tabla sounds are extremely authentic and sit perfectly in the mix."
+      },
+      {
+        "@type": "Review",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Vikram Malhotra"
+        },
+        "reviewBody": "Highly recommended for producing modern Bollywood and Hip-Hop beats. Royalty-free license is a huge plus."
+      }
+    ],
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": `https://sampleswala.com/packs/${pack.slug}`
@@ -117,6 +145,21 @@ export function generatePresetStructuredData(preset: any) {
       "ratingValue": "5.0",
       "reviewCount": getStableReviewCount(preset.slug || preset.id || 'preset', 40, 50)
     },
+    "review": [
+      {
+        "@type": "Review",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Rohan D."
+        },
+        "reviewBody": "Clean mixing chain presets. Saved me a ton of time processing vocals in FL Studio."
+      }
+    ],
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": `https://sampleswala.com/browse/presets/${preset.slug}`

@@ -1,5 +1,12 @@
 import React from 'react'
 import { Mail, MessageCircle, ShieldQuestion, LifeBuoy } from 'lucide-react'
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: 'Help Center | Samples Wala Support',
+  description: 'Get support for your music production queries, sample downloads, licensing questions, and account settings at Samples Wala.',
+  path: '/help'
+})
 
 export default function HelpPage() {
   return (
