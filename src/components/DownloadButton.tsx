@@ -67,19 +67,27 @@ export function DownloadButton({
     }
   }
 
-  const btnBg = compact
-    ? (status === 'success' ? 'bg-[#128807] text-white' : 'bg-white hover:bg-studio-neon text-black')
-    : (status === 'success' ? 'bg-studio-blue text-white' : 'bg-studio-neon hover:bg-studio-neon/90 text-black')
+  const btnBg = status === 'idle'
+    ? 'bg-[#FF3131] text-white hover:bg-[#ff4b4b]'
+    : status === 'processing'
+      ? 'bg-[#FFE600] text-black'
+      : 'bg-[#00FF94] text-black'
+
+  const borderShadowClass = status === 'idle'
+    ? (compact ? 'border-2 border-black shadow-[2px_2px_0px_black]' : 'border-4 border-black shadow-[4px_4px_0px_black]')
+    : status === 'processing'
+      ? (compact ? 'border-2 border-black shadow-[2px_2px_0px_#FFE600]' : 'border-4 border-black shadow-[4px_4px_0px_#FFE600]')
+      : (compact ? 'border-2 border-black shadow-[2px_2px_0px_#00FF94]' : 'border-4 border-black shadow-[4px_4px_0px_#00FF94]')
 
   const containerHeight = compact ? 'h-8' : 'h-11'
   const fontSize = compact ? 'text-[9px]' : 'text-[11px]'
 
   return (
-    <div className={`space-y-1.5 ${compact ? 'w-full' : 'w-full md:w-52 min-w-[170px]'}`} onClick={(e) => e.stopPropagation()}>
-      <div className={`relative overflow-hidden rounded-sm ${compact ? 'border-2 border-black shadow-[2px_2px_0px_black]' : 'border-4 border-black shadow-[4px_4px_0px_black]'} ${containerHeight} w-full`}>
+    <div className={`space-y-1.5 w-full mx-auto`} onClick={(e) => e.stopPropagation()}>
+      <div className={`relative overflow-hidden rounded-sm transition-all duration-300 ${borderShadowClass} ${containerHeight} w-full`}>
         {/* Progress Bar overlay */}
         <motion.div
-          className={`absolute inset-0 z-0 origin-left ${compact ? 'bg-black/10' : 'bg-black/10'}`}
+          className="absolute inset-0 z-0 origin-left bg-[#00FF94]/25"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: progress / 100 }}
           transition={{ duration: 0.1 }}
@@ -97,12 +105,20 @@ export function DownloadButton({
             {status === 'idle' && (
               <motion.div
                 key="idle"
-                initial={{ opacity: 0, y: 3 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -3 }}
-                className="flex items-center gap-1.5"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, y: -20, transition: { type: "spring", stiffness: 300, damping: 15 } }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 font-black uppercase tracking-widest italic"
               >
-                <Download size={compact ? 12 : 16} />
+                <motion.div
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  className="flex items-center"
+                >
+                  <Download size={compact ? 12 : 16} />
+                </motion.div>
                 <span>{compact ? 'Download' : 'DOWNLOAD'}</span>
               </motion.div>
             )}
@@ -110,24 +126,51 @@ export function DownloadButton({
             {status === 'processing' && (
               <motion.div
                 key="loading"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex items-center gap-1.5"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="flex items-center gap-2 font-black uppercase tracking-widest italic"
               >
-                <Loader2 className="animate-spin" size={compact ? 12 : 18} />
-                <span>{compact ? 'Saving...' : 'SPEEDING UP...'}</span>
+                <Loader2 className="animate-spin text-black shrink-0" size={compact ? 12 : 16} />
+                <span className="flex">
+                  {(compact ? 'Downloading...' : 'DOWNLOADING...').split('').map((char, index) => (
+                    <motion.span
+                      key={index}
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 0.6,
+                        delay: index * 0.05,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      {char === ' ' ? '\u00A0' : char}
+                    </motion.span>
+                  ))}
+                </span>
               </motion.div>
             )}
 
             {status === 'success' && (
               <motion.div
                 key="success"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-1.5"
+                initial={{ scale: 0.2, rotate: -15, opacity: 0 }}
+                animate={{ 
+                  scale: 1, 
+                  rotate: -3, 
+                  opacity: 1 
+                }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 400, 
+                  damping: 10,
+                  mass: 0.7
+                }}
+                className="flex items-center justify-center gap-2 font-black uppercase tracking-widest italic text-black"
               >
-                <span>{compact ? 'Started' : 'BOOM! STARTED.'}</span>
+                <span className="bg-black text-[#00FF94] px-3 py-1 border-2 border-[#00FF94] shadow-[3px_3px_0px_#00FF94] text-[10px] md:text-[11px] scale-105 font-black tracking-widest italic">
+                  {compact ? 'STARTED!' : 'BOOM! STARTED.'}
+                </span>
               </motion.div>
             )}
           </AnimatePresence>
