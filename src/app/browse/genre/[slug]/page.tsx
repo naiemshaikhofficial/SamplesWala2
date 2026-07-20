@@ -29,7 +29,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!category) return {}
 
-  const keywords = generateSmartKeywords(category.name, category.name)
+  const baseName = category.name.toLowerCase()
+  const categoryKeywords = [
+    `${baseName} free download`,
+    `${baseName} loops free`,
+    `free ${baseName} download`,
+    `download free ${baseName} loops`,
+    `best free ${baseName}`,
+  ]
+
+  const keywords = [...new Set([
+    ...generateSmartKeywords(category.name, category.name),
+    ...categoryKeywords
+  ])]
 
   return generatePageMetadata({
     title: `Best ${category.name} Sample Packs & Presets | SamplesWala`,
