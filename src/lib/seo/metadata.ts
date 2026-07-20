@@ -3,8 +3,12 @@ import { Metadata } from 'next'
 // Short, highly-focused brand/site-level keywords for global pages (prevents keyword stuffing)
 const DEFAULT_KEYWORDS = [
   'sample packs',
+  'free sample pack',
+  'free sample packs',
   'music samples',
   'Indian samples',
+  'free indian loops',
+  'indian sample pack free download',
   'royalty free loops',
   'Samples Wala',
   'Sample Wala',
