@@ -216,7 +216,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
     if (!pack.is_downloadable) {
       list.push(
-        { q: "How do I get the files after purchase?", a: <>Immediately after your payment is successful, you'll receive an email with a download link. You can also access all your purchases in <Link href="/library" className="underline text-studio-yellow hover:text-white transition-colors">'Your Library'</Link>.</> }
+        { q: "How do I get the files after purchase?", a: <>Immediately after your payment is successful, you'll receive an email with a download link. You can also access all your purchases in <Link href="/library" className="underline text-studio-yellow hover:text-white transition-colors">'Your Library'</Link>.</> },
         {
           q: "Why does it take 1-2 months to deliver?",
           a: "Our sample packs are premium products featuring real musicians and live-recorded instruments. Post-production (editing, sound design, mixing, and mastering) is highly time-consuming because we are committed to delivering unmatched, commercial-grade sound quality. But we are trying hard to make it available as soon as possible!"
@@ -772,8 +772,8 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                     <button
                       onClick={handleFloatingAddToCart}
                       className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 border-2 border-black shadow-[2px_2px_0px_black] ${isAlreadyInCart
-                          ? 'bg-black/10 text-black border-black/20 shadow-none'
-                          : 'bg-[#00FF94] text-black hover:bg-white'
+                        ? 'bg-black/10 text-black border-black/20 shadow-none'
+                        : 'bg-[#00FF94] text-black hover:bg-white'
                         }`}
                     >
                       {isAlreadyInCart ? (
