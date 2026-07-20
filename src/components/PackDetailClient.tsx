@@ -207,7 +207,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   }, [pack, now])
 
   const faqs = React.useMemo(() => {
-    const list = [
+    const list: Array<{ q: string, a: React.ReactNode }> = [
       {
         q: "Is this compatible with FL Studio?",
         a: "Yes! Our samples are professional 24-bit WAV files, compatible with all DAWs including FL Studio, Ableton Live, Logic Pro, Cubase, and more."
