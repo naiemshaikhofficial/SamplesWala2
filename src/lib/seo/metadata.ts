@@ -33,7 +33,9 @@ const NICHE_KEYWORDS = {
     'hindi sample pack', 'hindi loops', 'indian trap loops', 'indian melodies',
     'indian melody loops', 'desi melody loops', 'mumbai samples', 'indian producer sounds',
     'kshmr indian loops', 'splice indian loops', 'cymatics indian samples', 'loopmasters indian loops',
-    'best splice alternative', 'indian splice'
+    'best splice alternative', 'indian splice', 'indian sample pack free download', 
+    'indian loops free download', 'free indian sample pack', 'tabla loops free download', 
+    'dholak loops free download', 'punjabi loops free download', 'indian vocals free download'
   ],
   vocal: [
     'vocal chops', 'vocal loops', 'female vocal samples', 'male vocal samples',
