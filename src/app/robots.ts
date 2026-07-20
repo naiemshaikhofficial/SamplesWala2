@@ -14,6 +14,7 @@ export default function robots(): MetadataRoute.Robots {
         '/*?genre=*',
         '/*?mode=*',
         '/*?sort=*',
+        '/*?type=*',
       ],
     },
     sitemap: 'https://sampleswala.com/sitemap.xml',
