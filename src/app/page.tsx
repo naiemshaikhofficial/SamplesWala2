@@ -31,7 +31,7 @@ export default async function HomePage() {
   const [packs, presets, indiaJourneyPacks] = await Promise.all([
     getPacks(12),
     getPresets(4),
-    getPacksBySeries('India Journey', 4)
+    getPacksBySeries('India Journey', 8)
   ])
 
   const websiteSchema = {
@@ -857,7 +857,7 @@ export default async function HomePage() {
 
           {/* Cards Container with drop shadow and border */}
           <div className="relative z-20">
-            <HomePacks packs={indiaJourneyPacks.slice(0, 4)} />
+            <HomePacks packs={indiaJourneyPacks} />
           </div>
         </div>
       </section>
