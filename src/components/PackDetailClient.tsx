@@ -216,10 +216,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
     if (!pack.is_downloadable) {
       list.push(
-        {
-          q: "How does the pre-order process work?",
-          a: "By pre-ordering, you secure the pack at a highly discounted special price while it is in the studio. Once completed, the download link will automatically appear in your Library/Vault and we'll email you immediately."
-        },
+        { q: "How do I get the files after purchase?", a: <>Immediately after your payment is successful, you'll receive an email with a download link. You can also access all your purchases in <Link href="/library" className="underline text-studio-yellow hover:text-white transition-colors">'Your Library'</Link>.</> }
         {
           q: "Why does it take 1-2 months to deliver?",
           a: "Our sample packs are premium products featuring real musicians and live-recorded instruments. Post-production (editing, sound design, mixing, and mastering) is highly time-consuming because we are committed to delivering unmatched, commercial-grade sound quality. But we are trying hard to make it available as soon as possible!"
@@ -307,27 +304,27 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         {/* Left Section: Cover Art & Checkout Deck (sticky) */}
         <div className="max-lg:contents lg:block lg:col-span-4 lg:space-y-6 lg:sticky lg:top-24">
           {/* Cover Art with 3D Hover & Glow */}
-          <motion.div 
+          <motion.div
             whileHover={{ y: -6, scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="order-last lg:order-none w-full aspect-square relative rounded-xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] group/image"
           >
-            <Image 
-              src={pack.cover_url || '/placeholder.jpg'} 
-              alt={`${pack.name} - Premium Indian Sample Pack | SamplesWala`} 
-              fill 
+            <Image
+              src={pack.cover_url || '/placeholder.jpg'}
+              alt={`${pack.name} - Premium Indian Sample Pack | SamplesWala`}
+              fill
               priority
               sizes="(max-width: 768px) 100vw, 400px"
               className="object-cover transition-transform duration-700 group-hover/image:scale-105"
             />
-            
+
             <div className="absolute top-4 right-4 z-20">
-               <ShareButton 
-                 title={pack.name} 
-                 text={`Check out ${pack.name} on SamplesWala!`} 
-                 url={typeof window !== 'undefined' ? window.location.href : ''}
-                 className="w-9 h-9 bg-black/60 backdrop-blur-md border border-white/15 rounded-full hover:bg-studio-red hover:border-studio-red hover:rotate-12 transition-all flex items-center justify-center text-white cursor-pointer"
-               />
+              <ShareButton
+                title={pack.name}
+                text={`Check out ${pack.name} on SamplesWala!`}
+                url={typeof window !== 'undefined' ? window.location.href : ''}
+                className="w-9 h-9 bg-black/60 backdrop-blur-md border border-white/15 rounded-full hover:bg-studio-red hover:border-studio-red hover:rotate-12 transition-all flex items-center justify-center text-white cursor-pointer"
+              />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
           </motion.div>
@@ -357,7 +354,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                   <span className="text-xs text-white/35 line-through font-bold font-mono">{displayMrp}</span>
                 </div>
               </div>
-              
+
               <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
                 <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
                 {!pack.is_downloadable && (
@@ -393,9 +390,9 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       </p>
                     </div>
                   )}
-                  
+
                   <div className="flex flex-col gap-3">
-                    <AddToCartButton 
+                    <AddToCartButton
                       label={isPreorderActive ? "Pre-order" : "Add to Cart"}
                       item={{
                         id: pack.id,
@@ -406,13 +403,13 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                         cover_url: pack.cover_url || undefined,
                         type: 'pack',
                         is_downloadable: pack.is_downloadable
-                      }} 
+                      }}
                     />
-                    <PaymentButton 
+                    <PaymentButton
                       label={isPreorderActive ? `PRE-ORDER NOW — ${displayPrice}` : `BUY NOW — ${displayPrice}`}
-                      packId={pack.id} 
-                      packName={pack.name} 
-                      price={currentPriceInr} 
+                      packId={pack.id}
+                      packName={pack.name}
+                      price={currentPriceInr}
                       price_usd={pack.price_usd ? Number(pack.price_usd) : undefined}
                       slug={pack.slug}
                       cover_url={pack.cover_url || ''}
@@ -512,8 +509,8 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             </div>
           ) : (
             <div className="order-2 lg:order-none aspect-video rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center gap-4 text-white/20 bg-black/10">
-               <Volume2 size={40} className="text-white/20 animate-pulse" />
-               <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 font-mono">No Preview Audio Signal Available</p>
+              <Volume2 size={40} className="text-white/20 animate-pulse" />
+              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 font-mono">No Preview Audio Signal Available</p>
             </div>
           )}
 
@@ -548,8 +545,8 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                     {activeStats.map((stat, i) => {
                       const Icon = stat.icon;
                       return (
-                        <motion.div 
-                          key={i} 
+                        <motion.div
+                          key={i}
                           whileHover={{ y: -4 }}
                           className={`p-2.5 md:p-5 rounded-xl md:rounded-2xl border-2 border-black ${stat.bg} ${stat.shadow} ${stat.text} flex flex-col justify-between h-20 md:h-28 relative overflow-hidden group transition-all duration-300`}
                         >
@@ -580,7 +577,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               )}
 
               <FormattedDescription text={pack.description} />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
                 <div className="space-y-3">
                   <h3 className="text-[10px] font-black uppercase tracking-wider text-studio-neon font-mono">Technical Specifications</h3>
@@ -646,7 +643,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                     {faq.q}
                   </span>
                 </div>
-                
+
                 <motion.div
                   animate={{ rotate: activeFaq === idx ? 45 : 0 }}
                   transition={{ duration: 0.3, ease: "circOut" }}
@@ -659,11 +656,11 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               <AnimatePresence>
                 {activeFaq === idx && (
                   <motion.div
-                     initial={{ height: 0, opacity: 0 }}
-                     animate={{ height: "auto", opacity: 1 }}
-                     exit={{ height: 0, opacity: 0 }}
-                     transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-                     className="overflow-hidden"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+                    className="overflow-hidden"
                   >
                     <div className="pb-6 px-5 pl-14 border-t border-white/5 pt-4">
                       <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] leading-relaxed font-mono">
@@ -680,142 +677,141 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
       {/* Installation Guide - Centered & Clean */}
       <section className="max-w-2xl mx-auto pt-12 border-t border-white/5 pb-12 space-y-6">
-         <div className="flex flex-col items-center text-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-full bg-studio-yellow/10 flex items-center justify-center text-studio-yellow border border-studio-yellow/20">
-               <Download size={20} />
-            </div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-studio-yellow font-mono">Installation Guide</h3>
-         </div>
-         
-         <div className="p-6 md:p-8 bg-[#0a0a0af0] border border-white/10 rounded-2xl shadow-lg">
-            <ol className="space-y-4 text-[10px] md:text-xs font-bold text-white/70 uppercase tracking-widest font-mono list-decimal pl-6">
-               <li className="leading-relaxed">
-                  Extract the downloaded <span className="text-white underline decoration-studio-yellow decoration-2">ZIP archive file</span>.
-               </li>
-               <li className="leading-relaxed">
-                  Drag the folder directly into your DAW's file browser (FL Studio, Ableton, Logic).
-               </li>
-               <li className="leading-relaxed">
-                  Add the folder path to your 'Places' or 'Bookmarks' for quick drag-and-drop access.
-               </li>
-               <li className="leading-relaxed text-studio-neon">
-                  Start creating!
-               </li>
-            </ol>
-         </div>
+        <div className="flex flex-col items-center text-center gap-2 mb-4">
+          <div className="w-10 h-10 rounded-full bg-studio-yellow/10 flex items-center justify-center text-studio-yellow border border-studio-yellow/20">
+            <Download size={20} />
+          </div>
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-studio-yellow font-mono">Installation Guide</h3>
+        </div>
+
+        <div className="p-6 md:p-8 bg-[#0a0a0af0] border border-white/10 rounded-2xl shadow-lg">
+          <ol className="space-y-4 text-[10px] md:text-xs font-bold text-white/70 uppercase tracking-widest font-mono list-decimal pl-6">
+            <li className="leading-relaxed">
+              Extract the downloaded <span className="text-white underline decoration-studio-yellow decoration-2">ZIP archive file</span>.
+            </li>
+            <li className="leading-relaxed">
+              Drag the folder directly into your DAW's file browser (FL Studio, Ableton, Logic).
+            </li>
+            <li className="leading-relaxed">
+              Add the folder path to your 'Places' or 'Bookmarks' for quick drag-and-drop access.
+            </li>
+            <li className="leading-relaxed text-studio-neon">
+              Start creating!
+            </li>
+          </ol>
+        </div>
       </section>
 
       {/* Floating Sticky CTA Bar */}
       <AnimatePresence>
         {showFloatingBar && !owned && mounted && (
-          <div 
-            className="fixed left-0 right-0 z-50 pointer-events-none" 
+          <div
+            className="fixed left-0 right-0 z-50 pointer-events-none"
             style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <div className="max-w-4xl mx-auto px-4">
-               <motion.div
-                 initial={{ y: 100, opacity: 0 }}
-                 animate={{ y: 0, opacity: 1 }}
-                 exit={{ y: 100, opacity: 0 }}
-                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                 className="pointer-events-auto w-full relative"
-               >
-                 {/* Animated shadow backdrop */}
-                 <motion.div
-                   className="absolute inset-0 bg-[#00BFFF] border-2 border-black rounded-full"
-                   animate={{ 
-                     x: [3, 7, 3],
-                     y: [3, 7, 3],
-                   }}
-                   transition={{
-                     duration: 4,
-                     repeat: Infinity,
-                     ease: "easeInOut",
-                   }}
-                 />
+              <motion.div
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 100, opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="pointer-events-auto w-full relative"
+              >
+                {/* Animated shadow backdrop */}
+                <motion.div
+                  className="absolute inset-0 bg-[#00BFFF] border-2 border-black rounded-full"
+                  animate={{
+                    x: [3, 7, 3],
+                    y: [3, 7, 3],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
 
-                 {/* Foreground Yellow Capsule */}
-                 <div
-                   className="relative w-full bg-[#FFE600] border-2 border-black rounded-full px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 md:gap-6 group/float-bar"
-                 >
-                   {/* Product Image and info */}
-                   <div 
-                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                     className="flex items-center gap-3 min-w-0 cursor-pointer group/float-info"
-                   >
-                     <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-black shadow-md group-hover/float-info:scale-105 transition-transform duration-300">
-                       <Image
-                         src={pack.cover_url || '/placeholder.jpg'}
-                         alt={pack.name}
-                         fill
-                         sizes="40px"
-                         className="object-cover"
-                       />
-                     </div>
-                     <div className="flex flex-col min-w-0">
-                       <span className="text-black text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[120px] sm:max-w-[250px] lg:max-w-none group-hover/float-info:text-studio-red transition-colors">
-                         {pack.name.split(/[-–—]/)[0].trim()}
-                       </span>
-                     </div>
-                   </div>
+                {/* Foreground Yellow Capsule */}
+                <div
+                  className="relative w-full bg-[#FFE600] border-2 border-black rounded-full px-4 md:px-6 py-2.5 flex items-center justify-between gap-3 md:gap-6 group/float-bar"
+                >
+                  {/* Product Image and info */}
+                  <div
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="flex items-center gap-3 min-w-0 cursor-pointer group/float-info"
+                  >
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-black shadow-md group-hover/float-info:scale-105 transition-transform duration-300">
+                      <Image
+                        src={pack.cover_url || '/placeholder.jpg'}
+                        alt={pack.name}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-black text-xs md:text-sm font-black uppercase tracking-tight truncate max-w-[120px] sm:max-w-[250px] lg:max-w-none group-hover/float-info:text-studio-red transition-colors">
+                        {pack.name.split(/[-–—]/)[0].trim()}
+                      </span>
+                    </div>
+                  </div>
 
-                   {/* Price Info */}
-                   <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                     <span className="text-[9px] md:text-xs text-black/50 line-through font-bold font-mono tracking-wider">
-                       {displayMrp}
-                     </span>
-                     <span className="text-xs md:text-sm font-black text-black leading-none italic uppercase tracking-wider font-mono">
-                       {displayPrice}
-                     </span>
-                   </div>
+                  {/* Price Info */}
+                  <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                    <span className="text-[9px] md:text-xs text-black/50 line-through font-bold font-mono tracking-wider">
+                      {displayMrp}
+                    </span>
+                    <span className="text-xs md:text-sm font-black text-black leading-none italic uppercase tracking-wider font-mono">
+                      {displayPrice}
+                    </span>
+                  </div>
 
-                   {/* Action Buttons */}
-                   <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
-                     {/* Add to Cart Button - Green Pill / Glass style */}
-                     <button
-                       onClick={handleFloatingAddToCart}
-                       className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 border-2 border-black shadow-[2px_2px_0px_black] ${
-                         isAlreadyInCart
-                           ? 'bg-black/10 text-black border-black/20 shadow-none'
-                           : 'bg-[#00FF94] text-black hover:bg-white'
-                       }`}
-                     >
-                       {isAlreadyInCart ? (
-                         <>
-                           <Check size={12} strokeWidth={3} />
-                           <span className="hidden sm:inline">In Cart</span>
-                         </>
-                       ) : added ? (
-                         <>
-                           <Check size={12} strokeWidth={3} />
-                           <span className="hidden sm:inline">Added!</span>
-                         </>
-                       ) : (
-                         <>
-                           <ShoppingBag size={12} />
-                           <span className="hidden sm:inline">Add to cart</span>
-                         </>
-                       )}
-                     </button>
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
+                    {/* Add to Cart Button - Green Pill / Glass style */}
+                    <button
+                      onClick={handleFloatingAddToCart}
+                      className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 border-2 border-black shadow-[2px_2px_0px_black] ${isAlreadyInCart
+                          ? 'bg-black/10 text-black border-black/20 shadow-none'
+                          : 'bg-[#00FF94] text-black hover:bg-white'
+                        }`}
+                    >
+                      {isAlreadyInCart ? (
+                        <>
+                          <Check size={12} strokeWidth={3} />
+                          <span className="hidden sm:inline">In Cart</span>
+                        </>
+                      ) : added ? (
+                        <>
+                          <Check size={12} strokeWidth={3} />
+                          <span className="hidden sm:inline">Added!</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingBag size={12} />
+                          <span className="hidden sm:inline">Add to cart</span>
+                        </>
+                      )}
+                    </button>
 
-                     {/* Buy Now Button - Black Pill with comic shadow */}
-                     <button
-                       disabled={buyLoading}
-                       onClick={handleFloatingBuyNow}
-                       className="h-9 px-6 sm:px-5 bg-black text-white hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_black] transition-all duration-300 active:scale-95 disabled:opacity-50 flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
-                     >
-                       {buyLoading ? (
-                         <Loader2 className="animate-spin" size={12} />
-                       ) : (
-                         <>
-                           <CreditCard size={12} />
-                           <span>Buy Now</span>
-                         </>
-                       )}
-                     </button>
-                   </div>
-                 </div>
-               </motion.div>
+                    {/* Buy Now Button - Black Pill with comic shadow */}
+                    <button
+                      disabled={buyLoading}
+                      onClick={handleFloatingBuyNow}
+                      className="h-9 px-6 sm:px-5 bg-black text-white hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_black] transition-all duration-300 active:scale-95 disabled:opacity-50 flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
+                    >
+                      {buyLoading ? (
+                        <Loader2 className="animate-spin" size={12} />
+                      ) : (
+                        <>
+                          <CreditCard size={12} />
+                          <span>Buy Now</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         )}
