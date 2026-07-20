@@ -1283,16 +1283,18 @@ export default function CheckoutPage() {
 
               {/* Pre-order warning notice */}
               {hasPreorder && (
-                <div className="p-4 rounded border border-studio-yellow/20 bg-studio-yellow/5 text-left space-y-2">
-                  <div className="flex items-center gap-2 text-studio-yellow">
-                    <Clock size={12} className="animate-pulse" />
-                    <span className="text-[9px] font-black uppercase tracking-wider">Pre-order Notice</span>
+                <div className="p-4 border-2 border-black bg-[#121214] text-left space-y-2.5 shadow-[5px_5px_0px_#FFE600] relative overflow-hidden group hover:shadow-[7px_7px_0px_#FFE600] transition-all">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-[#FFE600] border-2 border-black p-1 text-black flex items-center justify-center">
+                      <Clock size={12} className="animate-pulse" />
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-[#FFE600]">Pre-order Notice</span>
                   </div>
-                  <p className="text-[8px] text-white/70 font-semibold uppercase tracking-wider leading-relaxed">
-                    Some items in your cart are <span className="text-studio-yellow">pre-orders</span>. Sound packs are live-recorded or highly production-intensive.
+                  <p className="text-[8.5px] text-white/90 font-extrabold uppercase tracking-wider leading-relaxed">
+                    Some items in your cart are <span className="text-[#FFE600] underline decoration-1 decoration-black">pre-orders</span>. Sound packs are live-recorded or highly production-intensive.
                   </p>
-                  <p className="text-[8px] text-white/40 font-semibold uppercase tracking-wider leading-relaxed">
-                    It might take <span className="text-white">1-2 months to deliver</span>. Once available, we will notify you via email.
+                  <p className="text-[8px] text-white/45 font-bold uppercase tracking-wider leading-relaxed">
+                    🚀 It might take <span className="text-white font-black underline decoration-1 decoration-[#FFE600]">1-2 months to deliver</span>. Once available, we will notify you via email.
                   </p>
                 </div>
               )}

@@ -451,23 +451,48 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
           {/* Pre-order notices */}
           {!pack.is_downloadable && (
-            <div className="order-5 lg:order-none p-5 rounded-2xl border border-studio-yellow/20 bg-studio-yellow/5 text-left space-y-3 shadow-lg">
-              <div className="flex items-center gap-2 text-studio-yellow">
-                <Clock size={14} className="animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-wider font-mono">Pre-order Notice</span>
+            <div className="order-5 lg:order-none p-6 border-4 border-black bg-[#121214] text-left space-y-4 shadow-[8px_8px_0px_#FFE600] relative overflow-hidden group hover:shadow-[10px_10px_0px_#FFE600] transition-all">
+              {/* Corner Pre-order ribbon */}
+              <div className="absolute top-0 right-0 bg-[#FFE600] text-black text-[7px] font-black uppercase py-1 px-4 rotate-45 translate-x-3 translate-y-1 select-none border-b border-black">
+                Pre-Order
               </div>
-              <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider leading-relaxed">
-                Our sample packs are mostly <span className="text-studio-yellow">live-recorded</span> or highly <span className="text-studio-red">time-consuming</span> to produce, <span className="text-studio-neon">but we are trying hard to release them ASAP!</span>
-              </p>
-              <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
-                🚀 Usually takes <span className="text-white underline decoration-studio-yellow">1-2 months to deliver</span>. You will be notified instantly via email upon completion.
-              </p>
-              <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest leading-relaxed pt-2 border-t border-white/5">
-                📧 Inquiries: email us at{' '}
-                <a href="mailto:contact@sampleswala.com" className="text-studio-yellow hover:text-white underline font-black transition-colors lowercase">
-                  contact@sampleswala.com
-                </a>
-              </p>
+
+              {/* Title Header */}
+              <div className="flex items-center gap-2">
+                <div className="bg-[#FFE600] border-2 border-black p-1.5 shadow-[2px_2px_0px_black] text-black flex items-center justify-center">
+                  <Clock size={14} className="animate-spin-slow" style={{ animationDuration: '8s' }} />
+                </div>
+                <span className="text-[11px] font-black uppercase tracking-widest text-[#FFE600]">
+                  Pre-order Notice
+                </span>
+              </div>
+
+              {/* Main descriptive notice */}
+              <div className="space-y-3.5 pt-1">
+                <p className="text-[10.5px] font-extrabold text-white/95 uppercase tracking-wide leading-relaxed">
+                  Our sample packs are mostly <span className="text-[#FFE600] underline decoration-2 decoration-black">live-recorded</span> or highly <span className="text-studio-red underline decoration-2 decoration-black">time-consuming</span> to produce, <span className="text-[#00FF94]">but we are trying hard to release them ASAP!</span>
+                </p>
+
+                {/* Details List */}
+                <div className="space-y-2 border-t border-black/40 pt-3.5">
+                  <div className="flex items-start gap-2.5 text-[9px] font-bold text-white/60 uppercase tracking-wider leading-relaxed">
+                    <span className="shrink-0 text-xs">🚀</span>
+                    <span>
+                      Usually takes <span className="text-white font-black underline decoration-1 decoration-[#FFE600]">1-2 months to deliver</span>. You will be notified instantly via email upon completion.
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2.5 text-[9px] font-bold text-white/60 uppercase tracking-wider leading-relaxed pt-1.5">
+                    <span className="shrink-0 text-xs">✉️</span>
+                    <span>
+                      Inquiries:{' '}
+                      <a href="mailto:contact@sampleswala.com" className="text-[#FFE600] hover:text-[#00FF94] underline font-black transition-colors lowercase">
+                        contact@sampleswala.com
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
