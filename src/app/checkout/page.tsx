@@ -355,7 +355,7 @@ export default function CheckoutPage() {
         return
       }
       const script = document.createElement('script')
-      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture&disable-funding=card`
+      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture`
       script.onload = () => resolve(true)
       script.onerror = () => resolve(false)
       document.body.appendChild(script)
