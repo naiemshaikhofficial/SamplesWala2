@@ -35,7 +35,7 @@ async function getPayPalAccessToken() {
 
 export async function POST(request: Request) {
   try {
-    const { items, couponCode } = await request.json()
+    const { items, couponCode, billingDetails } = await request.json()
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
     // 3. Authenticate with PayPal and create Order session
     const { token, baseUrl } = await getPayPalAccessToken()
 
-    const orderPayload = {
+    const orderPayload: any = {
       intent: 'CAPTURE',
       purchase_units: [
         {
@@ -153,6 +153,50 @@ export async function POST(request: Request) {
         user_action: 'PAY_NOW',
         return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/library`,
         cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout`
+      }
+    }
+
+    if (billingDetails) {
+      let givenName = 'Guest'
+      let surname = ''
+      if (billingDetails.fullName) {
+        const parts = billingDetails.fullName.trim().split(/\s+/)
+        givenName = parts[0]
+        if (parts.length > 1) {
+          surname = parts.slice(1).join(' ')
+        }
+      }
+
+      orderPayload.payer = {
+        name: {
+          given_name: givenName,
+          surname: surname
+        },
+        email_address: user.email
+      }
+
+      // Format address matching PayPal schema
+      if (billingDetails.address) {
+        orderPayload.payer.address = {
+          address_line_1: billingDetails.address,
+          admin_area_2: billingDetails.city || '',
+          admin_area_1: billingDetails.state || '',
+          postal_code: billingDetails.zip || '',
+          country_code: billingDetails.countryCode || 'IN'
+        }
+      }
+
+      // Format phone matching PayPal schema
+      if (billingDetails.phone) {
+        const cleanPhone = billingDetails.phone.replace(/\D/g, '')
+        if (cleanPhone.length > 0) {
+          orderPayload.payer.phone = {
+            phone_type: 'MOBILE',
+            phone_number: {
+              national_number: cleanPhone
+            }
+          }
+        }
       }
     }
 

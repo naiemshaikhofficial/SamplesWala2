@@ -566,7 +566,11 @@ export default function CheckoutPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   items: items.map(i => ({ id: i.id, type: i.type })),
-                  couponCode: discountRef.current > 0 ? couponRef.current : undefined
+                  couponCode: discountRef.current > 0 ? couponRef.current : undefined,
+                  billingDetails: {
+                    ...billingDetailsRef.current,
+                    countryCode: currentCountryCode
+                  }
                 })
               })
               const order = await res.json()
