@@ -401,7 +401,7 @@ export default function CheckoutPage() {
             setError('')
             setLoading(true)
 
-            if (!validateForm()) {
+            if (!validateForm(billingDetailsRef.current)) {
               setLoading(false)
               const billingSection = document.getElementById('billing-details-section')
               if (billingSection) {
@@ -614,28 +614,28 @@ export default function CheckoutPage() {
     }
   }
 
-  const validateForm = () => {
+  const validateForm = (details = billingDetails) => {
     const errors: Record<string, string> = {}
-    if (!billingDetails.fullName.trim()) errors.fullName = 'FULL NAME IS REQUIRED'
+    if (!details.fullName.trim()) errors.fullName = 'FULL NAME IS REQUIRED'
 
-    if (!billingDetails.phone) {
+    if (!details.phone) {
       errors.phone = 'PHONE NUMBER IS REQUIRED'
-    } else if (billingDetails.phone.length < 5) {
+    } else if (details.phone.length < 5) {
       errors.phone = 'ENTER A VALID PHONE NUMBER'
     }
 
-    if (!billingDetails.address.trim()) errors.address = 'STREET ADDRESS IS REQUIRED'
-    if (!billingDetails.city.trim()) errors.city = 'CITY IS REQUIRED'
-    if (!billingDetails.state.trim()) errors.state = 'STATE IS REQUIRED'
+    if (!details.address.trim()) errors.address = 'STREET ADDRESS IS REQUIRED'
+    if (!details.city.trim()) errors.city = 'CITY IS REQUIRED'
+    if (!details.state.trim()) errors.state = 'STATE IS REQUIRED'
 
-    const cleanZip = billingDetails.zip.trim()
+    const cleanZip = details.zip.trim()
     if (!cleanZip) {
       errors.zip = 'POSTAL CODE IS REQUIRED'
-    } else if (billingDetails.country === 'India' && !/^\d{6}$/.test(cleanZip)) {
+    } else if (details.country === 'India' && !/^\d{6}$/.test(cleanZip)) {
       errors.zip = 'ENTER A VALID 6-DIGIT PINCODE'
     }
 
-    if (!billingDetails.country) errors.country = 'COUNTRY IS REQUIRED'
+    if (!details.country) errors.country = 'COUNTRY IS REQUIRED'
 
     setFormErrors(errors)
     return Object.keys(errors).length === 0
