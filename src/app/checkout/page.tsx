@@ -364,7 +364,7 @@ export default function CheckoutPage() {
 
   // Effect to load PayPal SDK
   useEffect(() => {
-    if (currency === 'USD' && activeTotal > 0 && user) {
+    if (activeTotal > 0 && user) {
       const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
       if (!clientId) {
         setError('PayPal Client ID is not configured.')
@@ -379,11 +379,11 @@ export default function CheckoutPage() {
         }
       })
     }
-  }, [currency, activeTotal, user])
+  }, [activeTotal, user])
 
   // Effect to render/re-render PayPal buttons (Only when loading status, currency, total eligibility, or user shifts)
   useEffect(() => {
-    if (paypalLoaded && currency === 'USD' && activeTotal > 0 && document.getElementById('paypal-button-container')) {
+    if (paypalLoaded && activeTotal > 0 && document.getElementById('paypal-button-container')) {
       const container = document.getElementById('paypal-button-container')
       if (container) {
         container.innerHTML = ''
@@ -1180,20 +1180,7 @@ export default function CheckoutPage() {
                         </p>
                       </div>
                     )}
-                    {currency === 'USD' && activeTotal > 0 ? (
-                      <div>
-                        {!paypalLoaded && (
-                          <div className="w-full h-11 bg-neutral-900/40 border border-white/10 rounded flex items-center justify-center text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
-                            <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
-                            Loading PayPal...
-                          </div>
-                        )}
-                        <div
-                          id="paypal-button-container"
-                          className={`w-full mt-2 relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
-                        />
-                      </div>
-                    ) : (
+                    {activeTotal === 0 ? (
                       <button
                         onClick={handleCheckout}
                         disabled={loading || paymentStatus === 'processing'}
@@ -1212,14 +1199,63 @@ export default function CheckoutPage() {
                                 className="object-contain"
                               />
                             </div>
-                            <span>{activeTotal === 0 ? 'Get Free' : 'Complete Payment'}</span>
-                            {/* Glassmorphism shine sweep animation */}
+                            <span>Get Free</span>
                             <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
                               <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
                             </div>
                           </>
                         )}
                       </button>
+                    ) : (
+                      <div className="space-y-4">
+                        {currency === 'INR' && (
+                          <>
+                            <button
+                              onClick={handleCheckout}
+                              disabled={loading || paymentStatus === 'processing'}
+                              className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
+                            >
+                              {loading ? (
+                                <Loader2 className="animate-spin" size={13} />
+                              ) : (
+                                <>
+                                  <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
+                                    <Image
+                                      src="/icons8-pay-96.png"
+                                      alt="Pay"
+                                      width={14}
+                                      height={14}
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                  <span>Pay with UPI / Razorpay</span>
+                                  <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                                    <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
+                                  </div>
+                                </>
+                              )}
+                            </button>
+                            <div className="flex items-center justify-center py-2">
+                              <div className="w-full border-t border-white/10" />
+                              <span className="px-3 text-[9px] font-bold text-neutral-500 uppercase tracking-widest whitespace-nowrap">Or Pay with PayPal</span>
+                              <div className="w-full border-t border-white/10" />
+                            </div>
+                          </>
+                        )}
+
+                        <div>
+                          {!paypalLoaded && (
+                            <div className="w-full h-11 bg-neutral-900/40 border border-white/10 rounded flex items-center justify-center text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+                              Loading PayPal...
+                            </div>
+                          )}
+                          <div
+                            id="paypal-button-container"
+                            className={`w-full relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
+                          />
+                        </div>
+                      </div>
                     )}
                     <p className="text-[8px] font-black text-neutral-500 uppercase tracking-widest text-center mt-2 leading-relaxed select-none">
                       By purchasing, you agree to our{' '}
@@ -1332,20 +1368,7 @@ export default function CheckoutPage() {
                 </p>
               </div>
             )}
-            {currency === 'USD' && activeTotal > 0 ? (
-              <div>
-                {!paypalLoaded && (
-                  <div className="w-full h-11 bg-neutral-900/40 border border-white/10 rounded flex items-center justify-center text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
-                    Loading PayPal...
-                  </div>
-                )}
-                <div
-                  id="paypal-button-container"
-                  className={`w-full mt-2 relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
-                />
-              </div>
-            ) : (
+            {activeTotal === 0 ? (
               <button
                 onClick={handleCheckout}
                 disabled={loading || paymentStatus === 'processing'}
@@ -1364,14 +1387,63 @@ export default function CheckoutPage() {
                         className="object-contain"
                       />
                     </div>
-                    <span>{activeTotal === 0 ? 'Get Free' : `Complete Payment — ${currency === 'USD' ? `$${activeTotal.toFixed(2)}` : `₹${total - activeCouponDiscount}`}`}</span>
-                    {/* Glassmorphism shine sweep animation */}
+                    <span>Get Free</span>
                     <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
                       <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
                     </div>
                   </>
                 )}
               </button>
+            ) : (
+              <div className="space-y-3">
+                {currency === 'INR' && (
+                  <>
+                    <button
+                      onClick={handleCheckout}
+                      disabled={loading || paymentStatus === 'processing'}
+                      className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
+                    >
+                      {loading ? (
+                        <Loader2 className="animate-spin" size={13} />
+                      ) : (
+                        <>
+                          <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
+                            <Image
+                              src="/icons8-pay-96.png"
+                              alt="Pay"
+                              width={14}
+                              height={14}
+                              className="object-contain"
+                            />
+                          </div>
+                          <span>Pay UPI / Razorpay — ₹{total - activeCouponDiscount}</span>
+                          <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                            <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
+                          </div>
+                        </>
+                      )}
+                    </button>
+                    <div className="flex items-center justify-center py-1">
+                      <div className="w-full border-t border-white/10" />
+                      <span className="px-3 text-[8px] font-bold text-neutral-500 uppercase tracking-widest whitespace-nowrap">Or Pay with PayPal</span>
+                      <div className="w-full border-t border-white/10" />
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  {!paypalLoaded && (
+                    <div className="w-full h-11 bg-neutral-900/40 border border-white/10 rounded flex items-center justify-center text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+                      Loading PayPal...
+                    </div>
+                  )}
+                  <div
+                    id="paypal-button-container"
+                    className={`w-full relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
+                  />
+                </div>
+              </div>
             )}
             <p className="text-[7.5px] font-black text-neutral-500 uppercase tracking-widest text-center mt-3 leading-relaxed select-none">
               By purchasing, you agree to our{' '}

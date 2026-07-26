@@ -82,13 +82,15 @@ export async function POST(request: Request) {
 
     const { userId, items, couponCode, discountPercent } = customData
 
-    // 2. Billing Country Check (Final Guard)
+    // 2. Billing Country Check (Final Guard) - DISABLED to allow PayPal checkouts for all countries (including India)
+    /*
     const billingCountry = orderData.payer?.address?.country_code || billingDetails?.country
     if (billingCountry?.toUpperCase() === 'IN') {
       return NextResponse.json({ 
         error: 'Indian billing addresses are not accepted for PayPal USD checkouts. Please use UPI/Razorpay in INR.' 
       }, { status: 400 })
     }
+    */
 
     // 3. Fetch items to verify prices and create library entries
     const admin = getAdminClient()
