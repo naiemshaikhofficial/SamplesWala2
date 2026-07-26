@@ -11,10 +11,142 @@ import { Header } from '@/components/Header'
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import 'react-phone-number-input/style.css'
-import PhoneInput from 'react-phone-number-input'
+import PhoneInput, { getCountryCallingCode } from 'react-phone-number-input'
 import { useCurrency } from '@/context/CurrencyContext'
 import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
 import dynamic from 'next/dynamic'
+
+// Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
+const CustomCountrySelect = ({ value, onChange, options, iconComponent: Icon }: any) => {
+  const selectOptions = React.useMemo(() => {
+    return options.map((opt: any) => {
+      let dialCode = ''
+      if (opt.value) {
+        try {
+          dialCode = ` (+${getCountryCallingCode(opt.value)})`
+        } catch (e) {}
+      }
+      return {
+        value: opt.value,
+        label: `${opt.label}${dialCode}`
+      }
+    })
+  }, [options])
+
+  const selectedValue = selectOptions.find((o: any) => o.value === value)
+
+  return (
+    <Select
+      options={selectOptions}
+      value={selectedValue}
+      onChange={(opt: any) => onChange(opt ? opt.value : undefined)}
+      isSearchable
+      onMenuOpen={() => { document.body.style.overflow = 'hidden' }}
+      onMenuClose={() => { document.body.style.overflow = '' }}
+      placeholder=""
+      className="phone-country-react-select"
+      classNamePrefix="phone-country-select"
+      formatOptionLabel={(option: any, { context }: any) => {
+        if (context === 'value') {
+          return (
+            <div className="flex items-center justify-center pt-0.5">
+              {option.value && <Icon country={option.value} />}
+            </div>
+          )
+        }
+        return (
+          <div className="flex items-center gap-2">
+            {option.value && <Icon country={option.value} />}
+            <span className="text-[11px] font-bold text-white/90">{option.label}</span>
+          </div>
+        )
+      }}
+      styles={{
+        control: (base, state) => ({
+          ...base,
+          width: '55px',
+          minWidth: '55px',
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
+          border: 'none',
+          boxShadow: 'none',
+          cursor: 'pointer',
+          padding: 0,
+          margin: 0,
+          minHeight: 'auto',
+          height: '24px',
+        }),
+        valueContainer: (base) => ({
+          ...base,
+          padding: 0,
+          margin: 0,
+          justifyContent: 'center',
+        }),
+        indicatorsContainer: (base) => ({
+          ...base,
+          padding: 0,
+          margin: 0,
+        }),
+        dropdownIndicator: (base) => ({
+          ...base,
+          padding: '2px',
+          color: 'rgba(255, 255, 255, 0.4)',
+          '&:hover': {
+            color: 'rgba(255, 255, 255, 0.8)',
+          }
+        }),
+        indicatorSeparator: () => ({
+          display: 'none'
+        }),
+        menu: (base) => ({
+          ...base,
+          backgroundColor: '#0d0d0d',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '4px',
+          zIndex: 60,
+          width: '240px',
+        }),
+        menuList: (base) => ({
+          ...base,
+          maxHeight: '180px',
+          overflowY: 'auto',
+          '&::-webkit-scrollbar': {
+            width: '4px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '2px',
+          },
+        }),
+        option: (base, state) => ({
+          ...base,
+          backgroundColor: state.isFocused ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+          color: state.isFocused ? '#FFE600' : 'rgba(255, 255, 255, 0.6)',
+          cursor: 'pointer',
+          padding: '8px 12px',
+          '&:active': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          }
+        }),
+        input: (base) => ({
+          ...base,
+          color: '#fff',
+          margin: 0,
+          padding: 0,
+        }),
+        singleValue: (base) => ({
+          ...base,
+          margin: 0,
+          padding: 0,
+        })
+      }}
+    />
+  )
+}
+
 
 const CheckoutConveyor = dynamic(() => import('@/components/CheckoutConveyor').then(mod => mod.CheckoutConveyor), {
   ssr: false,
@@ -264,6 +396,10 @@ export default function CheckoutPage() {
     zip: '',
     country: 'India'
   })
+  const currentCountryCode = React.useMemo(() => {
+    const opt = countryOptions.find(o => o.label.toLowerCase() === billingDetails.country.toLowerCase())
+    return opt?.value
+  }, [billingDetails.country, countryOptions])
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [newsletterOptIn, setNewsletterOptIn] = useState(false)
   const router = useRouter()
@@ -364,7 +500,7 @@ export default function CheckoutPage() {
 
   // Effect to load PayPal SDK
   useEffect(() => {
-    if (currency === 'USD' && activeTotal > 0 && user) {
+    if (currency === 'USD' && activeTotal > 0) {
       const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
       if (!clientId) {
         setError('PayPal Client ID is not configured.')
@@ -379,7 +515,7 @@ export default function CheckoutPage() {
         }
       })
     }
-  }, [currency, activeTotal, user])
+  }, [currency, activeTotal])
 
   // Effect to render/re-render PayPal buttons (Only when loading status, currency, total eligibility, or user shifts)
   useEffect(() => {
@@ -396,6 +532,20 @@ export default function CheckoutPage() {
             color: 'gold',
             shape: 'rect',
             label: 'pay'
+          },
+          onClick: function (data: any, actions: any) {
+            if (!user) {
+              router.push('/auth?next=/checkout')
+              return actions.reject()
+            }
+            if (!validateForm(billingDetailsRef.current)) {
+              const billingSection = document.getElementById('billing-details-section')
+              if (billingSection) {
+                billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+              return actions.reject()
+            }
+            return actions.resolve()
           },
           createOrder: async function (data: any, actions: any) {
             setError('')
@@ -600,9 +750,16 @@ export default function CheckoutPage() {
   }, [items])
 
   const handleBillingChange = (field: string, value: string) => {
-    const updated = { ...billingDetails, [field]: value }
-    setBillingDetails(updated)
-    localStorage.setItem('billing_details', JSON.stringify(updated))
+    setBillingDetails(prev => {
+      if (field === 'country') {
+        if (prev.country.toLowerCase() === value.toLowerCase()) return prev
+      } else {
+        if (prev[field as keyof typeof prev] === value) return prev
+      }
+      const updated = { ...prev, [field]: value }
+      localStorage.setItem('billing_details', JSON.stringify(updated))
+      return updated
+    })
 
     // Clear error for this field as user types
     if (formErrors[field]) {
@@ -1020,7 +1177,16 @@ export default function CheckoutPage() {
                     <div className="phone-input-container">
                       <PhoneInput
                         international
-                        defaultCountry={currency === 'USD' ? undefined : 'IN'}
+                        country={currentCountryCode as any}
+                        countrySelectComponent={CustomCountrySelect}
+                        onCountryChange={(countryCode) => {
+                          if (countryCode) {
+                            const option = countryOptions.find(opt => opt.value === countryCode)
+                            if (option && billingDetails.country.toLowerCase() !== option.label.toLowerCase()) {
+                              handleBillingChange('country', option.label)
+                            }
+                          }
+                        }}
                         placeholder="PHONE"
                         value={billingDetails.phone}
                         onChange={(val) => handleBillingChange('phone', val || '')}
@@ -1080,8 +1246,10 @@ export default function CheckoutPage() {
                     <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Country</label>
                     <Select
                       options={countryOptions}
-                      value={countryOptions.find(opt => opt.label === billingDetails.country)}
+                      value={countryOptions.find(opt => opt.label.toLowerCase() === billingDetails.country.toLowerCase()) || null}
                       onChange={(val: any) => handleBillingChange('country', val?.label || '')}
+                      onMenuOpen={() => { document.body.style.overflow = 'hidden' }}
+                      onMenuClose={() => { document.body.style.overflow = '' }}
                       placeholder="SELECT COUNTRY"
                       className="react-select-container"
                       classNamePrefix="react-select"
