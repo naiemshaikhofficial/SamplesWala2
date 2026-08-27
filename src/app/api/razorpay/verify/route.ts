@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { generateInvoicePDF } from '@/lib/invoice'
 import { sendInvoiceEmail } from '@/lib/emails'
@@ -19,24 +20,71 @@ export async function POST(request: Request) {
       couponCode
     } = body
 
-    // 1. Verify Payment OR Verify Free Order
-    if (!isFree) {
-        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-            return NextResponse.json({ error: 'Missing payment details' }, { status: 400 })
-        }
-        const text = razorpay_order_id + "|" + razorpay_payment_id
-        const expectedSignature = crypto
-        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
-        .update(text.toString())
-        .digest("hex")
-
-        if (expectedSignature !== razorpay_signature) {
-            return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
-        }
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: 'Cart is empty or invalid' }, { status: 400 })
     }
 
-    // 2. Fetch item details for the vault entry
+    // 0. SECURITY HARDENING: Session Cookie User Authentication
+    const supabase = await createClient()
+    const { data: { user: sessionUser } } = await supabase.auth.getUser()
+    const targetUserId = sessionUser?.id || userId
+
+    if (!targetUserId) {
+      return NextResponse.json({ error: 'User authentication required' }, { status: 401 })
+    }
+
     const admin = getAdminClient()
+
+    // 1. SECURITY HARDENING: Cryptographic Signature & Replay Attack Defense
+    if (!isFree) {
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return NextResponse.json({ error: 'Missing payment verification details' }, { status: 400 })
+      }
+
+      const keySecret = process.env.RAZORPAY_KEY_SECRET
+      if (!keySecret) {
+        return NextResponse.json({ error: 'Server payment configuration missing' }, { status: 500 })
+      }
+
+      const text = `${razorpay_order_id}|${razorpay_payment_id}`
+      const expectedSignature = crypto
+        .createHmac('sha256', keySecret)
+        .update(text)
+        .digest('hex')
+
+      // Timing-Safe HMAC comparison
+      const isSignatureValid =
+        expectedSignature.length === razorpay_signature.length &&
+        crypto.timingSafeEqual(
+          Buffer.from(expectedSignature, 'utf-8'),
+          Buffer.from(razorpay_signature, 'utf-8')
+        )
+
+      if (!isSignatureValid) {
+        console.error('[SECURITY_ALERT] Invalid Razorpay signature attempt:', {
+          razorpay_order_id,
+          razorpay_payment_id,
+          targetUserId,
+        })
+        return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
+      }
+
+      // Replay Attack Protection: Check if razorpay_payment_id has already been processed
+      const { data: existingEntry } = await admin
+        .from('user_vault')
+        .select('id')
+        .eq('razorpay_payment_id', razorpay_payment_id)
+        .limit(1)
+
+      if (existingEntry && existingEntry.length > 0) {
+        return NextResponse.json(
+          { error: 'This transaction has already been processed' },
+          { status: 409 }
+        )
+      }
+    }
+
+    // 2. Fetch item details for the vault entry from Database
     const packIds = items.filter((i: any) => i.type === 'pack').map((i: any) => i.id)
     const presetIds = items.filter((i: any) => i.type === 'preset').map((i: any) => i.id)
 
@@ -98,8 +146,16 @@ export async function POST(request: Request) {
 
     const serverVerifiedTotal = Math.max(0, subtotalAfterBundle - couponDiscountAmount)
 
+    // SECURITY HARDENING: Strict Anti-Free Order Spoofing
     if (isFree && serverVerifiedTotal > 0) {
-        return NextResponse.json({ error: "Invalid free order" }, { status: 400 })
+      console.error('[SECURITY_ALERT] Attempted free order spoofing on paid cart:', {
+        targetUserId,
+        serverVerifiedTotal,
+      })
+      return NextResponse.json(
+        { error: 'Security verification failed: Cannot checkout paid products as free.' },
+        { status: 403 }
+      )
     }
 
     // Generate internal IDs for free orders to avoid "undefined" in logs and invoices
@@ -131,7 +187,7 @@ export async function POST(request: Request) {
       }
 
       return {
-        user_id: userId,
+        user_id: targetUserId,
         item_id: item.id,
         item_type: item.type,
         item_name: dbItem?.name || 'Unknown Item',
@@ -167,7 +223,7 @@ export async function POST(request: Request) {
           .from('coupon_usages')
           .insert({
             coupon_id: coupon.id,
-            user_id: userId,
+            user_id: targetUserId,
             order_id: finalOrderId
           })
       }
@@ -178,7 +234,7 @@ export async function POST(request: Request) {
       const { error: accountError } = await admin
         .from('user_accounts')
         .upsert({
-          user_id: userId,
+          user_id: targetUserId,
           full_name: billingDetails.fullName,
           phone_number: billingDetails.phone,
           address_line1: billingDetails.address,
@@ -196,7 +252,7 @@ export async function POST(request: Request) {
 
     // 5. Send Invoice (Async)
     try {
-      const { data: { user }, error: userError } = await admin.auth.admin.getUserById(userId)
+      const { data: { user }, error: userError } = await admin.auth.admin.getUserById(targetUserId)
       
       if (user && user.email) {
         const invoiceItems = items.map((item: any) => {

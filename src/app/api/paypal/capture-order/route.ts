@@ -164,6 +164,20 @@ export async function POST(request: Request) {
     const finalOrderId = orderId
     const finalPaymentId = capture?.id || `PAY_PP_${orderId}`
 
+    // SECURITY HARDENING: Replay Attack Protection for PayPal
+    const { data: existingPayPalEntry } = await admin
+      .from('user_vault')
+      .select('id')
+      .eq('razorpay_payment_id', finalPaymentId)
+      .limit(1)
+
+    if (existingPayPalEntry && existingPayPalEntry.length > 0) {
+      return NextResponse.json(
+        { error: 'This transaction has already been processed' },
+        { status: 409 }
+      )
+    }
+
     // 4. Add to User Vault (with discounted item prices)
     let calculatedSum = 0
     const vaultEntries = items.map((item: any, index: number) => {
