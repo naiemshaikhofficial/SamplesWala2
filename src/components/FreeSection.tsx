@@ -3,8 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { Gift, ArrowRight } from 'lucide-react'
 
 interface FreeSectionProps {
   packs: any[]
@@ -21,124 +20,89 @@ export function FreeSection({ packs = [], presets = [] }: FreeSectionProps) {
     ...presets.map(pr => ({ ...pr, itemType: 'preset' }))
   ]
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08
-      }
-    }
-  }
-
-  const itemAnim = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-  }
-
   return (
-    <section className="py-20 bg-[#0c0c0e] border-b-4 border-black select-none relative">
+    <section className="py-12 sm:py-16 overflow-hidden select-none">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6 border-b-2 border-white/10 pb-6">
-          <div className="space-y-2">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-[#00FF94]">
-              FREE CATALOG
-            </span>
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-white">
-              FREE <span className="text-studio-yellow">SOUNDS &amp; PACKS</span>
-            </h2>
-            <p className="text-xs sm:text-sm font-medium text-white/50 max-w-xl">
-              Indian rhythm loops, one-shots, and producer presets. Royalty-free for commercial music production.
-            </p>
-          </div>
+        {/* Outer Epic Games Container Box (Producer Toy + SamplesWala Theme) */}
+        <div className="w-full bg-[#18181c] border border-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-7 md:p-9 shadow-2xl relative">
+          
+          {/* Section Header: Gift Icon + Free Sounds & Packs + View More */}
+          <div className="flex items-center justify-between mb-6 sm:mb-8 pb-5 border-b border-white/5">
+            <div className="flex items-center gap-2.5 sm:gap-3.5">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#00FF94] flex-shrink-0">
+                <Gift className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2]" />
+              </div>
+              <div>
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#00FF94]">
+                  Weekly Free Drops
+                </span>
+                <h2 className="text-lg sm:text-2xl font-black uppercase italic tracking-tight text-white leading-tight">
+                  Free Sounds &amp; Packs
+                </h2>
+              </div>
+            </div>
 
-          <div className="flex items-center">
+            {/* View More Bordered Action Button */}
             <Link
               href="/free"
-              className="px-5 py-2.5 bg-white hover:bg-studio-yellow text-black text-xs font-black uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_black] hover:shadow-[6px_6px_0px_black] hover:-translate-y-0.5 transition-all flex items-center gap-2 group"
+              prefetch={true}
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-white hover:text-[#00FF94] bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00FF94] rounded-lg transition-all inline-flex items-center gap-1.5 active:scale-95"
             >
-              <span>Explore All Freebies</span>
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              <span>View More</span>
+              <ArrowRight size={14} />
             </Link>
           </div>
-        </div>
 
-        {/* Free Items Grid */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
-        >
-          {allFreeItems.map((item) => {
-            const isPack = item.itemType === 'pack'
-            const detailUrl = isPack ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`
+          {/* 4 Cards Grid (Producer Toy 1:1 Match with Flush Bottom Bar) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5 lg:gap-6">
+            {allFreeItems.slice(0, 4).map((item) => {
+              const isPack = item.itemType === 'pack'
+              const detailUrl = isPack ? `/packs/${item.slug}` : `/browse/presets/${item.slug}`
 
-            return (
-              <motion.div
-                key={item.id}
-                variants={itemAnim}
-                className="group flex flex-col justify-between bg-[#141417] border-2 border-black hover:border-white/30 shadow-[4px_4px_0px_black] hover:shadow-[6px_6px_0px_black] transition-all rounded-lg overflow-hidden"
-              >
-                {/* Thumbnail Cover */}
-                <Link href={detailUrl} className="relative aspect-square overflow-hidden bg-black/60 block">
-                  <Image
-                    src={item.cover_url || '/placeholder.jpg'}
-                    alt={item.name}
-                    fill
-                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-50 group-hover:opacity-20 transition-opacity" />
+              return (
+                <Link
+                  key={item.id}
+                  href={detailUrl}
+                  prefetch={true}
+                  className="group flex flex-col select-none cursor-pointer"
+                >
+                  {/* Poster/Square Image Container */}
+                  <div className="relative w-full aspect-square rounded-t-lg sm:rounded-t-xl overflow-hidden bg-[#202024] border-t border-x border-[#2c2c30]">
+                    <Image
+                      src={item.cover_url || '/placeholder.jpg'}
+                      alt={item.name}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover object-center group-hover:scale-105 group-hover:brightness-110 transition-all duration-300 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 
-                  {/* Clean Subtle Type Badge */}
-                  <div className="absolute top-2.5 left-2.5">
-                    <span className="bg-black/90 text-white font-mono text-[8px] font-bold uppercase px-2 py-0.5 border border-white/20 rounded">
-                      {isPack ? 'Sample Pack' : (item.type || 'Preset')}
-                    </span>
+                    {/* Subtle Corner Badge */}
+                    <div className="absolute top-2.5 left-2.5 bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase text-white/80 border border-white/10">
+                      {isPack ? 'Pack' : (item.type || 'Preset')}
+                    </div>
+                  </div>
+
+                  {/* Flush Bottom Action Bar (Producer Toy Style FREE NOW) */}
+                  <div className="bg-[#00FF94] group-hover:bg-[#00e685] text-black font-black text-[10px] sm:text-[11px] py-1.5 px-2 text-center uppercase tracking-wider rounded-b-lg sm:rounded-b-xl shadow-md transition-colors">
+                    FREE NOW
+                  </div>
+
+                  {/* Product Details Below Card */}
+                  <div className="flex flex-col mt-2.5 px-0.5 space-y-0.5">
+                    <h3 className="font-bold text-white group-hover:text-studio-yellow text-xs sm:text-[14px] tracking-tight leading-snug line-clamp-1 transition-colors">
+                      {item.name}
+                    </h3>
+                    <p className="text-[10px] sm:text-[11px] text-white/40 font-normal truncate">
+                      {item.total_contents_summary || (isPack ? 'Free Sample Pack' : 'Free Preset')}
+                    </p>
                   </div>
                 </Link>
+              )
+            })}
+          </div>
 
-                {/* Card Details */}
-                <div className="p-3.5 flex flex-col flex-grow justify-between gap-3">
-                  <div className="space-y-1">
-                    <Link href={detailUrl}>
-                      <h3 className="text-xs sm:text-sm font-black uppercase text-white hover:text-studio-yellow transition-colors line-clamp-1 italic tracking-tight">
-                        {item.name}
-                      </h3>
-                    </Link>
-
-                    {item.total_contents_summary ? (
-                      <p className="text-[9px] font-mono text-white/40 uppercase tracking-wider truncate">
-                        {item.total_contents_summary}
-                      </p>
-                    ) : (
-                      <p className="text-[9px] font-mono text-white/30 uppercase tracking-wider">
-                        {isPack ? 'Free Sound Kit' : 'Free Preset'}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Price & Action Row */}
-                  <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
-                    <span className="text-sm sm:text-base font-black text-[#00FF94] font-mono italic">
-                      FREE
-                    </span>
-
-                    <Link
-                      href={detailUrl}
-                      className="px-3 py-1.5 bg-white hover:bg-studio-yellow text-black font-black uppercase text-[9px] tracking-wider rounded border border-black shadow-[2px_2px_0px_black] active:scale-95 transition-all"
-                    >
-                      Get Free
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

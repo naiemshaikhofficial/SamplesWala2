@@ -321,3 +321,49 @@ export function generateBlogStructuredData(post: any, slug: string) {
     },
   }
 }
+
+export function generateFreeCollectionStructuredData(items: any[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Free Sample Packs, Drum Kits & Sounds (2026) — Royalty-Free | SamplesWala',
+    description: 'Download free sample packs, drum kits, rhythm loops, and presets for music producers worldwide. 100% royalty-free for commercial use on Spotify, YouTube & film scores.',
+    url: 'https://sampleswala.com/free',
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        item: {
+          '@type': 'Product',
+          name: item.name,
+          url: `https://sampleswala.com/${item.itemType === 'pack' ? 'packs' : 'browse/presets'}/${item.slug}`,
+          image: item.cover_url || 'https://sampleswala.com/og-image.jpg',
+          description: item.total_contents_summary || item.description || `${item.name} - Free download for music producers.`,
+          offers: {
+            '@type': 'Offer',
+            price: '0.00',
+            priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
+          },
+        },
+      })),
+    },
+  }
+}
+
+export function generateFaqStructuredData(faqs: { q: string; a: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a,
+      },
+    })),
+  }
+}
+
