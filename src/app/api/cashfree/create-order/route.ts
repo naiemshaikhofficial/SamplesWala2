@@ -80,7 +80,12 @@ export async function POST(request: Request) {
 
     // 3. Generate Unique Order ID (Max 45 chars for Cashfree alphanumeric constraint)
     const orderId = `sw_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sampleswala.com'
+    
+    // Cashfree Production strictly requires HTTPS return_url
+    let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sampleswala.com'
+    if (!siteUrl.startsWith('https://')) {
+      siteUrl = 'https://sampleswala.com'
+    }
 
     // Customer details resolution
     const customerName =

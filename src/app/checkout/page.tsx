@@ -951,13 +951,26 @@ export default function CheckoutPage() {
       })
 
       // 3. Trigger seamless modal checkout
-      await cashfree.checkout({
+      setLoading(false)
+
+      const checkoutResult = await cashfree.checkout({
         paymentSessionId: orderData.payment_session_id,
         redirectTarget: '_modal'
       })
 
+      if (checkoutResult?.error) {
+        console.log('[PAYMENT_MODAL_DISMISSED_OR_ERROR]', checkoutResult.error)
+        setLoading(false)
+        return
+      }
+
+      if (checkoutResult?.redirect) {
+        return
+      }
+
       // 4. Verify payment with server directly
       setPaymentStatus('processing')
+      setLoading(true)
       const verifyRes = await fetch('/api/cashfree/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
