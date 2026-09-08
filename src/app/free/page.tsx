@@ -31,23 +31,15 @@ export const metadata = generatePageMetadata({
 const GLOBAL_FREE_FAQS = [
   {
     q: 'Are all sample packs on SamplesWala 100% royalty-free for commercial use?',
-    a: 'Yes! Every free sample pack, drum kit, rhythm loop, and preset downloaded from SamplesWala is 100% royalty-free. You can use them freely in commercial music releases on Spotify, Apple Music, YouTube monetization, BeatStars beat sales, TV/film sync, and radio broadcasts without paying any royalties or license fees.',
+    a: 'Yes! Every free sample pack, drum kit, rhythm loop, and preset downloaded from SamplesWala is 100% royalty-free for commercial music releases on Spotify, Apple Music, YouTube monetization, and beat sales with zero royalties or license fees.',
   },
   {
-    q: 'Which DAWs (Digital Audio Workstations) are compatible with these free sounds?',
-    a: 'All audio samples are delivered in industry-standard 24-bit 44.1kHz WAV format, universally compatible with FL Studio, Ableton Live, Logic Pro, Cubase, Studio One, Pro Tools, Reaper, Bitwig Studio, GarageBand, and all major mobile & desktop DAWs.',
+    q: 'Which DAWs are compatible with these free sounds?',
+    a: 'All audio samples are delivered in industry-standard 24-bit 44.1kHz WAV format, universally compatible with FL Studio, Ableton Live, Logic Pro, Cubase, Studio One, Pro Tools, and Reaper.',
   },
   {
     q: 'Do I have to give copyright credit or attribution?',
     a: 'No copyright attribution is legally required. You keep 100% of your master rights, streaming royalties, and publishing revenue generated from your tracks.',
-  },
-  {
-    q: 'What music genres are covered in the free sound library?',
-    a: 'Our catalog features global Hip-Hop, Trap, UK Drill, Indian Street Rhythms, Desi Hip-Hop, Afrobeat, EDM, Lo-Fi, Cinematic Percussion, and FL Studio/Serum mixing presets.',
-  },
-  {
-    q: 'How do I download and claim free sample packs?',
-    a: 'Simply click on any sound kit or preset to open its page, then tap "Claim Free Download". You will receive an instant direct download link, and the pack will automatically sync to your SamplesWala cloud library for lifetime access.',
   },
 ]
 
@@ -61,14 +53,14 @@ export default async function FreePage() {
 
   const breadcrumbs = generateBreadcrumbData([
     { name: 'Home', item: 'https://sampleswala.com' },
-    { name: 'Free Sounds & Sample Packs', item: 'https://sampleswala.com/free' },
+    { name: 'Free Sounds', item: 'https://sampleswala.com/free' },
   ])
 
   const collectionSchema = generateFreeCollectionStructuredData(allItems)
   const faqSchema = generateFaqStructuredData(GLOBAL_FREE_FAQS)
 
   return (
-    <div className="w-full bg-[#0d0d10] min-h-screen text-white select-none pb-20">
+    <div className="container mx-auto px-4 py-12 md:py-16 space-y-10 select-none">
       {/* Google SEO JSON-LD Schemas */}
       <script
         type="application/ld+json"
@@ -83,9 +75,18 @@ export default async function FreePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
-        <FreeClient initialPacks={packs} initialPresets={presets} faqs={GLOBAL_FREE_FAQS} />
-      </main>
+      {/* Clean Minimalist Header */}
+      <div className="flex flex-col items-center text-center border-b border-white/5 pb-8 space-y-2">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tighter italic">
+          Free <span className="text-studio-yellow">Sounds.</span>
+        </h1>
+        <p className="text-[11px] sm:text-xs font-bold text-white/40 uppercase tracking-[0.25em]">
+          100% Royalty-Free Sample Packs, Loops &amp; Presets Worldwide
+        </p>
+      </div>
+
+      {/* Client Component */}
+      <FreeClient initialPacks={packs} initialPresets={presets} />
     </div>
   )
 }
