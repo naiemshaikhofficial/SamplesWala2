@@ -1585,57 +1585,26 @@ export default function CheckoutPage() {
                     ) : (
                       <div className="space-y-4">
                         {!showRazorpayFallback ? (
-                          /* 1. DEFAULT DOMESTIC MODE: SamplesWala Pay ONLY */
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <label className="text-[9px] font-black uppercase tracking-wider text-white/70 block ml-0.5">
-                                Payment Method
-                              </label>
-                              <span className="text-[8px] font-black text-studio-neon uppercase tracking-widest flex items-center gap-1">
-                                <ShieldCheck size={11} className="text-studio-neon" /> 256-Bit SSL Encrypted
-                              </span>
-                            </div>
-
-                            <div className="p-3.5 rounded-sm border-2 border-studio-yellow bg-studio-yellow/10 shadow-[3px_3px_0px_#FFE600] relative overflow-hidden select-none">
-                              <div className="flex items-center justify-between mb-1.5">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-3.5 h-3.5 rounded-full border-2 border-studio-yellow flex items-center justify-center">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-studio-yellow" />
-                                  </div>
-                                  <span className="text-[12px] font-black uppercase tracking-wider text-white">
-                                    SamplesWala Pay
-                                  </span>
-                                </div>
-                                <span className="text-[7.5px] font-black bg-studio-yellow text-black px-2 py-0.5 rounded-xs uppercase tracking-wider">
-                                  ⚡ INSTANT &amp; SECURE
-                                </span>
+                          <button
+                            onClick={handleCashfreeCheckout}
+                            disabled={loading || paymentStatus === 'processing'}
+                            className="w-full h-12 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
+                          >
+                            {loading ? (
+                              <div className="flex items-center gap-2">
+                                <Loader2 className="animate-spin" size={14} />
+                                <span>Processing...</span>
                               </div>
-                              <p className="text-[8.5px] text-neutral-300 font-bold uppercase tracking-wider ml-5.5">
-                                UPI (Google Pay, PhonePe, Paytm, BHIM), Debit &amp; Credit Cards, NetBanking
-                              </p>
-                            </div>
-
-                            <button
-                              onClick={handleCashfreeCheckout}
-                              disabled={loading || paymentStatus === 'processing'}
-                              className="w-full h-12 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
-                            >
-                              {loading ? (
-                                <div className="flex items-center gap-2">
-                                  <Loader2 className="animate-spin" size={14} />
-                                  <span>Securing Payment Session...</span>
+                            ) : (
+                              <>
+                                <Zap size={14} className="fill-black animate-pulse" />
+                                <span>Pay — ₹{total - activeCouponDiscount}</span>
+                                <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                                  <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
                                 </div>
-                              ) : (
-                                <>
-                                  <Zap size={14} className="fill-black animate-pulse" />
-                                  <span>Pay with SamplesWala Pay — ₹{total - activeCouponDiscount}</span>
-                                  <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
-                                    <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
-                                  </div>
-                                </>
-                              )}
-                            </button>
-                          </div>
+                              </>
+                            )}
+                          </button>
                         ) : (
                           /* 2. FALLBACK MODE: Activated ONLY when Cashfree fails */
                           <div className="space-y-3">
@@ -1682,7 +1651,7 @@ export default function CheckoutPage() {
                               }}
                               className="w-full text-center text-[8.5px] font-black text-neutral-400 hover:text-white uppercase tracking-wider py-1 underline cursor-pointer"
                             >
-                              Retry Primary Gateway (SamplesWala Pay)
+                              Retry Payment
                             </button>
                           </div>
                         )}
@@ -1847,12 +1816,12 @@ export default function CheckoutPage() {
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="animate-spin" size={13} />
-                    <span>Securing Session...</span>
+                    <span>Processing...</span>
                   </div>
                 ) : (
                   <>
                     <Zap size={14} className="fill-black shrink-0" />
-                    <span>Pay with SamplesWala Pay — ₹{total - activeCouponDiscount}</span>
+                    <span>Pay — ₹{total - activeCouponDiscount}</span>
                     <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
                       <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
                     </div>
@@ -1879,7 +1848,7 @@ export default function CheckoutPage() {
                           className="object-contain"
                         />
                       </div>
-                      <span>Pay via Backup (Razorpay) — ₹{total - activeCouponDiscount}</span>
+                      <span>Pay via Backup Gateway — ₹{total - activeCouponDiscount}</span>
                     </>
                   )}
                 </button>
@@ -1891,7 +1860,7 @@ export default function CheckoutPage() {
                   }}
                   className="w-full text-center text-[8px] font-black text-neutral-400 hover:text-white uppercase tracking-wider py-0.5 underline cursor-pointer"
                 >
-                  Retry SamplesWala Pay
+                  Retry Payment
                 </button>
               </div>
             )}
