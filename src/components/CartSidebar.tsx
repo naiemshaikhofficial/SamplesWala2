@@ -13,10 +13,10 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
   const router = useRouter()
   const { currency, formatPrice, getAmount } = useCurrency()
 
-  const hasFreeItem = items.some(item => getAmount(item.price, item.price_usd) === 0)
   const paidItems = items.filter(item => getAmount(item.price, item.price_usd) > 0)
+  const paidSubtotalNum = paidItems.reduce((acc, item) => acc + getAmount(item.price, item.price_usd), 0)
   const subtotalNum = items.reduce((acc, item) => acc + getAmount(item.price, item.price_usd), 0)
-  const discountNum = (!hasFreeItem && paidItems.length >= 3) ? Math.round(subtotalNum * 0.1 * 100) / 100 : 0
+  const discountNum = paidItems.length >= 3 ? Math.round(paidSubtotalNum * 0.1 * 100) / 100 : 0
   const totalNum = Math.max(0, subtotalNum - discountNum)
 
   const displaySubtotal = currency === 'INR' ? `₹${Math.round(subtotalNum)}` : `$${subtotalNum.toFixed(2)}`
@@ -90,8 +90,8 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
             </div>
           ) : (
             <div className="space-y-10">
-              {/* Bundle Builder Progress - Slim Version (Only for paid carts without free items) */}
-              {!hasFreeItem && paidItems.length > 0 && paidItems.length < 3 ? (
+              {/* Bundle Builder Progress - Slim Version */}
+              {paidItems.length < 3 ? (
                 <div className="bg-studio-charcoal/50 p-3 border-2 border-black border-dashed relative overflow-hidden group/bundle">
                   <div className="absolute -right-4 -top-4 w-12 h-12 bg-studio-blue/5 rounded-full blur-2xl group-hover/bundle:bg-studio-blue/10 transition-all duration-700" />
                   
@@ -105,42 +105,46 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                     <div 
                       className="absolute top-0 left-0 h-full transition-all duration-1000 ease-out"
                       style={{ 
-                        width: `${(paidItems.length / 3) * 100}%`,
+                        width: `${paidItems.length > 0 ? (paidItems.length / 3) * 100 : 0}%`,
                         background: 'linear-gradient(180deg, #00E0FF 0%, #0077B6 100%)'
                       }}
                     >
                       {/* Rounded Liquid Front (Seamless Bulb - Background Layer) */}
-                      <div 
-                        className="absolute right-[-12px] top-0 h-full w-10 rounded-full animate-wave-push"
-                        style={{ background: 'linear-gradient(180deg, #00E0FF 0%, #0077B6 100%)' }}
-                      />
+                      {paidItems.length > 0 && (
+                        <div 
+                          className="absolute right-[-12px] top-0 h-full w-10 rounded-full animate-wave-push"
+                          style={{ background: 'linear-gradient(180deg, #00E0FF 0%, #0077B6 100%)' }}
+                        />
+                      )}
 
                       {/* Flowing Bubbles (Randomized & Pre-Started Flow) */}
-                      <div className="absolute inset-0 overflow-visible z-10">
-                        {/* Main Bubbles with negative delays to start mid-flow */}
-                        <div className="w-2 h-2 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.5s', animationDuration: '3.2s', top: '15%' }} />
-                        <div className="w-1.5 h-1.5 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.2s', animationDuration: '4.5s', top: '55%' }} />
-                        <div className="w-1 h-1 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.1s', animationDuration: '3.8s', top: '75%' }} />
-                        <div className="w-2.2 h-2.2 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.8s', animationDuration: '5.2s', top: '25%' }} />
-                        <div className="w-1.2 h-1.2 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-3.4s', animationDuration: '4.1s', top: '65%' }} />
-                        <div className="w-1.8 h-1.8 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.8s', animationDuration: '3.5s', top: '40%' }} />
-                        <div className="w-0.8 h-0.8 bg-white border border-white/30 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.5s', animationDuration: '4.8s', top: '85%' }} />
-                        <div className="w-1.5 h-1.5 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.2s', animationDuration: '3.9s', top: '10%' }} />
-                        <div className="w-2 h-2 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.1s', animationDuration: '4.3s', top: '50%' }} />
-                        <div className="w-1.4 h-1.4 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.8s', animationDuration: '5.5s', top: '30%' }} />
+                      {paidItems.length > 0 && (
+                        <div className="absolute inset-0 overflow-visible z-10">
+                          {/* Main Bubbles with negative delays to start mid-flow */}
+                          <div className="w-2 h-2 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.5s', animationDuration: '3.2s', top: '15%' }} />
+                          <div className="w-1.5 h-1.5 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.2s', animationDuration: '4.5s', top: '55%' }} />
+                          <div className="w-1 h-1 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.1s', animationDuration: '3.8s', top: '75%' }} />
+                          <div className="w-2.2 h-2.2 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.8s', animationDuration: '5.2s', top: '25%' }} />
+                          <div className="w-1.2 h-1.2 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-3.4s', animationDuration: '4.1s', top: '65%' }} />
+                          <div className="w-1.8 h-1.8 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.8s', animationDuration: '3.5s', top: '40%' }} />
+                          <div className="w-0.8 h-0.8 bg-white border border-white/30 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.5s', animationDuration: '4.8s', top: '85%' }} />
+                          <div className="w-1.5 h-1.5 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.2s', animationDuration: '3.9s', top: '10%' }} />
+                          <div className="w-2 h-2 bg-white border border-white/20 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.1s', animationDuration: '4.3s', top: '50%' }} />
+                          <div className="w-1.4 h-1.4 bg-white border border-white/10 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.8s', animationDuration: '5.5s', top: '30%' }} />
 
-                        {/* Extra Buddy Bubbles with negative delays */}
-                        <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.4s', animationDuration: '2.5s', top: '20%' }} />
-                        <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.1s', animationDuration: '3.1s', top: '45%' }} />
-                        <div className="w-0.7 h-0.7 bg-white/90 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.7s', animationDuration: '2.8s', top: '70%' }} />
-                        <div className="w-0.4 h-0.4 bg-white/70 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.9s', animationDuration: '3.4s', top: '12%' }} />
-                        <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.2s', animationDuration: '2.9s', top: '62%' }} />
-                        <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.3s', animationDuration: '3.2s', top: '38%' }} />
-                        <div className="w-0.7 h-0.7 bg-white/90 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.4s', animationDuration: '2.6s', top: '82%' }} />
-                        <div className="w-0.4 h-0.4 bg-white/70 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.1s', animationDuration: '3.0s', top: '28%' }} />
-                        <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.9s', animationDuration: '2.7s', top: '52%' }} />
-                        <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.6s', animationDuration: '3.3s', top: '18%' }} />
-                      </div>
+                          {/* Extra Buddy Bubbles with negative delays */}
+                          <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.4s', animationDuration: '2.5s', top: '20%' }} />
+                          <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.1s', animationDuration: '3.1s', top: '45%' }} />
+                          <div className="w-0.7 h-0.7 bg-white/90 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.7s', animationDuration: '2.8s', top: '70%' }} />
+                          <div className="w-0.4 h-0.4 bg-white/70 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.9s', animationDuration: '3.4s', top: '12%' }} />
+                          <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.2s', animationDuration: '2.9s', top: '62%' }} />
+                          <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.3s', animationDuration: '3.2s', top: '38%' }} />
+                          <div className="w-0.7 h-0.7 bg-white/90 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.4s', animationDuration: '2.6s', top: '82%' }} />
+                          <div className="w-0.4 h-0.4 bg-white/70 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-0.1s', animationDuration: '3.0s', top: '28%' }} />
+                          <div className="w-0.6 h-0.6 bg-white/80 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-1.9s', animationDuration: '2.7s', top: '52%' }} />
+                          <div className="w-0.5 h-0.5 bg-white/60 rounded-full animate-bubble-flow absolute" style={{ animationDelay: '-2.6s', animationDuration: '3.3s', top: '18%' }} />
+                        </div>
+                      )}
 
                       {/* Liquid Glow Highlight (Very Top) */}
                       <div className="absolute right-0 top-0 h-full w-6 bg-gradient-to-r from-transparent to-white/20 blur-sm pointer-events-none z-20" />
@@ -150,7 +154,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                     <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
                   </div>
                 </div>
-              ) : (!hasFreeItem && paidItems.length >= 3) ? (
+              ) : (
                 <div className="relative">
                   <div className="bg-studio-pink p-4 border-4 border-black shadow-[6px_6px_0px_black] -rotate-1 animate-in zoom-in duration-300">
                     <div className="flex items-center gap-3">
@@ -164,7 +168,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                   </div>
                   <div className="absolute -top-2 -right-2 w-4 h-4 bg-studio-yellow border-2 border-black rotate-45 animate-ping" />
                 </div>
-              ) : null}
+              )}
 
               <div className="space-y-8">
                 {items.map((item) => (

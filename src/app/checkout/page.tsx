@@ -698,7 +698,7 @@ export default function CheckoutPage() {
 
                 setPaymentStatus('success')
                 clearCart()
-                router.push('/library')
+                router.push(`/thank-you?order_id=${verifyData.orderId || data.orderID}`)
               } else {
                 setError(verifyData.error || 'Verification failed')
                 setPaymentStatus('idle')
@@ -1021,6 +1021,7 @@ export default function CheckoutPage() {
         sessionStorage.removeItem('pending_cf_checkout')
         setPaymentStatus('success')
         clearCart()
+        router.push(`/thank-you?order_id=${verifyData.orderId || orderData.order_id}`)
 
         // Background profile sync (non-blocking for instant UI feedback)
         supabase.auth.updateUser({
@@ -1083,6 +1084,7 @@ export default function CheckoutPage() {
         })
 
         if (verifyRes.ok) {
+          const verifyData = await verifyRes.json()
           try {
             await supabase
               .from('user_accounts')
@@ -1092,7 +1094,7 @@ export default function CheckoutPage() {
             console.error('Failed to update newsletter status:', e)
           }
           clearCart()
-          router.push('/library?success=true')
+          router.push(`/thank-you?order_id=${verifyData.orderId || 'SW_FREE'}&free=true`)
         } else {
           const err = await verifyRes.json()
           setError(err.error || 'Checkout failed')
@@ -1180,9 +1182,10 @@ export default function CheckoutPage() {
                 console.error('Failed to update newsletter status:', e)
               }
 
+              const verifyData = await verifyRes.json()
               setPaymentStatus('success')
               clearCart()
-              router.push('/library')
+              router.push(`/thank-you?order_id=${verifyData.orderId || response.razorpay_order_id}`)
             } else {
               setError('Verification failed')
               setPaymentStatus('idle')

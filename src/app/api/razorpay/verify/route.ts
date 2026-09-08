@@ -300,7 +300,7 @@ export async function POST(request: Request) {
       }
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, orderId: finalOrderId })
   } catch (error: any) {
     console.error('[RAZORPAY_VERIFY_ERROR]', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

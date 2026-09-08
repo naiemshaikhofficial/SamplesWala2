@@ -311,7 +311,7 @@ export async function POST(request: Request) {
       }
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, orderId: order_id })
   } catch (error: any) {
     console.error('[CASHFREE_VERIFY_ERROR]', error)
     return NextResponse.json({ error: error.message || 'Payment verification failed' }, { status: 500 })

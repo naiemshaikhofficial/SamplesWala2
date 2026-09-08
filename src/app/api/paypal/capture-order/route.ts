@@ -318,7 +318,7 @@ export async function POST(request: Request) {
       console.error('[PAYPAL_INVOICE_SEND_EMAIL_ERROR]', emailErr)
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, orderId: finalOrderId })
   } catch (error: any) {
     console.error('[PAYPAL_CAPTURE_ERROR]', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
