@@ -512,7 +512,7 @@ export default function CheckoutPage() {
     }
   })
 
-  const hasFreeItem = items.some(item => Number(item.price) === 0 || (currency === 'USD' && item.numericPrice === 0))
+  const hasFreeItem = itemsWithPrices.some(item => item.numericPrice === 0)
   const paidItems = itemsWithPrices.filter(item => item.numericPrice > 0)
   const rawSubtotalUsd = itemsWithPrices.reduce((sum, item) => sum + item.numericPrice, 0)
   const bundleDiscountUsd = (!hasFreeItem && paidItems.length >= 3) ? Number((rawSubtotalUsd * 0.1).toFixed(2)) : 0
