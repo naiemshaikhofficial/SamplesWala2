@@ -156,11 +156,11 @@ export default async function HomePage() {
           {/* Hero Secure Payments Row */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-6 border-t border-white/5 relative z-30">
             <div className="flex items-center gap-3">
-              <Image 
-                src="/icons8-payment-100 (1).png" 
-                alt="Payment Methods" 
-                width={14} 
-                height={14} 
+              <Image
+                src="/icons8-payment-100 (1).png"
+                alt="Payment Methods"
+                width={14}
+                height={14}
                 className="object-contain shrink-0"
               />
               <p className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] md:tracking-[0.25em] text-white/55 leading-relaxed">
@@ -877,40 +877,30 @@ export default async function HomePage() {
       {/* 100% Free Vault Section */}
       <FreeSection packs={freeData.packs} presets={freeData.presets} />
 
-      {/* Featured Presets (EGS Free Games Style Container) */}
-      <section className="py-20 overflow-hidden">
+      {/* Producer Presets (Producer Toy Open Grid Style) */}
+      <section className="py-16 sm:py-20 select-none">
         <div className="container mx-auto px-4">
-          <div className="bg-[#18181c] border border-white/5 rounded-[8px] p-6 md:p-10 shadow-2xl relative">
-            
-            {/* Header Row */}
-            <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/5">
-              <div className="flex items-center gap-2.5">
-                <Image 
-                  src="/icons8-dj-64.png" 
-                  alt="DJ Icon" 
-                  width={36} 
-                  height={36} 
-                  className="object-contain brightness-0 invert" 
-                />
-                <h3 className="text-lg md:text-xl font-bold text-white tracking-wide">
-                  Producer Presets
-                </h3>
-              </div>
-              <Link
-                href="/browse?type=presets"
-                className="px-4 py-1.5 border border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition-colors rounded-[4px]"
-              >
-                View More
-              </Link>
-            </div>
+          {/* Header Row: Title on Left, View More on Right */}
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Producer Presets
+            </h2>
 
-            {/* Grid of Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-              {presets.slice(0, 4).map((preset: any) => (
-                <PresetCard key={preset.id} preset={preset} />
-              ))}
-            </div>
-            
+            <Link
+              href="/browse?type=presets"
+              className="border border-white/20 hover:border-white text-white text-xs sm:text-[13px] font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer active:scale-95"
+            >
+              View More
+            </Link>
+          </div>
+
+          {/* Grid of Cards (Producer Toy 4-Column Grid) */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-7">
+            {presets.slice(0, 4).map((preset: any) => (
+              <div key={preset.id} className="w-full">
+                <PresetCard preset={preset} />
+              </div>
+            ))}
           </div>
         </div>
       </section>
