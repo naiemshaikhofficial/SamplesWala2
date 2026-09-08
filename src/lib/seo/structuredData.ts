@@ -74,7 +74,15 @@ export function generatePackStructuredData(pack: any) {
     '@context': 'https://schema.org/',
     '@type': 'Product',
     name: pack.name,
+    headline: `${pack.name} - Royalty-Free ${categoryName} Sample Pack`,
     image: [imageUrl],
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      contentUrl: imageUrl,
+      url: imageUrl,
+      name: `${pack.name} Sample Pack`,
+      caption: `${pack.name} - Royalty-Free ${categoryName} Sample Pack by Samples Wala`,
+    },
     description:
       pack.description ||
       `${pack.name} - A premium ${categoryName} sample pack by Samples Wala. Professional quality, 100% royalty-free for your music production.`,
@@ -179,7 +187,15 @@ export function generatePresetStructuredData(preset: any) {
     '@context': 'https://schema.org/',
     '@type': 'Product',
     name: preset.name,
+    headline: `${preset.name} - ${preset.type} Preset by Samples Wala`,
     image: [imageUrl],
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      contentUrl: imageUrl,
+      url: imageUrl,
+      name: `${preset.name} Preset`,
+      caption: `${preset.name} - ${preset.type} Preset by Samples Wala`,
+    },
     description:
       preset.description ||
       `${preset.name} - A professional ${preset.type} preset by Samples Wala. Compatible with ${preset.daws?.join(', ') || 'all DAWs'}. 100% royalty-free.`,

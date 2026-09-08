@@ -312,6 +312,8 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             <Image
               src={pack.cover_url || '/placeholder.jpg'}
               alt={`${pack.name} - Premium Indian Sample Pack | SamplesWala`}
+              title={`${pack.name} Sample Pack`}
+              itemProp="image"
               fill
               priority
               sizes="(max-width: 768px) 100vw, 400px"

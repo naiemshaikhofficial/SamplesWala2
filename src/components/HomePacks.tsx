@@ -130,6 +130,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
               <Image
                 src={pack.cover_url || '/placeholder.jpg'}
                 alt={`${pack.name} - Indian Sample Pack & Loops | SamplesWala`}
+                title={`${pack.name} Sample Pack`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"

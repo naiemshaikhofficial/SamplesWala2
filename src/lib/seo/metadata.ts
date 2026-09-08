@@ -207,22 +207,23 @@ export function generatePackMetadata(pack: any): Metadata {
   // Dynamically extract super-focused exact phrase keywords
   const focusedKeywords = generateSmartKeywords(pack.name, categoryName)
 
-  // Construct Dynamic OG Image URL
+  // Construct Dynamic OG Image URL with direct cover artwork priority
+  const fullCoverUrl = pack.cover_url 
+    ? (pack.cover_url.startsWith('http') ? pack.cover_url : `https://sampleswala.com${pack.cover_url}`)
+    : undefined
+
   const ogUrl = new URL('https://sampleswala.com/api/og')
   ogUrl.searchParams.set('title', pack.name)
   ogUrl.searchParams.set('category', categoryName)
   ogUrl.searchParams.set('price', pack.price_inr?.toString() || '')
-  if (pack.cover_url) {
-    const fullCoverUrl = pack.cover_url.startsWith('http') 
-      ? pack.cover_url 
-      : `https://sampleswala.com${pack.cover_url}`
+  if (fullCoverUrl) {
     ogUrl.searchParams.set('image', fullCoverUrl)
   }
 
   return generatePageMetadata({
     title: `${pack.name} - Premium ${categoryName} Pack`,
     description: description.slice(0, 160),
-    image: ogUrl.toString(),
+    image: fullCoverUrl || ogUrl.toString(),
     keywords: focusedKeywords,
     path: `/packs/${pack.slug}`
   })
@@ -239,22 +240,22 @@ export function generatePresetMetadata(preset: any): Metadata {
   // Dynamically extract super-focused exact phrase keywords
   const focusedKeywords = generateSmartKeywords(preset.name, `${preset.type} preset ${dawName}`)
 
-  // Construct Dynamic OG Image URL
+  const fullCoverUrl = preset.cover_url
+    ? (preset.cover_url.startsWith('http') ? preset.cover_url : `https://sampleswala.com${preset.cover_url}`)
+    : undefined
+
   const ogUrl = new URL('https://sampleswala.com/api/og')
   ogUrl.searchParams.set('title', preset.name)
   ogUrl.searchParams.set('category', `${preset.type} Preset`)
   ogUrl.searchParams.set('price', preset.price_inr?.toString() || '0')
-  if (preset.cover_url) {
-    const fullCoverUrl = preset.cover_url.startsWith('http') 
-      ? preset.cover_url 
-      : `https://sampleswala.com${preset.cover_url}`
+  if (fullCoverUrl) {
     ogUrl.searchParams.set('image', fullCoverUrl)
   }
 
   return generatePageMetadata({
     title: `${preset.name} | ${preset.type} Preset for ${dawName}`,
     description: description.slice(0, 160),
-    image: ogUrl.toString(),
+    image: fullCoverUrl || ogUrl.toString(),
     keywords: focusedKeywords,
     path: `/browse/presets/${preset.slug}`
   })
