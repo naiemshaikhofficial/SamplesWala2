@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { validateCoupon } from '@/app/checkout/actions'
 import { getPackPriceDetails } from '@/lib/pricing'
+import { validateBillingDetails } from '@/lib/checkoutValidation'
 
 async function getPayPalAccessToken() {
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
@@ -41,6 +42,18 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json({ error: 'Please login to purchase' }, { status: 401 })
+    }
+
+    // Strict Billing Details Validation (No order can be paid without valid details)
+    const validation = validateBillingDetails(billingDetails)
+    if (!validation.isValid) {
+      return NextResponse.json(
+        {
+          error: 'Please provide valid billing details before proceeding to payment.',
+          fieldErrors: validation.errors
+        },
+        { status: 400 }
+      )
     }
 
     // 1. Fetch prices from both tables (with created_at and full_pack_download_url for dynamic pricing checks)

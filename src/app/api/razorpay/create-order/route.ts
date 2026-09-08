@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
 import { createClient } from '@/lib/supabase/server'
 import { validateCoupon } from '@/app/checkout/actions'
-
 import { getPackPriceDetails } from '../../../../lib/pricing'
+import { validateBillingDetails } from '@/lib/checkoutValidation'
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -12,12 +12,24 @@ const razorpay = new Razorpay({
 
 export async function POST(request: Request) {
   try {
-    const { items, couponCode } = await request.json()
+    const { items, couponCode, billingDetails } = await request.json()
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Please login to purchase' }, { status: 401 })
+    }
+
+    // Strict Billing Details Validation (No order can be paid without valid details)
+    const validation = validateBillingDetails(billingDetails)
+    if (!validation.isValid) {
+      return NextResponse.json(
+        {
+          error: 'Please provide valid billing details before proceeding to payment.',
+          fieldErrors: validation.errors
+        },
+        { status: 400 }
+      )
     }
 
     // 1. Fetch prices from both tables (with created_at and full_pack_download_url for dynamic pricing checks)
@@ -82,7 +94,12 @@ export async function POST(request: Request) {
       notes: {
         itemDetails: JSON.stringify(items.map((i: any) => ({ id: i.id, type: i.type }))),
         userId: user.id,
-        discountPercent: couponDiscountPercent || 0
+        discountPercent: couponDiscountPercent || 0,
+        customerName: validation.sanitized.fullName,
+        customerPhone: validation.sanitized.phone,
+        customerCity: validation.sanitized.city,
+        customerState: validation.sanitized.state,
+        customerZip: validation.sanitized.zip
       }
     }
 

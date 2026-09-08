@@ -4,6 +4,7 @@ import { getAdminClient } from '@/lib/supabase/admin'
 import { validateCoupon } from '@/app/checkout/actions'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { createCashfreeOrder } from '@/lib/cashfree'
+import { validateBillingDetails } from '@/lib/checkoutValidation'
 
 export async function POST(request: Request) {
   try {
@@ -90,18 +91,21 @@ export async function POST(request: Request) {
       siteUrl = 'https://sampleswala.com'
     }
 
-    // Customer details resolution with strict sanitization for Cashfree
-    const rawName =
-      billingDetails?.fullName ||
-      user.user_metadata?.full_name ||
-      user.email?.split('@')[0] ||
-      'Customer'
-    const customerName = rawName.replace(/[^a-zA-Z0-9\s]/g, '').trim().substring(0, 100) || 'Customer'
+    // Strict Billing Details Validation (No order can be paid without valid details)
+    const validation = validateBillingDetails(billingDetails)
+    if (!validation.isValid) {
+      return NextResponse.json(
+        {
+          error: 'Please provide valid billing details before proceeding to payment.',
+          fieldErrors: validation.errors
+        },
+        { status: 400 }
+      )
+    }
 
-    // Cashfree strictly enforces valid 10-digit mobile number format
-    const rawPhone = String(billingDetails?.phone || user.user_metadata?.phone || '').trim()
-    const digitsOnly = rawPhone.replace(/\D/g, '')
-    const customerPhone = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : '9999999999'
+    // Customer details resolution with strict sanitization for Cashfree
+    const customerName = validation.sanitized.fullName.substring(0, 100)
+    const customerPhone = validation.sanitized.phone
 
     // Customer ID must be alphanumeric
     const customerId = (user.id || 'cust').replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 50) || 'customer_sw'
@@ -113,7 +117,7 @@ export async function POST(request: Request) {
         order_id: orderId,
         user_id: user.id,
         items: items.map((i: any) => ({ id: i.id, type: i.type })),
-        billing_details: billingDetails || null,
+        billing_details: validation.sanitized,
         coupon_code: couponCode || null,
         amount: total,
         currency: 'INR',

@@ -5,6 +5,7 @@ import { generateInvoicePDF } from '@/lib/invoice'
 import { sendInvoiceEmail } from '@/lib/emails'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { getCashfreeOrder, getCashfreeOrderPayments } from '@/lib/cashfree'
+import { validateBillingDetails } from '@/lib/checkoutValidation'
 
 export async function POST(request: Request) {
   try {
@@ -240,15 +241,17 @@ export async function POST(request: Request) {
 
         // Update billing details in user account
         if (billingDetails) {
+          const billingCheck = validateBillingDetails(billingDetails)
+          const cleanDetails = billingCheck.isValid ? billingCheck.sanitized : billingDetails
           const { error: accountError } = await admin.from('user_accounts').upsert({
             user_id: targetUserId,
-            full_name: billingDetails.fullName,
-            phone_number: billingDetails.phone,
-            address_line1: billingDetails.address,
-            city: billingDetails.city,
-            state: billingDetails.state,
-            postal_code: billingDetails.zip,
-            country: billingDetails.country,
+            full_name: cleanDetails.fullName,
+            phone_number: cleanDetails.phone,
+            address_line1: cleanDetails.address,
+            city: cleanDetails.city,
+            state: cleanDetails.state,
+            postal_code: cleanDetails.zip,
+            country: cleanDetails.country,
             updated_at: new Date().toISOString()
           })
 

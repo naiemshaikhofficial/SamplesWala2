@@ -17,6 +17,7 @@ import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
 import dynamic from 'next/dynamic'
 import Script from 'next/script'
 import { loadCashfreeSDK } from '@/lib/cashfreeClient'
+import { validateBillingDetails } from '@/lib/checkoutValidation'
 
 // Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
 const CustomCountrySelect = ({ value, onChange, options, iconComponent: Icon }: any) => {
@@ -615,10 +616,6 @@ export default function CheckoutPage() {
               return actions.reject()
             }
             if (!validateForm(billingDetailsRef.current)) {
-              const billingSection = document.getElementById('billing-details-section')
-              if (billingSection) {
-                billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-              }
               return actions.reject()
             }
             return actions.resolve()
@@ -629,11 +626,7 @@ export default function CheckoutPage() {
 
             if (!validateForm(billingDetailsRef.current)) {
               setLoading(false)
-              const billingSection = document.getElementById('billing-details-section')
-              if (billingSection) {
-                billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-              }
-              throw new Error('Please fill in all billing details.')
+              throw new Error('Please fill in all required billing details before proceeding with payment.')
             }
 
             try {
@@ -650,8 +643,12 @@ export default function CheckoutPage() {
                 })
               })
               const order = await res.json()
-              if (order.error) {
-                throw new Error(order.error)
+              if (!res.ok || order.error) {
+                if (order.fieldErrors) {
+                  setFormErrors(order.fieldErrors)
+                  scrollToFirstError(order.fieldErrors)
+                }
+                throw new Error(order.error || 'PayPal order creation failed')
               }
               return order.id
             } catch (err: any) {
@@ -851,37 +848,39 @@ export default function CheckoutPage() {
     }
   }
 
+  const scrollToFirstError = (errors: Record<string, string>) => {
+    const errorKeys = Object.keys(errors)
+    if (errorKeys.length === 0) return
+
+    const priority = ['fullName', 'phone', 'address', 'city', 'state', 'zip', 'country']
+    const firstField = priority.find(f => errors[f]) || errorKeys[0]
+
+    setTimeout(() => {
+      const element = document.getElementById(`billing-input-${firstField}`)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        element.focus()
+      } else {
+        const billingSection = document.getElementById('billing-details-section')
+        if (billingSection) {
+          billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+    }, 50)
+  }
+
   const validateForm = (details = billingDetails) => {
-    // For free orders, do not block users on physical address, phone, or postal code
-    if (activeTotal === 0) {
-      setFormErrors({})
-      return true
+    const result = validateBillingDetails(details)
+
+    setFormErrors(result.errors)
+
+    if (!result.isValid) {
+      setError('Please fill in all required billing details before proceeding.')
+      scrollToFirstError(result.errors)
+      return false
     }
 
-    const errors: Record<string, string> = {}
-    if (!details.fullName.trim()) errors.fullName = 'FULL NAME IS REQUIRED'
-
-    if (!details.phone) {
-      errors.phone = 'PHONE NUMBER IS REQUIRED'
-    } else if (details.phone.length < 5) {
-      errors.phone = 'ENTER A VALID PHONE NUMBER'
-    }
-
-    if (!details.address.trim()) errors.address = 'STREET ADDRESS IS REQUIRED'
-    if (!details.city.trim()) errors.city = 'CITY IS REQUIRED'
-    if (!details.state.trim()) errors.state = 'STATE IS REQUIRED'
-
-    const cleanZip = details.zip.trim()
-    if (!cleanZip) {
-      errors.zip = 'POSTAL CODE IS REQUIRED'
-    } else if (details.country === 'India' && !/^\d{6}$/.test(cleanZip)) {
-      errors.zip = 'ENTER A VALID 6-DIGIT PINCODE'
-    }
-
-    if (!details.country) errors.country = 'COUNTRY IS REQUIRED'
-
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
+    return true
   }
 
   const handleApplyCoupon = async () => {
@@ -927,10 +926,6 @@ export default function CheckoutPage() {
     }
 
     if (!validateForm()) {
-      const billingSection = document.getElementById('billing-details-section')
-      if (billingSection) {
-        billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
       return
     }
 
@@ -974,6 +969,15 @@ export default function CheckoutPage() {
 
       const orderData = await res.json()
       if (!res.ok || orderData.error) {
+        if (res.status === 400) {
+          setError(orderData.error || 'Please enter valid billing details.')
+          if (orderData.fieldErrors) {
+            setFormErrors(orderData.fieldErrors)
+            scrollToFirstError(orderData.fieldErrors)
+          }
+          setLoading(false)
+          return
+        }
         console.warn('[CASHFREE_ORDER_FAILED_AUTO_FALLBACK]', orderData?.error)
         return handleCheckout()
       }
@@ -1068,24 +1072,23 @@ export default function CheckoutPage() {
     }
 
     if (!validateForm()) {
-      const billingSection = document.getElementById('billing-details-section')
-      if (billingSection) {
-        billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
       return
     }
 
     setLoading(true)
     // --- 1. HANDLE FREE CHECKOUT (BYPASS RAZORPAY) ---
     if (activeTotal === 0) {
+      const validation = validateBillingDetails(billingDetails)
+      if (!validation.isValid) {
+        setFormErrors(validation.errors)
+        scrollToFirstError(validation.errors)
+        setError('Please fill in all required billing details to claim your free order.')
+        setLoading(false)
+        return
+      }
+
       setIsOrderComplete(true)
       try {
-        const freeDetails = {
-          ...billingDetails,
-          fullName: billingDetails.fullName?.trim() || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Producer',
-          country: billingDetails.country || 'India'
-        }
-
         const verifyRes = await fetch('/api/razorpay/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1093,7 +1096,7 @@ export default function CheckoutPage() {
             isFree: true,
             items: items.map(i => ({ id: i.id, type: i.type })),
             userId: user.id,
-            billingDetails: freeDetails,
+            billingDetails: validation.sanitized,
             couponCode: discount > 0 ? coupon : undefined
           }),
         })
@@ -1140,12 +1143,19 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: items.map(i => ({ id: i.id, type: i.type })),
-          couponCode: discount > 0 ? coupon : undefined
+          couponCode: discount > 0 ? coupon : undefined,
+          billingDetails
         }),
       })
       const order = await res.json()
 
-      if (order.error) throw new Error(order.error)
+      if (!res.ok || order.error) {
+        if (order.fieldErrors) {
+          setFormErrors(order.fieldErrors)
+          scrollToFirstError(order.fieldErrors)
+        }
+        throw new Error(order.error || 'Failed to initialize payment')
+      }
 
       const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
       if (!keyId) throw new Error('Razorpay Key ID is missing')
@@ -1495,33 +1505,34 @@ export default function CheckoutPage() {
                     <h2 className="text-sm font-black uppercase tracking-tight italic text-white">Billing Details</h2>
                   </div>
                   <span className="text-[9px] font-black text-neutral-500 uppercase tracking-wider bg-black/40 px-2 py-0.5 border border-white/5 rounded-xs">
-                    {activeTotal === 0 ? 'Free Order' : (Object.keys(formErrors).length > 0 ? 'Action Required' : 'Auto-Saved')}
+                    {Object.keys(formErrors).length > 0 ? 'Action Required' : 'Required for all orders'}
                   </span>
                 </div>
 
                 {activeTotal === 0 && (
                   <div className="p-3 bg-[#00FF94]/10 border border-[#00FF94]/25 rounded text-left">
                     <p className="text-[10px] font-black text-[#00FF94] uppercase tracking-wider font-mono">
-                      ⚡ 100% Free Order — No card or payment needed. Your items will be added directly to your Sound Vault.
+                      ⚡ 100% Free Order — Please enter your billing details below to add the items directly to your Sound Vault.
                     </p>
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Full Name</label>
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Full Name *</label>
                     <input
+                      id="billing-input-fullName"
                       type="text"
-                      placeholder="NAME"
-                      className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.fullName ? 'border-studio-red bg-studio-red/5' : ''}`}
+                      placeholder="ENTER FULL NAME"
+                      className={`w-full h-10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 border ${formErrors.fullName ? 'border-studio-red ring-1 ring-studio-red bg-studio-red/10' : 'border-white/10 bg-[#18181c]'}`}
                       value={billingDetails.fullName}
                       onChange={(e) => handleBillingChange('fullName', e.target.value)}
                     />
-                    {formErrors.fullName && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.fullName}</p>}
+                    {formErrors.fullName && <p className="text-[8.5px] font-black text-studio-red uppercase tracking-widest mt-1 ml-0.5 flex items-center gap-1"><span>⚠️</span> {formErrors.fullName}</p>}
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Phone Number</label>
-                    <div className="phone-input-container">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Phone Number *</label>
+                    <div id="billing-input-phone" className="phone-input-container">
                       <PhoneInput
                         international
                         country={currentCountryCode as any}
@@ -1534,63 +1545,67 @@ export default function CheckoutPage() {
                             }
                           }
                         }}
-                        placeholder="PHONE"
+                        placeholder="PHONE NUMBER"
                         value={billingDetails.phone}
                         onChange={(val) => handleBillingChange('phone', val || '')}
-                        className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus-within:border-studio-yellow outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.phone ? 'border-studio-red bg-studio-red/5' : ''}`}
+                        className={`w-full h-10 rounded px-3 text-xs focus-within:border-studio-yellow outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 border ${formErrors.phone ? 'border-studio-red ring-1 ring-studio-red bg-studio-red/10' : 'border-white/10 bg-[#18181c]'}`}
                       />
                     </div>
-                    {formErrors.phone && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.phone}</p>}
+                    {formErrors.phone && <p className="text-[8.5px] font-black text-studio-red uppercase tracking-widest mt-1 ml-0.5 flex items-center gap-1"><span>⚠️</span> {formErrors.phone}</p>}
                   </div>
                   <div className="col-span-full space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Address</label>
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Street Address *</label>
                     <input
+                      id="billing-input-address"
                       type="text"
-                      placeholder="STREET ADDRESS"
-                      className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.address ? 'border-studio-red bg-studio-red/5' : ''}`}
+                      placeholder="HOUSE / FLAT NO., STREET, LOCALITY"
+                      className={`w-full h-10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 border ${formErrors.address ? 'border-studio-red ring-1 ring-studio-red bg-studio-red/10' : 'border-white/10 bg-[#18181c]'}`}
                       value={billingDetails.address}
                       onChange={(e) => handleBillingChange('address', e.target.value)}
                     />
-                    {formErrors.address && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.address}</p>}
+                    {formErrors.address && <p className="text-[8.5px] font-black text-studio-red uppercase tracking-widest mt-1 ml-0.5 flex items-center gap-1"><span>⚠️</span> {formErrors.address}</p>}
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">City</label>
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">City *</label>
                     <input
+                      id="billing-input-city"
                       type="text"
                       placeholder="CITY"
-                      className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.city ? 'border-studio-red bg-studio-red/5' : ''}`}
+                      className={`w-full h-10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 border ${formErrors.city ? 'border-studio-red ring-1 ring-studio-red bg-studio-red/10' : 'border-white/10 bg-[#18181c]'}`}
                       value={billingDetails.city}
                       onChange={(e) => handleBillingChange('city', e.target.value)}
                     />
-                    {formErrors.city && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.city}</p>}
+                    {formErrors.city && <p className="text-[8.5px] font-black text-studio-red uppercase tracking-widest mt-1 ml-0.5 flex items-center gap-1"><span>⚠️</span> {formErrors.city}</p>}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">State</label>
+                      <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">State *</label>
                       <input
+                        id="billing-input-state"
                         type="text"
                         placeholder="STATE"
-                        className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.state ? 'border-studio-red bg-studio-red/5' : ''}`}
+                        className={`w-full h-10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 border ${formErrors.state ? 'border-studio-red ring-1 ring-studio-red bg-studio-red/10' : 'border-white/10 bg-[#18181c]'}`}
                         value={billingDetails.state}
                         onChange={(e) => handleBillingChange('state', e.target.value)}
                       />
-                      {formErrors.state && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.state}</p>}
+                      {formErrors.state && <p className="text-[8.5px] font-black text-studio-red uppercase tracking-widest mt-1 ml-0.5 flex items-center gap-1"><span>⚠️</span> {formErrors.state}</p>}
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Pincode</label>
+                      <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Pincode *</label>
                       <input
+                        id="billing-input-zip"
                         type="text"
-                        placeholder="ZIP"
-                        className={`w-full h-10 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 ${formErrors.zip ? 'border-studio-red bg-studio-red/5' : ''}`}
+                        placeholder="PINCODE / ZIP"
+                        className={`w-full h-10 rounded px-3 text-xs focus:border-studio-yellow focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700 border ${formErrors.zip ? 'border-studio-red ring-1 ring-studio-red bg-studio-red/10' : 'border-white/10 bg-[#18181c]'}`}
                         value={billingDetails.zip}
                         onChange={(e) => handleBillingChange('zip', e.target.value)}
                       />
-                      {formErrors.zip && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.zip}</p>}
+                      {formErrors.zip && <p className="text-[8.5px] font-black text-studio-red uppercase tracking-widest mt-1 ml-0.5 flex items-center gap-1"><span>⚠️</span> {formErrors.zip}</p>}
                     </div>
                   </div>
 
-                  <div className="col-span-full space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Country</label>
+                  <div id="billing-input-country" className="col-span-full space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Country *</label>
                     <Select
                       options={countryOptions}
                       value={countryOptions.find(opt => opt.label.toLowerCase() === billingDetails.country.toLowerCase()) || null}
@@ -1603,7 +1618,7 @@ export default function CheckoutPage() {
                       styles={{
                         control: (base, state) => ({
                           ...base,
-                          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                          backgroundColor: formErrors.country ? 'rgba(255, 49, 49, 0.1)' : 'rgba(0, 0, 0, 0.4)',
                           borderColor: state.isFocused ? '#FFE600' : (formErrors.country ? '#FF3131' : 'rgba(255, 255, 255, 0.1)'),
                           borderRadius: '4px',
                           height: '2.5rem',
@@ -1611,9 +1626,9 @@ export default function CheckoutPage() {
                           fontSize: '12px',
                           textTransform: 'uppercase',
                           letterSpacing: '0.05em',
-                          boxShadow: 'none',
+                          boxShadow: formErrors.country ? '0 0 0 1px #FF3131' : 'none',
                           '&:hover': {
-                            borderColor: state.isFocused ? '#FFE600' : 'rgba(255, 255, 255, 0.15)',
+                            borderColor: state.isFocused ? '#FFE600' : (formErrors.country ? '#FF3131' : 'rgba(255, 255, 255, 0.15)'),
                           }
                         }),
                         menu: (base) => ({
@@ -1668,7 +1683,7 @@ export default function CheckoutPage() {
                         })
                       }}
                     />
-                    {formErrors.country && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{formErrors.country}</p>}
+                    {formErrors.country && <p className="text-[8.5px] font-black text-studio-red uppercase tracking-widest mt-1 ml-0.5 flex items-center gap-1"><span>⚠️</span> {formErrors.country}</p>}
                   </div>
                 </div>
 
@@ -1689,8 +1704,9 @@ export default function CheckoutPage() {
                 {mounted && !isMobile && (
                   <div className="pt-6 border-t border-white/5 space-y-4 mt-6">
                     {error && (
-                      <div className="p-3 bg-studio-red/10 border border-studio-red/20 rounded">
-                        <p className="text-[9px] font-bold text-studio-red uppercase tracking-wider text-center">
+                      <div className="p-3 bg-studio-red/15 border-2 border-studio-red rounded shadow-[0_0_12px_rgba(255,49,49,0.25)] flex items-center gap-2">
+                        <span className="text-base shrink-0">⚠️</span>
+                        <p className="text-[10px] font-black text-studio-red uppercase tracking-wider text-left leading-tight">
                           {error}
                         </p>
                       </div>
@@ -1869,8 +1885,9 @@ export default function CheckoutPage() {
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-black/95 backdrop-blur-md border-t border-white/10 z-50">
           <div className="max-w-md mx-auto">
             {error && (
-              <div className="mb-2 p-2 bg-studio-red/10 border border-studio-red/20 rounded">
-                <p className="text-[9px] font-bold text-studio-red uppercase tracking-wider text-center">
+              <div className="mb-2 p-2.5 bg-studio-red/15 border-2 border-studio-red rounded shadow-[0_0_12px_rgba(255,49,49,0.25)] flex items-center gap-2">
+                <span className="text-sm shrink-0">⚠️</span>
+                <p className="text-[9.5px] font-black text-studio-red uppercase tracking-wider text-left leading-tight">
                   {error}
                 </p>
               </div>
