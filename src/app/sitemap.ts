@@ -1,148 +1,183 @@
 import { MetadataRoute } from 'next'
-import { getPacks } from '@/app/browse/actions'
-import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 
 // Cache sitemap using Incremental Static Regeneration (revalidated every 6 hours)
-// This avoids hitting the database on every single crawler hit.
 export const revalidate = 21600
 
+/**
+ * Escapes XML entities in URLs/locs to ensure valid XML sitemap output
+ * according to Google Sitemaps and XML 1.0 standard.
+ */
+function sanitizeXmlUrl(url: string | null | undefined): string | null {
+  if (!url || typeof url !== 'string' || !url.trim()) return null
+  const trimmed = url.trim()
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    return null
+  }
+  return trimmed
+    .replace(/&amp;/g, '&')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://sampleswala.com'
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes('localhost')
+      ? process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')
+      : 'https://sampleswala.com'
+
   const supabase = getAdminClient()
 
-  // 1. Fetch all packs for dynamic routes (Direct DB fetch for instant real-time sitemap)
-  let packEntries: any[] = []
-  try {
-    const { data: packs } = await supabase
-      .from('sample_packs')
-      .select('slug, updated_at')
+  // 1. Static Core & Hub Routes (Excludes private /library or /account routes)
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}`, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
+    { url: `${baseUrl}/browse`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.95 },
+    { url: `${baseUrl}/browse/packs`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.95 },
+    { url: `${baseUrl}/browse/presets`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+    { url: `${baseUrl}/series/india-journey`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     
-    if (packs) {
-      packEntries = packs.map((pack) => ({
-        url: `${baseUrl}/packs/${pack.slug}`,
-        lastModified: new Date(pack.updated_at || new Date()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      }))
-    }
-  } catch (error) {
-    console.error('Sitemap: Failed to fetch packs', error)
-  }
+    // High-Intent DAW Landing Hubs
+    { url: `${baseUrl}/daw/fl-studio`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${baseUrl}/daw/ableton-live`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${baseUrl}/daw/logic-pro`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${baseUrl}/daw/cubase`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.92 },
+    { url: `${baseUrl}/daw/studio-one`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.92 },
+    { url: `${baseUrl}/daw/reaper`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.92 },
 
-  // 2. Fetch all software products
-  let softwareEntries: any[] = []
-  try {
-    const { data: software } = await supabase
-      .from('software_products')
-      .select('slug, updated_at')
-      .eq('is_active', true)
-    
-    if (software) {
-      softwareEntries = software.map((item) => ({
-        url: `${baseUrl}/software/${item.slug}`,
-        lastModified: new Date(item.updated_at || new Date()),
-        changeFrequency: 'monthly' as const,
-        priority: 0.9,
-      }))
-    }
-  } catch (error) {
-    console.error('Sitemap: Failed to fetch software products', error)
-  }
-
-  // 3. Blog Posts (Currently hardcoded in blog/page.tsx, but mapping them here)
-  const blogSlugs = [
-    "top-5-indian-percussion-sample-packs-2026",
-    "how-to-make-bollywood-drill-the-ultimate-guide",
-    "how-to-produce-bollywood-style-beats-complete-guide",
-    "the-future-of-indian-hip-hop-production"
+    // Content, Support & Legal Pages
+    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/faq`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/help`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/terms`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/privacy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/refund-policy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/dmca`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/careers`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
   ]
-  const blogEntries = blogSlugs.map(slug => ({
-    url: `${baseUrl}/blog/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }))
 
-  // 4. Genres
-  let genreEntries: any[] = []
+  // Dynamic Entries
+  let packEntries: MetadataRoute.Sitemap = []
+  let presetEntries: MetadataRoute.Sitemap = []
+  let genreEntries: MetadataRoute.Sitemap = []
+  let softwareEntries: MetadataRoute.Sitemap = []
+  let blogEntries: MetadataRoute.Sitemap = []
+
   try {
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('slug, created_at')
-    
-    if (categories) {
-      genreEntries = categories.map((cat) => ({
-        url: `${baseUrl}/browse/genre/${cat.slug}`,
+    const [packsRes, presetsRes, categoriesRes, softwareRes] = await Promise.all([
+      supabase.from('sample_packs').select('slug, cover_url, updated_at, created_at'),
+      supabase.from('presets').select('slug, cover_url, updated_at, created_at').eq('is_active', true),
+      supabase.from('categories').select('slug, created_at'),
+      supabase.from('software_products').select('slug, updated_at, created_at').eq('is_active', true),
+    ])
+
+    // Sample Packs with Image Sitemaps
+    if (packsRes.data && packsRes.data.length > 0) {
+      packEntries = packsRes.data.map((pack) => {
+        const cover = pack.cover_url?.startsWith('http')
+          ? pack.cover_url
+          : pack.cover_url
+          ? `${baseUrl}${pack.cover_url}`
+          : undefined
+        const sanitizedImg = sanitizeXmlUrl(cover)
+
+        return {
+          url: `${baseUrl}/packs/${encodeURIComponent(pack.slug)}`,
+          lastModified: new Date(pack.updated_at || pack.created_at || new Date()),
+          changeFrequency: 'weekly' as const,
+          priority: 0.9,
+          images: sanitizedImg ? [sanitizedImg] : undefined,
+        }
+      })
+    }
+
+    // Presets with Image Sitemaps
+    if (presetsRes.data && presetsRes.data.length > 0) {
+      presetEntries = presetsRes.data.map((preset) => {
+        const cover = preset.cover_url?.startsWith('http')
+          ? preset.cover_url
+          : preset.cover_url
+          ? `${baseUrl}${preset.cover_url}`
+          : undefined
+        const sanitizedImg = sanitizeXmlUrl(cover)
+
+        return {
+          url: `${baseUrl}/browse/presets/${encodeURIComponent(preset.slug)}`,
+          lastModified: new Date(preset.updated_at || preset.created_at || new Date()),
+          changeFrequency: 'weekly' as const,
+          priority: 0.85,
+          images: sanitizedImg ? [sanitizedImg] : undefined,
+        }
+      })
+    }
+
+    // Genres & Categories
+    if (categoriesRes.data && categoriesRes.data.length > 0) {
+      genreEntries = categoriesRes.data.map((cat) => ({
+        url: `${baseUrl}/browse/genre/${encodeURIComponent(cat.slug)}`,
         lastModified: new Date(cat.created_at || new Date()),
         changeFrequency: 'weekly' as const,
-        priority: 0.7,
+        priority: 0.75,
       }))
     }
-  } catch (error) {
-    console.error('Sitemap: Failed to fetch categories/genres', error)
-  }
 
-  // 5. Presets
-  let presetEntries: any[] = []
-  try {
-    const { data: presets } = await supabase
-      .from('presets')
-      .select('slug, updated_at')
-      .eq('is_active', true)
-    
-    if (presets) {
-      presetEntries = presets.map((item) => ({
-        url: `${baseUrl}/browse/presets/${item.slug}`,
-        lastModified: new Date(item.updated_at || new Date()),
-        changeFrequency: 'weekly' as const,
+    // Software Products (if active)
+    if (softwareRes.data && softwareRes.data.length > 0) {
+      softwareEntries = softwareRes.data.map((item) => ({
+        url: `${baseUrl}/software/${encodeURIComponent(item.slug)}`,
+        lastModified: new Date(item.updated_at || item.created_at || new Date()),
+        changeFrequency: 'monthly' as const,
         priority: 0.8,
       }))
     }
-  } catch (error) {
-    console.error('Sitemap: Failed to fetch presets', error)
+  } catch (err) {
+    console.error('[SITEMAP_DB_ERROR]', err)
   }
 
-  // 6. Static routes
-  const staticRoutes = [
-    '',
-    '/browse/packs',
-    '/browse/presets',
-    '/library',
-    '/faq',
-    '/help',
-    '/contact',
-    '/about',
-    '/terms',
-    '/privacy',
-    '/refund-policy',
-    '/dmca',
-    '/blog',
-    '/careers',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
+  // Curated Blog Posts
+  const blogSlugs = [
+    'top-5-indian-percussion-sample-packs-2026',
+    'how-to-make-bollywood-drill-the-ultimate-guide',
+    'how-to-produce-bollywood-style-beats-complete-guide',
+    'the-future-of-indian-hip-hop-production',
+  ]
+  blogEntries = blogSlugs.map((slug) => ({
+    url: `${baseUrl}/blog/${encodeURIComponent(slug)}`,
     lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: route === '' ? 1.0 : 0.7,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
   }))
 
-  // 7. Series pages (high-priority collection pages for SEO)
-  const seriesEntries = [
-    {
-      url: `${baseUrl}/series/india-journey`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.9,
-    },
+  // Combine and deduplicate with XML sanitation
+  const allEntries = [
+    ...staticRoutes,
+    ...packEntries,
+    ...presetEntries,
+    ...genreEntries,
+    ...softwareEntries,
+    ...blogEntries,
   ]
 
-  return [
-    ...staticRoutes, 
-    ...seriesEntries,
-    ...packEntries, 
-    ...softwareEntries, 
-    ...blogEntries, 
-    ...genreEntries,
-    ...presetEntries
-  ]
+  const uniqueUrlsMap = new Map<string, MetadataRoute.Sitemap[number]>()
+
+  allEntries.forEach((entry) => {
+    const cleanUrl = sanitizeXmlUrl(entry.url)
+    if (cleanUrl && !uniqueUrlsMap.has(cleanUrl)) {
+      const cleanImages = entry.images
+        ?.map((img) => sanitizeXmlUrl(img))
+        .filter((img): img is string => Boolean(img))
+
+      uniqueUrlsMap.set(cleanUrl, {
+        ...entry,
+        url: cleanUrl,
+        images: cleanImages && cleanImages.length > 0 ? cleanImages : undefined,
+      })
+    }
+  })
+
+  return Array.from(uniqueUrlsMap.values())
 }

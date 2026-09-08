@@ -34,10 +34,8 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // CDN CACHING: Force browser/CDN caching for all local static assets to save Vercel transfer bytes
+  // CDN CACHING: Force browser/CDN edge caching for all static & audio preview assets
   async headers() {
-    // 🟢 CPU OPTIMIZATION: Security headers & CSP moved here from middleware.
-    // These are now computed once at build time, not on every request.
     const isDev = process.env.NODE_ENV === 'development';
     const csp = [
       "default-src 'self'",
@@ -45,7 +43,7 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' https: data: blob:",
       "font-src 'self' https://fonts.gstatic.com data:",
-      `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''} wss://*.supabase.co https://*.supabase.co https://api.razorpay.com https://challenges.cloudflare.com https://sampleswala-images.sampleswala.workers.dev https://*.paypal.com`.trim(),
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''} wss://*.supabase.co https://*.supabase.co https://api.razorpay.com https://challenges.cloudflare.com https://sampleswala-images.sampleswala.workers.dev https://*.paypal.com https://api.indexnow.org`.trim(),
       "media-src 'self' blob: https:",
       "frame-src 'self' https://challenges.cloudflare.com https://widget.trustpilot.com https://www.youtube.com https://www.youtube-nocookie.com https://api.razorpay.com https://www.paypal.com https://*.paypal.com",
       "object-src 'none'",
@@ -64,24 +62,39 @@ const nextConfig: NextConfig = {
       { key: 'Content-Security-Policy', value: csp },
     ];
 
-    return [
+    const cdnCacheHeaders = [
       {
-        // Static local files (SVGs, PNGs, Icons, Fonts, Manifests)
-        source: '/:path*.(ico|png|jpg|jpeg|gif|webp|avif|svg|woff|woff2|json)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
+        key: 'Cache-Control',
+        value: 'public, max-age=31536000, s-maxage=31536000, immutable',
       },
       {
-        // Apply security headers to all routes
+        key: 'CDN-Cache-Control',
+        value: 'public, max-age=31536000, immutable',
+      },
+      {
+        key: 'Vercel-CDN-Cache-Control',
+        value: 'public, max-age=31536000, immutable',
+      },
+    ];
+
+    return [
+      {
+        // 1. Static local files & Audio preview media (1 Year Immutable Edge CDN Cache)
+        source: '/:path*.(ico|png|jpg|jpeg|gif|webp|avif|svg|woff|woff2|ttf|eot|mp3|wav|ogg|json)',
+        headers: cdnCacheHeaders,
+      },
+      {
+        // 2. Next.js Static Builds (Immutable chunks & bundles)
+        source: '/_next/static/:path*',
+        headers: cdnCacheHeaders,
+      },
+      {
+        // 3. Apply security headers to all routes
         source: '/(.*)',
         headers: securityHeaders,
       },
       {
-        // No-index API routes from search engines
+        // 4. No-index API routes from search engines
         source: '/api/:path*',
         headers: [
           { key: 'X-Robots-Tag', value: 'noindex, nofollow' },

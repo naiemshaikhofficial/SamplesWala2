@@ -1,50 +1,54 @@
 'use client'
+
 import { useEffect } from 'react'
 
 export function ContentProtection() {
   useEffect(() => {
+    // Copy, paste, and text selection are 100% enabled across local and production
+    // Only raw image/audio ripping prevention handlers are attached in production
     if (
       process.env.NODE_ENV === 'development' ||
-      window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1'
+      (typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.hostname.startsWith('192.168.') ||
+          window.location.hostname.endsWith('.local')))
     ) {
       return
     }
 
-    // Disable right click
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault()
-    }
-
-    // Disable keyboard shortcuts
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+S (Save), Ctrl+U (View Source), Ctrl+Shift+I (Inspect)
-      if (
-        (e.ctrlKey && (e.key === 's' || e.key === 'u')) ||
-        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-        (e.key === 'F12')
-      ) {
-        e.preventDefault()
-      }
-    }
-
-    // Prevent image dragging
+    // In production, prevent dragging raw media assets while allowing full copy-paste
     const handleDragStart = (e: DragEvent) => {
-      if (e.target instanceof HTMLImageElement) {
-        e.preventDefault()
+      const target = e.target as HTMLElement
+      if (!target) return
+
+      const isMedia =
+        target.tagName === 'IMG' ||
+        target.tagName === 'AUDIO' ||
+        target.tagName === 'CANVAS' ||
+        target.closest('img') ||
+        target.closest('audio')
+
+      if (isMedia) {
+        const anchor = target.closest('a') as HTMLAnchorElement | null
+        if (anchor && anchor.href) {
+          if (e.dataTransfer) {
+            e.dataTransfer.setData('text/plain', anchor.href)
+          }
+        } else {
+          e.preventDefault()
+        }
       }
     }
 
-    document.addEventListener('contextmenu', handleContextMenu)
-    document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('dragstart', handleDragStart)
 
     return () => {
-      document.removeEventListener('contextmenu', handleContextMenu)
-      document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('dragstart', handleDragStart)
     }
   }, [])
 
   return null
 }
+
+export default ContentProtection
