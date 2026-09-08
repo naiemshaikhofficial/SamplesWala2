@@ -697,9 +697,9 @@ export default function CheckoutPage() {
                   console.error('Failed to update newsletter status:', e)
                 }
 
-                setPaymentStatus('success')
+                setIsOrderComplete(true)
                 clearCart()
-                router.push(`/thank-you?order_id=${verifyData.orderId || data.orderID}`)
+                window.location.href = `/thank-you?order_id=${verifyData.orderId || data.orderID}`
               } else {
                 setError(verifyData.error || 'Verification failed')
                 setPaymentStatus('idle')
@@ -852,6 +852,12 @@ export default function CheckoutPage() {
   }
 
   const validateForm = (details = billingDetails) => {
+    // For free orders, do not block users on physical address, phone, or postal code
+    if (activeTotal === 0) {
+      setFormErrors({})
+      return true
+    }
+
     const errors: Record<string, string> = {}
     if (!details.fullName.trim()) errors.fullName = 'FULL NAME IS REQUIRED'
 
@@ -1020,9 +1026,9 @@ export default function CheckoutPage() {
 
       if (verifyData.success) {
         sessionStorage.removeItem('pending_cf_checkout')
-        setPaymentStatus('success')
+        setIsOrderComplete(true)
         clearCart()
-        router.push(`/thank-you?order_id=${verifyData.orderId || orderData.order_id}`)
+        window.location.href = `/thank-you?order_id=${verifyData.orderId || orderData.order_id}`
 
         // Background profile sync (non-blocking for instant UI feedback)
         supabase.auth.updateUser({
@@ -1069,9 +1075,17 @@ export default function CheckoutPage() {
       return
     }
 
-    setLoading(true)     // --- 1. HANDLE FREE CHECKOUT (BYPASS RAZORPAY) ---
+    setLoading(true)
+    // --- 1. HANDLE FREE CHECKOUT (BYPASS RAZORPAY) ---
     if (activeTotal === 0) {
+      setIsOrderComplete(true)
       try {
+        const freeDetails = {
+          ...billingDetails,
+          fullName: billingDetails.fullName?.trim() || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Producer',
+          country: billingDetails.country || 'India'
+        }
+
         const verifyRes = await fetch('/api/razorpay/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1079,7 +1093,7 @@ export default function CheckoutPage() {
             isFree: true,
             items: items.map(i => ({ id: i.id, type: i.type })),
             userId: user.id,
-            billingDetails: billingDetails,
+            billingDetails: freeDetails,
             couponCode: discount > 0 ? coupon : undefined
           }),
         })
@@ -1095,12 +1109,16 @@ export default function CheckoutPage() {
             console.error('Failed to update newsletter status:', e)
           }
           clearCart()
-          router.push(`/thank-you?order_id=${verifyData.orderId || 'SW_FREE'}&free=true`)
+          const targetOrderId = verifyData.orderId || `SW_FREE_${Date.now()}`
+          window.location.href = `/thank-you?order_id=${targetOrderId}&free=true`
+          return
         } else {
+          setIsOrderComplete(false)
           const err = await verifyRes.json()
           setError(err.error || 'Checkout failed')
         }
       } catch (err) {
+        setIsOrderComplete(false)
         setError('Network error during checkout')
       } finally {
         setLoading(false)
@@ -1183,10 +1201,9 @@ export default function CheckoutPage() {
                 console.error('Failed to update newsletter status:', e)
               }
 
-              const verifyData = await verifyRes.json()
-              setPaymentStatus('success')
+              setIsOrderComplete(true)
               clearCart()
-              router.push(`/thank-you?order_id=${verifyData.orderId || response.razorpay_order_id}`)
+              window.location.href = `/thank-you?order_id=${verifyData.orderId || response.razorpay_order_id}`
             } else {
               setError('Verification failed')
               setPaymentStatus('idle')
@@ -1371,6 +1388,17 @@ export default function CheckoutPage() {
     )
   }
 
+  if (isOrderComplete) {
+    return (
+      <div className="min-h-[75vh] flex flex-col items-center justify-center space-y-5 text-center px-4 relative z-10">
+        <MusicalNotesBackground />
+        <div className="w-14 h-14 border-3 border-white/20 border-t-[#00FF94] rounded-full animate-spin mx-auto mb-2" />
+        <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Preparing Your Sounds...</h2>
+        <p className="text-xs font-mono uppercase tracking-widest text-[#00FF94]">Redirecting to confirmation & receipt...</p>
+      </div>
+    )
+  }
+
   if (itemCount === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-6 text-center px-4">
@@ -1467,9 +1495,17 @@ export default function CheckoutPage() {
                     <h2 className="text-sm font-black uppercase tracking-tight italic text-white">Billing Details</h2>
                   </div>
                   <span className="text-[9px] font-black text-neutral-500 uppercase tracking-wider bg-black/40 px-2 py-0.5 border border-white/5 rounded-xs">
-                    {Object.keys(formErrors).length > 0 ? 'Action Required' : 'Auto-Saved'}
+                    {activeTotal === 0 ? 'Free Order' : (Object.keys(formErrors).length > 0 ? 'Action Required' : 'Auto-Saved')}
                   </span>
                 </div>
+
+                {activeTotal === 0 && (
+                  <div className="p-3 bg-[#00FF94]/10 border border-[#00FF94]/25 rounded text-left">
+                    <p className="text-[10px] font-black text-[#00FF94] uppercase tracking-wider font-mono">
+                      ⚡ 100% Free Order — No card or payment needed. Your items will be added directly to your Sound Vault.
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
