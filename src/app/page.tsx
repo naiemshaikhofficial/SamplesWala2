@@ -1,11 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getPacks, getPresets, getPacksBySeries } from '@/app/browse/actions'
+import { getPacks, getPresets, getPacksBySeries, getFreeItems } from '@/app/browse/actions'
 import { ArrowRight, Zap, ShieldCheck, Music, Sparkles, Gift } from 'lucide-react'
 import { HeroSearch } from '@/components/HeroSearch'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { HomePacks } from '@/components/HomePacks'
+import { FreeSection } from '@/components/FreeSection'
 import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
 import { PresetCard } from '@/components/PresetCard'
@@ -28,10 +29,11 @@ export const metadata = generatePageMetadata({
 })
 
 export default async function HomePage() {
-  const [packs, presets, indiaJourneyPacks] = await Promise.all([
+  const [packs, presets, indiaJourneyPacks, freeData] = await Promise.all([
     getPacks(12),
     getPresets(4),
-    getPacksBySeries('India Journey', 8)
+    getPacksBySeries('India Journey', 8),
+    getFreeItems()
   ])
 
   const websiteSchema = {
@@ -871,6 +873,9 @@ export default async function HomePage() {
         </div>
         <div className="h-1.5 bg-[#F5F0E8]" />
       </div>
+
+      {/* 100% Free Vault Section */}
+      <FreeSection packs={freeData.packs} presets={freeData.presets} />
 
       {/* Featured Presets (EGS Free Games Style Container) */}
       <section className="py-20 overflow-hidden">

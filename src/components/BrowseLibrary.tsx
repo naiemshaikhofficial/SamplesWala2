@@ -65,12 +65,14 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
         const isPreorderActive = priceDetails.isPreorderActive
         const isExpired = priceDetails.isExpired
 
+        const isFree = currentPrice === 0 || Number(pack.price_inr) === 0
         const priceNum = getAmount(currentPrice, pack.price_usd)
-        const mrpNum = getAmount(pack.mrp_inr || (currentPrice * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
+        const rawMrp = pack.mrp_inr ? Number(pack.mrp_inr) : (isFree ? 0 : currentPrice * 3)
+        const mrpNum = getAmount(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null)
 
-        const displayPrice = formatPrice(currentPrice, pack.price_usd)
-        const displayMrp = formatPrice(pack.mrp_inr || (currentPrice * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
-        const discountPercent = Math.round((1 - (priceNum / mrpNum)) * 100)
+        const displayPrice = isFree ? 'FREE' : formatPrice(currentPrice, pack.price_usd)
+        const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null) : null
+        const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
 
         return (
           <div 
@@ -82,7 +84,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
               prefetch={false}
               className={`aspect-square relative overflow-hidden bg-studio-charcoal border-4 border-black block transition-all group-hover:-translate-y-1 ${
                 isIndia 
-                  ? 'group-hover:border-[#FF9933] shadow-[8px_8px_0px_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0px_#128807]'
+                  ? 'group-hover:border-[#FF9933] shadow-[8px_8px_0px_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0px_#128807]' 
                   : 'group-hover:border-studio-pink shadow-[8px_8px_0px_rgba(0,0,0,1)]'
               }`}
             >
@@ -126,24 +128,34 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
-                      <span className="text-[9px] text-white/50 line-through font-bold">
-                        {displayMrp}
-                      </span>
+                      {displayMrp && (
+                        <span className="text-[9px] text-white/50 line-through font-bold">
+                          {displayMrp}
+                        </span>
+                      )}
                       <p className={`text-[14px] font-black italic leading-none ${
-                        isIndia ? 'text-[#FF9933]' : 'text-studio-neon'
+                        isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
                       }`}>
                         {displayPrice}
                       </p>
                     </div>
                     
                     <div className="flex flex-col gap-1">
-                      <div className={`px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] ${
-                        isIndia ? 'bg-[#128807]' : 'bg-studio-red'
-                      }`}>
-                        <span className="text-[9px] font-black text-white uppercase italic">
-                          {discountPercent}% OFF
-                        </span>
-                      </div>
+                      {isFree ? (
+                        <div className="px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] bg-[#00FF94] text-black">
+                          <span className="text-[9px] font-black uppercase italic tracking-wider">
+                            100% FREE
+                          </span>
+                        </div>
+                      ) : discountPercent > 0 ? (
+                        <div className={`px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] ${
+                          isIndia ? 'bg-[#128807]' : 'bg-studio-red'
+                        }`}>
+                          <span className="text-[9px] font-black text-white uppercase italic">
+                            {discountPercent}% OFF
+                          </span>
+                        </div>
+                      ) : null}
                       {!pack.is_downloadable && (
                         <span className={`text-[7px] font-black uppercase tracking-tighter px-1 rounded-sm text-center ${
                           isExpired

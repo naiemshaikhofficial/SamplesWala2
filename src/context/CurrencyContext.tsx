@@ -74,6 +74,9 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
   const formatPrice = (inrAmount: number, usdAmount?: number | null): string => {
     const amt = getAmount(inrAmount, usdAmount)
+    if (amt === 0 || Number(inrAmount) === 0) {
+      return 'FREE'
+    }
     if (currency === 'INR') {
       return `₹${Math.round(amt)}`
     } else {

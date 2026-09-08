@@ -253,14 +253,16 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
   const isPreorderActive = priceDetails.isPreorderActive
   const isExpired = priceDetails.isExpired
+  const currentPriceInr = priceDetails.priceInr ?? Number(pack.price_inr ?? 0)
 
-  const currentPriceInr = priceDetails.priceInr
+  const isFree = currentPriceInr === 0 || Number(pack.price_inr) === 0
   const priceNum = getAmount(currentPriceInr, pack.price_usd)
-  const mrpNum = getAmount(pack.mrp_inr || (currentPriceInr * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
+  const rawMrp = pack.mrp_inr ? Number(pack.mrp_inr) : (isFree ? 0 : currentPriceInr * 3)
+  const mrpNum = getAmount(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null)
 
-  const displayPrice = formatPrice(currentPriceInr, pack.price_usd)
-  const displayMrp = formatPrice(pack.mrp_inr || (currentPriceInr * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)
-  const discountPercent = Math.round((1 - (priceNum / mrpNum)) * 100)
+  const displayPrice = isFree ? 'FREE' : formatPrice(currentPriceInr, pack.price_usd)
+  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null) : null
+  const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
 
   const days = priceDetails.daysLeft
   const hours = priceDetails.hoursLeft
@@ -352,19 +354,27 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               <div className="space-y-1">
                 <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Price & Value</span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-white italic tracking-tight font-mono">{displayPrice}</span>
-                  <span className="text-xs text-white/35 line-through font-bold font-mono">{displayMrp}</span>
+                  <span className={`text-3xl font-black italic tracking-tight font-mono ${isFree ? 'text-[#00FF94]' : 'text-white'}`}>{displayPrice}</span>
+                  {displayMrp && (
+                    <span className="text-xs text-white/35 line-through font-bold font-mono">{displayMrp}</span>
+                  )}
                 </div>
               </div>
 
-              <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
-                <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
-                {!pack.is_downloadable && (
-                  <span className={`text-[7px] font-black uppercase tracking-tighter px-1.5 rounded-sm mt-0.5 ${isExpired ? 'bg-black/40 text-white/60' : 'bg-white text-studio-red'}`}>
-                    {isExpired ? 'Regular' : 'Pre-order'}
-                  </span>
-                )}
-              </div>
+              {isFree ? (
+                <div className="bg-[#00FF94] text-black px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(0,255,148,0.25)] flex flex-col items-center rotate-2">
+                  <span className="text-xs font-black uppercase italic font-mono tracking-wider">100% FREE</span>
+                </div>
+              ) : discountPercent > 0 ? (
+                <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
+                  <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
+                  {!pack.is_downloadable && (
+                    <span className={`text-[7px] font-black uppercase tracking-tighter px-1.5 rounded-sm mt-0.5 ${isExpired ? 'bg-black/40 text-white/60' : 'bg-white text-studio-red'}`}>
+                      {isExpired ? 'Regular' : 'Pre-order'}
+                    </span>
+                  )}
+                </div>
+              ) : null}
             </div>
 
             {/* CTAs */}
@@ -408,7 +418,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       }}
                     />
                     <PaymentButton
-                      label={isPreorderActive ? `PRE-ORDER NOW — ${displayPrice}` : `BUY NOW — ${displayPrice}`}
+                      label={isFree ? "GET FOR FREE — INSTANT CLAIM" : (isPreorderActive ? `PRE-ORDER NOW — ${displayPrice}` : `BUY NOW — ${displayPrice}`)}
                       packId={pack.id}
                       packName={pack.name}
                       price={currentPriceInr}
@@ -785,9 +795,11 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
                   {/* Price Info */}
                   <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                    <span className="text-[9px] md:text-xs text-black/50 line-through font-bold font-mono tracking-wider">
-                      {displayMrp}
-                    </span>
+                    {displayMrp && (
+                      <span className="text-[9px] md:text-xs text-black/50 line-through font-bold font-mono tracking-wider">
+                        {displayMrp}
+                      </span>
+                    )}
                     <span className="text-xs md:text-sm font-black text-black leading-none italic uppercase tracking-wider font-mono">
                       {displayPrice}
                     </span>
@@ -832,7 +844,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       ) : (
                         <>
                           <CreditCard size={12} />
-                          <span>Buy Now</span>
+                          <span>{isFree ? 'Get Free' : 'Buy Now'}</span>
                         </>
                       )}
                     </button>

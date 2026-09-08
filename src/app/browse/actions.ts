@@ -459,3 +459,65 @@ export async function getRelatedPresets(type: string, excludeId: string) {
   )()
 }
 
+async function fetchFreeItems() {
+  const supabase = getAdminClient()
+  const [packsRes, presetsRes] = await Promise.all([
+    supabase
+      .from('sample_packs')
+      .select('id, name, slug, description, cover_url, price_inr, price_usd, mrp_inr, full_pack_download_url, created_at, updated_at, categories(name), melody_count, loop_count, one_shot_count, preset_count, total_contents_summary')
+      .eq('price_inr', 0)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('presets')
+      .select('id, name, slug, description, type, price_inr, mrp_inr, youtube_url, cover_url, daws, plugins_used, created_at')
+      .eq('price_inr', 0)
+      .order('created_at', { ascending: false })
+  ])
+
+  const packs = (packsRes.data || []).map(pack => ({
+    id: pack.id,
+    name: pack.name,
+    slug: pack.slug,
+    description: pack.description,
+    cover_url: pack.cover_url,
+    price_inr: pack.price_inr,
+    price_usd: pack.price_usd,
+    mrp_inr: pack.mrp_inr,
+    created_at: pack.created_at,
+    updated_at: pack.updated_at,
+    categories: pack.categories,
+    melody_count: pack.melody_count,
+    loop_count: pack.loop_count,
+    one_shot_count: pack.one_shot_count,
+    preset_count: pack.preset_count,
+    total_contents_summary: pack.total_contents_summary,
+    is_downloadable: !!pack.full_pack_download_url,
+  }))
+
+  const presets = (presetsRes.data || []).map((preset: any) => ({
+    id: preset.id,
+    name: preset.name,
+    slug: preset.slug,
+    description: preset.description,
+    type: preset.type,
+    price_inr: preset.price_inr,
+    mrp_inr: preset.mrp_inr,
+    youtube_url: preset.youtube_url,
+    cover_url: preset.cover_url,
+    daws: preset.daws,
+    plugins_used: preset.plugins_used,
+    created_at: preset.created_at
+  }))
+
+  return { packs, presets }
+}
+
+export async function getFreeItems() {
+  return unstable_cache(
+    async () => fetchFreeItems(),
+    ['all-free-items-list'],
+    { revalidate: 3600, tags: ['packs', 'presets'] }
+  )()
+}
+
+

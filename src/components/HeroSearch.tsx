@@ -156,10 +156,14 @@ export function HeroSearch() {
                       {pack.name}
                     </h4>
                     <div className="flex items-center gap-2">
-                      <span className="text-[8px] text-white/40 line-through font-bold">
-                        {formatPrice(pack.mrp_inr || (Number(pack.price_inr) * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)}
-                      </span>
-                      <p className="text-[10px] font-black text-studio-neon uppercase italic tracking-widest">
+                      {Number(pack.price_inr) > 0 && (
+                        <span className="text-[8px] text-white/40 line-through font-bold">
+                          {formatPrice(pack.mrp_inr || (Number(pack.price_inr) * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)}
+                        </span>
+                      )}
+                      <p className={`text-[10px] font-black uppercase italic tracking-widest ${
+                        Number(pack.price_inr) === 0 ? 'text-[#00FF94]' : 'text-studio-neon'
+                      }`}>
                         {formatPrice(pack.price_inr, pack.price_usd)}
                       </p>
                     </div>

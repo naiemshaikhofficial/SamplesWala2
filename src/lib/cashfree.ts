@@ -156,3 +156,49 @@ export async function getCashfreeOrderPayments(orderId: string): Promise<Cashfre
 
   return Array.isArray(data) ? data : []
 }
+
+/**
+ * Verifies the webhook signature sent by Cashfree
+ */
+export function verifyCashfreeWebhookSignature(
+  rawBody: string,
+  signature: string,
+  timestamp?: string | null
+): boolean {
+  try {
+    const secretKey = process.env.CASHFREE_SECRET_KEY
+    if (!secretKey || !signature) {
+      return false
+    }
+
+    const crypto = require('crypto')
+
+    // 1. Check with timestamp prefix (Cashfree standard v2023-08-01 format: timestamp + rawBody)
+    if (timestamp) {
+      const computedWithTimestamp = crypto
+        .createHmac('sha256', secretKey)
+        .update(`${timestamp}${rawBody}`)
+        .digest('base64')
+
+      if (computedWithTimestamp === signature) {
+        return true
+      }
+    }
+
+    // 2. Fallback check with rawBody only
+    const computedRaw = crypto
+      .createHmac('sha256', secretKey)
+      .update(rawBody)
+      .digest('base64')
+
+    if (computedRaw === signature) {
+      return true
+    }
+
+    return false
+  } catch (err) {
+    console.error('[CASHFREE_SIGNATURE_VERIFY_ERROR]', err)
+    return false
+  }
+}
+

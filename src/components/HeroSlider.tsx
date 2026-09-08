@@ -82,12 +82,14 @@ export function HeroSlider({ packs }: { packs: any[] }) {
   }, [activePack])
 
   const currentPriceInr = priceDetails ? priceDetails.priceInr : Number(activePack?.price_inr || 0)
+  const isFree = currentPriceInr === 0 || Number(activePack?.price_inr) === 0
   const priceNum = getAmount(currentPriceInr, activePack?.price_usd)
-  const mrpNum = getAmount(activePack?.mrp_inr || (currentPriceInr * 3), activePack?.price_usd ? Number(activePack.price_usd) * 3 : null)
+  const rawMrp = activePack?.mrp_inr ? Number(activePack.mrp_inr) : (isFree ? 0 : currentPriceInr * 3)
+  const mrpNum = getAmount(rawMrp, activePack?.price_usd ? Number(activePack.price_usd) * 3 : null)
 
-  const displayPrice = formatPrice(currentPriceInr, activePack?.price_usd)
-  const displayMrp = formatPrice(activePack?.mrp_inr || (currentPriceInr * 3), activePack?.price_usd ? Number(activePack.price_usd) * 3 : null)
-  const discountPercent = Math.round((1 - (priceNum / mrpNum)) * 100)
+  const displayPrice = isFree ? 'FREE' : formatPrice(currentPriceInr, activePack?.price_usd)
+  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, activePack?.price_usd ? Number(activePack.price_usd) * 3 : null) : null
+  const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
   const isPreorderActive = priceDetails ? priceDetails.isPreorderActive : false
   const isExpired = priceDetails ? priceDetails.isExpired : false
 
@@ -255,19 +257,31 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                     {/* Pricing Block */}
                     <div className="flex items-center gap-4 pt-2">
                       <div className="flex flex-col">
-                        <span className="text-[11px] text-white/40 line-through font-black">
-                          {displayMrp}
-                        </span>
-                        <span className="text-3xl md:text-4xl font-black text-studio-yellow italic leading-none comic-text">
+                        {displayMrp && (
+                          <span className="text-[11px] text-white/40 line-through font-black">
+                            {displayMrp}
+                          </span>
+                        )}
+                        <span className={`text-3xl md:text-4xl font-black italic leading-none comic-text ${
+                          isFree ? 'text-[#00FF94]' : 'text-studio-yellow'
+                        }`}>
                           {displayPrice}
                         </span>
                       </div>
 
-                      <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
-                        <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
-                          {discountPercent}% OFF
-                        </span>
-                      </div>
+                      {isFree ? (
+                        <div className="bg-[#00FF94] text-black px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
+                          <span className="text-[10px] md:text-xs font-black uppercase italic tracking-wider">
+                            100% FREE
+                          </span>
+                        </div>
+                      ) : discountPercent > 0 ? (
+                        <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
+                          <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
+                            {discountPercent}% OFF
+                          </span>
+                        </div>
+                      ) : null}
 
                       {!activePack.is_downloadable && (
                         <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${isExpired ? 'bg-studio-red text-white' : 'bg-studio-neon text-black'

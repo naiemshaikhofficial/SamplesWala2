@@ -86,8 +86,10 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedPacks.map((item: any) => {
-                const itemMrp = item.mrp_inr || (Number(item.price_inr) * 3)
-                const discount = Math.round((1 - (Number(item.price_inr) / itemMrp)) * 100)
+                const isFree = Number(item.price_inr) === 0
+                const itemPrice = Number(item.price_inr)
+                const itemMrp = item.mrp_inr ? Number(item.mrp_inr) : (isFree ? 0 : itemPrice * 3)
+                const discount = itemMrp > itemPrice && itemPrice > 0 ? Math.round((1 - (itemPrice / itemMrp)) * 100) : 0
                 
                 return (
                   <Link 
@@ -112,15 +114,25 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
                     <div className="flex flex-col gap-1">
                       <h3 className="font-black uppercase tracking-tight text-xs group-hover:text-studio-yellow transition-colors">{item.name}</h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-[9px] text-white/35 line-through font-bold font-mono">
-                          ₹{itemMrp}
-                        </span>
-                        <p className="text-[11px] font-black text-studio-neon uppercase italic tracking-tighter font-mono">₹{item.price_inr}</p>
-                        {discount > 0 && (
+                        {itemMrp > 0 && !isFree && (
+                          <span className="text-[9px] text-white/35 line-through font-bold font-mono">
+                            ₹{itemMrp}
+                          </span>
+                        )}
+                        <p className={`text-[11px] font-black uppercase italic tracking-tighter font-mono ${
+                          isFree ? 'text-[#00FF94]' : 'text-studio-neon'
+                        }`}>
+                          {isFree ? 'FREE' : `₹${item.price_inr}`}
+                        </p>
+                        {isFree ? (
+                          <div className="bg-[#00FF94] px-1.5 py-0.5 rounded text-[8px] font-black text-black uppercase italic font-mono">
+                            FREE
+                          </div>
+                        ) : discount > 0 ? (
                           <div className="bg-studio-red px-1.5 py-0.5 rounded text-[8px] font-black text-white uppercase italic font-mono shadow-[0_2px_6px_rgba(255,49,49,0.2)]">
                             {discount}% OFF
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </Link>

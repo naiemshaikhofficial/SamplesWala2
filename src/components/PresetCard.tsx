@@ -61,9 +61,14 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
     hidden: { opacity: 0, y: 30, scale: 0.9 },
     show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 200, damping: 15 } }
   } as const
-  const mrpVal = preset.mrp_inr || (Number(preset.price_inr) * 3)
+  const isFree = Number(preset.price_inr) === 0
   const priceVal = preset.price_inr
-  const discountPercent = Math.round((1 - (getAmount(priceVal, preset.price_usd) / getAmount(mrpVal, preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)
+  const rawMrp = preset.mrp_inr ? Number(preset.mrp_inr) : (isFree ? 0 : Number(preset.price_inr) * 3)
+  const priceNum = getAmount(priceVal, preset.price_usd)
+  const mrpNum = getAmount(rawMrp, preset.price_usd ? Number(preset.price_usd) * 3 : null)
+  const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
+  const displayPrice = isFree ? 'FREE' : formatPrice(priceVal, preset.price_usd)
+  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, preset.price_usd ? Number(preset.price_usd) * 3 : null) : null
 
   return (
     <motion.div
@@ -109,24 +114,39 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
             
             {/* Price Row (EGS Style) */}
             <div className="flex items-center gap-2 mt-1">
-              <div className="px-1.5 py-0.5 text-[10px] font-extrabold rounded-[3px] bg-studio-red text-white">
-                -{discountPercent}%
-              </div>
+              {isFree ? (
+                <div className="px-1.5 py-0.5 text-[10px] font-extrabold rounded-[3px] bg-[#00FF94] text-black">
+                  FREE
+                </div>
+              ) : discountPercent > 0 ? (
+                <div className="px-1.5 py-0.5 text-[10px] font-extrabold rounded-[3px] bg-studio-red text-white">
+                  -{discountPercent}%
+                </div>
+              ) : null}
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-white/40 line-through font-bold">
-                  {formatPrice(mrpVal, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
-                </span>
-                <span className="text-[13px] font-extrabold text-studio-neon">
-                  {formatPrice(priceVal, preset.price_usd)}
+                {displayMrp && (
+                  <span className="text-[10px] text-white/40 line-through font-bold">
+                    {displayMrp}
+                  </span>
+                )}
+                <span className={`text-[13px] font-extrabold ${isFree ? 'text-[#00FF94]' : 'text-studio-neon'}`}>
+                  {displayPrice}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 mt-2 px-2 py-0.5 border border-white/10 rounded-[3px] w-fit bg-studio-red/80 text-white">
-            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span className="text-[8px] font-bold text-white uppercase tracking-wider">Limited Offer</span>
-          </div>
+          {isFree ? (
+            <div className="flex items-center gap-1.5 mt-2 px-2 py-0.5 border border-[#00FF94]/30 rounded-[3px] w-fit bg-[#00FF94]/20 text-[#00FF94]">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#00FF94] animate-pulse" />
+              <span className="text-[8px] font-bold uppercase tracking-wider">100% Free Gift</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 mt-2 px-2 py-0.5 border border-white/10 rounded-[3px] w-fit bg-studio-red/80 text-white">
+              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <span className="text-[8px] font-bold text-white uppercase tracking-wider">Limited Offer</span>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2 mt-4 relative">

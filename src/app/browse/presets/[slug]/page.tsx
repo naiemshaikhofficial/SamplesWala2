@@ -114,15 +114,23 @@ export default async function PresetDetailPage({ params }: { params: Promise<{ s
                   <div className="flex flex-col gap-1">
                     <h3 className="font-black uppercase tracking-tight text-xs group-hover:text-studio-pink transition-colors">{item.name}</h3>
                     <div className="flex items-center gap-2">
-                      {item.mrp_inr && (
+                      {item.mrp_inr && item.price_inr > 0 && (
                         <span className="text-[8px] text-white/40 line-through font-bold">
                           ₹{item.mrp_inr}
                         </span>
                       )}
-                      <p className="text-[10px] font-black text-studio-neon uppercase italic tracking-tighter">
+                      <p className={`text-[10px] font-black uppercase italic tracking-tighter ${
+                        item.price_inr === 0 ? 'text-[#00FF94]' : 'text-studio-neon'
+                      }`}>
                         {item.price_inr === 0 ? 'FREE' : `₹${item.price_inr}`}
                       </p>
-                      {item.mrp_inr && item.price_inr > 0 && (
+                      {item.price_inr === 0 ? (
+                        <div className="bg-[#00FF94] px-1 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
+                          <span className="text-[7px] font-black text-black uppercase italic">
+                            FREE
+                          </span>
+                        </div>
+                      ) : item.mrp_inr && item.price_inr > 0 && (
                         <div className="bg-studio-yellow px-1 py-0.5 rounded-sm shadow-[2px_2px_0px_black]">
                           <span className="text-[7px] font-black text-black uppercase italic">
                             {Math.round((1 - (Number(item.price_inr) / Number(item.mrp_inr))) * 100)}% OFF

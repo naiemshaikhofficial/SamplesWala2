@@ -206,6 +206,14 @@ export async function POST(request: Request) {
       }
     }
 
+    // Mark session as completed
+    try {
+      await admin
+        .from('order_sessions')
+        .update({ status: 'COMPLETED', updated_at: new Date().toISOString() })
+        .eq('order_id', order_id)
+    } catch {}
+
     // 5. ASYNC BACKGROUND TASKS (Runs after response is delivered to user: ZERO UI LAG!)
     after(async () => {
       try {

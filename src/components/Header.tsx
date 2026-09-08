@@ -170,10 +170,14 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
                       {pack.name}
                     </h4>
                     <div className="flex items-center gap-2">
-                      <span className="text-[7px] text-white/40 line-through font-bold">
-                        {formatPrice(pack.mrp_inr || (Number(pack.price_inr) * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)}
-                      </span>
-                      <p className="text-[9px] font-black text-studio-neon uppercase italic tracking-widest leading-none">
+                      {Number(pack.price_inr) > 0 && (
+                        <span className="text-[7px] text-white/40 line-through font-bold">
+                          {formatPrice(pack.mrp_inr || (Number(pack.price_inr) * 3), pack.price_usd ? Number(pack.price_usd) * 3 : null)}
+                        </span>
+                      )}
+                      <p className={`text-[9px] font-black uppercase italic tracking-widest leading-none ${
+                        Number(pack.price_inr) === 0 ? 'text-[#00FF94]' : 'text-studio-neon'
+                      }`}>
                         {formatPrice(pack.price_inr, pack.price_usd)}
                       </p>
                     </div>
@@ -231,6 +235,14 @@ export function Header() {
       <Link href="/browse" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Browse</Link>
       <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Sample Packs</Link>
       <Link href="/browse/presets" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
+      <Link 
+        href="/free" 
+        onClick={() => setIsMenuOpen(false)} 
+        className="relative px-2.5 py-1 bg-[#00FF94] hover:bg-white text-black font-black italic rounded-sm shadow-[2px_2px_0px_black] hover:shadow-[3px_3px_0px_#FF3131] transition-all -rotate-2 hover:rotate-0 flex items-center gap-1.5"
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
+        <span>FREE</span>
+      </Link>
       <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
 
       {isArtist && (
@@ -288,9 +300,10 @@ export function Header() {
         </nav>
 
         {/* Mobile Header Nav Links */}
-        <div className="flex md:hidden items-center gap-3 text-[10px] font-black uppercase tracking-wider italic mr-1">
+        <div className="flex md:hidden items-center gap-2.5 text-[10px] font-black uppercase tracking-wider italic mr-1">
           <Link href="/" className="hover:text-studio-yellow transition-colors">Home</Link>
           <Link href="/browse" className="hover:text-studio-yellow transition-colors">Browse</Link>
+          <Link href="/free" className="px-2 py-0.5 bg-[#00FF94] text-black font-black rounded-sm shadow-[2px_2px_0px_black] text-[9px]">FREE</Link>
         </div>
 
         <div className="flex md:hidden items-center gap-3">
@@ -345,6 +358,7 @@ export function Header() {
             <nav className="flex flex-col space-y-4 text-2xl font-black uppercase tracking-tighter relative z-10">
               {[
                 { name: 'Home', href: '/' },
+                { name: '🎁 Free Sounds & Packs', href: '/free' },
                 { name: 'Browse', href: '/browse' },
                 { name: 'Browse Packs', href: '/browse/packs' },
                 { name: 'Producer Presets', href: '/browse/presets' },
@@ -352,7 +366,7 @@ export function Header() {
                 ...(isArtist ? [{ name: 'ARTIST DASHBOARD', href: dashboardUrl }] : []),
                 { name: 'Production Blog', href: '/blog' },
                 { name: 'About Us', href: '/about' },
-                { name: 'Help Center', href: '/help' },
+                { name: 'Help Center', href: '/support' },
               ].map((link) => (
                 <a
                   key={link.href}

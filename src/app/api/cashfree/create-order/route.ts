@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAdminClient } from '@/lib/supabase/admin'
 import { validateCoupon } from '@/app/checkout/actions'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { createCashfreeOrder } from '@/lib/cashfree'
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
     // 3. Generate Unique Order ID (Max 45 chars for Cashfree alphanumeric constraint)
     const orderId = `sw_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
     
-    // Cashfree Production strictly requires HTTPS return_url
+    // Cashfree Production strictly requires HTTPS return_url and notify_url
     let siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sampleswala.com'
     if (!siteUrl.startsWith('https://')) {
       siteUrl = 'https://sampleswala.com'
@@ -103,6 +104,24 @@ export async function POST(request: Request) {
     // Customer ID must be alphanumeric
     const customerId = (user.id || 'cust').replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 50) || 'customer_sw'
 
+    // Save pending order session for reliable webhook & client synchronization
+    try {
+      const admin = getAdminClient()
+      await admin.from('order_sessions').upsert({
+        order_id: orderId,
+        user_id: user.id,
+        items: items.map((i: any) => ({ id: i.id, type: i.type })),
+        billing_details: billingDetails || null,
+        coupon_code: couponCode || null,
+        amount: total,
+        currency: 'INR',
+        gateway: 'cashfree',
+        status: 'PENDING'
+      })
+    } catch (sessionErr) {
+      console.warn('[ORDER_SESSION_UPSERT_WARN]', sessionErr)
+    }
+
     // 4. Create Cashfree Order via v2023-08-01 API
     const order = await createCashfreeOrder({
       order_id: orderId,
@@ -115,7 +134,8 @@ export async function POST(request: Request) {
         customer_name: customerName
       },
       order_meta: {
-        return_url: `${siteUrl}/checkout?cf_order_id={order_id}`
+        return_url: `${siteUrl}/checkout?cf_order_id={order_id}`,
+        notify_url: `${siteUrl}/api/cashfree/webhook`
       },
       order_note: `SamplesWala Order - ${items.length} sound items`,
       order_tags: {
