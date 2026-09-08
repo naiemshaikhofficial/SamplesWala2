@@ -3,13 +3,14 @@
 let cashfreePromise: Promise<any> | null = null
 
 /**
- * Dynamically loads the official Web Payment Gateway SDK v3
+ * Dynamically and resiliently loads the official Cashfree Web SDK v3
  * URL: https://sdk.cashfree.com/js/v3/cashfree.js
  */
 export function loadCashfreeSDK(): Promise<any> {
   if (typeof window === 'undefined') return Promise.resolve(null)
 
-  if ((window as any).Cashfree) {
+  // 1. Immediate check if already loaded
+  if (typeof (window as any).Cashfree === 'function') {
     return Promise.resolve((window as any).Cashfree)
   }
 
@@ -18,48 +19,55 @@ export function loadCashfreeSDK(): Promise<any> {
   }
 
   cashfreePromise = new Promise((resolve, reject) => {
-    // Check if script element already exists in document
-    const existing = document.querySelector('script[src="https://sdk.cashfree.com/js/v3/cashfree.js"]')
-    if (existing) {
-      if ((window as any).Cashfree) {
-        resolve((window as any).Cashfree)
-        return
-      }
-      existing.addEventListener('load', () => {
-        if ((window as any).Cashfree) {
-          resolve((window as any).Cashfree)
-        } else {
-          reject(new Error('Payment gateway service failed to initialize.'))
-        }
-      })
-      existing.addEventListener('error', () => {
-        cashfreePromise = null
-        reject(new Error('Failed to load secure payment service. Please retry.'))
-      })
-      return
+    let timeoutId: any = null
+    let intervalId: any = null
+
+    const cleanup = () => {
+      if (timeoutId) clearTimeout(timeoutId)
+      if (intervalId) clearInterval(intervalId)
     }
 
-    const script = document.createElement('script')
-    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js'
-    script.async = true
-    script.crossOrigin = 'anonymous'
+    // Poller to detect window.Cashfree even if load event was missed
+    intervalId = setInterval(() => {
+      if (typeof (window as any).Cashfree === 'function') {
+        cleanup()
+        resolve((window as any).Cashfree)
+      }
+    }, 50)
 
-    script.onload = () => {
-      if ((window as any).Cashfree) {
+    // Strict 8-second safety timeout so it never hangs indefinitely
+    timeoutId = setTimeout(() => {
+      cleanup()
+      cashfreePromise = null
+      if (typeof (window as any).Cashfree === 'function') {
         resolve((window as any).Cashfree)
       } else {
-        cashfreePromise = null
-        reject(new Error('Payment gateway service failed to initialize.'))
+        reject(new Error('Payment gateway took too long to load. Please retry.'))
       }
-    }
+    }, 8000)
 
-    script.onerror = (e) => {
-      cashfreePromise = null
-      console.error('[PAYMENT_SDK_LOAD_ERROR]', e)
-      reject(new Error('Unable to connect to payment gateway. Please check your internet connection or ad-blocker.'))
-    }
+    // Check if script element already exists in document
+    let script = document.querySelector('script[src="https://sdk.cashfree.com/js/v3/cashfree.js"]') as HTMLScriptElement | null
 
-    document.head.appendChild(script)
+    if (!script) {
+      script = document.createElement('script')
+      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js'
+      script.async = true
+      // NOTE: Do NOT use crossOrigin='anonymous' as sdk.cashfree.com S3/CloudFront lacks CORS headers
+      script.onload = () => {
+        if (typeof (window as any).Cashfree === 'function') {
+          cleanup()
+          resolve((window as any).Cashfree)
+        }
+      }
+      script.onerror = (e) => {
+        cleanup()
+        cashfreePromise = null
+        console.error('[PAYMENT_SDK_LOAD_ERROR]', e)
+        reject(new Error('Unable to connect to payment gateway. Please check your internet or ad-blocker.'))
+      }
+      document.head.appendChild(script)
+    }
   })
 
   return cashfreePromise

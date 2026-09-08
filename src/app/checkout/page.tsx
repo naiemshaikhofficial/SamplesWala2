@@ -15,6 +15,7 @@ import PhoneInput, { getCountryCallingCode } from 'react-phone-number-input'
 import { useCurrency } from '@/context/CurrencyContext'
 import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
 import dynamic from 'next/dynamic'
+import Script from 'next/script'
 import { loadCashfreeSDK } from '@/lib/cashfreeClient'
 
 // Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
@@ -924,16 +925,25 @@ export default function CheckoutPage() {
       }
       sessionStorage.setItem('pending_cf_checkout', JSON.stringify(pendingState))
 
-      // 1. Create order on server
-      const res = await fetch('/api/cashfree/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.map(i => ({ id: i.id, type: i.type })),
-          couponCode: discount > 0 ? coupon : undefined,
-          billingDetails
+      // 1. Create order on server with 15-second timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+      let res: Response
+      try {
+        res = await fetch('/api/cashfree/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            items: items.map(i => ({ id: i.id, type: i.type })),
+            couponCode: discount > 0 ? coupon : undefined,
+            billingDetails
+          })
         })
-      })
+      } finally {
+        clearTimeout(timeoutId)
+      }
 
       const orderData = await res.json()
       if (!res.ok || orderData.error) {
@@ -1018,9 +1028,14 @@ export default function CheckoutPage() {
       }
     } catch (err: any) {
       console.error('[CASHFREE_CHECKOUT_ERROR]', err)
-      setError(err.message || 'Payment service is currently unavailable. Switched to backup gateway.')
+      const errorMsg = err.name === 'AbortError'
+        ? 'Connection timed out. Switched to backup payment gateway.'
+        : (err.message || 'Payment service is currently unavailable. Switched to backup gateway.')
+      setError(errorMsg)
       setShowRazorpayFallback(true)
       setPaymentStatus('idle')
+      setLoading(false)
+    } finally {
       setLoading(false)
     }
   }
@@ -1271,6 +1286,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-black text-white relative">
+      <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="afterInteractive" />
       <div className="container mx-auto max-w-5xl px-4 pt-16 pb-24 relative z-10">
         {/* Graffiti Branded Header */}
         <div className="flex flex-col items-center mb-12 text-center">

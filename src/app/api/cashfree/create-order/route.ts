@@ -87,14 +87,21 @@ export async function POST(request: Request) {
       siteUrl = 'https://sampleswala.com'
     }
 
-    // Customer details resolution
-    const customerName =
+    // Customer details resolution with strict sanitization for Cashfree
+    const rawName =
       billingDetails?.fullName ||
       user.user_metadata?.full_name ||
       user.email?.split('@')[0] ||
       'Customer'
+    const customerName = rawName.replace(/[^a-zA-Z0-9\s]/g, '').trim().substring(0, 100) || 'Customer'
 
-    const customerPhone = billingDetails?.phone || user.user_metadata?.phone || '9999999999'
+    // Cashfree strictly enforces valid 10-digit mobile number format
+    const rawPhone = String(billingDetails?.phone || user.user_metadata?.phone || '').trim()
+    const digitsOnly = rawPhone.replace(/\D/g, '')
+    const customerPhone = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : '9999999999'
+
+    // Customer ID must be alphanumeric
+    const customerId = (user.id || 'cust').replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 50) || 'customer_sw'
 
     // 4. Create Cashfree Order via v2023-08-01 API
     const order = await createCashfreeOrder({
@@ -102,7 +109,7 @@ export async function POST(request: Request) {
       order_amount: total,
       order_currency: 'INR',
       customer_details: {
-        customer_id: user.id.replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 50),
+        customer_id: customerId,
         customer_email: user.email || 'customer@sampleswala.com',
         customer_phone: customerPhone,
         customer_name: customerName
