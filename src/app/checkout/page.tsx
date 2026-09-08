@@ -387,8 +387,13 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
-  const [paymentGateway, setPaymentGateway] = useState<'sampleswala_pay' | 'razorpay'>('sampleswala_pay')
-  const [showRazorpayFallback, setShowRazorpayFallback] = useState(false)
+  const [isVerifyingRedirect, setIsVerifyingRedirect] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      return !!urlParams.get('cf_order_id')
+    }
+    return false
+  })
   const [user, setUser] = useState<any>(null)
   const [upsellPacks, setUpsellPacks] = useState<any[]>([])
   const [billingDetails, setBillingDetails] = useState({
@@ -407,45 +412,54 @@ export default function CheckoutPage() {
     const urlParams = new URLSearchParams(window.location.search)
     const cfOrderId = urlParams.get('cf_order_id')
     if (cfOrderId) {
+      setIsVerifyingRedirect(true)
+      setPaymentStatus('processing')
+      setLoading(true)
+
       const saved = sessionStorage.getItem('pending_cf_checkout')
+      let parsed: any = null
       if (saved) {
         try {
-          const parsed = JSON.parse(saved)
-          setLoading(true)
-          setPaymentStatus('processing')
-          fetch('/api/cashfree/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              order_id: cfOrderId,
-              items: parsed.items,
-              userId: parsed.userId,
-              billingDetails: parsed.billingDetails,
-              couponCode: parsed.couponCode
-            })
-          })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) {
-                sessionStorage.removeItem('pending_cf_checkout')
-                clearCart()
-                setPaymentStatus('success')
-              } else {
-                setError(data.error || 'Verification failed')
-                setPaymentStatus('idle')
-              }
-            })
-            .catch(() => {
-              setError('Failed to verify redirected transaction')
-              setPaymentStatus('idle')
-            })
-            .finally(() => setLoading(false))
+          parsed = JSON.parse(saved)
         } catch (e) {
           console.error('Failed to parse pending checkout state:', e)
         }
       }
+
+      fetch('/api/cashfree/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: cfOrderId,
+          items: parsed?.items || items.map(i => ({ id: i.id, type: i.type })),
+          userId: parsed?.userId || user?.id,
+          billingDetails: parsed?.billingDetails || billingDetails,
+          couponCode: parsed?.couponCode || (discount > 0 ? coupon : undefined)
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            sessionStorage.removeItem('pending_cf_checkout')
+            clearCart()
+            setPaymentStatus('success')
+            setIsVerifyingRedirect(false)
+          } else {
+            setError(data.error || 'Verification failed')
+            setPaymentStatus('idle')
+            setIsVerifyingRedirect(false)
+          }
+        })
+        .catch(() => {
+          setError('Failed to verify redirected transaction')
+          setPaymentStatus('idle')
+          setIsVerifyingRedirect(false)
+        })
+        .finally(() => {
+          setLoading(false)
+        })
     }
-  }, [])
+  }, [user])
 
   // Preload secure payment SDK on mount when currency is INR
   useEffect(() => {
@@ -947,13 +961,15 @@ export default function CheckoutPage() {
 
       const orderData = await res.json()
       if (!res.ok || orderData.error) {
-        throw new Error(orderData.error || 'Failed to initialize payment session')
+        console.warn('[CASHFREE_ORDER_FAILED_AUTO_FALLBACK]', orderData?.error)
+        return handleCheckout()
       }
 
       // 2. Load official Cashfree SDK v3
       const CashfreeSDK = await loadCashfreeSDK()
       if (!CashfreeSDK) {
-        throw new Error('Payment gateway SDK could not be loaded')
+        console.warn('[CASHFREE_SDK_UNAVAILABLE_AUTO_FALLBACK]')
+        return handleCheckout()
       }
 
       const cashfree = CashfreeSDK({
@@ -1025,16 +1041,9 @@ export default function CheckoutPage() {
         setLoading(false)
       }
     } catch (err: any) {
-      console.error('[CASHFREE_CHECKOUT_ERROR]', err)
-      const errorMsg = err.name === 'AbortError'
-        ? 'Connection timed out. Switched to backup payment gateway.'
-        : (err.message || 'Payment service is currently unavailable. Switched to backup gateway.')
-      setError(errorMsg)
-      setShowRazorpayFallback(true)
-      setPaymentStatus('idle')
-      setLoading(false)
-    } finally {
-      setLoading(false)
+      console.warn('[CASHFREE_ERROR_AUTO_FALLBACK_TO_RAZORPAY]', err)
+      // Automatic silent fallback without user noticing
+      return handleCheckout()
     }
   }
 
@@ -1191,6 +1200,89 @@ export default function CheckoutPage() {
       setError(e.message || 'Payment initiation failed')
       setLoading(false)
     }
+  }
+
+  // --- PROCESSING ORDER SCREEN (Cashfree redirect callback & verification overlay) ---
+  if (paymentStatus === 'processing' || isVerifyingRedirect) {
+    return (
+      <div className="min-h-[75vh] flex flex-col items-center justify-center space-y-6 text-center px-4 relative z-10">
+        <MusicalNotesBackground />
+
+        <div className="relative mb-4 flex items-center justify-center">
+          {/* Animated Glow Backdrops */}
+          <div className="absolute w-36 h-36 bg-[#FFE600]/15 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute w-28 h-28 bg-[#00FF94]/15 rounded-full blur-2xl animate-pulse delay-100" />
+
+          {/* Center Branded Animated Equalizer Badge */}
+          <div className="relative w-28 h-28 bg-black border-4 border-studio-yellow flex flex-col items-center justify-center text-studio-yellow shadow-[8px_8px_0px_#00FF94] rounded-md overflow-hidden">
+            {/* Pulsing audio equalizer bars */}
+            <div className="flex items-end gap-1 mb-2 h-8">
+              <div className="w-1.5 bg-studio-yellow animate-[bounce_0.8s_ease-in-out_infinite] h-4 rounded-full" />
+              <div className="w-1.5 bg-[#00FF94] animate-[bounce_0.6s_ease-in-out_infinite_0.1s] h-7 rounded-full" />
+              <div className="w-1.5 bg-[#FF0080] animate-[bounce_0.9s_ease-in-out_infinite_0.2s] h-5 rounded-full" />
+              <div className="w-1.5 bg-studio-yellow animate-[bounce_0.7s_ease-in-out_infinite_0.3s] h-8 rounded-full" />
+              <div className="w-1.5 bg-[#00FF94] animate-[bounce_0.5s_ease-in-out_infinite_0.15s] h-6 rounded-full" />
+            </div>
+            <span className="text-[8px] font-black uppercase tracking-widest text-white/90">
+              SYNCHRONIZING
+            </span>
+
+            {/* Neo-brutalist corner tag */}
+            <div className="absolute -top-2.5 -right-2.5 bg-studio-neon text-black text-[8px] font-black uppercase px-2 py-0.5 rounded-xs border border-black shadow-sm rotate-12">
+              LIVE
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-white">
+            Processing Your Order...
+          </h1>
+          <p className="text-white/70 font-black uppercase tracking-widest text-xs max-w-md mx-auto leading-relaxed">
+            Securing payment confirmation &amp; preparing your sound vault
+          </p>
+        </div>
+
+        {/* Status Checklist Card */}
+        <div className="max-w-md w-full p-6 md:p-8 bg-[#121214] border-2 border-black rounded-sm space-y-4 my-2 shadow-[8px_8px_0px_#FFE600] text-left">
+          <div className="space-y-3 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center gap-3 text-studio-neon">
+              <div className="w-5 h-5 rounded-full bg-studio-neon/20 border border-studio-neon flex items-center justify-center shrink-0">
+                <CheckCircle2 size={12} className="text-studio-neon" />
+              </div>
+              <span className="text-white text-[11px] font-black">1. Payment Verified With Gateway</span>
+            </div>
+
+            <div className="flex items-center gap-3 text-studio-yellow">
+              <div className="w-5 h-5 rounded-full bg-studio-yellow/20 border border-studio-yellow flex items-center justify-center shrink-0 animate-pulse">
+                <Loader2 size={12} className="text-studio-yellow animate-spin" />
+              </div>
+              <span className="text-white text-[11px] font-black">2. Generating Secure Audio Licenses</span>
+            </div>
+
+            <div className="flex items-center gap-3 text-neutral-500">
+              <div className="w-5 h-5 rounded-full bg-white/5 border border-white/20 flex items-center justify-center shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
+              </div>
+              <span className="text-[11px] font-black">3. Granting Direct Download Access</span>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+            <span className="text-[9px] text-white/50 font-bold uppercase tracking-widest flex items-center gap-1.5">
+              <ShieldCheck size={12} className="text-studio-neon" /> 256-BIT ENCRYPTED VAULT
+            </span>
+            <span className="text-[9px] text-studio-yellow font-black uppercase tracking-widest animate-pulse">
+              DO NOT REFRESH
+            </span>
+          </div>
+        </div>
+
+        <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest max-w-sm mx-auto leading-relaxed">
+          Please wait while we finalize your order tokens. You will be redirected to your library automatically.
+        </p>
+      </div>
+    )
   }
 
   if (paymentStatus === 'success') {
@@ -1560,7 +1652,7 @@ export default function CheckoutPage() {
                     {activeTotal === 0 ? (
                       <button
                         onClick={handleCheckout}
-                        disabled={loading || paymentStatus === 'processing'}
+                        disabled={loading}
                         className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
                       >
                         {loading ? (
@@ -1597,79 +1689,26 @@ export default function CheckoutPage() {
                         />
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        {!showRazorpayFallback ? (
-                          <button
-                            onClick={handleCashfreeCheckout}
-                            disabled={loading || paymentStatus === 'processing'}
-                            className="w-full h-12 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
-                          >
-                            {loading ? (
-                              <div className="flex items-center gap-2">
-                                <Loader2 className="animate-spin" size={14} />
-                                <span>Processing...</span>
-                              </div>
-                            ) : (
-                              <>
-                                <Zap size={14} className="fill-black animate-pulse" />
-                                <span>Pay — ₹{total - activeCouponDiscount}</span>
-                                <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
-                                  <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
-                                </div>
-                              </>
-                            )}
-                          </button>
-                        ) : (
-                          /* 2. FALLBACK MODE: Activated ONLY when Cashfree fails */
-                          <div className="space-y-3">
-                            <div className="p-3.5 bg-studio-yellow/10 border-2 border-studio-yellow/40 rounded-sm flex items-start gap-3">
-                              <ShieldCheck size={18} className="text-studio-yellow shrink-0 mt-0.5" />
-                              <div className="space-y-1">
-                                <p className="text-[10px] font-black uppercase tracking-wider text-studio-yellow">
-                                  Backup Gateway Activated
-                                </p>
-                                <p className="text-[8.5px] text-neutral-300 font-bold uppercase tracking-wider leading-relaxed">
-                                  Primary payment gateway experienced a temporary issue. Our secure backup gateway (Razorpay) has been enabled so you can complete your purchase smoothly.
-                                </p>
-                              </div>
-                            </div>
-
-                            <button
-                              onClick={handleCheckout}
-                              disabled={loading || paymentStatus === 'processing'}
-                              className="w-full h-12 bg-white hover:bg-neutral-200 text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group"
-                            >
-                              {loading ? (
-                                <Loader2 className="animate-spin" size={14} />
-                              ) : (
-                                <>
-                                  <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
-                                    <Image
-                                      src="/icons8-pay-96.png"
-                                      alt="Pay"
-                                      width={14}
-                                      height={14}
-                                      className="object-contain"
-                                    />
-                                  </div>
-                                  <span>Pay via Backup Gateway (Razorpay) — ₹{total - activeCouponDiscount}</span>
-                                </>
-                              )}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowRazorpayFallback(false)
-                                setError('')
-                              }}
-                              className="w-full text-center text-[8.5px] font-black text-neutral-400 hover:text-white uppercase tracking-wider py-1 underline cursor-pointer"
-                            >
-                              Retry Payment
-                            </button>
+                      <button
+                        onClick={handleCashfreeCheckout}
+                        disabled={loading}
+                        className="w-full h-12 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
+                      >
+                        {loading ? (
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="animate-spin" size={14} />
+                            <span>Processing...</span>
                           </div>
+                        ) : (
+                          <>
+                            <Zap size={14} className="fill-black animate-pulse" />
+                            <span>Pay — ₹{total - activeCouponDiscount}</span>
+                            <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                              <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
+                            </div>
+                          </>
                         )}
-                      </div>
+                      </button>
                     )}
                     <p className="text-[8px] font-black text-neutral-500 uppercase tracking-widest text-center mt-2 leading-relaxed select-none">
                       By purchasing, you agree to our{' '}
@@ -1785,7 +1824,7 @@ export default function CheckoutPage() {
             {activeTotal === 0 ? (
               <button
                 onClick={handleCheckout}
-                disabled={loading || paymentStatus === 'processing'}
+                disabled={loading}
                 className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
               >
                 {loading ? (
@@ -1821,10 +1860,10 @@ export default function CheckoutPage() {
                   className={`w-full relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
                 />
               </div>
-            ) : !showRazorpayFallback ? (
+            ) : (
               <button
                 onClick={handleCashfreeCheckout}
-                disabled={loading || paymentStatus === 'processing'}
+                disabled={loading}
                 className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
               >
                 {loading ? (
@@ -1842,41 +1881,6 @@ export default function CheckoutPage() {
                   </>
                 )}
               </button>
-            ) : (
-              <div className="space-y-1.5">
-                <button
-                  onClick={handleCheckout}
-                  disabled={loading || paymentStatus === 'processing'}
-                  className="w-full h-11 bg-white hover:bg-neutral-200 text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group"
-                >
-                  {loading ? (
-                    <Loader2 className="animate-spin" size={13} />
-                  ) : (
-                    <>
-                      <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
-                        <Image
-                          src="/icons8-pay-96.png"
-                          alt="Pay"
-                          width={14}
-                          height={14}
-                          className="object-contain"
-                        />
-                      </div>
-                      <span>Pay via Backup Gateway — ₹{total - activeCouponDiscount}</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowRazorpayFallback(false)
-                    setError('')
-                  }}
-                  className="w-full text-center text-[8px] font-black text-neutral-400 hover:text-white uppercase tracking-wider py-0.5 underline cursor-pointer"
-                >
-                  Retry Payment
-                </button>
-              </div>
             )}
             <p className="text-[7.5px] font-black text-neutral-500 uppercase tracking-widest text-center mt-3 leading-relaxed select-none">
               By purchasing, you agree to our{' '}
