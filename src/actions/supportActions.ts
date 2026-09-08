@@ -7,16 +7,18 @@ export interface SupportTicket {
   id: string
   ticket_number: string
   user_id: string | null
-  name: string
-  email: string
+  name: string | null
+  email: string | null
   category: string
   priority: string
-  status: 'OPEN' | 'IN_PROGRESS' | 'WAITING_ON_CUSTOMER' | 'RESOLVED' | 'CLOSED'
+  status: 'open' | 'in_progress' | 'resolved' | 'closed'
   order_id: string | null
   os_platform: string | null
   daw: string | null
   subject: string
-  description: string
+  message: string
+  admin_reply: string | null
+  replied_at: string | null
   created_at: string
   updated_at: string
 }
@@ -42,9 +44,119 @@ function generateTicketNumber(): string {
 }
 
 /**
+ * Normalize category string to DB constraint allowed values
+ */
+function normalizeCategory(category: string): string {
+  const map: Record<string, string> = {
+    DOWNLOAD_ISSUE: 'download',
+    PAYMENT_ORDER: 'payment',
+    DAW_COMPATIBILITY: 'daw',
+    LICENSING: 'licensing',
+    GENERAL: 'general',
+    TECHNICAL: 'technical',
+    PAYOUT: 'payout',
+  }
+  const clean = category?.toUpperCase() || ''
+  return map[clean] || category?.toLowerCase() || 'general'
+}
+
+/**
+ * Fetch all tickets for the currently logged-in user
+ */
+export async function getUserTicketsAction(): Promise<{
+  success: boolean
+  user: { id: string; email: string; name?: string } | null
+  tickets: SupportTicket[]
+  error?: string
+}> {
+  try {
+    const { data: authData } = await getUser()
+    const currentUser = authData?.user
+
+    if (!currentUser) {
+      return { success: true, user: null, tickets: [] }
+    }
+
+    const admin = getAdminClient()
+    const userEmail = currentUser.email?.toLowerCase()
+
+    // Fetch tickets where user_id matches OR email matches
+    let query = admin
+      .from('support_tickets')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (userEmail) {
+      query = query.or(`user_id.eq.${currentUser.id},email.eq.${userEmail}`)
+    } else {
+      query = query.eq('user_id', currentUser.id)
+    }
+
+    const { data: tickets, error } = await query
+
+    if (error) {
+      console.error('[GET_USER_TICKETS_ERROR]', error)
+      return { success: false, user: null, tickets: [], error: 'Failed to retrieve tickets.' }
+    }
+
+    return {
+      success: true,
+      user: {
+        id: currentUser.id,
+        email: currentUser.email || '',
+        name: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || '',
+      },
+      tickets: (tickets as SupportTicket[]) || [],
+    }
+  } catch (err: any) {
+    console.error('[GET_USER_TICKETS_EXCEPTION]', err)
+    return { success: false, user: null, tickets: [], error: err.message || 'Server error' }
+  }
+}
+
+/**
+ * Fetch tickets by an array of ticket numbers (used for localStorage guest sync)
+ */
+export async function getTicketsByNumbersAction(ticketNumbers: string[]): Promise<{
+  success: boolean
+  tickets: SupportTicket[]
+}> {
+  if (!ticketNumbers || ticketNumbers.length === 0) {
+    return { success: true, tickets: [] }
+  }
+
+  try {
+    const admin = getAdminClient()
+    const cleanNumbers = ticketNumbers.map((n) => n.trim().toUpperCase()).filter(Boolean)
+
+    const { data, error } = await admin
+      .from('support_tickets')
+      .select('*')
+      .in('ticket_number', cleanNumbers)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('[GET_TICKETS_BY_NUMBERS_ERROR]', error)
+      return { success: false, tickets: [] }
+    }
+
+    return { success: true, tickets: (data as SupportTicket[]) || [] }
+  } catch (err) {
+    console.error('[GET_TICKETS_BY_NUMBERS_EXCEPTION]', err)
+    return { success: false, tickets: [] }
+  }
+}
+
+/**
  * Create and submit a new Support Ticket to Supabase
  */
-export async function createSupportTicketAction(data: TicketSubmissionData) {
+export async function createSupportTicketAction(data: TicketSubmissionData): Promise<{
+  success: boolean
+  ticketNumber?: string
+  ticket?: SupportTicket
+  message?: string
+  error?: string
+}> {
   const { name, email, category, priority = 'NORMAL', orderId, osPlatform, daw, subject, description } = data
 
   if (!name?.trim() || !email?.trim() || !subject?.trim() || !description?.trim()) {
@@ -81,6 +193,9 @@ export async function createSupportTicketAction(data: TicketSubmissionData) {
       }
     }
 
+    const dbCategory = normalizeCategory(category)
+    const cleanPriority = priority.toUpperCase() === 'URGENT' ? 'URGENT' : priority.toUpperCase() === 'HIGH' ? 'HIGH' : 'NORMAL'
+
     const { data: ticket, error: ticketError } = await admin
       .from('support_tickets')
       .insert({
@@ -88,14 +203,14 @@ export async function createSupportTicketAction(data: TicketSubmissionData) {
         user_id: userId,
         name: name.trim(),
         email: email.trim().toLowerCase(),
-        category: category || 'GENERAL',
-        priority: priority.toUpperCase(),
-        status: 'OPEN',
+        category: dbCategory,
+        priority: cleanPriority,
+        status: 'open',
         order_id: orderId?.trim() || null,
         os_platform: osPlatform || null,
         daw: daw || null,
         subject: subject.trim(),
-        description: description.trim(),
+        message: description.trim(),
       })
       .select()
       .single()
@@ -108,8 +223,8 @@ export async function createSupportTicketAction(data: TicketSubmissionData) {
     return {
       success: true,
       ticketNumber,
-      ticketId: ticket.id,
-      message: `Support ticket #${ticketNumber} created successfully! Our team will get back to you shortly.`,
+      ticket: ticket as SupportTicket,
+      message: `Support ticket #${ticketNumber} created successfully! Our audio team will get back to you shortly.`,
     }
   } catch (err: any) {
     console.error('[CREATE_TICKET_EXCEPTION]', err)
@@ -132,7 +247,7 @@ export async function getTicketStatusAction(ticketNumber: string, email: string)
 
     const { data: ticket, error } = await admin
       .from('support_tickets')
-      .select('id, ticket_number, name, email, category, priority, status, subject, description, created_at, updated_at')
+      .select('*')
       .eq('ticket_number', cleanNumber)
       .maybeSingle()
 
@@ -141,25 +256,13 @@ export async function getTicketStatusAction(ticketNumber: string, email: string)
     }
 
     // Security check: email must match ticket's recorded email
-    if (ticket.email.toLowerCase() !== cleanEmail) {
+    if (ticket.email && ticket.email.toLowerCase() !== cleanEmail) {
       return { success: false, error: 'Email does not match the record for this ticket number.' }
     }
 
     return {
       success: true,
-      ticket: {
-        id: ticket.id,
-        ticket_number: ticket.ticket_number,
-        name: ticket.name,
-        email: ticket.email,
-        category: ticket.category,
-        priority: ticket.priority,
-        status: ticket.status,
-        subject: ticket.subject,
-        description: ticket.description,
-        created_at: ticket.created_at,
-        updated_at: ticket.updated_at,
-      },
+      ticket: ticket as SupportTicket,
     }
   } catch (err: any) {
     console.error('[GET_TICKET_STATUS_ERROR]', err)

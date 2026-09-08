@@ -62,7 +62,7 @@ export default function HelpPage() {
               Have an issue with downloads, payments, or audio files?
             </h3>
             <p className="text-xs text-white/50 leading-relaxed font-bold uppercase tracking-wider">
-              Open a tracked support ticket directly. Receive a unique ticket code (SW-TK-XXXXX) to track resolution progress live.
+              Open a support ticket directly. View live status and engineer responses directly on your support desk in real time.
             </p>
             <div className="pt-2 flex flex-wrap gap-4">
               <Link
@@ -73,10 +73,10 @@ export default function HelpPage() {
                 <ArrowRight size={14} />
               </Link>
               <Link
-                href="/support?tab=track"
+                href="/support?tab=tickets"
                 className="px-6 py-3.5 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-sm border border-white/10 transition-colors inline-flex items-center gap-2"
               >
-                <span>Track Existing Ticket</span>
+                <span>View Your Tickets</span>
               </Link>
             </div>
           </div>
