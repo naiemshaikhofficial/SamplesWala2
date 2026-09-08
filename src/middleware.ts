@@ -89,7 +89,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 🟢 CPU OPTIMIZATION: Immediate redirect for dead pages to bypass expensive rate limiting or DB session checks.
-  const deadLinks = ['/free', '/samples', '/vst-plugins', '/vocal-packs'];
+  const deadLinks = ['/samples', '/vst-plugins', '/vocal-packs'];
   if (deadLinks.includes(pathname)) {
     return NextResponse.redirect(new URL('/browse/packs', request.url), 301);
   }
