@@ -22,10 +22,10 @@ export function getPackPriceDetails(pack: {
   const isPreorder = pack.is_downloadable !== undefined
     ? !pack.is_downloadable
     : !pack.full_pack_download_url;
-  if (!isPreorder || !pack.created_at) {
+  if (basePriceInr === 0 || !isPreorder || !pack.created_at) {
     return {
       priceInr: basePriceInr,
-      priceUsd: basePriceUsd,
+      priceUsd: basePriceInr === 0 ? 0 : basePriceUsd,
       isExpired: false,
       isPreorderActive: false,
       daysLeft: 0,

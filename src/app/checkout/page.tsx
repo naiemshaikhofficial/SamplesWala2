@@ -387,6 +387,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
+  const [isOrderComplete, setIsOrderComplete] = useState(false)
   const [isVerifyingRedirect, setIsVerifyingRedirect] = useState(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
@@ -442,8 +443,8 @@ export default function CheckoutPage() {
           if (data.success) {
             sessionStorage.removeItem('pending_cf_checkout')
             clearCart()
-            setPaymentStatus('success')
-            setIsVerifyingRedirect(false)
+            setIsOrderComplete(true)
+            window.location.href = `/thank-you?order_id=${data.orderId || cfOrderId}`
           } else {
             setError(data.error || 'Verification failed')
             setPaymentStatus('idle')
