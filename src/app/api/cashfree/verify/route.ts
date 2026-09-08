@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { generateInvoicePDF } from '@/lib/invoice'
@@ -36,24 +36,20 @@ export async function POST(request: Request) {
 
     const admin = getAdminClient()
 
-    // 1. DIRECT CASHFREE SERVER-TO-SERVER VERIFICATION
+    // 1. DIRECT CASHFREE SERVER-TO-SERVER VERIFICATION (Single Fast Network Call)
     const cashfreeOrder = await getCashfreeOrder(order_id)
 
     let isPaid = cashfreeOrder.order_status === 'PAID'
-    let successfulPaymentId = ''
+    let finalPaymentId = cashfreeOrder.cf_order_id ? `CF_${cashfreeOrder.cf_order_id}` : `CF_PAY_${order_id}`
 
-    // If order_status isn't marked PAID yet, query order payments array for any successful attempt
+    // Only make a 2nd network call if status isn't marked PAID yet (saves 600-800ms)
     if (!isPaid) {
       const payments = await getCashfreeOrderPayments(order_id)
       const successPayment = payments.find(p => p.payment_status === 'SUCCESS')
       if (successPayment) {
         isPaid = true
-        successfulPaymentId = String(successPayment.cf_payment_id)
+        finalPaymentId = String(successPayment.cf_payment_id)
       }
-    } else {
-      const payments = await getCashfreeOrderPayments(order_id)
-      const successPayment = payments.find(p => p.payment_status === 'SUCCESS')
-      successfulPaymentId = successPayment ? String(successPayment.cf_payment_id) : `CF_PAY_${order_id}`
     }
 
     if (!isPaid) {
@@ -63,8 +59,6 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
-
-    const finalPaymentId = successfulPaymentId || `CF_PAY_${order_id}`
 
     // 2. REPLAY ATTACK DEFENSE: Check if this order or payment has already been credited
     const { data: existingEntry } = await admin
@@ -200,97 +194,100 @@ export async function POST(request: Request) {
       }
     }
 
-    // 5. RECORD COUPON USAGE
-    if (couponCode) {
-      const cleanCoupon = String(couponCode).toUpperCase().trim()
-      const { data: coupon } = await admin
-        .from('coupons')
-        .select('id')
-        .eq('code', cleanCoupon)
-        .eq('is_active', true)
-        .maybeSingle()
+    // 5. ASYNC BACKGROUND TASKS (Runs after response is delivered to user: ZERO UI LAG!)
+    after(async () => {
+      try {
+        // Record coupon usage
+        if (couponCode) {
+          const cleanCoupon = String(couponCode).toUpperCase().trim()
+          const { data: coupon } = await admin
+            .from('coupons')
+            .select('id')
+            .eq('code', cleanCoupon)
+            .eq('is_active', true)
+            .maybeSingle()
 
-      if (coupon) {
-        await admin.from('coupon_usages').insert({
-          coupon_id: coupon.id,
-          user_id: targetUserId,
-          order_id: order_id
-        })
-      }
-    }
-
-    // 6. UPDATE USER ACCOUNT BILLING DETAILS
-    if (billingDetails) {
-      const { error: accountError } = await admin.from('user_accounts').upsert({
-        user_id: targetUserId,
-        full_name: billingDetails.fullName,
-        phone_number: billingDetails.phone,
-        address_line1: billingDetails.address,
-        city: billingDetails.city,
-        state: billingDetails.state,
-        postal_code: billingDetails.zip,
-        country: billingDetails.country,
-        updated_at: new Date().toISOString()
-      })
-
-      if (accountError) {
-        console.error('[CASHFREE_ACCOUNT_UPDATE_ERROR]', accountError)
-      }
-    }
-
-    // 7. ASYNC PDF INVOICE GENERATION & CONFIRMATION EMAIL
-    try {
-      const { data: { user }, error: userError } = await admin.auth.admin.getUserById(targetUserId)
-
-      if (user && user.email) {
-        const invoiceItems = items.map((item: any) => {
-          const dbItem = allPurchasedItems.find(p => p.id === item.id)
-          const vaultEntry = vaultEntries.find((v: any) => v.item_id === item.id)
-          return {
-            name: dbItem?.name || 'Unknown Item',
-            price: vaultEntry ? vaultEntry.amount : (dbItem?.price_inr || 0),
-            isPreorder: item.type === 'pack' && !dbItem?.full_pack_download_url
+          if (coupon) {
+            await admin.from('coupon_usages').insert({
+              coupon_id: coupon.id,
+              user_id: targetUserId,
+              order_id: order_id
+            })
           }
-        })
+        }
 
-        const total = serverVerifiedTotal
-        const hasPreorder = invoiceItems.some(i => i.isPreorder)
+        // Update billing details in user account
+        if (billingDetails) {
+          const { error: accountError } = await admin.from('user_accounts').upsert({
+            user_id: targetUserId,
+            full_name: billingDetails.fullName,
+            phone_number: billingDetails.phone,
+            address_line1: billingDetails.address,
+            city: billingDetails.city,
+            state: billingDetails.state,
+            postal_code: billingDetails.zip,
+            country: billingDetails.country,
+            updated_at: new Date().toISOString()
+          })
 
-        const userAddress = billingDetails
-          ? `${billingDetails.address}, ${billingDetails.city}, ${billingDetails.state} - ${billingDetails.zip}`
-          : undefined
+          if (accountError) {
+            console.error('[CASHFREE_ACCOUNT_UPDATE_ERROR]', accountError)
+          }
+        }
 
-        const pdfBuffer = await generateInvoicePDF({
-          orderId: order_id,
-          paymentId: finalPaymentId,
-          userName:
-            user.user_metadata?.full_name ||
-            billingDetails?.fullName ||
-            user.email.split('@')[0],
-          userEmail: user.email,
-          userAddress: userAddress,
-          items: invoiceItems,
-          total: total,
-          date: new Date().toLocaleDateString()
-        })
+        // PDF Invoice Generation & Confirmation Email
+        const { data: { user } } = await admin.auth.admin.getUserById(targetUserId)
 
-        await sendInvoiceEmail({
-          email: user.email,
-          pdfBuffer,
-          orderId: order_id,
-          packNames: invoiceItems.map(i => i.name),
-          userName:
-            user.user_metadata?.full_name ||
-            billingDetails?.fullName ||
-            user.email.split('@')[0],
-          total: total,
-          items: invoiceItems,
-          isPreorder: hasPreorder
-        })
+        if (user && user.email) {
+          const invoiceItems = items.map((item: any) => {
+            const dbItem = allPurchasedItems.find(p => p.id === item.id)
+            const vaultEntry = vaultEntries.find((v: any) => v.item_id === item.id)
+            return {
+              name: dbItem?.name || 'Unknown Item',
+              price: vaultEntry ? vaultEntry.amount : (dbItem?.price_inr || 0),
+              isPreorder: item.type === 'pack' && !dbItem?.full_pack_download_url
+            }
+          })
+
+          const total = serverVerifiedTotal
+          const hasPreorder = invoiceItems.some(i => i.isPreorder)
+
+          const userAddress = billingDetails
+            ? `${billingDetails.address}, ${billingDetails.city}, ${billingDetails.state} - ${billingDetails.zip}`
+            : undefined
+
+          const pdfBuffer = await generateInvoicePDF({
+            orderId: order_id,
+            paymentId: finalPaymentId,
+            userName:
+              user.user_metadata?.full_name ||
+              billingDetails?.fullName ||
+              user.email.split('@')[0],
+            userEmail: user.email,
+            userAddress: userAddress,
+            items: invoiceItems,
+            total: total,
+            date: new Date().toLocaleDateString()
+          })
+
+          await sendInvoiceEmail({
+            email: user.email,
+            pdfBuffer,
+            orderId: order_id,
+            packNames: invoiceItems.map(i => i.name),
+            userName:
+              user.user_metadata?.full_name ||
+              billingDetails?.fullName ||
+              user.email.split('@')[0],
+            total: total,
+            items: invoiceItems,
+            isPreorder: hasPreorder
+          })
+        }
+      } catch (bgErr) {
+        console.error('[CASHFREE_ASYNC_BACKGROUND_ERROR]', bgErr)
       }
-    } catch (emailErr) {
-      console.error('[CASHFREE_INVOICE_SEND_EMAIL_ERROR]', emailErr)
-    }
+    })
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

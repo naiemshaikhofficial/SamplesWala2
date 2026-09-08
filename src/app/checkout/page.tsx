@@ -997,8 +997,11 @@ export default function CheckoutPage() {
 
       if (verifyData.success) {
         sessionStorage.removeItem('pending_cf_checkout')
-        // Sync billing details to DB metadata
-        await supabase.auth.updateUser({
+        setPaymentStatus('success')
+        clearCart()
+
+        // Background profile sync (non-blocking for instant UI feedback)
+        supabase.auth.updateUser({
           data: {
             full_name: billingDetails.fullName,
             phone: billingDetails.phone,
@@ -1008,19 +1011,14 @@ export default function CheckoutPage() {
             zip: billingDetails.zip,
             country: billingDetails.country
           }
-        })
+        }).catch(e => console.error('Background user profile sync error:', e))
 
-        try {
-          await supabase
+        Promise.resolve(
+          supabase
             .from('user_accounts')
             .update({ newsletter: newsletterOptIn })
             .eq('user_id', user.id)
-        } catch (e) {
-          console.error('Failed to update newsletter status:', e)
-        }
-
-        setPaymentStatus('success')
-        clearCart()
+        ).catch(e => console.error('Background newsletter update error:', e))
       } else {
         setError(verifyData.error || 'Payment was not confirmed. If money was deducted, contact support.')
         setPaymentStatus('idle')

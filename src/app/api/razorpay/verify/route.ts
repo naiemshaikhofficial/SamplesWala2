@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import crypto from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
@@ -208,95 +208,95 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3.5 Record Coupon Usage
-    if (couponCode) {
-      const cleanCoupon = String(couponCode).toUpperCase().trim()
-      const { data: coupon } = await admin
-        .from('coupons')
-        .select('id')
-        .eq('code', cleanCoupon)
-        .eq('is_active', true)
-        .maybeSingle()
+    // 4. ASYNC BACKGROUND TASKS (Runs after response is sent: instant response for user!)
+    after(async () => {
+      try {
+        if (couponCode) {
+          const cleanCoupon = String(couponCode).toUpperCase().trim()
+          const { data: coupon } = await admin
+            .from('coupons')
+            .select('id')
+            .eq('code', cleanCoupon)
+            .eq('is_active', true)
+            .maybeSingle()
 
-      if (coupon) {
-        await admin
-          .from('coupon_usages')
-          .insert({
-            coupon_id: coupon.id,
-            user_id: targetUserId,
-            order_id: finalOrderId
-          })
-      }
-    }
-
-    // 4. Update User Account Details
-    if (billingDetails) {
-      const { error: accountError } = await admin
-        .from('user_accounts')
-        .upsert({
-          user_id: targetUserId,
-          full_name: billingDetails.fullName,
-          phone_number: billingDetails.phone,
-          address_line1: billingDetails.address,
-          city: billingDetails.city,
-          state: billingDetails.state,
-          postal_code: billingDetails.zip,
-          country: billingDetails.country,
-          updated_at: new Date().toISOString()
-        })
-
-      if (accountError) {
-        console.error('[UPDATE_ACCOUNT_ERROR]', accountError)
-      }
-    }
-
-    // 5. Send Invoice (Async)
-    try {
-      const { data: { user }, error: userError } = await admin.auth.admin.getUserById(targetUserId)
-      
-      if (user && user.email) {
-        const invoiceItems = items.map((item: any) => {
-          const dbItem = allPurchasedItems.find(p => p.id === item.id)
-          const vaultEntry = vaultEntries.find((v: any) => v.item_id === item.id)
-          return { 
-            name: dbItem?.name || 'Unknown Item', 
-            price: vaultEntry ? vaultEntry.amount : (dbItem?.price_inr || 0),
-            isPreorder: item.type === 'pack' && !dbItem?.full_pack_download_url 
+          if (coupon) {
+            await admin
+              .from('coupon_usages')
+              .insert({
+                coupon_id: coupon.id,
+                user_id: targetUserId,
+                order_id: finalOrderId
+              })
           }
-        })
+        }
 
-        const total = serverVerifiedTotal
-        const hasPreorder = invoiceItems.some(i => i.isPreorder)
+        if (billingDetails) {
+          const { error: accountError } = await admin
+            .from('user_accounts')
+            .upsert({
+              user_id: targetUserId,
+              full_name: billingDetails.fullName,
+              phone_number: billingDetails.phone,
+              address_line1: billingDetails.address,
+              city: billingDetails.city,
+              state: billingDetails.state,
+              postal_code: billingDetails.zip,
+              country: billingDetails.country,
+              updated_at: new Date().toISOString()
+            })
 
-        const userAddress = billingDetails 
-          ? `${billingDetails.address}, ${billingDetails.city}, ${billingDetails.state} - ${billingDetails.zip}`
-          : undefined
+          if (accountError) {
+            console.error('[UPDATE_ACCOUNT_ERROR]', accountError)
+          }
+        }
 
-        const pdfBuffer = await generateInvoicePDF({
-          orderId: finalOrderId,
-          paymentId: finalPaymentId,
-          userName: user.user_metadata?.full_name || billingDetails?.fullName || user.email.split('@')[0],
-          userEmail: user.email,
-          userAddress: userAddress,
-          items: invoiceItems,
-          total: total,
-          date: new Date().toLocaleDateString()
-        })
+        const { data: { user }, error: userError } = await admin.auth.admin.getUserById(targetUserId)
+        
+        if (user && user.email) {
+          const invoiceItems = items.map((item: any) => {
+            const dbItem = allPurchasedItems.find(p => p.id === item.id)
+            const vaultEntry = vaultEntries.find((v: any) => v.item_id === item.id)
+            return { 
+              name: dbItem?.name || 'Unknown Item', 
+              price: vaultEntry ? vaultEntry.amount : (dbItem?.price_inr || 0),
+              isPreorder: item.type === 'pack' && !dbItem?.full_pack_download_url 
+            }
+          })
 
-        await sendInvoiceEmail({
-          email: user.email,
-          pdfBuffer,
-          orderId: finalOrderId,
-          packNames: invoiceItems.map(i => i.name),
-          userName: user.user_metadata?.full_name || billingDetails?.fullName || user.email.split('@')[0],
-          total: total,
-          items: invoiceItems,
-          isPreorder: hasPreorder
-        })
+          const total = serverVerifiedTotal
+          const hasPreorder = invoiceItems.some(i => i.isPreorder)
+
+          const userAddress = billingDetails 
+            ? `${billingDetails.address}, ${billingDetails.city}, ${billingDetails.state} - ${billingDetails.zip}`
+            : undefined
+
+          const pdfBuffer = await generateInvoicePDF({
+            orderId: finalOrderId,
+            paymentId: finalPaymentId,
+            userName: user.user_metadata?.full_name || billingDetails?.fullName || user.email.split('@')[0],
+            userEmail: user.email,
+            userAddress: userAddress,
+            items: invoiceItems,
+            total: total,
+            date: new Date().toLocaleDateString()
+          })
+
+          await sendInvoiceEmail({
+            email: user.email,
+            pdfBuffer,
+            orderId: finalOrderId,
+            packNames: invoiceItems.map(i => i.name),
+            userName: user.user_metadata?.full_name || billingDetails?.fullName || user.email.split('@')[0],
+            total: total,
+            items: invoiceItems,
+            isPreorder: hasPreorder
+          })
+        }
+      } catch (bgErr) {
+        console.error('[RAZORPAY_ASYNC_BACKGROUND_ERROR]', bgErr)
       }
-    } catch (emailErr) {
-      console.error('[INVOICE_SEND_EMAIL_ERROR]', emailErr)
-    }
+    })
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
