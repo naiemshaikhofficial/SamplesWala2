@@ -444,6 +444,15 @@ export default function CheckoutPage() {
       }
     }
   }, [])
+
+  // Preload secure payment SDK on mount when currency is INR
+  useEffect(() => {
+    if (currency === 'INR') {
+      loadCashfreeSDK().catch(err => {
+        console.warn('Preloading payment gateway:', err)
+      })
+    }
+  }, [currency])
   const currentCountryCode = React.useMemo(() => {
     const opt = countryOptions.find(o => o.label.toLowerCase() === billingDetails.country.toLowerCase())
     return opt?.value

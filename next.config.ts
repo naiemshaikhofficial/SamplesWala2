@@ -39,13 +39,13 @@ const nextConfig: NextConfig = {
     const isDev = process.env.NODE_ENV === 'development';
     const csp = [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://checkout.razorpay.com https://challenges.cloudflare.com https://widget.trustpilot.com https://www.paypal.com https://*.paypalobjects.com`,
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://checkout.razorpay.com https://challenges.cloudflare.com https://widget.trustpilot.com https://www.paypal.com https://*.paypalobjects.com https://sdk.cashfree.com https://*.cashfree.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' https: data: blob:",
       "font-src 'self' https://fonts.gstatic.com data:",
-      `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''} wss://*.supabase.co https://*.supabase.co https://api.razorpay.com https://challenges.cloudflare.com https://sampleswala-images.sampleswala.workers.dev https://*.paypal.com https://api.indexnow.org`.trim(),
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL || ''} wss://*.supabase.co https://*.supabase.co https://api.razorpay.com https://challenges.cloudflare.com https://sampleswala-images.sampleswala.workers.dev https://*.paypal.com https://api.indexnow.org https://api.cashfree.com https://*.cashfree.com`.trim(),
       "media-src 'self' blob: https:",
-      "frame-src 'self' https://challenges.cloudflare.com https://widget.trustpilot.com https://www.youtube.com https://www.youtube-nocookie.com https://api.razorpay.com https://www.paypal.com https://*.paypal.com",
+      "frame-src 'self' https://challenges.cloudflare.com https://widget.trustpilot.com https://www.youtube.com https://www.youtube-nocookie.com https://api.razorpay.com https://www.paypal.com https://*.paypal.com https://*.cashfree.com",
       "object-src 'none'",
       "base-uri 'self'",
       "frame-ancestors 'none'",
