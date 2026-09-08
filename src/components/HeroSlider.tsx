@@ -269,13 +269,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         </span>
                       </div>
 
-                      {isFree ? (
-                        <div className="bg-[#00FF94] text-black px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
-                          <span className="text-[10px] md:text-xs font-black uppercase italic tracking-wider">
-                            100% FREE
-                          </span>
-                        </div>
-                      ) : discountPercent > 0 ? (
+                      {!isFree && discountPercent > 0 ? (
                         <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
                           <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
                             {discountPercent}% OFF
@@ -283,7 +277,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         </div>
                       ) : null}
 
-                      {!activePack.is_downloadable && (
+                      {!isFree && !activePack.is_downloadable && (
                         <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${isExpired ? 'bg-studio-red text-white' : 'bg-studio-neon text-black'
                           }`}>
                           {isExpired ? 'Regular Price' : 'Pre-Order Offer'}

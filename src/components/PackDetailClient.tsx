@@ -361,11 +361,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                 </div>
               </div>
 
-              {isFree ? (
-                <div className="bg-[#00FF94] text-black px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(0,255,148,0.25)] flex flex-col items-center rotate-2">
-                  <span className="text-xs font-black uppercase italic font-mono tracking-wider">100% FREE</span>
-                </div>
-              ) : discountPercent > 0 ? (
+              {!isFree && discountPercent > 0 ? (
                 <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
                   <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
                   {!pack.is_downloadable && (
@@ -395,7 +391,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                 )
               ) : (
                 <div className="flex flex-col gap-3">
-                  {!pack.is_downloadable && isPreorderActive && (
+                  {!isFree && !pack.is_downloadable && isPreorderActive && (
                     <div className="bg-studio-red/10 border border-studio-red/20 p-2.5 rounded-xl text-center">
                       <p className="text-[9px] font-black text-studio-red uppercase tracking-widest animate-pulse font-mono">
                         🔥 Special Pre-order Offer Active

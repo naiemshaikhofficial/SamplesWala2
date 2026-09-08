@@ -124,11 +124,7 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
                         }`}>
                           {isFree ? 'FREE' : `₹${item.price_inr}`}
                         </p>
-                        {isFree ? (
-                          <div className="bg-[#00FF94] px-1.5 py-0.5 rounded text-[8px] font-black text-black uppercase italic font-mono">
-                            FREE
-                          </div>
-                        ) : discount > 0 ? (
+                        {!isFree && discount > 0 ? (
                           <div className="bg-studio-red px-1.5 py-0.5 rounded text-[8px] font-black text-white uppercase italic font-mono shadow-[0_2px_6px_rgba(255,49,49,0.2)]">
                             {discount}% OFF
                           </div>

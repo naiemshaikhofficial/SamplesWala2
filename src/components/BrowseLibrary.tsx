@@ -98,7 +98,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
               
-              {!pack.is_downloadable && (
+              {!isFree && !pack.is_downloadable && (
                 <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 border border-black rounded-sm -rotate-3 z-10 ${
                   isExpired
                     ? 'bg-studio-red text-white shadow-[4px_4px_0px_black]'
@@ -141,13 +141,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                     </div>
                     
                     <div className="flex flex-col gap-1">
-                      {isFree ? (
-                        <div className="px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] bg-[#00FF94] text-black">
-                          <span className="text-[9px] font-black uppercase italic tracking-wider">
-                            100% FREE
-                          </span>
-                        </div>
-                      ) : discountPercent > 0 ? (
+                      {!isFree && discountPercent > 0 ? (
                         <div className={`px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] ${
                           isIndia ? 'bg-[#128807]' : 'bg-studio-red'
                         }`}>
@@ -156,7 +150,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                           </span>
                         </div>
                       ) : null}
-                      {!pack.is_downloadable && (
+                      {!isFree && !pack.is_downloadable && (
                         <span className={`text-[7px] font-black uppercase tracking-tighter px-1 rounded-sm text-center ${
                           isExpired
                             ? 'bg-studio-charcoal text-white/40 border border-black/20'
@@ -170,19 +164,21 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                 </div>
 
                 {/* Limited Offer / Countdown Tag */}
-                {!pack.is_downloadable && isPreorderActive ? (
-                  <PackCountdown pack={pack} isIndia={isIndia} />
-                ) : (
-                  <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 border-2 border-black rounded-sm w-fit rotate-1 ${
-                    isExpired
-                      ? 'bg-studio-charcoal text-white/80 shadow-[3px_3px_0px_black]'
-                      : (isIndia ? 'bg-[#128807] shadow-[3px_3px_0px_#FF9933]' : 'bg-studio-red shadow-[3px_3px_0px_rgba(0,0,0,1)]')
-                  }`}>
-                    <div className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-studio-neon animate-pulse' : 'bg-white animate-pulse'}`} />
-                    <span className="text-[8px] font-black text-white uppercase tracking-widest">
-                      {isExpired ? 'In Stock / Ready' : 'Limited Offer'}
-                    </span>
-                  </div>
+                {!isFree && (
+                  !pack.is_downloadable && isPreorderActive ? (
+                    <PackCountdown pack={pack} isIndia={isIndia} />
+                  ) : (
+                    <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 border-2 border-black rounded-sm w-fit rotate-1 ${
+                      isExpired
+                        ? 'bg-studio-charcoal text-white/80 shadow-[3px_3px_0px_black]'
+                        : (isIndia ? 'bg-[#128807] shadow-[3px_3px_0px_#FF9933]' : 'bg-studio-red shadow-[3px_3px_0px_rgba(0,0,0,1)]')
+                    }`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-studio-neon animate-pulse' : 'bg-white animate-pulse'}`} />
+                      <span className="text-[8px] font-black text-white uppercase tracking-widest">
+                        {isExpired ? 'In Stock / Ready' : 'Limited Offer'}
+                      </span>
+                    </div>
+                  )
                 )}
               </div>
 
