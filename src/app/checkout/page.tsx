@@ -15,6 +15,7 @@ import PhoneInput, { getCountryCallingCode } from 'react-phone-number-input'
 import { useCurrency } from '@/context/CurrencyContext'
 import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
 import dynamic from 'next/dynamic'
+import { loadCashfreeSDK } from '@/lib/cashfreeClient'
 
 // Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
 const CustomCountrySelect = ({ value, onChange, options, iconComponent: Icon }: any) => {
@@ -385,6 +386,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
+  const [paymentGateway, setPaymentGateway] = useState<'sampleswala_pay' | 'razorpay'>('sampleswala_pay')
   const [user, setUser] = useState<any>(null)
   const [upsellPacks, setUpsellPacks] = useState<any[]>([])
   const [billingDetails, setBillingDetails] = useState({
@@ -396,6 +398,52 @@ export default function CheckoutPage() {
     zip: '',
     country: 'India'
   })
+
+  // Automatic verification if returning from mobile UPI app or redirect
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const urlParams = new URLSearchParams(window.location.search)
+    const cfOrderId = urlParams.get('cf_order_id')
+    if (cfOrderId) {
+      const saved = sessionStorage.getItem('pending_cf_checkout')
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved)
+          setLoading(true)
+          setPaymentStatus('processing')
+          fetch('/api/cashfree/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              order_id: cfOrderId,
+              items: parsed.items,
+              userId: parsed.userId,
+              billingDetails: parsed.billingDetails,
+              couponCode: parsed.couponCode
+            })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                sessionStorage.removeItem('pending_cf_checkout')
+                clearCart()
+                setPaymentStatus('success')
+              } else {
+                setError(data.error || 'Verification failed')
+                setPaymentStatus('idle')
+              }
+            })
+            .catch(() => {
+              setError('Failed to verify redirected transaction')
+              setPaymentStatus('idle')
+            })
+            .finally(() => setLoading(false))
+        } catch (e) {
+          console.error('Failed to parse pending checkout state:', e)
+        }
+      }
+    }
+  }, [])
   const currentCountryCode = React.useMemo(() => {
     const opt = countryOptions.find(o => o.label.toLowerCase() === billingDetails.country.toLowerCase())
     return opt?.value
@@ -832,6 +880,125 @@ export default function CheckoutPage() {
       script.onerror = () => resolve(false)
       document.body.appendChild(script)
     })
+  }
+
+  const handleCashfreeCheckout = async () => {
+    if (!user) {
+      router.push('/auth?next=/checkout')
+      return
+    }
+
+    if (!validateForm()) {
+      const billingSection = document.getElementById('billing-details-section')
+      if (billingSection) {
+        billingSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    // Free checkout bypass
+    if (activeTotal === 0) {
+      return handleCheckout()
+    }
+
+    try {
+      // Save pending checkout state to sessionStorage for redirect fallback
+      const pendingState = {
+        items: items.map(i => ({ id: i.id, type: i.type })),
+        couponCode: discount > 0 ? coupon : undefined,
+        billingDetails,
+        userId: user.id
+      }
+      sessionStorage.setItem('pending_cf_checkout', JSON.stringify(pendingState))
+
+      // 1. Create order on server
+      const res = await fetch('/api/cashfree/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(i => ({ id: i.id, type: i.type })),
+          couponCode: discount > 0 ? coupon : undefined,
+          billingDetails
+        })
+      })
+
+      const orderData = await res.json()
+      if (!res.ok || orderData.error) {
+        throw new Error(orderData.error || 'Failed to initialize payment session')
+      }
+
+      // 2. Load official Cashfree SDK v3
+      const CashfreeSDK = await loadCashfreeSDK()
+      if (!CashfreeSDK) {
+        throw new Error('Payment gateway SDK could not be loaded')
+      }
+
+      const cashfree = CashfreeSDK({
+        mode: 'production'
+      })
+
+      // 3. Trigger seamless modal checkout
+      await cashfree.checkout({
+        paymentSessionId: orderData.payment_session_id,
+        redirectTarget: '_modal'
+      })
+
+      // 4. Verify payment with server directly
+      setPaymentStatus('processing')
+      const verifyRes = await fetch('/api/cashfree/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: orderData.order_id,
+          items: items.map(i => ({ id: i.id, type: i.type })),
+          userId: user.id,
+          billingDetails,
+          couponCode: discount > 0 ? coupon : undefined
+        })
+      })
+
+      const verifyData = await verifyRes.json()
+
+      if (verifyData.success) {
+        sessionStorage.removeItem('pending_cf_checkout')
+        // Sync billing details to DB metadata
+        await supabase.auth.updateUser({
+          data: {
+            full_name: billingDetails.fullName,
+            phone: billingDetails.phone,
+            address: billingDetails.address,
+            city: billingDetails.city,
+            state: billingDetails.state,
+            zip: billingDetails.zip,
+            country: billingDetails.country
+          }
+        })
+
+        try {
+          await supabase
+            .from('user_accounts')
+            .update({ newsletter: newsletterOptIn })
+            .eq('user_id', user.id)
+        } catch (e) {
+          console.error('Failed to update newsletter status:', e)
+        }
+
+        setPaymentStatus('success')
+        clearCart()
+      } else {
+        setError(verifyData.error || 'Payment was not confirmed. If money was deducted, contact support.')
+        setPaymentStatus('idle')
+        setLoading(false)
+      }
+    } catch (err: any) {
+      console.error('[CASHFREE_CHECKOUT_ERROR]', err)
+      setError(err.message || 'Payment initiation failed')
+      setPaymentStatus('idle')
+      setLoading(false)
+    }
   }
 
   const handleCheckout = async () => {
@@ -1392,31 +1559,130 @@ export default function CheckoutPage() {
                         />
                       </div>
                     ) : (
-                      <button
-                        onClick={handleCheckout}
-                        disabled={loading || paymentStatus === 'processing'}
-                        className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
-                      >
-                        {loading ? (
-                          <Loader2 className="animate-spin" size={13} />
+                      <div className="space-y-4">
+                        {/* Gateway Selector */}
+                        <div className="space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[9px] font-black uppercase tracking-wider text-white/70 block ml-0.5">
+                              Payment Method
+                            </label>
+                            <span className="text-[8px] font-black text-studio-neon uppercase tracking-widest flex items-center gap-1">
+                              <ShieldCheck size={11} className="text-studio-neon" /> 256-Bit SSL Encrypted
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            {/* SamplesWala Pay (Powered by Cashfree under the hood) */}
+                            <div
+                              onClick={() => setPaymentGateway('sampleswala_pay')}
+                              className={`p-3 rounded-sm border-2 cursor-pointer transition-all relative overflow-hidden select-none ${
+                                paymentGateway === 'sampleswala_pay'
+                                  ? 'bg-studio-yellow/10 border-studio-yellow shadow-[3px_3px_0px_#FFE600]'
+                                  : 'bg-[#18181c] border-white/10 hover:border-white/20'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
+                                    paymentGateway === 'sampleswala_pay' ? 'border-studio-yellow' : 'border-white/30'
+                                  }`}>
+                                    {paymentGateway === 'sampleswala_pay' && (
+                                      <div className="w-1.5 h-1.5 rounded-full bg-studio-yellow" />
+                                    )}
+                                  </div>
+                                  <span className="text-[11px] font-black uppercase tracking-wider text-white">
+                                    SamplesWala Pay
+                                  </span>
+                                </div>
+                                <span className="text-[7.5px] font-black bg-studio-yellow text-black px-1.5 py-0.5 rounded-xs uppercase tracking-wider">
+                                  ⚡ FAST &amp; DIRECT
+                                </span>
+                              </div>
+                              <p className="text-[8px] text-neutral-400 font-bold uppercase tracking-wider ml-5.5">
+                                Instant UPI (GPay, PhonePe, Paytm), Cards &amp; NetBanking
+                              </p>
+                            </div>
+
+                            {/* Razorpay Option */}
+                            <div
+                              onClick={() => setPaymentGateway('razorpay')}
+                              className={`p-3 rounded-sm border-2 cursor-pointer transition-all relative overflow-hidden select-none ${
+                                paymentGateway === 'razorpay'
+                                  ? 'bg-white/10 border-white shadow-[3px_3px_0px_white]'
+                                  : 'bg-[#18181c] border-white/10 hover:border-white/20'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
+                                    paymentGateway === 'razorpay' ? 'border-white' : 'border-white/30'
+                                  }`}>
+                                    {paymentGateway === 'razorpay' && (
+                                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                    )}
+                                  </div>
+                                  <span className="text-[11px] font-black uppercase tracking-wider text-white">
+                                    Razorpay Secure
+                                  </span>
+                                </div>
+                                <span className="text-[7.5px] font-black bg-white/20 text-white/90 px-1.5 py-0.5 rounded-xs uppercase tracking-wider">
+                                  STANDARD
+                                </span>
+                              </div>
+                              <p className="text-[8px] text-neutral-400 font-bold uppercase tracking-wider ml-5.5">
+                                Alternative UPI, Wallets &amp; Bank Transfer
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons based on chosen gateway */}
+                        {paymentGateway === 'sampleswala_pay' ? (
+                          <button
+                            onClick={handleCashfreeCheckout}
+                            disabled={loading || paymentStatus === 'processing'}
+                            className="w-full h-12 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
+                          >
+                            {loading ? (
+                              <div className="flex items-center gap-2">
+                                <Loader2 className="animate-spin" size={14} />
+                                <span>Securing Payment Session...</span>
+                              </div>
+                            ) : (
+                              <>
+                                <Zap size={14} className="fill-black animate-pulse" />
+                                <span>Pay with SamplesWala Pay — ₹{total - activeCouponDiscount}</span>
+                                <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                                  <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
+                                </div>
+                              </>
+                            )}
+                          </button>
                         ) : (
-                          <>
-                            <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
-                              <Image
-                                src="/icons8-pay-96.png"
-                                alt="Pay"
-                                width={14}
-                                height={14}
-                                className="object-contain"
-                              />
-                            </div>
-                            <span>Complete Payment</span>
-                            <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
-                              <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
-                            </div>
-                          </>
+                          <button
+                            onClick={handleCheckout}
+                            disabled={loading || paymentStatus === 'processing'}
+                            className="w-full h-12 bg-white hover:bg-neutral-200 text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group"
+                          >
+                            {loading ? (
+                              <Loader2 className="animate-spin" size={14} />
+                            ) : (
+                              <>
+                                <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
+                                  <Image
+                                    src="/icons8-pay-96.png"
+                                    alt="Pay"
+                                    width={14}
+                                    height={14}
+                                    className="object-contain"
+                                  />
+                                </div>
+                                <span>Pay via Razorpay — ₹{total - activeCouponDiscount}</span>
+                              </>
+                            )}
+                          </button>
                         )}
-                      </button>
+                      </div>
                     )}
                     <p className="text-[8px] font-black text-neutral-500 uppercase tracking-widest text-center mt-2 leading-relaxed select-none">
                       By purchasing, you agree to our{' '}
@@ -1568,11 +1834,32 @@ export default function CheckoutPage() {
                   className={`w-full relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
                 />
               </div>
+            ) : paymentGateway === 'sampleswala_pay' ? (
+              <button
+                onClick={handleCashfreeCheckout}
+                disabled={loading || paymentStatus === 'processing'}
+                className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" size={13} />
+                    <span>Securing Session...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Zap size={14} className="fill-black shrink-0" />
+                    <span>Pay SamplesWala Pay — ₹{total - activeCouponDiscount}</span>
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                      <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
+                    </div>
+                  </>
+                )}
+              </button>
             ) : (
               <button
                 onClick={handleCheckout}
                 disabled={loading || paymentStatus === 'processing'}
-                className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
+                className="w-full h-11 bg-white hover:bg-neutral-200 text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group"
               >
                 {loading ? (
                   <Loader2 className="animate-spin" size={13} />
@@ -1587,10 +1874,7 @@ export default function CheckoutPage() {
                         className="object-contain"
                       />
                     </div>
-                    <span>Pay UPI / Razorpay — ₹{total - activeCouponDiscount}</span>
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
-                      <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
-                    </div>
+                    <span>Pay via Razorpay — ₹{total - activeCouponDiscount}</span>
                   </>
                 )}
               </button>
