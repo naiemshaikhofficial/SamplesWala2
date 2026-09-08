@@ -32,18 +32,16 @@ export const metadata: Metadata = generatePageMetadata({
   description: "Samples Wala provides high-quality Indian and global sounds for music producers worldwide. Professional royalty-free sample packs, loops, and curated presets for Bollywood, Hip-Hop, Electronic, and more.",
 });
 
-
 import { CartProvider } from "@/context/CartContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
 import { AuthProvider } from "@/context/AuthContext";
-import { HeaderCartIcon } from "@/components/HeaderCartIcon";
-import { Instagram, Youtube, Twitter } from "lucide-react";
 import { BackgroundMural } from "@/components/BackgroundMural";
 import { LayoutWrapper } from "@/components/LayoutWrapper";
 import { ContentProtection } from "@/components/ContentProtection";
 import { CartSidebar } from "@/components/CartSidebar";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { ArtistStatusProvider } from "@/components/ArtistStatusProvider";
+import { StorefrontJsonLd } from "@/components/JsonLd";
 import Script from "next/script";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -55,41 +53,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // 🟢 CPU OPTIMIZATION: All user session checks and artist status checking
-  // are now lazy-loaded client-side inside their respective components.
-  // This removes all server-side database/auth lookups from the layout,
-  // allowing the root shell to be statically pre-rendered (SSG).
-
-  const organizationLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Samples Wala",
-    "url": "https://sampleswala.com",
-    "logo": "https://sampleswala.com/Logo.png",
-    "description": "Premium royalty-free Indian sample packs, loops, and sound kits. Trusted by music producers at major labels like T-Series, Sony Music, Zee Music, and tips. Reviewed by leading artists including Abhi Bright, Sohan Beatz, and python.",
-    "sameAs": [
-      "https://instagram.com/sampleswala",
-      "https://youtube.com/@sampleswala",
-      "https://twitter.com/sampleswala"
-    ],
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "contactType": "customer support",
-      "email": "support@sampleswala.com"
-    }
-  };
-
-  const siteSearchLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "url": "https://sampleswala.com",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://sampleswala.com/browse?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  };
-
   return (
     <html lang="en" className="dark">
       <head>
@@ -98,9 +61,6 @@ export default async function RootLayout({
         
         {/* Mobile Viewport & Optimization */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-
-
-        {/* All Google fonts are self-hosted via next/font/google at build time for optimal performance */}
 
         {/* Supabase Connection Preconnection */}
         {process.env.NEXT_PUBLIC_SUPABASE_URL && (
@@ -125,14 +85,9 @@ export default async function RootLayout({
         <meta name="topic" content="Music Production and Beat Making" />
         <meta name="summary" content="Samples Wala - Premium Indian sample packs, loops, software presets, and audio libraries. 100% royalty-free for music producers." />
 
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSearchLd) }}
-        />
+        {/* Rich Google SEO Structured Data */}
+        <StorefrontJsonLd />
+
         <Script 
           src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" 
           strategy="afterInteractive" 

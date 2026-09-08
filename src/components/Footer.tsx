@@ -19,7 +19,7 @@ export function Footer() {
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 mb-16">
-          
+
           {/* Brand & Mission Column */}
           <div className="col-span-1 md:col-span-5 space-y-6">
             <Link
@@ -38,7 +38,7 @@ export function Footer() {
             <p className="text-[10px] font-bold text-white/35 uppercase tracking-widest leading-relaxed max-w-sm">
               Premium loops, presets, and sample packs crafted for modern music production. 100% royalty-free, instantly downloadable hits.
             </p>
-            
+
             {/* Social Icons */}
             <div className="flex items-center gap-3.5 pt-2">
               {/* Instagram */}
@@ -135,6 +135,17 @@ export function Footer() {
           <div className="col-span-1 md:col-span-3 space-y-5">
             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-blue italic">Support & Legal</h4>
             <ul className="space-y-2.5 text-[10px] font-bold text-white/45 uppercase tracking-widest">
+              {/* <li>
+                <Link href="/support" className="text-studio-neon hover:text-white transition-all duration-150 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-studio-neon inline-block animate-pulse" />
+                  Support Desk & Tickets
+                </Link>
+              </li> */}
+              <li>
+                <Link href="/support" className="hover:text-studio-yellow transition-all duration-150">
+                  Help Center
+                </Link>
+              </li>
               <li>
                 <Link href="/terms" className="hover:text-studio-yellow transition-all duration-150">
                   Terms of Service
@@ -162,7 +173,7 @@ export function Footer() {
 
         {/* Bottom Section */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-white/5 pt-8">
-          
+
           {/* Copyright */}
           <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em] select-none text-center sm:text-left">
             © 2026 SAMPLES WALA. ALL RIGHTS RESERVED.
@@ -185,4 +196,3 @@ export function Footer() {
     </footer>
   )
 }
-

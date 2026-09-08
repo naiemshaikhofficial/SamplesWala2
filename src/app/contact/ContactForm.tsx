@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Mail, MessageSquare, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { submitContactAction } from '@/actions/contactActions';
 
 export default function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -11,33 +12,26 @@ export default function ContactForm() {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const name = formData.get('name');
-    const email = formData.get('email');
-    const message = formData.get('message');
+    const name = String(formData.get('name') || '');
+    const email = String(formData.get('email') || '');
+    const message = String(formData.get('message') || '');
 
     setStatus("sending");
+    setErrorMessage("");
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, email, message })
-      });
+      const res = await submitContactAction({ name, email, message });
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (res.success) {
         setStatus("success");
         form.reset();
       } else {
         setStatus("error");
-        setErrorMessage(data.error || "Something went wrong.");
+        setErrorMessage(res.error || "Something went wrong.");
       }
-    } catch (error) {
+    } catch (error: any) {
       setStatus("error");
-      setErrorMessage("Network error. Please try again later.");
+      setErrorMessage(error?.message || "Network error. Please try again later.");
     }
   };
 
@@ -65,10 +59,6 @@ export default function ContactForm() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-          {/* Web3Forms Customization */}
-          <input type="hidden" name="from_name" value="Sampleswala Contact" />
-          <input type="hidden" name="subject" value="New Contact Message from Sampleswala" />
-          
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-1">Full Name</label>
             <input 
