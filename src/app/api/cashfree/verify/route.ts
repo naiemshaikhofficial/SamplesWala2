@@ -28,11 +28,11 @@ export async function POST(request: Request) {
     // 0. SECURITY HARDENING: Session Cookie User Authentication
     const supabase = await createClient()
     const { data: { user: sessionUser } } = await supabase.auth.getUser()
-    const targetUserId = sessionUser?.id || userId
 
-    if (!targetUserId) {
+    if (!sessionUser) {
       return NextResponse.json({ error: 'User authentication required' }, { status: 401 })
     }
+    const targetUserId = sessionUser.id
 
     const admin = getAdminClient()
 
@@ -58,6 +58,18 @@ export async function POST(request: Request) {
         { error: `Payment is not completed (Status: ${cashfreeOrder.order_status})` },
         { status: 400 }
       )
+    }
+
+    // 1.1 CROSS-USER ORDER THEFT DEFENSE: Verify order was initiated by this user
+    const expectedCustomerId = targetUserId.replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 50)
+    const orderCustomerId = cashfreeOrder.customer_details?.customer_id
+    if (orderCustomerId && orderCustomerId !== expectedCustomerId) {
+      console.error('[SECURITY_ALERT] Order customer mismatch:', {
+        expectedCustomerId,
+        orderCustomerId,
+        order_id
+      })
+      return NextResponse.json({ error: 'Unauthorized payment verification attempt' }, { status: 403 })
     }
 
     // 2. REPLAY ATTACK DEFENSE: Check if this order or payment has already been credited
