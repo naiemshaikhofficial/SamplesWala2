@@ -63,8 +63,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([])
   }
 
+  const hasFreeItem = items.some(item => !item.price || item.price === 0)
+  const paidItems = items.filter(item => item.price > 0)
   const subtotal = items.reduce((acc, item) => acc + item.price, 0)
-  const discount = items.length >= 3 ? Math.round(subtotal * 0.1) : 0
+  const discount = (!hasFreeItem && paidItems.length >= 3) ? Math.round(subtotal * 0.1) : 0
   const total = subtotal - discount
   const itemCount = items.length
 

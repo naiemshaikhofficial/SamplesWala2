@@ -112,14 +112,16 @@ export async function POST(request: Request) {
 
     // Subtotal, bundle discount, and coupon verification
     const rawSubtotal = allPurchasedItems.reduce((acc, item) => acc + Number(item.price_inr || 0), 0)
-    const bundleDiscountAmount = items.length >= 3 ? Math.round(rawSubtotal * 0.1) : 0
+    const hasFreeItem = allPurchasedItems.some(item => Number(item.price_inr || 0) === 0)
+    const paidItems = allPurchasedItems.filter(item => Number(item.price_inr || 0) > 0)
+    const bundleDiscountAmount = (!hasFreeItem && paidItems.length >= 3) ? Math.round(rawSubtotal * 0.1) : 0
     const subtotalAfterBundle = rawSubtotal - bundleDiscountAmount
 
     let couponDiscountAmount = 0
     let couponDiscountPercent = 0
     let applicableItems: string[] | null = null
 
-    if (couponCode) {
+    if (couponCode && !hasFreeItem) {
       const cleanCoupon = String(couponCode).toUpperCase().trim()
       const { data: coupon } = await admin
         .from('coupons')
@@ -164,10 +166,10 @@ export async function POST(request: Request) {
     const vaultEntries = items.map((item: any, index: number) => {
       const dbItem = allPurchasedItems.find(p => p.id === item.id)
       const basePrice = Number(dbItem?.price_inr || 0)
-      const itemBundleDiscount = items.length >= 3 ? Math.round(basePrice * 0.1) : 0
+      const itemBundleDiscount = (!hasFreeItem && paidItems.length >= 3) ? Math.round(basePrice * 0.1) : 0
 
       let itemCouponDiscount = 0
-      if (couponDiscountPercent > 0) {
+      if (!hasFreeItem && couponDiscountPercent > 0) {
         const isApplicable =
           !applicableItems || applicableItems.length === 0 || applicableItems.includes(item.id)
         if (isApplicable) {

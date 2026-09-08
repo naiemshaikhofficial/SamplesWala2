@@ -127,13 +127,15 @@ export async function POST(request: Request) {
 
     // Calculate subtotal, bundle discount, and coupon discount in USD
     const rawSubtotalUsd = allPurchasedItems.reduce((acc, item) => acc + Number(item.price_usd || 0), 0)
-    const bundleDiscountAmount = items.length >= 3 ? Number((rawSubtotalUsd * 0.1).toFixed(2)) : 0
+    const hasFreeItem = allPurchasedItems.some(item => Number(item.price_usd || 0) === 0)
+    const paidItems = allPurchasedItems.filter(item => Number(item.price_usd || 0) > 0)
+    const bundleDiscountAmount = (!hasFreeItem && paidItems.length >= 3) ? Number((rawSubtotalUsd * 0.1).toFixed(2)) : 0
     const subtotalAfterBundle = rawSubtotalUsd - bundleDiscountAmount
 
     let couponDiscountAmount = 0
     let applicableItems: string[] | null = null
 
-    if (couponCode) {
+    if (couponCode && !hasFreeItem) {
       const cleanCoupon = String(couponCode).toUpperCase().trim()
       const { data: coupon } = await admin
         .from('coupons')
@@ -183,10 +185,10 @@ export async function POST(request: Request) {
     const vaultEntries = items.map((item: any, index: number) => {
       const dbItem = allPurchasedItems.find(p => p.id === item.id)
       const basePrice = Number(dbItem?.price_usd || 0)
-      const itemBundleDiscount = items.length >= 3 ? Number((basePrice * 0.1).toFixed(2)) : 0
+      const itemBundleDiscount = (!hasFreeItem && paidItems.length >= 3) ? Number((basePrice * 0.1).toFixed(2)) : 0
       
       let itemCouponDiscount = 0
-      if (discountPercent > 0) {
+      if (!hasFreeItem && discountPercent > 0) {
         const isApplicable = !applicableItems || applicableItems.length === 0 || applicableItems.includes(item.id)
         if (isApplicable) {
           itemCouponDiscount = Number((basePrice * discountPercent / 100).toFixed(2))

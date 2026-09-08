@@ -9,6 +9,12 @@ export async function validateCoupon(
   const supabase = await createClient()
   const cleanCode = code.toUpperCase().trim()
 
+  // 0. Free items are not eligible for coupon discounts
+  const hasFreeItem = items.some(item => Number(item.price) <= 0)
+  if (hasFreeItem) {
+    return { success: false, message: "Coupons cannot be applied to orders containing free items" }
+  }
+
   // 1. Fetch coupon details
   const { data: coupon, error } = await supabase
     .from('coupons')

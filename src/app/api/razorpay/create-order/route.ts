@@ -47,15 +47,17 @@ export async function POST(request: Request) {
     // 2. Calculate total (Server-side calculation)
     const rawSubtotal = allItems.reduce((sum, p) => sum + Number(p.price_inr), 0)
     
-    // Server-side Bundle Discount logic
-    const bundleDiscountPercent = items.length >= 3 ? 10 : 0
+    // Server-side Bundle Discount logic (Only for paid items, disallowed if order has free items)
+    const hasFreeItem = allItems.some(p => Number(p.price_inr) === 0)
+    const paidItems = allItems.filter(p => Number(p.price_inr) > 0)
+    const bundleDiscountPercent = (!hasFreeItem && paidItems.length >= 3) ? 10 : 0
     const bundleDiscountAmount = Math.round(rawSubtotal * bundleDiscountPercent / 100)
     const subtotalAfterBundle = rawSubtotal - bundleDiscountAmount
     
-    // Server-side Coupon Validation
+    // Server-side Coupon Validation (Disallowed if order has free items)
     let couponDiscountAmount = 0
     let couponDiscountPercent = 0
-    if (couponCode) {
+    if (couponCode && !hasFreeItem) {
       const couponResult = await validateCoupon(
         couponCode,
         user.id,

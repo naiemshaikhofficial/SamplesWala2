@@ -13,8 +13,10 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
   const router = useRouter()
   const { currency, formatPrice, getAmount } = useCurrency()
 
+  const hasFreeItem = items.some(item => getAmount(item.price, item.price_usd) === 0)
+  const paidItems = items.filter(item => getAmount(item.price, item.price_usd) > 0)
   const subtotalNum = items.reduce((acc, item) => acc + getAmount(item.price, item.price_usd), 0)
-  const discountNum = items.length >= 3 ? Math.round(subtotalNum * 0.1 * 100) / 100 : 0
+  const discountNum = (!hasFreeItem && paidItems.length >= 3) ? Math.round(subtotalNum * 0.1 * 100) / 100 : 0
   const totalNum = Math.max(0, subtotalNum - discountNum)
 
   const displaySubtotal = currency === 'INR' ? `₹${Math.round(subtotalNum)}` : `$${subtotalNum.toFixed(2)}`
@@ -88,14 +90,14 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
             </div>
           ) : (
             <div className="space-y-10">
-              {/* Bundle Builder Progress - Slim Version */}
-              {items.length < 3 ? (
+              {/* Bundle Builder Progress - Slim Version (Only for paid carts without free items) */}
+              {!hasFreeItem && paidItems.length > 0 && paidItems.length < 3 ? (
                 <div className="bg-studio-charcoal/50 p-3 border-2 border-black border-dashed relative overflow-hidden group/bundle">
                   <div className="absolute -right-4 -top-4 w-12 h-12 bg-studio-blue/5 rounded-full blur-2xl group-hover/bundle:bg-studio-blue/10 transition-all duration-700" />
                   
                   <p className="text-[9px] font-black uppercase tracking-[0.1em] text-white/60 mb-2.5">
                     GET <span className="text-studio-blue">10% OFF</span> 
-                    <span className="ml-2 text-[8px] text-white/20 italic tracking-widest font-bold uppercase"> — ADD {3 - items.length} MORE</span>
+                    <span className="ml-2 text-[8px] text-white/20 italic tracking-widest font-bold uppercase"> — ADD {3 - paidItems.length} MORE</span>
                   </p>
 
                   <div className="relative h-6 bg-white/5 border-2 border-black overflow-hidden rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
@@ -103,7 +105,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                     <div 
                       className="absolute top-0 left-0 h-full transition-all duration-1000 ease-out"
                       style={{ 
-                        width: `${(items.length / 3) * 100}%`,
+                        width: `${(paidItems.length / 3) * 100}%`,
                         background: 'linear-gradient(180deg, #00E0FF 0%, #0077B6 100%)'
                       }}
                     >
@@ -148,7 +150,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                     <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
                   </div>
                 </div>
-              ) : (
+              ) : (!hasFreeItem && paidItems.length >= 3) ? (
                 <div className="relative">
                   <div className="bg-studio-pink p-4 border-4 border-black shadow-[6px_6px_0px_black] -rotate-1 animate-in zoom-in duration-300">
                     <div className="flex items-center gap-3">
@@ -162,7 +164,7 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                   </div>
                   <div className="absolute -top-2 -right-2 w-4 h-4 bg-studio-yellow border-2 border-black rotate-45 animate-ping" />
                 </div>
-              )}
+              ) : null}
 
               <div className="space-y-8">
                 {items.map((item) => (

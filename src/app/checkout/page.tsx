@@ -512,12 +512,14 @@ export default function CheckoutPage() {
     }
   })
 
+  const hasFreeItem = items.some(item => Number(item.price) === 0 || (currency === 'USD' && item.numericPrice === 0))
+  const paidItems = itemsWithPrices.filter(item => item.numericPrice > 0)
   const rawSubtotalUsd = itemsWithPrices.reduce((sum, item) => sum + item.numericPrice, 0)
-  const bundleDiscountUsd = items.length >= 3 ? Number((rawSubtotalUsd * 0.1).toFixed(2)) : 0
+  const bundleDiscountUsd = (!hasFreeItem && paidItems.length >= 3) ? Number((rawSubtotalUsd * 0.1).toFixed(2)) : 0
   const activeSubtotal = currency === 'USD' ? Number((rawSubtotalUsd - bundleDiscountUsd).toFixed(2)) : total
 
   let activeCouponDiscount = 0
-  if (discount > 0) {
+  if (!hasFreeItem && discount > 0) {
     if (currency === 'USD') {
       if (applicableItems && applicableItems.length > 0) {
         const applicableTotal = itemsWithPrices.reduce((sum, item) => {
@@ -877,6 +879,10 @@ export default function CheckoutPage() {
 
   const handleApplyCoupon = async () => {
     if (!coupon) return
+    if (hasFreeItem) {
+      setCouponError('Coupons cannot be applied to orders containing free items')
+      return
+    }
     setLoading(true)
     const result = await validateCoupon(
       coupon,
@@ -1748,27 +1754,35 @@ export default function CheckoutPage() {
               </div>
 
               {/* Coupon Input */}
-              <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Coupon Code</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="COUPON"
-                    className="flex-grow h-9 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-neon focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700"
-                    value={coupon}
-                    onChange={(e) => setCoupon(e.target.value)}
-                  />
-                  <button
-                    onClick={handleApplyCoupon}
-                    disabled={loading}
-                    className="px-4 bg-white hover:bg-neutral-200 text-black text-[10px] font-black uppercase tracking-wider rounded-sm border border-black shadow-[2px_2px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_black] transition-all disabled:opacity-50"
-                  >
-                    Apply
-                  </button>
+              {hasFreeItem ? (
+                <div className="p-3 bg-white/[0.02] border border-white/10 rounded-lg text-left">
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider font-mono">
+                    {activeSubtotal === 0 ? "Free Order — No payment or coupon required" : "Coupons are not applicable for orders containing free items"}
+                  </p>
                 </div>
-                {couponError && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{couponError}</p>}
-                {discount > 0 && <p className="text-[8px] font-bold text-studio-neon uppercase tracking-widest mt-1 ml-0.5">Coupon Applied Successfully!</p>}
-              </div>
+              ) : (
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Coupon Code</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="COUPON"
+                      className="flex-grow h-9 bg-[#18181c] border border-white/10 rounded px-3 text-xs focus:border-studio-neon focus:ring-0 outline-none transition-all duration-150 uppercase tracking-wider text-white placeholder-neutral-700"
+                      value={coupon}
+                      onChange={(e) => setCoupon(e.target.value)}
+                    />
+                    <button
+                      onClick={handleApplyCoupon}
+                      disabled={loading}
+                      className="px-4 bg-white hover:bg-neutral-200 text-black text-[10px] font-black uppercase tracking-wider rounded-sm border border-black shadow-[2px_2px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_black] transition-all disabled:opacity-50"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {couponError && <p className="text-[8px] font-bold text-studio-red uppercase tracking-widest mt-1 ml-0.5">{couponError}</p>}
+                  {discount > 0 && <p className="text-[8px] font-bold text-studio-neon uppercase tracking-widest mt-1 ml-0.5">Coupon Applied Successfully!</p>}
+                </div>
+              )}
 
               {/* Pre-order warning notice */}
               {hasPreorder && (
