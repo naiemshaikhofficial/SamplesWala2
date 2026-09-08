@@ -387,6 +387,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState('')
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
   const [paymentGateway, setPaymentGateway] = useState<'sampleswala_pay' | 'razorpay'>('sampleswala_pay')
+  const [showRazorpayFallback, setShowRazorpayFallback] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [upsellPacks, setUpsellPacks] = useState<any[]>([])
   const [billingDetails, setBillingDetails] = useState({
@@ -1004,7 +1005,8 @@ export default function CheckoutPage() {
       }
     } catch (err: any) {
       console.error('[CASHFREE_CHECKOUT_ERROR]', err)
-      setError(err.message || 'Payment initiation failed')
+      setError(err.message || 'Payment service is currently unavailable. Switched to backup gateway.')
+      setShowRazorpayFallback(true)
       setPaymentStatus('idle')
       setLoading(false)
     }
@@ -1569,127 +1571,107 @@ export default function CheckoutPage() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {/* Gateway Selector */}
-                        <div className="space-y-2.5">
-                          <div className="flex items-center justify-between">
-                            <label className="text-[9px] font-black uppercase tracking-wider text-white/70 block ml-0.5">
-                              Payment Method
-                            </label>
-                            <span className="text-[8px] font-black text-studio-neon uppercase tracking-widest flex items-center gap-1">
-                              <ShieldCheck size={11} className="text-studio-neon" /> 256-Bit SSL Encrypted
-                            </span>
-                          </div>
+                        {!showRazorpayFallback ? (
+                          /* 1. DEFAULT DOMESTIC MODE: SamplesWala Pay ONLY */
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <label className="text-[9px] font-black uppercase tracking-wider text-white/70 block ml-0.5">
+                                Payment Method
+                              </label>
+                              <span className="text-[8px] font-black text-studio-neon uppercase tracking-widest flex items-center gap-1">
+                                <ShieldCheck size={11} className="text-studio-neon" /> 256-Bit SSL Encrypted
+                              </span>
+                            </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            {/* SamplesWala Pay (Powered by Cashfree under the hood) */}
-                            <div
-                              onClick={() => setPaymentGateway('sampleswala_pay')}
-                              className={`p-3 rounded-sm border-2 cursor-pointer transition-all relative overflow-hidden select-none ${
-                                paymentGateway === 'sampleswala_pay'
-                                  ? 'bg-studio-yellow/10 border-studio-yellow shadow-[3px_3px_0px_#FFE600]'
-                                  : 'bg-[#18181c] border-white/10 hover:border-white/20'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between mb-1">
+                            <div className="p-3.5 rounded-sm border-2 border-studio-yellow bg-studio-yellow/10 shadow-[3px_3px_0px_#FFE600] relative overflow-hidden select-none">
+                              <div className="flex items-center justify-between mb-1.5">
                                 <div className="flex items-center gap-2">
-                                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
-                                    paymentGateway === 'sampleswala_pay' ? 'border-studio-yellow' : 'border-white/30'
-                                  }`}>
-                                    {paymentGateway === 'sampleswala_pay' && (
-                                      <div className="w-1.5 h-1.5 rounded-full bg-studio-yellow" />
-                                    )}
+                                  <div className="w-3.5 h-3.5 rounded-full border-2 border-studio-yellow flex items-center justify-center">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-studio-yellow" />
                                   </div>
-                                  <span className="text-[11px] font-black uppercase tracking-wider text-white">
+                                  <span className="text-[12px] font-black uppercase tracking-wider text-white">
                                     SamplesWala Pay
                                   </span>
                                 </div>
-                                <span className="text-[7.5px] font-black bg-studio-yellow text-black px-1.5 py-0.5 rounded-xs uppercase tracking-wider">
-                                  ⚡ FAST &amp; DIRECT
+                                <span className="text-[7.5px] font-black bg-studio-yellow text-black px-2 py-0.5 rounded-xs uppercase tracking-wider">
+                                  ⚡ INSTANT &amp; SECURE
                                 </span>
                               </div>
-                              <p className="text-[8px] text-neutral-400 font-bold uppercase tracking-wider ml-5.5">
-                                Instant UPI (GPay, PhonePe, Paytm), Cards &amp; NetBanking
+                              <p className="text-[8.5px] text-neutral-300 font-bold uppercase tracking-wider ml-5.5">
+                                UPI (Google Pay, PhonePe, Paytm, BHIM), Debit &amp; Credit Cards, NetBanking
                               </p>
                             </div>
 
-                            {/* Razorpay Option */}
-                            <div
-                              onClick={() => setPaymentGateway('razorpay')}
-                              className={`p-3 rounded-sm border-2 cursor-pointer transition-all relative overflow-hidden select-none ${
-                                paymentGateway === 'razorpay'
-                                  ? 'bg-white/10 border-white shadow-[3px_3px_0px_white]'
-                                  : 'bg-[#18181c] border-white/10 hover:border-white/20'
-                              }`}
+                            <button
+                              onClick={handleCashfreeCheckout}
+                              disabled={loading || paymentStatus === 'processing'}
+                              className="w-full h-12 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
                             >
-                              <div className="flex items-center justify-between mb-1">
+                              {loading ? (
                                 <div className="flex items-center gap-2">
-                                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
-                                    paymentGateway === 'razorpay' ? 'border-white' : 'border-white/30'
-                                  }`}>
-                                    {paymentGateway === 'razorpay' && (
-                                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                    )}
+                                  <Loader2 className="animate-spin" size={14} />
+                                  <span>Securing Payment Session...</span>
+                                </div>
+                              ) : (
+                                <>
+                                  <Zap size={14} className="fill-black animate-pulse" />
+                                  <span>Pay with SamplesWala Pay — ₹{total - activeCouponDiscount}</span>
+                                  <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
+                                    <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
                                   </div>
-                                  <span className="text-[11px] font-black uppercase tracking-wider text-white">
-                                    Razorpay Secure
-                                  </span>
-                                </div>
-                                <span className="text-[7.5px] font-black bg-white/20 text-white/90 px-1.5 py-0.5 rounded-xs uppercase tracking-wider">
-                                  STANDARD
-                                </span>
-                              </div>
-                              <p className="text-[8px] text-neutral-400 font-bold uppercase tracking-wider ml-5.5">
-                                Alternative UPI, Wallets &amp; Bank Transfer
-                              </p>
-                            </div>
+                                </>
+                              )}
+                            </button>
                           </div>
-                        </div>
-
-                        {/* Action Buttons based on chosen gateway */}
-                        {paymentGateway === 'sampleswala_pay' ? (
-                          <button
-                            onClick={handleCashfreeCheckout}
-                            disabled={loading || paymentStatus === 'processing'}
-                            className="w-full h-12 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
-                          >
-                            {loading ? (
-                              <div className="flex items-center gap-2">
-                                <Loader2 className="animate-spin" size={14} />
-                                <span>Securing Payment Session...</span>
-                              </div>
-                            ) : (
-                              <>
-                                <Zap size={14} className="fill-black animate-pulse" />
-                                <span>Pay with SamplesWala Pay — ₹{total - activeCouponDiscount}</span>
-                                <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
-                                  <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
-                                </div>
-                              </>
-                            )}
-                          </button>
                         ) : (
-                          <button
-                            onClick={handleCheckout}
-                            disabled={loading || paymentStatus === 'processing'}
-                            className="w-full h-12 bg-white hover:bg-neutral-200 text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group"
-                          >
-                            {loading ? (
-                              <Loader2 className="animate-spin" size={14} />
-                            ) : (
-                              <>
-                                <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
-                                  <Image
-                                    src="/icons8-pay-96.png"
-                                    alt="Pay"
-                                    width={14}
-                                    height={14}
-                                    className="object-contain"
-                                  />
-                                </div>
-                                <span>Pay via Razorpay — ₹{total - activeCouponDiscount}</span>
-                              </>
-                            )}
-                          </button>
+                          /* 2. FALLBACK MODE: Activated ONLY when Cashfree fails */
+                          <div className="space-y-3">
+                            <div className="p-3.5 bg-studio-yellow/10 border-2 border-studio-yellow/40 rounded-sm flex items-start gap-3">
+                              <ShieldCheck size={18} className="text-studio-yellow shrink-0 mt-0.5" />
+                              <div className="space-y-1">
+                                <p className="text-[10px] font-black uppercase tracking-wider text-studio-yellow">
+                                  Backup Gateway Activated
+                                </p>
+                                <p className="text-[8.5px] text-neutral-300 font-bold uppercase tracking-wider leading-relaxed">
+                                  Primary payment gateway experienced a temporary issue. Our secure backup gateway (Razorpay) has been enabled so you can complete your purchase smoothly.
+                                </p>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={handleCheckout}
+                              disabled={loading || paymentStatus === 'processing'}
+                              className="w-full h-12 bg-white hover:bg-neutral-200 text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group"
+                            >
+                              {loading ? (
+                                <Loader2 className="animate-spin" size={14} />
+                              ) : (
+                                <>
+                                  <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
+                                    <Image
+                                      src="/icons8-pay-96.png"
+                                      alt="Pay"
+                                      width={14}
+                                      height={14}
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                  <span>Pay via Backup Gateway (Razorpay) — ₹{total - activeCouponDiscount}</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowRazorpayFallback(false)
+                                setError('')
+                              }}
+                              className="w-full text-center text-[8.5px] font-black text-neutral-400 hover:text-white uppercase tracking-wider py-1 underline cursor-pointer"
+                            >
+                              Retry Primary Gateway (SamplesWala Pay)
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}
@@ -1843,7 +1825,7 @@ export default function CheckoutPage() {
                   className={`w-full relative z-10 ${!paypalLoaded ? 'hidden' : ''}`}
                 />
               </div>
-            ) : paymentGateway === 'sampleswala_pay' ? (
+            ) : !showRazorpayFallback ? (
               <button
                 onClick={handleCashfreeCheckout}
                 disabled={loading || paymentStatus === 'processing'}
@@ -1857,7 +1839,7 @@ export default function CheckoutPage() {
                 ) : (
                   <>
                     <Zap size={14} className="fill-black shrink-0" />
-                    <span>Pay SamplesWala Pay — ₹{total - activeCouponDiscount}</span>
+                    <span>Pay with SamplesWala Pay — ₹{total - activeCouponDiscount}</span>
                     <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-sm">
                       <div className="absolute top-0 -left-[100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep" />
                     </div>
@@ -1865,28 +1847,40 @@ export default function CheckoutPage() {
                 )}
               </button>
             ) : (
-              <button
-                onClick={handleCheckout}
-                disabled={loading || paymentStatus === 'processing'}
-                className="w-full h-11 bg-white hover:bg-neutral-200 text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group"
-              >
-                {loading ? (
-                  <Loader2 className="animate-spin" size={13} />
-                ) : (
-                  <>
-                    <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
-                      <Image
-                        src="/icons8-pay-96.png"
-                        alt="Pay"
-                        width={14}
-                        height={14}
-                        className="object-contain"
-                      />
-                    </div>
-                    <span>Pay via Razorpay — ₹{total - activeCouponDiscount}</span>
-                  </>
-                )}
-              </button>
+              <div className="space-y-1.5">
+                <button
+                  onClick={handleCheckout}
+                  disabled={loading || paymentStatus === 'processing'}
+                  className="w-full h-11 bg-white hover:bg-neutral-200 text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_black] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group"
+                >
+                  {loading ? (
+                    <Loader2 className="animate-spin" size={13} />
+                  ) : (
+                    <>
+                      <div className="group-hover:animate-wiggle-fast transition-transform shrink-0">
+                        <Image
+                          src="/icons8-pay-96.png"
+                          alt="Pay"
+                          width={14}
+                          height={14}
+                          className="object-contain"
+                        />
+                      </div>
+                      <span>Pay via Backup (Razorpay) — ₹{total - activeCouponDiscount}</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowRazorpayFallback(false)
+                    setError('')
+                  }}
+                  className="w-full text-center text-[8px] font-black text-neutral-400 hover:text-white uppercase tracking-wider py-0.5 underline cursor-pointer"
+                >
+                  Retry SamplesWala Pay
+                </button>
+              </div>
             )}
             <p className="text-[7.5px] font-black text-neutral-500 uppercase tracking-widest text-center mt-3 leading-relaxed select-none">
               By purchasing, you agree to our{' '}
