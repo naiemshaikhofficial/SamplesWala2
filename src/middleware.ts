@@ -72,6 +72,51 @@ function checkRateLimit(ip: string, isSensitive: boolean): { allowed: boolean; r
 }
 
 // ============================================================================
+// MAINTENANCE MODE RESOLVER (Edge-compatible, 5s in-memory cache)
+// ============================================================================
+
+let maintenanceCache: { enabled: boolean; expires: number } = { enabled: false, expires: 0 };
+
+async function getMaintenanceModeStatus(): Promise<boolean> {
+  const now = Date.now();
+  if (now < maintenanceCache.expires) {
+    return maintenanceCache.enabled;
+  }
+
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !anonKey) return false;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1200);
+
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/app_metadata?key=eq.maintenance_mode&select=value`,
+      {
+        headers: {
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
+        },
+        signal: controller.signal,
+        cache: 'no-store'
+      }
+    );
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      const isEnabled = data?.[0]?.value === 'true';
+      maintenanceCache = { enabled: isEnabled, expires: now + 5000 };
+      return isEnabled;
+    }
+  } catch {
+    maintenanceCache.expires = now + 5000;
+  }
+  return maintenanceCache.enabled;
+}
+
+// ============================================================================
 // MIDDLEWARE
 // ============================================================================
 
@@ -92,6 +137,29 @@ export async function middleware(request: NextRequest) {
   const deadLinks = ['/samples', '/vst-plugins', '/vocal-packs'];
   if (deadLinks.includes(pathname)) {
     return NextResponse.redirect(new URL('/browse/packs', request.url), 301);
+  }
+
+  // 🟢 MAINTENANCE MODE REDIRECTION:
+  // Redirect /maintance to /maintenance
+  if (pathname === '/maintance') {
+    return NextResponse.redirect(new URL('/maintenance', request.url), 307);
+  }
+
+  const isMaintenance = await getMaintenanceModeStatus();
+  const isMaintenancePage = pathname === '/maintenance';
+  const hasPreviewParam = request.nextUrl.searchParams.get('preview') === '1';
+  const hasAdminBypass =
+    request.cookies.has('sampleswala_admin_bypass') ||
+    request.nextUrl.searchParams.get('bypass') === 'sampleswala_admin';
+
+  if (isMaintenance && !hasAdminBypass) {
+    // If maintenance is ON and user is NOT on /maintenance and NOT calling revalidation API:
+    if (!isMaintenancePage && !pathname.startsWith('/api/revalidate')) {
+      return NextResponse.redirect(new URL('/maintenance', request.url), 307);
+    }
+  } else if (!isMaintenance && isMaintenancePage && !hasPreviewParam) {
+    // If maintenance is OFF, and user visits /maintenance directly without preview, return to home:
+    return NextResponse.redirect(new URL('/', request.url), 307);
   }
 
   // 1. IP & API/Action Rate Limiting
