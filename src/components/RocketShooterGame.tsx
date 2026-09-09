@@ -10,10 +10,6 @@ import {
   Flame,
   Heart,
   HeartCrack,
-  Bomb,
-  Smartphone,
-  MousePointer,
-  Rocket,
   Pause,
   Play,
   Crosshair
@@ -425,7 +421,6 @@ export function RocketShooterGame() {
   const [currentBpm, setCurrentBpm] = useState(120)
   const [tempoMode, setTempoMode] = useState<'cruise' | 'surge' | 'breather'>('cruise')
   const [soundOn, setSoundOn] = useState(true)
-  const [autoFire, setAutoFire] = useState(false)
   const [hasNewHighScore, setHasNewHighScore] = useState(false)
 
   // End of run stats
@@ -660,12 +655,13 @@ export function RocketShooterGame() {
     fireCooldown: 0,
     spawnCooldown: 0,
     missileCooldown: 0,
+    powerupCooldown: 12,
     comboTimer: 2.5,
     waveElapsedSec: 0,
     flameEmberCooldown: 0,
     lastTime: 0,
     keys: { left: false, right: false, up: false, down: false, fire: false, precision: false },
-    autoFire: false
+    autoFire: true
   })
 
   // Load Saved High Score from localStorage
@@ -799,6 +795,8 @@ export function RocketShooterGame() {
     stateRef.current.fireCooldown = 0
     stateRef.current.spawnCooldown = 0.3
     stateRef.current.missileCooldown = 0
+    stateRef.current.powerupCooldown = 12
+    stateRef.current.autoFire = true
     stateRef.current.comboTimer = 2.5
     stateRef.current.waveElapsedSec = 0
     stateRef.current.flameEmberCooldown = 0
@@ -1543,105 +1541,110 @@ export function RocketShooterGame() {
           })
         }
 
-        // 6. SPAWN WAVE ENEMIES & SMART BENEFICIAL POWERUPS (Simulation-Time Based + Designed Sequences)
+        // 6. SPAWN WAVE ENEMIES & WELL-PACED SMART POWERUPS (Simulation-Time Based)
         state.waveElapsedSec += deltaSec
+        state.powerupCooldown -= deltaSec
+
+        // Dedicated, Well-Paced Powerup Drops (Max 1 on screen, 18-26s cadence)
+        const hasActivePowerup = state.enemies.some(e => e.category === 'powerup')
+        if (state.powerupCooldown <= 0 && state.waveState === 'active' && !hasActivePowerup) {
+          state.powerupCooldown = 18 + Math.random() * 8
+
+          let chosenType: AbilityType = 'triple_laser'
+          if (state.lives <= 1 && Math.random() < 0.6) {
+            chosenType = 'heart_repair'
+          } else if (state.weaponLevel === 1 && Math.random() < 0.5) {
+            chosenType = 'triple_laser'
+          } else {
+            const types: AbilityType[] = ['triple_laser', 'homing_missiles', 'nuke', 'slow_mo', 'overdrive']
+            chosenType = types[Math.floor(Math.random() * types.length)]
+          }
+
+          const pColor =
+            chosenType === 'triple_laser'
+              ? '#00E5FF'
+              : chosenType === 'homing_missiles'
+              ? '#FF6B00'
+              : chosenType === 'nuke'
+              ? '#FF3131'
+              : chosenType === 'slow_mo'
+              ? '#BF00FF'
+              : chosenType === 'heart_repair'
+              ? '#FF2A6D'
+              : '#FFE600'
+
+          const pLabel =
+            chosenType === 'triple_laser'
+              ? '⚡ TRIPLE LASER'
+              : chosenType === 'homing_missiles'
+              ? '🚀 HOMING MISSILES'
+              : chosenType === 'nuke'
+              ? '💣 BASS DROP NUKE'
+              : chosenType === 'slow_mo'
+              ? '⏱️ SLOW-MO'
+              : chosenType === 'heart_repair'
+              ? '💖 +1 HEART'
+              : '🔥 OVERDRIVE'
+
+          state.enemies.push({
+            id: Math.random(),
+            x: 40 + Math.random() * (width - 80),
+            y: -35,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (1.4 + Math.random() * 0.6) * state.speedMultiplier,
+            radius: 20,
+            category: 'powerup',
+            type: 'powerup',
+            powerupType: chosenType,
+            powerupLabel: pLabel,
+            hp: 1,
+            maxHp: 1,
+            rotation: 0,
+            rotSpeed: 0.04,
+            color: pColor,
+            hitFlash: 0
+          })
+        }
+
+        // Enemy Wave Spawning (Structured Pacing)
         state.spawnCooldown -= deltaSec
         const spawnIntervalSec = state.tempoMode === 'surge' ? 0.38 : state.tempoMode === 'breather' ? 0.82 : 0.58
 
         if (state.spawnCooldown <= 0 && state.waveState === 'active' && state.waveRemainingEnemies > 0) {
           state.spawnCooldown = spawnIntervalSec
 
-          // Smart Powerup Drops: If weak on hearts, high chance of Heart Repair!
-          const isPowerup = Math.random() < 0.20
-          if (isPowerup) {
-            let chosenType: AbilityType = 'triple_laser'
-            if (state.lives <= 1 && Math.random() < 0.65) {
-              chosenType = 'heart_repair'
-            } else if (state.weaponLevel < 3 && Math.random() < 0.5) {
-              chosenType = 'triple_laser'
-            } else {
-              const types: AbilityType[] = ['triple_laser', 'homing_missiles', 'nuke', 'slow_mo', 'overdrive']
-              chosenType = types[Math.floor(Math.random() * types.length)]
-            }
+          let spawnType: 'scout' | 'interceptor' | 'sawblade' | 'asteroid' | 'alien_gunship' = 'scout'
+          const elapsed = state.waveElapsedSec
 
-            const pColor =
-              chosenType === 'triple_laser'
-                ? '#00E5FF'
-                : chosenType === 'homing_missiles'
-                ? '#FF6B00'
-                : chosenType === 'nuke'
-                ? '#FF3131'
-                : chosenType === 'slow_mo'
-                ? '#BF00FF'
-                : chosenType === 'heart_repair'
-                ? '#FF2A6D'
-                : '#FFE600'
-
-            const pLabel =
-              chosenType === 'triple_laser'
-                ? '⚡ TRIPLE LASER'
-                : chosenType === 'homing_missiles'
-                ? '🚀 HOMING MISSILES'
-                : chosenType === 'nuke'
-                ? '💣 BASS DROP NUKE'
-                : chosenType === 'slow_mo'
-                ? '⏱️ SLOW-MO'
-                : chosenType === 'heart_repair'
-                ? '💖 +1 HEART'
-                : '🔥 OVERDRIVE'
-
-            state.enemies.push({
-              id: Math.random(),
-              x: 40 + Math.random() * (width - 80),
-              y: -35,
-              vx: (Math.random() - 0.5) * 1.2,
-              vy: (1.8 + Math.random() * 1.2) * state.speedMultiplier,
-              radius: 20,
-              category: 'powerup',
-              type: 'powerup',
-              powerupType: chosenType,
-              powerupLabel: pLabel,
-              hp: 1,
-              maxHp: 1,
-              rotation: 0,
-              rotSpeed: 0.04,
-              color: pColor,
-              hitFlash: 0
-            })
-          } else {
-            // Designed Wave Sequences (Structured pacing + variety)
-            let spawnType: 'scout' | 'interceptor' | 'sawblade' | 'asteroid' | 'alien_gunship' = 'scout'
-            const elapsed = state.waveElapsedSec
-
-            if (state.currentWave === 1) {
-              // Wave 1: Scout Formation
-              spawnType = 'scout'
-            } else if (state.currentWave === 2) {
-              // Wave 2: Interceptor Strike with mid-wave Alien Gunship
-              if (elapsed > 4.5 && elapsed < 7.5) {
-                spawnType = 'alien_gunship'
-              } else {
-                spawnType = Math.random() < 0.55 ? 'interceptor' : 'scout'
-              }
-            } else if (state.currentWave === 3) {
-              // Wave 3: Serrated Swarm (Sawblades + Scouts)
-              spawnType = Math.random() < 0.65 ? 'sawblade' : 'scout'
-            } else if (state.currentWave === 4) {
-              // Wave 4: 0-4s Asteroids -> 4-8s Sawblades -> 8-12s Interceptors -> 12s+ Mixed
-              if (elapsed < 4.0) spawnType = 'asteroid'
-              else if (elapsed < 8.0) spawnType = 'sawblade'
-              else if (elapsed < 12.0) spawnType = 'interceptor'
-              else spawnType = Math.random() < 0.5 ? 'asteroid' : 'interceptor'
-            } else if (state.currentWave === 5) {
-              // Wave 5: Cyber Armada Vanguard
-              const armada: ('alien_gunship' | 'interceptor' | 'sawblade' | 'scout')[] = ['alien_gunship', 'interceptor', 'sawblade', 'scout']
-              spawnType = armada[Math.floor(Math.random() * armada.length)]
-            } else {
+          if (state.currentWave === 1) {
+            // Wave 1: Scout Formation
+            spawnType = 'scout'
+          } else if (state.currentWave === 2) {
+            // Wave 2: Interceptor Strike with mid-wave Alien Gunship
+            if (elapsed > 4.5 && elapsed < 7.5) {
               spawnType = 'alien_gunship'
+            } else {
+              spawnType = Math.random() < 0.55 ? 'interceptor' : 'scout'
             }
+          } else if (state.currentWave === 3) {
+            // Wave 3: Serrated Swarm (Sawblades + Scouts)
+            spawnType = Math.random() < 0.65 ? 'sawblade' : 'scout'
+          } else if (state.currentWave === 4) {
+            // Wave 4: 0-4s Asteroids -> 4-8s Sawblades -> 8-12s Interceptors -> 12s+ Mixed
+            if (elapsed < 4.0) spawnType = 'asteroid'
+            else if (elapsed < 8.0) spawnType = 'sawblade'
+            else if (elapsed < 12.0) spawnType = 'interceptor'
+            else spawnType = Math.random() < 0.5 ? 'asteroid' : 'interceptor'
+          } else if (state.currentWave === 5) {
+            // Wave 5: Cyber Armada Vanguard
+            const armada: ('alien_gunship' | 'interceptor' | 'sawblade' | 'scout')[] = ['alien_gunship', 'interceptor', 'sawblade', 'scout']
+            spawnType = armada[Math.floor(Math.random() * armada.length)]
+          } else {
+            spawnType = 'alien_gunship'
+          }
 
-            state.waveRemainingEnemies--
-            state.waveTotalSpawned++
+          state.waveRemainingEnemies--
+          state.waveTotalSpawned++
 
             let radius = 24
             let hp = 1
@@ -1698,7 +1701,6 @@ export function RocketShooterGame() {
               aimTelegraph: 0
             })
           }
-        }
 
         // 7. UPDATE & DRAW HOMING MISSILES (Angular Steering Physics + Smooth Arcs)
         for (let i = state.missiles.length - 1; i >= 0; i--) {
@@ -3091,66 +3093,19 @@ export function RocketShooterGame() {
           </div>
         )}
 
-        {/* READY / LAUNCH SCREEN */}
+        {/* READY / START SCREEN (Minimalist) */}
         {gameState === 'ready' && (
-          <div className="absolute inset-0 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-20 space-y-4">
-            <div className="p-4 rounded-2xl bg-[#141414] border border-white/20 shadow-2xl animate-bounce">
-              <Rocket className="w-8 h-8 text-studio-neon" />
-            </div>
-
-            <div className="space-y-1.5 max-w-md">
-              <h3 className="text-2xl sm:text-3xl font-bold font-luckiest-guy tracking-wider text-white uppercase">
-                SamplesWala Rocket Shooter
-              </h3>
-              <p className="text-xs text-zinc-400 font-mono leading-relaxed">
-                Designed wave progression, 2D momentum physics, near-miss mechanics, and Dreadnought boss encounters!
-              </p>
-            </div>
-
-            {/* Visual Guide: Hazards vs Powerups */}
-            <div className="grid grid-cols-2 gap-3 max-w-sm w-full font-mono text-[10px] text-left pt-1">
-              <div className="bg-[#141414] border border-red-500/30 p-2.5 rounded-lg space-y-1">
-                <span className="text-red-400 font-bold block uppercase flex items-center gap-1">
-                  <HeartCrack className="w-3 h-3" /> HAZARDS (AVOID/SHOOT)
-                </span>
-                <span className="text-zinc-400 block">• 🪨 Asteroids (2-3 HP)</span>
-                <span className="text-zinc-400 block">• 💿 Sawblades & Scouts</span>
-                <span className="text-zinc-400 block">• 🛸 Alien Gunships & Boss</span>
-              </div>
-
-              <div className="bg-[#141414] border border-studio-neon/30 p-2.5 rounded-lg space-y-1">
-                <span className="text-studio-neon font-bold block uppercase flex items-center gap-1">
-                  <Zap className="w-3 h-3" /> POWERUPS (COLLECT)
-                </span>
-                <span className="text-cyan-400 block">• ⚡ Triple Lasers</span>
-                <span className="text-amber-400 block">• 🚀 Homing Missiles</span>
-                <span className="text-pink-400 block">• 💖 +1 Heart Repair</span>
-                <span className="text-yellow-400 block">• 🔥 Overdrive Gatling</span>
-              </div>
-            </div>
-
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-20 space-y-3 animate-fadeIn">
             <button
               type="button"
               onClick={startGame}
-              className="px-8 py-3.5 rounded-xl bg-studio-neon text-black font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_0_25px_rgba(0,255,148,0.4)] cursor-pointer flex items-center gap-2 font-mono uppercase tracking-wider"
+              className="px-9 py-3 rounded-full bg-white text-black font-bold text-sm tracking-widest uppercase hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_0_25px_rgba(255,255,255,0.3)] cursor-pointer"
             >
-              <Zap className="w-4 h-4 text-black fill-black" />
-              LAUNCH ROCKET (START)
+              START
             </button>
-
-            <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-mono text-zinc-400 pt-1">
-              <span className="flex items-center gap-1">
-                <MousePointer className="w-3 h-3 text-zinc-300" /> Mouse/Touch Drag (2D)
-              </span>
-              <span>•</span>
-              <span>WASD / Arrows</span>
-              <span>•</span>
-              <span className="text-studio-neon font-bold">Shift: Precision Mode</span>
-              <span>•</span>
-              <span>Space: Fire</span>
-              <span>•</span>
-              <span>P / Esc: Pause</span>
-            </div>
+            <span className="text-[11px] font-mono text-zinc-400 tracking-wider uppercase">
+              DRAG OR WASD TO FLY
+            </span>
           </div>
         )}
 
@@ -3262,70 +3217,13 @@ export function RocketShooterGame() {
             <button
               type="button"
               onClick={startGame}
-              className="px-7 py-3 rounded-xl bg-studio-neon text-black font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,148,0.5)] cursor-pointer flex items-center gap-2 font-mono uppercase"
+              className="px-7 py-3 rounded-xl bg-white text-black font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-lg cursor-pointer flex items-center gap-2 font-mono uppercase"
             >
               <RotateCcw className="w-4 h-4 text-black" />
               PLAY AGAIN
             </button>
           </div>
         )}
-      </div>
-
-      {/* 📱 MOBILE TOUCH CONTROLS & AUTO-FIRE (STRICT FIXED HEIGHT h-14) */}
-      <div className="h-14 bg-[#121212] border-t border-[#262626] px-3 sm:px-4 flex items-center justify-between gap-2 text-xs font-mono shrink-0 select-none overflow-hidden">
-        <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 shrink-0">
-          <Smartphone className="w-3.5 h-3.5 text-zinc-400" />
-          <span className="hidden sm:inline">Drag 2D anywhere to steer</span>
-          <span className="sm:hidden">Drag to steer</span>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Quick Nuke Button */}
-          <button
-            type="button"
-            onClick={() => {
-              if (stateRef.current.gameState === 'playing') {
-                triggerNuke(stateRef.current.player.x, stateRef.current.player.y)
-              }
-            }}
-            className="px-2.5 py-1.5 rounded-lg bg-red-950/40 border border-red-500/50 text-red-400 text-[11px] font-bold hover:bg-red-900/50 transition-all cursor-pointer flex items-center gap-1 shrink-0"
-            title="Deploy Bass Drop Nuke"
-          >
-            <Bomb className="w-3.5 h-3.5" /> NUKE
-          </button>
-
-          {/* Auto-Fire Toggle */}
-          <button
-            type="button"
-            onClick={() => {
-              const next = !autoFire
-              setAutoFire(next)
-              stateRef.current.autoFire = next
-            }}
-            className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition-all cursor-pointer shrink-0 ${
-              autoFire
-                ? 'bg-studio-neon text-black border-studio-neon shadow-sm'
-                : 'bg-[#181818] border-[#2a2a2a] text-zinc-400 hover:text-white'
-            }`}
-          >
-            AUTO-FIRE: {autoFire ? 'ON' : 'OFF'}
-          </button>
-
-          {/* Fire Laser Button */}
-          <button
-            type="button"
-            onPointerDown={() => {
-              stateRef.current.keys.fire = true
-              if (stateRef.current.gameState !== 'playing') startGame()
-            }}
-            onPointerUp={() => {
-              stateRef.current.keys.fire = false
-            }}
-            className="px-4 py-1.5 rounded-lg bg-white text-black font-bold text-xs uppercase hover:bg-zinc-200 active:scale-95 transition-all shadow-sm cursor-pointer shrink-0"
-          >
-            FIRE
-          </button>
-        </div>
       </div>
     </div>
   )
