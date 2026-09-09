@@ -489,15 +489,17 @@ export function RocketShooterGame() {
       targetX: 300,
       targetY: 500,
       tilt: 0,
-      maxSpeed: 8.5,
-      acceleration: 1.15,
+      maxSpeedX: 8.8,
+      maxSpeedY: 6.6,
+      acceleration: 1.25,
       braking: 0.82,
       pointerResponsiveness: 0.22,
-      pointerDeadZone: 3,
+      pointerDeadZone: 4,
       width: 44,
       height: 52,
+      hitboxRadius: 10,
       invulnerable: 0,
-      flameTick: 0,
+      flameTime: 0,
       controlMode: 'keyboard' as 'keyboard' | 'pointer'
     },
 
@@ -511,12 +513,15 @@ export function RocketShooterGame() {
       color: string
       isOverdrive?: boolean
       isHeavy?: boolean
+      isPiercing?: boolean
+      pierceHits?: number
     }>,
     missiles: [] as Array<{
       x: number
       y: number
       vx: number
       vy: number
+      angle?: number
       targetId: number | null
       life: number
     }>,
@@ -554,6 +559,9 @@ export function RocketShooterGame() {
       shootCooldown?: number
       aiPhase?: number
       aiTimer?: number
+      targetPosX?: number
+      targetPosY?: number
+      aimTelegraph?: number
       diveTargetX?: number
     }>,
 
@@ -608,6 +616,8 @@ export function RocketShooterGame() {
       size: number
       color: string
       decay: number
+      drag?: number
+      gravity?: number
     }>,
     embers: [] as Array<{
       x: number
@@ -646,8 +656,11 @@ export function RocketShooterGame() {
       offsetX: 0,
       offsetY: 0
     },
-    lastSpawn: 0,
-    lastShot: 0,
+    fireCooldown: 0,
+    spawnCooldown: 0,
+    comboTimer: 2.5,
+    waveElapsedSec: 0,
+    flameEmberCooldown: 0,
     lastTime: 0,
     keys: { left: false, right: false, up: false, down: false, fire: false, precision: false },
     autoFire: false
@@ -781,8 +794,11 @@ export function RocketShooterGame() {
     stateRef.current.shockwaves = []
     stateRef.current.floatingTexts = []
 
-    stateRef.current.lastSpawn = Date.now()
-    stateRef.current.lastShot = 0
+    stateRef.current.fireCooldown = 0
+    stateRef.current.spawnCooldown = 0.3
+    stateRef.current.comboTimer = 2.5
+    stateRef.current.waveElapsedSec = 0
+    stateRef.current.flameEmberCooldown = 0
     stateRef.current.lastTime = performance.now()
     stateRef.current.gameState = 'playing'
 
@@ -878,14 +894,14 @@ export function RocketShooterGame() {
 
     state.player.targetX = Math.max(26, Math.min(rect.width - 26, x + state.pointer.offsetX))
     state.player.targetY = Math.max(50, Math.min(rect.height - 40, y + state.pointer.offsetY))
-
-    state.keys.fire = true
   }
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
     if (!canvas) return
     const state = stateRef.current
+    if (!state.pointer.active) return // Guard: do not override keyboard unless actively dragging
+
     const rect = canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -898,7 +914,6 @@ export function RocketShooterGame() {
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const state = stateRef.current
     state.pointer.active = false
-    state.keys.fire = false
     try {
       e.currentTarget.releasePointerCapture(e.pointerId)
     } catch {}
@@ -1153,6 +1168,7 @@ export function RocketShooterGame() {
             state.waveRemainingEnemies = nextWaveCfg.enemiesCount
             state.waveTotalSpawned = 0
             state.waveState = nextWaveCfg.isBossWave ? 'boss' : 'active'
+            state.waveElapsedSec = 0
             state.currentBpm = nextWaveCfg.baseBpm
 
             setCurrentWave(state.currentWave)
@@ -1248,11 +1264,15 @@ export function RocketShooterGame() {
         // Score Accumulation
         state.score += Math.round(1 * (state.tempoMode === 'surge' ? 2 : 1) * dt)
 
-        // Combo Reset (2.4s window)
-        if (Date.now() - state.lastHitTime > 2400 && state.combo > 1) {
-          state.combo = 1
-          state.hitStreak = 0
-          setCombo(1)
+        // Combo Timer (2.5s simulation-time window)
+        if (state.combo > 1) {
+          state.comboTimer = (state.comboTimer || 2.5) - deltaSec
+          if (state.comboTimer <= 0) {
+            state.combo = 1
+            state.hitStreak = 0
+            state.comboTimer = 2.5
+            setCombo(1)
+          }
         }
 
         // Active Ability Timers
@@ -1260,13 +1280,14 @@ export function RocketShooterGame() {
         if (state.homingMissileTimer > 0) state.homingMissileTimer -= dt
         if (state.overdriveTimer > 0) state.overdriveTimer -= dt
 
-        // 4. PLAYER MOVEMENT PHYSICS (Vector normalized keyboard + True pointer steering + Boundary velocity cancellation)
+        // 4. PLAYER MOVEMENT PHYSICS (Lateral Strafe Feel + Acceleration Curve + Reverse Braking Assist)
         const p = state.player
-        p.flameTick++
+        p.flameTime += deltaSec
 
         // Precision Mode (Hold Shift to slow down for bullet hell precision weaving)
         const precision = state.keys.precision
-        const maxSpeed = precision ? 5.0 : p.maxSpeed
+        const maxSpeedX = precision ? 5.0 : p.maxSpeedX
+        const maxSpeedY = precision ? 4.0 : p.maxSpeedY
 
         // Keyboard Vector Input Normalization (prevents diagonal 1.414x speed advantage)
         let inputX = 0
@@ -1287,8 +1308,22 @@ export function RocketShooterGame() {
           if (usingKeyboard) {
             inputX /= inputLength
             inputY /= inputLength
-            p.vx += inputX * p.acceleration * dt
-            p.vy += inputY * p.acceleration * dt
+
+            // Reverse Braking Assist: Instantly cut opposite velocity on sharp reverse turns!
+            if ((inputX > 0 && p.vx < 0) || (inputX < 0 && p.vx > 0)) {
+              p.vx *= Math.pow(0.45, dt)
+            }
+            if ((inputY > 0 && p.vy < 0) || (inputY < 0 && p.vy > 0)) {
+              p.vy *= Math.pow(0.45, dt)
+            }
+
+            // Progressive acceleration curve (punchy start -> smooth cruising top out)
+            const currentSpeed = Math.hypot(p.vx, p.vy)
+            const speedRatio = Math.min(1, currentSpeed / maxSpeedX)
+            const accelCurve = 0.88 + (1 - speedRatio) * 0.45
+
+            p.vx += inputX * (p.acceleration * accelCurve) * dt
+            p.vy += inputY * (p.acceleration * 0.86 * accelCurve) * dt
           } else {
             // Smooth keyboard deceleration / braking
             const damping = Math.pow(p.braking, dt)
@@ -1296,45 +1331,52 @@ export function RocketShooterGame() {
             p.vy *= damping
           }
         } else if (p.controlMode === 'pointer') {
-          // True Pointer Steering Acceleration (No rubber banding, smooth distance-based speed)
+          // Tiered Pointer Steering (0-4px Deadzone, 4-25px Micro, 25-140px Cruise, 140px+ Snap)
           const dx = p.targetX - p.x
           const dy = p.targetY - p.y
           const distance = Math.hypot(dx, dy)
 
-          if (distance > p.pointerDeadZone) {
+          if (distance <= 4) {
+            // Deadzone: settle quickly without mouse jitter
+            p.vx *= Math.pow(0.70, dt)
+            p.vy *= Math.pow(0.70, dt)
+          } else {
             const nx = dx / distance
             const ny = dy / distance
 
-            const desiredSpeed = Math.min(
-              maxSpeed,
-              distance * p.pointerResponsiveness
-            )
+            let desiredSpeed: number
+            if (distance < 25) {
+              // Gentle micro dodging
+              desiredSpeed = Math.min(2.8, distance * 0.12)
+            } else if (distance < 140) {
+              // Normal agile cruising
+              desiredSpeed = 2.8 + (distance - 25) * 0.048
+            } else {
+              // Max snap response
+              desiredSpeed = maxSpeedX
+            }
 
-            const desiredVx = nx * desiredSpeed
-            const desiredVy = ny * desiredSpeed
+            const desiredVx = nx * Math.min(maxSpeedX, desiredSpeed)
+            const desiredVy = ny * Math.min(maxSpeedY, desiredSpeed * 0.85)
 
-            const steering = Math.min(1, 0.32 * dt)
+            const steering = Math.min(1, 0.35 * dt)
             p.vx += (desiredVx - p.vx) * steering
             p.vy += (desiredVy - p.vy) * steering
-          } else {
-            // Quick settle when pointer stops inside deadzone
-            p.vx *= Math.pow(0.72, dt)
-            p.vy *= Math.pow(0.72, dt)
           }
         }
 
-        // Vector Magnitude Velocity Cap (Clamps actual total speed vector, not per-axis)
-        const currentSpeed = Math.hypot(p.vx, p.vy)
-        if (currentSpeed > maxSpeed) {
-          const scale = maxSpeed / currentSpeed
-          p.vx *= scale
-          p.vy *= scale
+        // Lateral Speed Vector Clamping (Snappy lateral horizontal evasion, controlled vertical depth)
+        if (Math.abs(p.vx) > maxSpeedX) {
+          p.vx = Math.sign(p.vx) * maxSpeedX
+        }
+        if (Math.abs(p.vy) > maxSpeedY) {
+          p.vy = Math.sign(p.vy) * maxSpeedY
         }
 
         p.x += p.vx * dt
         p.y += p.vy * dt
 
-        // Boundary Collision with Outward Velocity Cancellation (No sticking/overshooting walls!)
+        // Boundary Collision with Outward Velocity Cancellation (No sticking or overshooting walls!)
         const minX = 26
         const maxX = width - 26
         const minY = 50
@@ -1357,16 +1399,20 @@ export function RocketShooterGame() {
           if (p.vy > 0) p.vy = 0
         }
 
-        // Smooth Banking Tilt
-        const targetTilt = Math.max(-0.32, Math.min(0.32, p.vx * 0.055))
-        p.tilt += (targetTilt - p.tilt) * Math.min(1, 0.18 * dt)
+        // Dynamic 3-Stage Ship Banking (Base velocity tilt + Acceleration lean + Braking recovery)
+        const accelLean = (inputX || (p.controlMode === 'pointer' && Math.abs(p.targetX - p.x) > 15 ? Math.sign(p.targetX - p.x) : 0)) * 0.16
+        const brakeLean = (!usingKeyboard && p.controlMode === 'keyboard' && Math.abs(p.vx) > 1.2) ? -Math.sign(p.vx) * 0.07 : 0
+        const targetTilt = Math.max(-0.45, Math.min(0.45, p.vx * 0.046 + accelLean + brakeLean))
+        p.tilt += (targetTilt - p.tilt) * Math.min(1, 0.22 * dt)
 
         if (p.invulnerable > 0) {
           p.invulnerable -= dt
         }
 
-        // Exhaust Ember Particles
-        if (p.flameTick % 2 === 0) {
+        // Simulation-Time Exhaust Ember Particles
+        state.flameEmberCooldown -= deltaSec
+        if (state.flameEmberCooldown <= 0) {
+          state.flameEmberCooldown = 0.035
           state.embers.push({
             x: p.x + (Math.random() - 0.5) * 14,
             y: p.y + 24,
@@ -1378,13 +1424,23 @@ export function RocketShooterGame() {
           })
         }
 
-        // 5. SHOOTING WEAPONS (Permanent Weapon Level + Abilities)
-        const now = Date.now()
-        const fireInterval = state.overdriveTimer > 0 ? 75 : state.weaponLevel >= 4 ? 120 : state.tripleLaserTimer > 0 ? 130 : 185
+        // 5. SHOOTING WEAPONS (Simulation-Time Based Cooldown + Tiered Weapons with Piercing)
+        state.fireCooldown -= deltaSec
+        const fireIntervalSec = state.overdriveTimer > 0
+          ? 0.075
+          : state.weaponLevel === 5
+          ? 0.08
+          : state.weaponLevel === 4
+          ? 0.11
+          : state.weaponLevel === 3
+          ? 0.13
+          : state.tripleLaserTimer > 0 || state.weaponLevel >= 2
+          ? 0.14
+          : 0.18
         const shouldFire = state.keys.fire || stateRef.current.autoFire
 
-        if (shouldFire && now - state.lastShot > fireInterval) {
-          state.lastShot = now
+        if (shouldFire && state.fireCooldown <= 0) {
+          state.fireCooldown = fireIntervalSec
 
           if (state.overdriveTimer > 0 || state.weaponLevel === 5) {
             sfx.playOverdrive()
@@ -1392,16 +1448,23 @@ export function RocketShooterGame() {
             state.lasers.push({ x: p.x + 13, y: p.y - 18, vx: 0, vy: -19, radius: 4.5, color: '#FFE600', isOverdrive: true })
           } else if (state.weaponLevel === 4) {
             sfx.playLaser()
-            // Heavy Plasma Ray (Dual high-density beams)
+            // Level 4: Heavy Hyper-Density Plasma Rays
             state.lasers.push({ x: p.x - 10, y: p.y - 20, vx: 0, vy: -17.5, radius: 5.0, color: '#00E5FF', isHeavy: true })
             state.lasers.push({ x: p.x + 10, y: p.y - 20, vx: 0, vy: -17.5, radius: 5.0, color: '#00E5FF', isHeavy: true })
-          } else if (state.tripleLaserTimer > 0 || state.weaponLevel >= 2) {
+          } else if (state.weaponLevel === 3) {
+            sfx.playLaser()
+            // Level 3: Dual Piercing Rail Beams (Pierces through 2-3 enemies in a row!)
+            state.lasers.push({ x: p.x - 12, y: p.y - 20, vx: 0, vy: -18, radius: 4.2, color: '#BF00FF', isPiercing: true, pierceHits: 0 })
+            state.lasers.push({ x: p.x + 12, y: p.y - 20, vx: 0, vy: -18, radius: 4.2, color: '#BF00FF', isPiercing: true, pierceHits: 0 })
+          } else if (state.tripleLaserTimer > 0 || state.weaponLevel === 2) {
             sfx.playTripleLaser()
+            // Level 2 / Powerup: Triple Spread Vulcan Beams
             state.lasers.push({ x: p.x - 14, y: p.y - 14, vx: -3.2, vy: -15.5, radius: 3.8, color: '#00E5FF' })
             state.lasers.push({ x: p.x, y: p.y - 22, vx: 0, vy: -17, radius: 4.2, color: '#00FF94' })
             state.lasers.push({ x: p.x + 14, y: p.y - 14, vx: 3.2, vy: -15.5, radius: 3.8, color: '#00E5FF' })
           } else {
             sfx.playLaser()
+            // Level 1: Dual Plasma Lasers
             state.lasers.push({ x: p.x - 11, y: p.y - 16, vx: 0, vy: -15, radius: 3.2, color: '#00FF94' })
             state.lasers.push({ x: p.x + 11, y: p.y - 16, vx: 0, vy: -15, radius: 3.2, color: '#00FF94' })
           }
@@ -1443,15 +1506,16 @@ export function RocketShooterGame() {
           }
         }
 
-        // 6. SPAWN WAVE ENEMIES & SMART BENEFICIAL POWERUPS
-        const waveCfg = WAVES[Math.min(state.currentWave - 1, WAVES.length - 1)]
-        const spawnInterval = state.tempoMode === 'surge' ? 420 : state.tempoMode === 'breather' ? 840 : 640
+        // 6. SPAWN WAVE ENEMIES & SMART BENEFICIAL POWERUPS (Simulation-Time Based + Designed Sequences)
+        state.waveElapsedSec += deltaSec
+        state.spawnCooldown -= deltaSec
+        const spawnIntervalSec = state.tempoMode === 'surge' ? 0.38 : state.tempoMode === 'breather' ? 0.82 : 0.58
 
-        if (now - state.lastSpawn > spawnInterval && state.waveState === 'active' && state.waveRemainingEnemies > 0) {
-          state.lastSpawn = now
+        if (state.spawnCooldown <= 0 && state.waveState === 'active' && state.waveRemainingEnemies > 0) {
+          state.spawnCooldown = spawnIntervalSec
 
           // Smart Powerup Drops: If weak on hearts, high chance of Heart Repair!
-          const isPowerup = Math.random() < 0.22
+          const isPowerup = Math.random() < 0.20
           if (isPowerup) {
             let chosenType: AbilityType = 'triple_laser'
             if (state.lives <= 1 && Math.random() < 0.65) {
@@ -1508,8 +1572,37 @@ export function RocketShooterGame() {
               hitFlash: 0
             })
           } else {
-            // Spawn designed wave enemy
-            const spawnType = waveCfg.spawnTypes[Math.floor(Math.random() * waveCfg.spawnTypes.length)]
+            // Designed Wave Sequences (Structured pacing + variety)
+            let spawnType: 'scout' | 'interceptor' | 'sawblade' | 'asteroid' | 'alien_gunship' = 'scout'
+            const elapsed = state.waveElapsedSec
+
+            if (state.currentWave === 1) {
+              // Wave 1: Scout Formation
+              spawnType = 'scout'
+            } else if (state.currentWave === 2) {
+              // Wave 2: Interceptor Strike with mid-wave Alien Gunship
+              if (elapsed > 4.5 && elapsed < 7.5) {
+                spawnType = 'alien_gunship'
+              } else {
+                spawnType = Math.random() < 0.55 ? 'interceptor' : 'scout'
+              }
+            } else if (state.currentWave === 3) {
+              // Wave 3: Serrated Swarm (Sawblades + Scouts)
+              spawnType = Math.random() < 0.65 ? 'sawblade' : 'scout'
+            } else if (state.currentWave === 4) {
+              // Wave 4: 0-4s Asteroids -> 4-8s Sawblades -> 8-12s Interceptors -> 12s+ Mixed
+              if (elapsed < 4.0) spawnType = 'asteroid'
+              else if (elapsed < 8.0) spawnType = 'sawblade'
+              else if (elapsed < 12.0) spawnType = 'interceptor'
+              else spawnType = Math.random() < 0.5 ? 'asteroid' : 'interceptor'
+            } else if (state.currentWave === 5) {
+              // Wave 5: Cyber Armada Vanguard
+              const armada: ('alien_gunship' | 'interceptor' | 'sawblade' | 'scout')[] = ['alien_gunship', 'interceptor', 'sawblade', 'scout']
+              spawnType = armada[Math.floor(Math.random() * armada.length)]
+            } else {
+              spawnType = 'alien_gunship'
+            }
+
             state.waveRemainingEnemies--
             state.waveTotalSpawned++
 
@@ -1561,13 +1654,16 @@ export function RocketShooterGame() {
               hitFlash: 0,
               shootCooldown: 85 + Math.floor(Math.random() * 50),
               aiPhase: 0,
-              aiTimer: 0,
-              diveTargetX: p.x
+              aiTimer: spawnType === 'scout' ? 1.2 : spawnType === 'interceptor' ? 0.45 : spawnType === 'alien_gunship' ? 1.5 : 0,
+              targetPosX: 60 + Math.random() * (width - 120),
+              targetPosY: 70 + Math.random() * 70,
+              diveTargetX: p.x,
+              aimTelegraph: 0
             })
           }
         }
 
-        // 7. UPDATE & DRAW HOMING MISSILES
+        // 7. UPDATE & DRAW HOMING MISSILES (Angular Steering Physics + Smooth Arcs)
         for (let i = state.missiles.length - 1; i >= 0; i--) {
           const m = state.missiles[i]
           m.life -= dt
@@ -1590,15 +1686,25 @@ export function RocketShooterGame() {
             }
           }
 
-          const angle = Math.atan2(targetY - m.y, targetX - m.x)
-          m.vx += Math.cos(angle) * 0.75 * dt
-          m.vy += Math.sin(angle) * 0.75 * dt
-          m.vx *= Math.pow(0.94, dt)
-          m.vy *= Math.pow(0.94, dt)
+          // Natural angular steering arc
+          const currentAngle = Math.atan2(m.vy, m.vx)
+          const targetAngle = Math.atan2(targetY - m.y, targetX - m.x)
+          let diff = targetAngle - currentAngle
+          while (diff < -Math.PI) diff += Math.PI * 2
+          while (diff > Math.PI) diff -= Math.PI * 2
+
+          const maxTurn = 4.8 * deltaSec
+          const turn = Math.max(-maxTurn, Math.min(maxTurn, diff))
+          const newAngle = currentAngle + turn
+
+          const currentSpeed = Math.min(13.5, Math.hypot(m.vx, m.vy) + 0.35 * dt)
+          m.vx = Math.cos(newAngle) * currentSpeed
+          m.vy = Math.sin(newAngle) * currentSpeed
+          m.angle = newAngle
           m.x += m.vx * dt
           m.y += m.vy * dt
 
-          // Smoke trail
+          // Smoke trail with slight expansion and drag
           state.particles.push({
             x: m.x,
             y: m.y,
@@ -1607,12 +1713,13 @@ export function RocketShooterGame() {
             alpha: 0.65,
             size: 2.2,
             color: '#a1a1aa',
-            decay: 0.04
+            decay: 0.04,
+            drag: 0.95
           })
 
           ctx.save()
           ctx.translate(m.x, m.y)
-          ctx.rotate(angle + Math.PI / 2)
+          ctx.rotate(newAngle + Math.PI / 2)
           ctx.fillStyle = '#FFFFFF'
           ctx.fillRect(-2, -6, 4, 12)
           ctx.fillStyle = '#FF5C00'
@@ -1684,25 +1791,36 @@ export function RocketShooterGame() {
           ctx.restore()
         }
 
-        // 9. UPDATE & DRAW ENEMY LASERS (HOSTILE BULLETS + NEAR MISS DETECTION)
+        // 9. UPDATE & DRAW ENEMY LASERS (HOSTILE BULLETS + READABLE CORE + NEAR MISS DETECTION)
+        const projSpeedMult = state.speedMultiplier
         for (let i = state.enemyLasers.length - 1; i >= 0; i--) {
           const el = state.enemyLasers[i]
-          el.x += el.vx * dt
-          el.y += el.vy * state.speedMultiplier * dt
+          el.x += el.vx * projSpeedMult * dt
+          el.y += el.vy * projSpeedMult * dt
 
-          if (el.y > height + 20) {
+          if (el.y > height + 25 || el.y < -40 || el.x < -40 || el.x > width + 40) {
             state.enemyLasers.splice(i, 1)
             continue
           }
 
-          // Bullet Graphics (Pulsing Red Energy Orb)
+          // Bullet Graphics (High-visibility Readable Core + Outer Shell + Comet Motion Trail)
           ctx.save()
+          ctx.strokeStyle = el.color
+          ctx.lineWidth = el.radius * 0.9
+          ctx.globalAlpha = 0.38
+          ctx.beginPath()
+          ctx.moveTo(el.x, el.y)
+          ctx.lineTo(el.x - el.vx * 2.6 * projSpeedMult, el.y - el.vy * 2.6 * projSpeedMult)
+          ctx.stroke()
+          ctx.globalAlpha = 1.0
+
           ctx.shadowBlur = 14
           ctx.shadowColor = el.color
           ctx.fillStyle = el.color
           ctx.beginPath()
           ctx.arc(el.x, el.y, el.radius, 0, Math.PI * 2)
           ctx.fill()
+
           ctx.fillStyle = '#FFFFFF'
           ctx.beginPath()
           ctx.arc(el.x, el.y, el.radius * 0.45, 0, Math.PI * 2)
@@ -1710,17 +1828,22 @@ export function RocketShooterGame() {
           ctx.restore()
 
           const distToPlayer = Math.hypot(el.x - p.x, el.y - p.y)
+          const hitDist = el.radius + p.hitboxRadius // Fair 10px core cockpit hitbox!
 
-          // ⚡ NEAR MISS & PERFECT DODGE CHECK
-          if (!el.nearMissChecked && distToPlayer < 38 && distToPlayer > el.radius + 18) {
+          // ⚡ TIERED NEAR-MISS & PERFECT DODGE SYSTEM (ALL LIFE STATES)
+          if (!el.nearMissChecked && distToPlayer < 48 && distToPlayer >= hitDist) {
             el.nearMissChecked = true
             state.nearMisses++
             sfx.playNearMiss()
 
-            if (state.lives === 1) {
-              // ⭐ PERFECT DODGE ON 1 HEART!
-              state.score += 150
+            if (distToPlayer < hitDist + 6) {
+              // ⭐ PERFECT DODGE! (Available in ALL life states!)
+              state.score += 150 * state.combo
               state.combo = Math.min(state.combo + 1, 8)
+              state.comboTimer = 2.5
+              state.hitStop = 0.08 // 80ms slow motion freeze!
+              state.screenShake = 0.8
+              setCombo(state.combo)
               state.floatingTexts.push({
                 x: p.x,
                 y: p.y - 30,
@@ -1728,24 +1851,40 @@ export function RocketShooterGame() {
                 color: '#FFE600',
                 alpha: 1,
                 yOffset: 0,
-                scale: 1.2
+                scale: 1.25
               })
-            } else {
+            } else if (distToPlayer < hitDist + 14) {
+              // ⚡ CLOSE MISS!
+              state.score += 100
+              state.floatingTexts.push({
+                x: el.x,
+                y: el.y,
+                text: '⚡ CLOSE MISS! +100',
+                color: '#00E5FF',
+                alpha: 1,
+                yOffset: 0,
+                scale: 1.1
+              })
+            } else if (distToPlayer < hitDist + 24) {
+              // ⚡ NEAR MISS!
               state.score += 50
               state.floatingTexts.push({
                 x: el.x,
                 y: el.y,
                 text: '⚡ NEAR MISS! +50',
-                color: '#00E5FF',
+                color: '#00FF94',
                 alpha: 1,
                 yOffset: 0,
                 scale: 1.0
               })
+            } else {
+              // SAFE MISS!
+              state.score += 20
             }
           }
 
-          // Direct Hit with Player
-          if (distToPlayer < el.radius + 18 && p.invulnerable <= 0) {
+          // Direct Hit with Player Core Cockpit Hitbox (Fair 10px Hitbox)
+          if (distToPlayer < hitDist && p.invulnerable <= 0) {
             state.enemyLasers.splice(i, 1)
             triggerBrokenHeartDamage(p.x, p.y)
             continue
@@ -1811,11 +1950,12 @@ export function RocketShooterGame() {
               })
             }
 
-            // Phase 2 Attacks (Radial Bullet Rings)
+            // Phase 2 Attacks (Radial Bullet Rings + Movement Direction Flip)
             b.specialCooldown -= dt
             if (b.specialCooldown <= 0) {
               b.specialCooldown = b.phase === 3 ? 110 : 150
               sfx.playBossAlarm()
+              b.vx = -b.vx // Horizontal repositioning after attack
               for (let a = 0; a < 8; a++) {
                 const ang = (a / 8) * Math.PI * 2
                 state.enemyLasers.push({
@@ -1830,21 +1970,26 @@ export function RocketShooterGame() {
               }
             }
 
-            // Phase 3 Attack: TELEGRAPHED LASER SWEEP!
+            // Phase 3 Attack: TELEGRAPHED LASER SWEEP! (With Explicit Telegraph Reset)
             if (b.phase === 3) {
               b.laserSweepCooldown -= dt
-              if (b.laserSweepCooldown <= 40 && b.laserSweepCooldown > 0) {
-                // Warning Telegraph Line
+              if (b.laserSweepCooldown <= 45 && b.laserSweepCooldown > 0) {
+                // Warning Telegraph Line Active
                 b.laserTelegraph = b.laserSweepCooldown
               } else if (b.laserSweepCooldown <= 0 && !b.laserSweepActive) {
                 b.laserSweepActive = true
-                b.laserSweepAngle = -0.7
+                b.laserTelegraph = 0 // Reset telegraph explicitly when firing!
+                b.laserSweepAngle = -0.72
+              } else if (!b.laserSweepActive) {
+                b.laserTelegraph = 0
               }
 
               if (b.laserSweepActive) {
-                b.laserSweepAngle += 0.025 * dt
-                if (b.laserSweepAngle > 0.7) {
+                b.laserTelegraph = 0
+                b.laserSweepAngle += 0.026 * dt
+                if (b.laserSweepAngle > 0.72) {
                   b.laserSweepActive = false
+                  b.laserTelegraph = 0 // Reset telegraph explicitly on finish!
                   b.laserSweepCooldown = 280
                 }
 
@@ -1863,7 +2008,7 @@ export function RocketShooterGame() {
                 const closestY = beamStartY + u * ldy
                 const distToBeam = Math.hypot(p.x - closestX, p.y - closestY)
 
-                if (distToBeam < 18 && p.invulnerable <= 0) {
+                if (distToBeam < p.hitboxRadius + 4 && p.invulnerable <= 0) {
                   triggerBrokenHeartDamage(p.x, p.y)
                 }
 
@@ -1902,12 +2047,18 @@ export function RocketShooterGame() {
             ctx.restore()
           }
 
-          // Boss Hit Detection from player lasers
+          // Boss Hit Detection from player lasers (Supports Piercing Rail Beams & Heavy Plasma)
           for (let j = state.lasers.length - 1; j >= 0; j--) {
             const l = state.lasers[j]
             if (Math.abs(l.x - b.x) < b.width / 2 && Math.abs(l.y - b.y) < b.height / 2) {
-              state.lasers.splice(j, 1)
-              b.hp--
+              if (l.isPiercing) {
+                l.pierceHits = (l.pierceHits || 0) + 1
+                if (l.pierceHits >= 2) state.lasers.splice(j, 1)
+              } else {
+                state.lasers.splice(j, 1)
+              }
+              const dmg = l.isHeavy ? 2 : 1
+              b.hp -= dmg
               b.hitFlash = 3
 
               if (b.hp <= 0) {
@@ -2025,31 +2176,154 @@ export function RocketShooterGame() {
         for (let i = state.enemies.length - 1; i >= 0; i--) {
           const e = state.enemies[i]
 
-          // Enemy AI Movement Patterns
+          // Enemy AI Movement Patterns & Multi-State Behaviors
           if (e.category === 'powerup') {
+            // Inverse-distance magnetic suction curve with snap zone
             const dist = Math.hypot(p.x - e.x, p.y - e.y)
-            if (dist < 110) {
-              e.vx += (p.x - e.x) * 0.05 * dt
-              e.vy += (p.y - e.y) * 0.05 * dt
+            if (dist < 150) {
+              const pullStrength = Math.min(16, ((150 - dist) / 150) * 14)
+              const nx = (p.x - e.x) / dist
+              const ny = (p.y - e.y) / dist
+              e.vx += nx * pullStrength * 0.15 * dt
+              e.vy += ny * pullStrength * 0.15 * dt
+              if (dist < 26) {
+                e.x += (p.x - e.x) * 0.5 * dt
+                e.y += (p.y - e.y) * 0.5 * dt
+              }
             }
-          } else if (e.type === 'scout') {
-            // Scout dive & retreat AI
-            e.y += e.vy * dt
-            e.x += Math.sin((e.y / 60) + e.id) * 2.2 * dt
-          } else if (e.type === 'interceptor') {
-            // Predicts player movement
-            e.y += e.vy * dt
-            const leadX = p.x + p.vx * 16
-            e.x += (leadX - e.x) * 0.02 * dt
-          } else if (e.type === 'sawblade') {
-            // Curving sine arc
-            e.y += e.vy * dt
-            e.x += Math.cos(e.y * 0.03 + e.id) * 3.2 * dt
-          } else if (e.type === 'alien_gunship') {
-            // Hovers horizontally in upper third
-            if (e.y < 120) e.y += 1.8 * dt
             e.x += e.vx * dt
-            if (e.x < 40 || e.x > width - 40) e.vx *= -1
+            e.y += e.vy * dt
+          } else if (e.type === 'scout') {
+            // Scout Multi-Stage AI: ENTER -> TRACK -> DIVE -> EXIT
+            e.aiPhase = e.aiPhase || 0
+            e.aiTimer = (e.aiTimer !== undefined ? e.aiTimer : 1.2) - deltaSec
+
+            if (e.aiPhase === 0) {
+              // 1. Enter: Swoop in from top
+              e.y += e.vy * dt
+              e.x += Math.sin(e.y * 0.05 + e.id) * 1.5 * dt
+              if (e.y >= 75) {
+                e.aiPhase = 1
+                e.aiTimer = 1.1
+              }
+            } else if (e.aiPhase === 1) {
+              // 2. Track: Smooth horizontal tracking of player
+              e.x += (p.x - e.x) * 0.045 * dt
+              e.y += 0.8 * dt
+              if (e.aiTimer <= 0) {
+                e.aiPhase = 2
+                e.diveTargetX = p.x
+              }
+            } else if (e.aiPhase === 2) {
+              // 3. Dive: Aggressive dive toward locked coordinate
+              const diveVx = ((e.diveTargetX ?? p.x) - e.x) * 0.06
+              e.x += diveVx * dt
+              e.y += (e.vy * 1.55) * dt
+              if (e.y > height - 140) {
+                e.aiPhase = 3
+              }
+            } else {
+              // 4. Exit: Sweeping banking exit off screen
+              const exitDir = e.x > width / 2 ? 1 : -1
+              e.vx = exitDir * 4.2
+              e.x += e.vx * dt
+              e.y += (e.vy * 0.8) * dt
+            }
+          } else if (e.type === 'interceptor') {
+            // Interceptor Multi-Stage AI: POSITION ABOVE -> LOCK PREDICTION -> DIVE -> LEAVE
+            e.aiPhase = e.aiPhase || 0
+            e.aiTimer = (e.aiTimer !== undefined ? e.aiTimer : 0.6) - deltaSec
+
+            if (e.aiPhase === 0) {
+              // Position above player
+              e.y += e.vy * 0.85 * dt
+              const targetX = p.x + (Math.sin(e.id) * 60)
+              e.x += (targetX - e.x) * 0.04 * dt
+              if (e.y >= 85) {
+                e.aiPhase = 1
+                e.aiTimer = 0.45
+                e.targetPosX = p.x + p.vx * 22
+              }
+            } else if (e.aiPhase === 1) {
+              // Aim Telegraph Line
+              e.aimTelegraph = 1
+              if (e.aiTimer <= 0) {
+                e.aiPhase = 2
+                e.aimTelegraph = 0
+              }
+            } else if (e.aiPhase === 2) {
+              // High speed intercept charge straight through predicted position
+              const dx = (e.targetPosX || p.x) - e.x
+              e.x += Math.sign(dx) * Math.min(Math.abs(dx) * 0.08, 4.5) * dt
+              e.y += (e.vy * 1.6) * dt
+              if (e.y > height - 100) {
+                e.aiPhase = 3
+              }
+            } else {
+              // Leave
+              e.y += (e.vy * 1.2) * dt
+            }
+          } else if (e.type === 'sawblade') {
+            // Curving Compound Harmonic Bézier-like trajectory
+            e.y += e.vy * dt
+            const harmonic = Math.sin(e.y * 0.024 + e.id * 2) * 3.8 + Math.cos(e.y * 0.012) * 1.8
+            e.x += harmonic * dt
+          } else if (e.type === 'alien_gunship') {
+            // Alien Gunship: MOVE -> STOP & AIM TELEGRAPH -> BURST -> REPOSITION
+            e.aiPhase = e.aiPhase || 0
+            e.targetPosX = e.targetPosX ?? (60 + Math.random() * (width - 120))
+            e.targetPosY = e.targetPosY ?? (70 + Math.random() * 80)
+            e.aiTimer = (e.aiTimer !== undefined ? e.aiTimer : 1.5) - deltaSec
+
+            if (e.aiPhase === 0) {
+              // Move to patrol coordinate
+              const dx = e.targetPosX - e.x
+              const dy = e.targetPosY - e.y
+              e.x += Math.sign(dx) * Math.min(Math.abs(dx) * 0.05, 3.2) * dt
+              e.y += Math.sign(dy) * Math.min(Math.abs(dy) * 0.05, 2.2) * dt
+              if (Math.hypot(dx, dy) < 14 || e.aiTimer <= 0) {
+                e.aiPhase = 1
+                e.aiTimer = 0.45 // Stop and aim
+                e.aimTelegraph = 1
+              }
+            } else if (e.aiPhase === 1) {
+              // Stop & Aim with red telegraph line
+              e.aimTelegraph = 1
+              if (e.aiTimer <= 0) {
+                // Fire accurate dual plasma burst!
+                e.aiPhase = 2
+                e.aimTelegraph = 0
+                sfx.playEnemyShot()
+                const angleToPlayer = Math.atan2(p.y - (e.y + e.radius), p.x - e.x)
+                state.enemyLasers.push({
+                  id: Math.random(),
+                  x: e.x - 10,
+                  y: e.y + e.radius + 2,
+                  vx: Math.cos(angleToPlayer) * 5.2,
+                  vy: Math.sin(angleToPlayer) * 5.2,
+                  radius: 4.8,
+                  color: '#FF0033'
+                })
+                state.enemyLasers.push({
+                  id: Math.random(),
+                  x: e.x + 10,
+                  y: e.y + e.radius + 2,
+                  vx: Math.cos(angleToPlayer) * 5.2,
+                  vy: Math.sin(angleToPlayer) * 5.2,
+                  radius: 4.8,
+                  color: '#FF0033'
+                })
+                e.aiTimer = 0.9
+              }
+            } else {
+              // Reposition
+              if (e.aiTimer <= 0) {
+                e.aiPhase = 0
+                e.targetPosX = 60 + Math.random() * (width - 120)
+                e.targetPosY = 65 + Math.random() * 95
+                e.aiTimer = 2.0
+              }
+            }
           } else {
             // Magma Asteroid
             e.x += e.vx * dt
@@ -2057,6 +2331,19 @@ export function RocketShooterGame() {
           }
 
           e.rotation += e.rotSpeed * dt
+
+          // Draw Enemy Aim Telegraph Line (Player can clearly read incoming shot and dodge!)
+          if (e.aimTelegraph && e.category === 'hazard') {
+            ctx.save()
+            ctx.strokeStyle = 'rgba(255, 0, 51, 0.45)'
+            ctx.lineWidth = 1.5
+            ctx.setLineDash([4, 4])
+            ctx.beginPath()
+            ctx.moveTo(e.x, e.y + e.radius)
+            ctx.lineTo(p.x, p.y)
+            ctx.stroke()
+            ctx.restore()
+          }
 
           // Wall bounce
           if (e.x < e.radius || e.x > width - e.radius) {
@@ -2069,45 +2356,38 @@ export function RocketShooterGame() {
             continue
           }
 
-          // Alien Gunship Firing Logic
-          if (e.type === 'alien_gunship' && e.shootCooldown !== undefined) {
-            e.shootCooldown -= dt
-            if (e.shootCooldown <= 0 && e.y > 40 && e.y < height - 120) {
-              e.shootCooldown = 110 + Math.floor(Math.random() * 50)
-              sfx.playEnemyShot()
-              state.enemyLasers.push({
-                id: Math.random(),
-                x: e.x,
-                y: e.y + e.radius + 4,
-                vx: (p.x - e.x) * 0.012,
-                vy: 5.2,
-                radius: 4.5,
-                color: '#FF0033'
-              })
-            }
-          }
-
-          // Laser Collisions
+          // Laser Collisions (With Level 3 Piercing Laser Support!)
           let entityDestroyed = false
           for (let j = state.lasers.length - 1; j >= 0; j--) {
             const l = state.lasers[j]
             const dist = Math.hypot(e.x - l.x, e.y - l.y)
             if (dist < e.radius + l.radius) {
-              state.lasers.splice(j, 1)
-              e.hp--
+              if (l.isPiercing) {
+                l.pierceHits = (l.pierceHits || 0) + 1
+                if (l.pierceHits >= 3) {
+                  state.lasers.splice(j, 1)
+                }
+              } else {
+                state.lasers.splice(j, 1)
+              }
+
+              const dmg = l.isHeavy ? 2 : 1
+              e.hp -= dmg
               e.hitFlash = 3
 
-              // Impact Sparks
-              for (let k = 0; k < 6; k++) {
+              // Impact Sparks with drag and gravity physics
+              for (let k = 0; k < 7; k++) {
                 state.particles.push({
                   x: l.x,
                   y: l.y,
-                  vx: (Math.random() - 0.5) * 8,
-                  vy: (Math.random() - 0.5) * 8,
+                  vx: (Math.random() - 0.5) * 8.5,
+                  vy: (Math.random() - 0.5) * 8.5,
                   alpha: 1,
                   size: 2.5,
                   color: l.color,
-                  decay: 0.06
+                  decay: 0.05,
+                  drag: 0.94,
+                  gravity: 0.08
                 })
               }
 
@@ -2117,6 +2397,7 @@ export function RocketShooterGame() {
 
                 if (e.category === 'powerup') {
                   sfx.playPowerup()
+                  state.shockwaves.push({ x: e.x, y: e.y, radius: 10, maxRadius: 85, alpha: 0.85, color: e.color })
                   if (e.powerupType === 'triple_laser') {
                     state.tripleLaserTimer = 450
                     state.floatingTexts.push({ x: e.x, y: e.y, text: '⚡ TRIPLE LASERS ACTIVATED!', color: '#00E5FF', alpha: 1, yOffset: 0, scale: 1.2 })
@@ -2147,7 +2428,7 @@ export function RocketShooterGame() {
                   sfx.playExplosion()
                   state.enemiesDestroyed++
                   state.hitStreak++
-                  state.lastHitTime = Date.now()
+                  state.comboTimer = 2.5
 
                   // Deep Combo System: 5 hits -> 2x, 10 hits -> 3x, 20 hits -> 4x, 30 hits -> 5x, 50 hits -> 6x
                   let nextCombo = 1
@@ -2163,10 +2444,8 @@ export function RocketShooterGame() {
                     setCombo(state.combo)
                     // Milestone Rewards!
                     if (state.combo === 3) {
-                      // Energy burst shockwave
                       state.shockwaves.push({ x: e.x, y: e.y, radius: 10, maxRadius: 180, alpha: 0.8, color: '#00FF94' })
                     } else if (state.combo === 5) {
-                      // Temporary Overdrive trigger
                       state.overdriveTimer = 300
                       state.floatingTexts.push({ x: p.x, y: p.y - 25, text: '🔥 5X COMBO OVERDRIVE!', color: '#FFE600', alpha: 1, yOffset: 0, scale: 1.3 })
                     }
@@ -2186,7 +2465,7 @@ export function RocketShooterGame() {
                     scale: 1.1
                   })
 
-                  // Shatter Debris Fragments
+                  // Shatter Debris Fragments with physical drag
                   for (let k = 0; k < 18; k++) {
                     state.particles.push({
                       x: e.x,
@@ -2196,7 +2475,9 @@ export function RocketShooterGame() {
                       alpha: 1,
                       size: 2 + Math.random() * 4,
                       color: e.type === 'sawblade' ? '#FF5C00' : e.type === 'alien_gunship' ? '#FF0033' : '#a1a1aa',
-                      decay: 0.035
+                      decay: 0.035,
+                      drag: 0.93,
+                      gravity: 0.06
                     })
                   }
                 }
@@ -2210,11 +2491,13 @@ export function RocketShooterGame() {
             continue
           }
 
-          // Player Collision Detection
+          // Player Collision Detection (Collision-Safe 10px Core Hitbox)
           const distToPlayer = Math.hypot(e.x - p.x, e.y - p.y)
-          if (distToPlayer < e.radius + 19) {
-            if (e.category === 'powerup') {
+          if (e.category === 'powerup') {
+            // Generous Powerup Collection Radius
+            if (distToPlayer < e.radius + 24) {
               sfx.playPowerup()
+              state.shockwaves.push({ x: p.x, y: p.y, radius: 10, maxRadius: 85, alpha: 0.85, color: e.color })
               if (e.powerupType === 'triple_laser') {
                 state.tripleLaserTimer = 450
                 state.floatingTexts.push({ x: p.x, y: p.y - 25, text: '⚡ TRIPLE LASERS!', color: '#00E5FF', alpha: 1, yOffset: 0, scale: 1.2 })
@@ -2243,12 +2526,12 @@ export function RocketShooterGame() {
 
               state.enemies.splice(i, 1)
               continue
-            } else if (p.invulnerable <= 0) {
-              // 💔 CRASHED INTO DANGEROUS HAZARD! BROKEN HEART!
-              state.enemies.splice(i, 1)
-              triggerBrokenHeartDamage(p.x, p.y)
-              continue
             }
+          } else if (distToPlayer < e.radius + p.hitboxRadius && p.invulnerable <= 0) {
+            // 💔 CRASHED INTO DANGEROUS HAZARD! (Fair 10px cockpit hitbox)
+            state.enemies.splice(i, 1)
+            triggerBrokenHeartDamage(p.x, p.y)
+            continue
           }
 
           // RENDER ENTITY (Crystal-clear distinction: Hazard vs Powerup!)
@@ -2447,6 +2730,13 @@ export function RocketShooterGame() {
 
         for (let i = state.particles.length - 1; i >= 0; i--) {
           const pt = state.particles[i]
+          if (pt.drag) {
+            pt.vx *= Math.pow(pt.drag, dt)
+            pt.vy *= Math.pow(pt.drag, dt)
+          }
+          if (pt.gravity) {
+            pt.vy += pt.gravity * dt
+          }
           pt.x += pt.vx * dt
           pt.y += pt.vy * dt
           pt.alpha -= pt.decay * dt
@@ -2518,7 +2808,7 @@ export function RocketShooterGame() {
           const isOverdrive = state.overdriveTimer > 0 || state.weaponLevel === 5
           const isTriple = state.tripleLaserTimer > 0 || state.weaponLevel >= 2
           const flameColor = isOverdrive ? '#FFE600' : isTriple ? '#00E5FF' : '#FF5C00'
-          const flameLength = (22 + Math.sin(p.flameTick * 0.8) * 10) * (state.tempoMode === 'surge' ? 1.7 : 1.0)
+          const flameLength = (22 + Math.sin(p.flameTime * 28) * 10) * (state.tempoMode === 'surge' ? 1.7 : 1.0)
 
           ctx.shadowBlur = isOverdrive ? 24 : 16
           ctx.shadowColor = flameColor
