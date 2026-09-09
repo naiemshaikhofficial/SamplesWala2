@@ -63,23 +63,23 @@ class ArcadeAudioSynthesizer {
     if (!this.ctx) return
 
     const now = this.ctx.currentTime
-    ;[1180, 960, 780].forEach(freq => {
-      const osc = this.ctx!.createOscillator()
-      const gain = this.ctx!.createGain()
+      ;[1180, 960, 780].forEach(freq => {
+        const osc = this.ctx!.createOscillator()
+        const gain = this.ctx!.createGain()
 
-      osc.type = 'sawtooth'
-      osc.frequency.setValueAtTime(freq, now)
-      osc.frequency.exponentialRampToValueAtTime(130, now + 0.1)
+        osc.type = 'sawtooth'
+        osc.frequency.setValueAtTime(freq, now)
+        osc.frequency.exponentialRampToValueAtTime(130, now + 0.1)
 
-      gain.gain.setValueAtTime(0.06, now)
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1)
+        gain.gain.setValueAtTime(0.06, now)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1)
 
-      osc.connect(gain)
-      gain.connect(this.ctx!.destination)
+        osc.connect(gain)
+        gain.connect(this.ctx!.destination)
 
-      osc.start(now)
-      osc.stop(now + 0.11)
-    })
+        osc.start(now)
+        osc.stop(now + 0.11)
+      })
   }
 
   playMissile() {
@@ -259,23 +259,23 @@ class ArcadeAudioSynthesizer {
     if (!this.ctx) return
 
     const now = this.ctx.currentTime
-    ;[380, 220, 130].forEach((freq, idx) => {
-      const osc = this.ctx!.createOscillator()
-      const gain = this.ctx!.createGain()
+      ;[380, 220, 130].forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator()
+        const gain = this.ctx!.createGain()
 
-      osc.type = 'sawtooth'
-      osc.frequency.setValueAtTime(freq, now + idx * 0.03)
-      osc.frequency.linearRampToValueAtTime(45, now + idx * 0.03 + 0.32)
+        osc.type = 'sawtooth'
+        osc.frequency.setValueAtTime(freq, now + idx * 0.03)
+        osc.frequency.linearRampToValueAtTime(45, now + idx * 0.03 + 0.32)
 
-      gain.gain.setValueAtTime(0.26, now + idx * 0.03)
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.03 + 0.32)
+        gain.gain.setValueAtTime(0.26, now + idx * 0.03)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.03 + 0.32)
 
-      osc.connect(gain)
-      gain.connect(this.ctx!.destination)
+        osc.connect(gain)
+        gain.connect(this.ctx!.destination)
 
-      osc.start(now + idx * 0.03)
-      osc.stop(now + idx * 0.03 + 0.33)
-    })
+        osc.start(now + idx * 0.03)
+        osc.stop(now + idx * 0.03 + 0.33)
+      })
   }
 
   playHeartRepair() {
@@ -421,6 +421,7 @@ export function RocketShooterGame() {
   const [currentBpm, setCurrentBpm] = useState(120)
   const [tempoMode, setTempoMode] = useState<'cruise' | 'surge' | 'breather'>('cruise')
   const [soundOn, setSoundOn] = useState(true)
+  const [autoFire, setAutoFire] = useState(false)
   const [hasNewHighScore, setHasNewHighScore] = useState(false)
 
   // End of run stats
@@ -886,7 +887,7 @@ export function RocketShooterGame() {
 
     try {
       canvas.setPointerCapture(e.pointerId)
-    } catch {}
+    } catch { }
 
     state.pointer.active = true
     state.player.controlMode = 'pointer'
@@ -917,7 +918,7 @@ export function RocketShooterGame() {
     state.pointer.active = false
     try {
       e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {}
+    } catch { }
   }
 
   // Trigger Broken Heart Damage (Heart Split + Ruby Crystals + Screen Rumble)
@@ -1463,14 +1464,14 @@ export function RocketShooterGame() {
         const fireIntervalSec = state.overdriveTimer > 0
           ? 0.075
           : state.weaponLevel === 5
-          ? 0.08
-          : state.weaponLevel === 4
-          ? 0.11
-          : state.weaponLevel === 3
-          ? 0.13
-          : state.tripleLaserTimer > 0 || state.weaponLevel >= 2
-          ? 0.14
-          : 0.18
+            ? 0.08
+            : state.weaponLevel === 4
+              ? 0.11
+              : state.weaponLevel === 3
+                ? 0.13
+                : state.tripleLaserTimer > 0 || state.weaponLevel >= 2
+                  ? 0.14
+                  : 0.18
         const shouldFire = state.keys.fire || stateRef.current.autoFire
 
         if (shouldFire && state.fireCooldown <= 0) {
@@ -1564,27 +1565,27 @@ export function RocketShooterGame() {
             chosenType === 'triple_laser'
               ? '#00E5FF'
               : chosenType === 'homing_missiles'
-              ? '#FF6B00'
-              : chosenType === 'nuke'
-              ? '#FF3131'
-              : chosenType === 'slow_mo'
-              ? '#BF00FF'
-              : chosenType === 'heart_repair'
-              ? '#FF2A6D'
-              : '#FFE600'
+                ? '#FF6B00'
+                : chosenType === 'nuke'
+                  ? '#FF3131'
+                  : chosenType === 'slow_mo'
+                    ? '#BF00FF'
+                    : chosenType === 'heart_repair'
+                      ? '#FF2A6D'
+                      : '#FFE600'
 
           const pLabel =
             chosenType === 'triple_laser'
               ? '⚡ TRIPLE LASER'
               : chosenType === 'homing_missiles'
-              ? '🚀 HOMING MISSILES'
-              : chosenType === 'nuke'
-              ? '💣 BASS DROP NUKE'
-              : chosenType === 'slow_mo'
-              ? '⏱️ SLOW-MO'
-              : chosenType === 'heart_repair'
-              ? '💖 +1 HEART'
-              : '🔥 OVERDRIVE'
+                ? '🚀 HOMING MISSILES'
+                : chosenType === 'nuke'
+                  ? '💣 BASS DROP NUKE'
+                  : chosenType === 'slow_mo'
+                    ? '⏱️ SLOW-MO'
+                    : chosenType === 'heart_repair'
+                      ? '💖 +1 HEART'
+                      : '🔥 OVERDRIVE'
 
           state.enemies.push({
             id: Math.random(),
@@ -1646,61 +1647,61 @@ export function RocketShooterGame() {
           state.waveRemainingEnemies--
           state.waveTotalSpawned++
 
-            let radius = 24
-            let hp = 1
-            let color = '#71717a'
-            let speed = (2.4 + Math.random() * 2.2) * state.speedMultiplier
+          let radius = 24
+          let hp = 1
+          let color = '#71717a'
+          let speed = (2.4 + Math.random() * 2.2) * state.speedMultiplier
 
-            if (spawnType === 'asteroid') {
-              radius = 26
-              hp = state.currentWave >= 3 ? 3 : 2
-              color = '#3f3f46'
-            } else if (spawnType === 'sawblade') {
-              radius = 22
-              hp = 1
-              color = '#FF5C00'
-              speed *= 1.15
-            } else if (spawnType === 'scout') {
-              radius = 18
-              hp = 1
-              color = '#EF4444'
-              speed *= 1.3
-            } else if (spawnType === 'interceptor') {
-              radius = 22
-              hp = 2
-              color = '#F59E0B'
-              speed *= 1.1
-            } else if (spawnType === 'alien_gunship') {
-              radius = 25
-              hp = 2
-              color = '#DC2626'
-              speed *= 0.85
-            }
-
-            state.enemies.push({
-              id: Math.random(),
-              x: 40 + Math.random() * (width - 80),
-              y: -40,
-              vx: (Math.random() - 0.5) * 1.6,
-              vy: speed,
-              radius,
-              category: 'hazard',
-              type: spawnType,
-              hp,
-              maxHp: hp,
-              rotation: 0,
-              rotSpeed: (Math.random() - 0.5) * 0.1,
-              color,
-              hitFlash: 0,
-              shootCooldown: 85 + Math.floor(Math.random() * 50),
-              aiPhase: 0,
-              aiTimer: spawnType === 'scout' ? 1.2 : spawnType === 'interceptor' ? 0.45 : spawnType === 'alien_gunship' ? 1.5 : 0,
-              targetPosX: 60 + Math.random() * (width - 120),
-              targetPosY: 70 + Math.random() * 70,
-              diveTargetX: p.x,
-              aimTelegraph: 0
-            })
+          if (spawnType === 'asteroid') {
+            radius = 26
+            hp = state.currentWave >= 3 ? 3 : 2
+            color = '#3f3f46'
+          } else if (spawnType === 'sawblade') {
+            radius = 22
+            hp = 1
+            color = '#FF5C00'
+            speed *= 1.15
+          } else if (spawnType === 'scout') {
+            radius = 18
+            hp = 1
+            color = '#EF4444'
+            speed *= 1.3
+          } else if (spawnType === 'interceptor') {
+            radius = 22
+            hp = 2
+            color = '#F59E0B'
+            speed *= 1.1
+          } else if (spawnType === 'alien_gunship') {
+            radius = 25
+            hp = 2
+            color = '#DC2626'
+            speed *= 0.85
           }
+
+          state.enemies.push({
+            id: Math.random(),
+            x: 40 + Math.random() * (width - 80),
+            y: -40,
+            vx: (Math.random() - 0.5) * 1.6,
+            vy: speed,
+            radius,
+            category: 'hazard',
+            type: spawnType,
+            hp,
+            maxHp: hp,
+            rotation: 0,
+            rotSpeed: (Math.random() - 0.5) * 0.1,
+            color,
+            hitFlash: 0,
+            shootCooldown: 85 + Math.floor(Math.random() * 50),
+            aiPhase: 0,
+            aiTimer: spawnType === 'scout' ? 1.2 : spawnType === 'interceptor' ? 0.45 : spawnType === 'alien_gunship' ? 1.5 : 0,
+            targetPosX: 60 + Math.random() * (width - 120),
+            targetPosY: 70 + Math.random() * 70,
+            diveTargetX: p.x,
+            aimTelegraph: 0
+          })
+        }
 
         // 7. UPDATE & DRAW HOMING MISSILES (Angular Steering Physics + Smooth Arcs)
         for (let i = state.missiles.length - 1; i >= 0; i--) {
@@ -2085,7 +2086,7 @@ export function RocketShooterGame() {
           if (b.laserTelegraph > 0) {
             ctx.save()
             const urgency = Math.max(0, Math.min(1, 1 - (b.laserTelegraph / 45)))
-            ctx.strokeStyle = urgency > 0.7 
+            ctx.strokeStyle = urgency > 0.7
               ? `rgba(255, 255, 255, ${0.85 + Math.sin(timestamp * 0.03) * 0.15})`
               : `rgba(255, 0, 51, ${0.3 + urgency * 0.6})`
             ctx.lineWidth = 1.5 + urgency * 5
@@ -2610,14 +2611,14 @@ export function RocketShooterGame() {
               e.powerupType === 'triple_laser'
                 ? '⚡'
                 : e.powerupType === 'homing_missiles'
-                ? '🚀'
-                : e.powerupType === 'nuke'
-                ? '💣'
-                : e.powerupType === 'slow_mo'
-                ? '⏱️'
-                : e.powerupType === 'heart_repair'
-                ? '💖'
-                : '🔥'
+                  ? '🚀'
+                  : e.powerupType === 'nuke'
+                    ? '💣'
+                    : e.powerupType === 'slow_mo'
+                      ? '⏱️'
+                      : e.powerupType === 'heart_repair'
+                        ? '💖'
+                        : '🔥'
             ctx.fillText(symbol, 0, 1)
 
             // FLOATING UNMISTAKABLE BENEFICIAL LABEL BELOW
@@ -2859,25 +2860,25 @@ export function RocketShooterGame() {
 
           // Outer Dual Thruster Flame
           ctx.fillStyle = flameColor
-          ;[-7, 7].forEach(offset => {
-            ctx.beginPath()
-            ctx.moveTo(offset - 4, 18)
-            ctx.lineTo(offset, 18 + flameLength)
-            ctx.lineTo(offset + 4, 18)
-            ctx.closePath()
-            ctx.fill()
-          })
+            ;[-7, 7].forEach(offset => {
+              ctx.beginPath()
+              ctx.moveTo(offset - 4, 18)
+              ctx.lineTo(offset, 18 + flameLength)
+              ctx.lineTo(offset + 4, 18)
+              ctx.closePath()
+              ctx.fill()
+            })
 
           // Inner Core Flame
           ctx.fillStyle = '#FFFFFF'
-          ;[-7, 7].forEach(offset => {
-            ctx.beginPath()
-            ctx.moveTo(offset - 2, 18)
-            ctx.lineTo(offset, 18 + flameLength * 0.55)
-            ctx.lineTo(offset + 2, 18)
-            ctx.closePath()
-            ctx.fill()
-          })
+            ;[-7, 7].forEach(offset => {
+              ctx.beginPath()
+              ctx.moveTo(offset - 2, 18)
+              ctx.lineTo(offset, 18 + flameLength * 0.55)
+              ctx.lineTo(offset + 2, 18)
+              ctx.closePath()
+              ctx.fill()
+            })
 
           // Rocket Wings
           ctx.fillStyle = '#27272a'
@@ -2974,57 +2975,72 @@ export function RocketShooterGame() {
         <style dangerouslySetInnerHTML={{ __html: '*, *::before, *::after { cursor: none !important; }' }} />
       )}
 
-      {/* 🎮 ARCADE TOP HUD BAR (Strict fixed height h-14, never wraps or resizes!) */}
-      <div className="h-14 bg-[#121212] border-b border-[#262626] px-3 sm:px-4 flex items-center justify-between text-xs font-mono select-none overflow-hidden shrink-0">
+      {/* 🎮 ARCADE TOP HUD BAR (Sleek Modern Glassmorphism + Micro-Animations) */}
+      <div className="h-14 bg-black/50 backdrop-blur-md border-b border-white/[0.08] px-3 sm:px-4 flex items-center justify-between text-xs font-mono select-none overflow-hidden shrink-0">
         {/* Left: Wave & Weapon Level */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 bg-[#181818] border border-[#2a2a2a] px-2.5 py-1.5 rounded-lg shrink-0">
-            <span className="px-1.5 py-0.5 rounded bg-studio-neon/20 text-studio-neon font-bold text-[10px]">
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 bg-white/[0.04] border border-white/[0.08] hover:border-white/20 px-2.5 py-1 rounded-full transition-all duration-300 shadow-sm shrink-0">
+            <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-extrabold text-[10px] tracking-wider shadow-[0_0_8px_rgba(16,185,129,0.3)]">
               W{currentWave}
             </span>
-            <span className="text-[10px] text-zinc-400 font-bold leading-tight truncate max-w-[85px] sm:max-w-[120px]">
+            <span className="text-[10px] text-zinc-300 font-semibold tracking-wide uppercase truncate max-w-[85px] sm:max-w-[130px]">
               {waveTitle.replace(`WAVE 0${currentWave}: `, '')}
             </span>
           </div>
 
-          <div className="flex items-center gap-1 bg-[#181818] border border-[#2a2a2a] px-2 py-1.5 rounded-lg text-[11px] shrink-0">
-            <Crosshair className="w-3.5 h-3.5 text-studio-yellow" />
-            <span className="text-zinc-400">LVL</span>
-            <span className="font-bold text-studio-yellow">{weaponLevel}</span>
+          <div className="flex items-center gap-1.5 bg-white/[0.04] border border-white/[0.08] hover:border-white/20 px-2.5 py-1 rounded-full text-[11px] transition-all duration-300 shadow-sm shrink-0">
+            <Crosshair className="w-3.5 h-3.5 text-amber-400 animate-[spin_10s_linear_infinite]" />
+            <span className="text-zinc-500 text-[10px] uppercase font-medium">LVL</span>
+            <span className="font-extrabold text-amber-400 tabular-nums">{weaponLevel}</span>
           </div>
         </div>
 
         {/* Center: Score & Combo */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 bg-[#181818] border border-[#2a2a2a] px-2.5 py-1.5 rounded-lg shrink-0">
-            <Flame className="w-3.5 h-3.5 text-studio-neon" />
-            <span className="font-bold text-white text-xs sm:text-sm tracking-wider font-mono">{score.toLocaleString()}</span>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 bg-white/[0.05] border border-white/[0.1] hover:border-white/25 px-3 py-1 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.5)] shrink-0">
+            <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400/30 animate-pulse drop-shadow-[0_0_8px_rgba(251,146,60,0.6)]" />
+            <span className="font-extrabold text-white text-xs sm:text-sm tracking-widest font-mono tabular-nums">
+              {score.toLocaleString()}
+            </span>
           </div>
 
           {combo > 1 && (
-            <span className="px-1.5 py-1 rounded bg-studio-orange/20 text-studio-orange border border-studio-orange/40 font-bold text-[10px] sm:text-[11px] shrink-0">
+            <div
+              key={combo}
+              className={`px-2 py-0.5 rounded-full font-extrabold text-[10px] sm:text-[11px] tracking-wider border shadow-md shrink-0 animate-bounce transition-all duration-300 ${
+                combo >= 4
+                  ? 'bg-red-500/20 text-red-400 border-red-500/50 shadow-[0_0_12px_rgba(239,68,68,0.5)]'
+                  : combo >= 3
+                  ? 'bg-orange-500/20 text-orange-400 border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.4)]'
+                  : 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
+              }`}
+            >
               {combo}X
-            </span>
+            </div>
           )}
         </div>
 
         {/* Right: HEARTS / BROKEN HEARTS LIVES & CONTROLS */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Hearts / Broken Hearts (Zero Shields!) */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Hearts Pill with Low-Life Danger Heartbeat */}
           <div
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border transition-colors shrink-0 ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full border transition-all duration-300 shrink-0 ${
               lives === 1
-                ? 'bg-red-500/20 border-red-500/50 shadow-[0_0_12px_rgba(239,68,68,0.4)]'
-                : 'bg-[#181818] border-[#2a2a2a]'
+                ? 'bg-red-500/20 border-red-500/60 shadow-[0_0_16px_rgba(239,68,68,0.5)] animate-pulse'
+                : 'bg-white/[0.04] border-white/[0.08] hover:border-white/20'
             }`}
             title={`${lives} of 3 Hearts remaining`}
           >
             {[1, 2, 3].map(heartIdx => (
               <span key={heartIdx} className="shrink-0">
                 {heartIdx <= lives ? (
-                  <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 fill-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
+                  <Heart
+                    className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] transition-transform duration-300 hover:scale-125 ${
+                      lives === 1 ? 'animate-[pulse_0.8s_ease-in-out_infinite]' : 'animate-[pulse_2.2s_ease-in-out_infinite]'
+                    }`}
+                  />
                 ) : (
-                  <HeartCrack className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600" />
+                  <HeartCrack className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600 transition-all duration-300 scale-90 opacity-50" />
                 )}
               </span>
             ))}
@@ -3034,20 +3050,28 @@ export function RocketShooterGame() {
           <button
             type="button"
             onClick={togglePause}
-            className="p-1.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-zinc-300 hover:text-white transition-all cursor-pointer shrink-0"
+            className={`p-1.5 rounded-full border transition-all duration-200 active:scale-90 cursor-pointer shrink-0 ${
+              gameState === 'paused'
+                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+                : 'bg-white/[0.04] border-white/[0.08] hover:border-white/20 text-zinc-400 hover:text-white hover:bg-white/10'
+            }`}
             title={gameState === 'paused' ? 'Resume Game' : 'Pause Game'}
           >
-            {gameState === 'paused' ? <Play className="w-3.5 h-3.5 text-studio-neon" /> : <Pause className="w-3.5 h-3.5" />}
+            {gameState === 'paused' ? <Play className="w-3.5 h-3.5 fill-emerald-400 text-emerald-400" /> : <Pause className="w-3.5 h-3.5" />}
           </button>
 
           {/* Sound Toggle */}
           <button
             type="button"
             onClick={toggleSound}
-            className="p-1.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-zinc-300 hover:text-white transition-all cursor-pointer shrink-0"
+            className={`p-1.5 rounded-full border transition-all duration-200 active:scale-90 cursor-pointer shrink-0 ${
+              soundOn
+                ? 'bg-white/[0.04] border-white/[0.08] hover:border-white/20 text-emerald-400 hover:bg-white/10 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
+                : 'bg-white/[0.04] border-white/[0.08] hover:border-white/20 text-zinc-500 hover:text-zinc-300'
+            }`}
             title={soundOn ? 'Mute Game Sound' : 'Unmute Sound'}
           >
-            {soundOn ? <Volume2 className="w-3.5 h-3.5 text-studio-neon" /> : <VolumeX className="w-3.5 h-3.5 text-zinc-500" />}
+            {soundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
