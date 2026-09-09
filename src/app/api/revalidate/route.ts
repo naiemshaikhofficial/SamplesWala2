@@ -156,6 +156,13 @@ async function handleRevalidation(req: NextRequest) {
           revalidatePath(`/software/${currentSlug}`)
           revalidatedItems.push(`path:/software/${currentSlug}`)
         }
+      } else if (table === 'app_metadata') {
+        revalidatePath('/')
+        revalidatedItems.push('path:/ (app_metadata)')
+      } else if (table === 'coupons') {
+        safeRevalidateTag('coupons')
+        revalidatePath('/checkout')
+        revalidatedItems.push('tag:coupons', 'path:/checkout')
       }
     }
 
