@@ -177,7 +177,7 @@ export function ThankYouClient({
   }
 
   return (
-    <div className="max-w-3xl mx-auto relative z-10 space-y-5 select-none pt-4 pb-16 px-4">
+    <div className="max-w-xl sm:max-w-2xl mx-auto relative z-10 space-y-4 select-none pt-2 sm:pt-4 pb-12 sm:pb-16 px-4">
       {/* Minimal Brand Logo */}
       <div className="flex justify-center">
         <Link href="/" className="inline-flex items-center opacity-80 hover:opacity-100 transition-opacity">
@@ -199,45 +199,32 @@ export function ThankYouClient({
       </div>
 
       {/* ALL STATUS, TITLES & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
-      <div className="flex flex-col items-center text-center space-y-4 pt-1">
+      <div className="flex flex-col items-center text-center space-y-3 pt-2">
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white font-mono">
+          <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white font-mono">
             {isFree ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
           </h1>
-          <p className="text-xs font-mono text-white/50 uppercase tracking-wider">
-            {!isParcelOpened ? 'Tap the crate above or click below to unbox your 24-bit audio master' : ''}
+          <p className="text-[11px] font-mono text-white/50 uppercase tracking-wider">
+            {!isParcelOpened ? 'Tap the crate to unbox & download your sounds' : ''}
           </p>
         </div>
-
-        {/* Primary Interactive Unbox Button */}
-        {!isParcelOpened && (
-          <div className="pt-1">
-            <button
-              onClick={handleUnboxAndDownload}
-              className="w-full max-w-sm mx-auto py-3.5 px-6 bg-[#FFE600] hover:bg-[#00FF94] text-black font-mono font-black text-xs sm:text-sm uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_#00FF94] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#00FF94] active:translate-x-[0px] active:translate-y-[0px] active:shadow-[2px_2px_0px_#00FF94] flex items-center justify-center gap-2 cursor-pointer group"
-            >
-              <span>🎁 CLICK TO UNBOX & DOWNLOAD</span>
-              <span className="text-sm group-hover:scale-125 transition-transform">⚡</span>
-            </button>
-          </div>
-        )}
 
         {/* Clean Unboxing / Download Status Alert */}
         {isParcelOpened && (
           <div className="flex flex-col items-center gap-1.5 pt-1 text-center">
             {isDownloading ? (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-white/10 text-white border border-white/20 font-mono text-xs uppercase rounded-xs">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/5 text-white border border-white/15 font-mono text-xs uppercase rounded-xs">
                 <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
                 <span>PREPARING 24-BIT AUDIO MASTER DOWNLOAD...</span>
               </div>
             ) : downloadSuccess ? (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-[#00FF94]/20 text-[#00FF94] border border-[#00FF94]/40 font-mono text-xs uppercase rounded-xs">
-                <span>DOWNLOAD STARTED! ENJOY YOUR SOUNDS</span>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30 font-mono text-xs uppercase rounded-xs">
+                <span>DOWNLOAD STARTED! ENJOY YOUR SOUNDS 🎵</span>
               </div>
             ) : downloadError ? (
               <button
                 onClick={handleUnboxAndDownload}
-                className="inline-flex items-center gap-2 px-3.5 py-1 bg-red-500/20 text-red-400 border border-red-500/40 font-mono text-xs uppercase rounded-xs cursor-pointer hover:bg-red-500/30"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 font-mono text-xs uppercase rounded-xs cursor-pointer hover:bg-red-500/20"
               >
                 <span>DOWNLOAD BLOCKED? TAP TO RETRY ↺</span>
               </button>

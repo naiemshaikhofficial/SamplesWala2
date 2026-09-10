@@ -1381,7 +1381,7 @@ export default function CheckoutPage() {
     const isFreeOrder = completedOrder?.isFree || targetOrderId.startsWith('SW_FREE') || targetOrderId.startsWith('SW_PAY_FREE')
 
     return (
-      <div className="min-h-screen bg-[#090a0f] text-white flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden select-none">
+      <div className="min-h-screen bg-[#090a0f] text-white flex flex-col justify-center items-center px-4 py-6 sm:py-8 relative overflow-hidden select-none">
         {/* Studio Dot Grid Background */}
         <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-30" />
 
@@ -1399,7 +1399,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* HERO ANIMATION WINDOW (Pure, clean, cinematic - no clutter) */}
-        <div className="w-full max-w-3xl mx-auto relative z-10">
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto relative z-10">
           <DeliveryCarAnimation
             mode={isReadyToUnbox ? 'return' : 'drive'}
             onParcelClick={handleUnboxAndDownload}
@@ -1410,7 +1410,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* ALL STATUS & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
-        <div className="w-full max-w-md mx-auto text-center relative z-10 space-y-4 pt-3">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto text-center relative z-10 space-y-3 pt-2">
           {!isReadyToUnbox ? (
             /* --- DISPATCHING / VERIFICATION STATUS (NICHE) --- */
             <div className="space-y-3">
@@ -1443,28 +1443,15 @@ export default function CheckoutPage() {
             </div>
           ) : (
             /* --- UNBOXING & ORDER CONFIRMATION (NICHE) --- */
-            <div className="space-y-4 animate-fade-in">
+            <div className="space-y-3 animate-fade-in">
               <div className="space-y-1">
-                <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white font-mono">
+                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white font-mono">
                   {isFreeOrder ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
                 </h2>
-                <p className="text-xs font-mono text-white/50 uppercase tracking-wider">
-                  {!isParcelOpened ? 'Tap the crate above or click below to unbox your 24-bit audio master' : ''}
+                <p className="text-[11px] font-mono text-white/50 uppercase tracking-wider">
+                  {!isParcelOpened ? 'Tap the crate to unbox & download your sounds' : ''}
                 </p>
               </div>
-
-              {/* Primary Interactive Unbox Button */}
-              {!isParcelOpened && (
-                <div className="pt-1">
-                  <button
-                    onClick={handleUnboxAndDownload}
-                    className="w-full max-w-sm mx-auto py-3.5 px-6 bg-[#FFE600] hover:bg-[#00FF94] text-black font-mono font-black text-xs sm:text-sm uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_#00FF94] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#00FF94] active:translate-x-[0px] active:translate-y-[0px] active:shadow-[2px_2px_0px_#00FF94] flex items-center justify-center gap-2 cursor-pointer group"
-                  >
-                    <span>🎁 CLICK TO UNBOX & DOWNLOAD</span>
-                    <span className="text-sm group-hover:scale-125 transition-transform">⚡</span>
-                  </button>
-                </div>
-              )}
 
               {/* Unbox Status Indicator */}
               {isParcelOpened && (

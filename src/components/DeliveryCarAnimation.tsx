@@ -40,14 +40,14 @@ export function DeliveryCarAnimation({
 
     if (mode === 'return') {
       setPhase('screech_in')
-      const t1 = setTimeout(() => setPhase('door_up'), 1400)
-      const t2 = setTimeout(() => setPhase('dude_step_out'), 1900)
-      const t3 = setTimeout(() => setPhase('drop_parcel'), 3400)
-      const t4 = setTimeout(() => setPhase('hop_in'), 5000)
+      const t1 = setTimeout(() => setPhase('door_up'), 1100)
+      const t2 = setTimeout(() => setPhase('dude_step_out'), 1600)
+      const t3 = setTimeout(() => setPhase('drop_parcel'), 2800)
+      const t4 = setTimeout(() => setPhase('hop_in'), 4000)
       const t5 = setTimeout(() => {
         setPhase('zoom_off')
         onDeliveryDelivered?.()
-      }, 6000)
+      }, 4900)
 
       return () => {
         clearTimeout(t1)
@@ -240,13 +240,13 @@ export function DeliveryCarAnimation({
       }} />
 
       {/* Main Cinematic Scene Canvas */}
-      <div className="relative w-full max-w-3xl mx-auto h-60 sm:h-72 flex flex-col justify-end items-center overflow-hidden rounded-lg bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/15 shadow-[0_16px_50px_rgba(0,0,0,0.95)]">
+      <div className="relative w-full max-w-xl mx-auto h-44 sm:h-52 md:h-60 flex flex-col justify-end items-center overflow-hidden rounded-md bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.9)]">
 
         {/* Ambient Top Glow & Speed Grid Lines */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-gradient-to-b from-[#00FF94]/10 via-[#FFE600]/5 to-transparent blur-2xl" />
           {/* Subtle Cyber Horizon Line */}
-          <div className="absolute bottom-16 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00FF94]/30 to-transparent" />
+          <div className="absolute bottom-12 sm:bottom-14 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00FF94]/30 to-transparent" />
         </div>
 
         {/* Speed Streaks in the Air (High Velocity Feel) */}
@@ -267,8 +267,6 @@ export function DeliveryCarAnimation({
             ))}
           </div>
         )}
-
-
 
         {/* The Animated Hypercar Stage */}
         <div
@@ -292,7 +290,7 @@ export function DeliveryCarAnimation({
             {/* SVG Hypercar Model: Designed with Aerodynamic Depth & 3D Shading */}
             <svg
               viewBox="0 0 520 160"
-              className="w-80 sm:w-96 md:w-[480px] h-auto overflow-visible"
+              className="w-[270px] xs:w-[310px] sm:w-[380px] md:w-[440px] h-auto overflow-visible"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -737,15 +735,24 @@ export function DeliveryCarAnimation({
         {mode === 'return' && (phase === 'drop_parcel' || phase === 'hop_in' || phase === 'zoom_off') && (
           <div
             onClick={onParcelClick}
-            className="absolute left-1/2 -translate-x-1/2 bottom-3.5 z-30 flex flex-col items-center cursor-pointer group"
+            className={`absolute left-1/2 -translate-x-1/2 z-30 flex flex-col items-center cursor-pointer group transition-all duration-500 ${
+              phase === 'zoom_off' ? 'bottom-3 sm:bottom-4' : 'bottom-2.5 sm:bottom-3'
+            }`}
           >
+            {/* Subtle Minimal Pulse Tap Hint (Only when car has zoomed off and parcel is ready) */}
+            {phase === 'zoom_off' && !isParcelOpened && (
+              <span className="text-[9px] font-mono tracking-widest text-[#00FF94] animate-pulse mb-1 pointer-events-none whitespace-nowrap">
+                TAP TO OPEN
+              </span>
+            )}
+
             {/* Unboxing SVG Component */}
             <svg
-              width="100"
-              height="88"
+              width="86"
+              height="76"
               viewBox="0 0 100 88"
               fill="none"
-              className={`overflow-visible transition-all duration-300 ${!isParcelOpened ? 'group-hover:scale-110 group-hover:-translate-y-1 drop-shadow-[0_0_12px_rgba(255,230,0,0.6)]' : ''
+              className={`overflow-visible transition-all duration-300 ${!isParcelOpened ? 'group-hover:scale-110 group-hover:-translate-y-1 drop-shadow-[0_0_12px_rgba(255,230,0,0.5)]' : ''
                 }`}
             >
               {/* Tarmac Shadow under Crate */}
@@ -823,10 +830,10 @@ export function DeliveryCarAnimation({
         {/* ========================================================================= */}
         {/* === REALISTIC ASPHALT HIGHWAY (Directly aligned with tire contact) === */}
         {/* ========================================================================= */}
-        <div className="w-full relative h-8 bg-[#111216] border-t-2 border-b-2 border-black z-10 overflow-hidden flex items-center shadow-[0_4px_16px_rgba(0,0,0,0.9)] -mt-4">
+        <div className="w-full relative h-6 sm:h-7 bg-[#111216] border-t border-b border-black z-10 overflow-hidden flex items-center shadow-[0_4px_16px_rgba(0,0,0,0.9)] -mt-3 sm:-mt-3.5">
           {/* Textured Tarmac Grain & Shoulder Lines */}
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00FF94] via-[#FFE600] to-[#00FF94] opacity-50" />
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" />
+          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-[#00FF94] via-[#FFE600] to-[#00FF94] opacity-50" />
+          <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-black" />
 
           {/* Continuous Dashed Lane Markers with Speed Blur */}
           <div
@@ -842,7 +849,7 @@ export function DeliveryCarAnimation({
             {[...Array(20)].map((_, i) => (
               <div
                 key={i}
-                className="w-12 h-1.5 bg-[#FFE600] border border-black rounded-xs shadow-[0_0_8px_#FFE600]"
+                className="w-8 sm:w-12 h-1 sm:h-1.5 bg-[#FFE600] border border-black rounded-xs shadow-[0_0_8px_#FFE600]"
               />
             ))}
           </div>
