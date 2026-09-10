@@ -1440,79 +1440,72 @@ export default function CheckoutPage() {
           `
         }} />
 
-        {isReadyToUnbox && (
-          <div className="flex flex-col items-center justify-center text-center my-1 sm:my-2 relative z-20 select-none">
-            {!isParcelOpened ? (
-              /* State 1: Wild Street Graffiti "THANK YOU!" with Paint Drips */
-              <div className="flex flex-col items-center group cursor-default">
-                {/* Street Tag Spray Splatters & Crowns */}
-                <div className="flex items-center gap-1.5 -mb-1.5 sm:-mb-2 text-[#FFE600] opacity-90 drop-shadow-[0_0_8px_#FFE600]">
-                  <span className="text-xs sm:text-sm font-black transform -rotate-12">✦</span>
-                  <span className="text-[11px] sm:text-xs font-black tracking-widest uppercase font-mono">★ KING OF SOUNDS ★</span>
-                  <span className="text-xs sm:text-sm font-black transform rotate-12">✦</span>
-                </div>
+        <div className="flex flex-col items-center justify-center text-center my-1 sm:my-2 relative z-20 select-none">
+          {!isReadyToUnbox ? (
+            /* State 0: Preparing in Graffiti Style at the TOP */
+            <div className="flex flex-col items-center group cursor-default">
+              <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
+                  PREPARING SOUNDS...
+                </h1>
+              </div>
+              {/* Minimal sleek graffiti progress line */}
+              <div className="w-48 sm:w-64 md:w-80 h-1.5 bg-black/80 rounded-full border border-white/20 mt-2 overflow-hidden shadow-[0_0_10px_rgba(0,255,148,0.3)]">
+                <div
+                  className="h-full bg-gradient-to-r from-[#FFE600] via-[#00FF94] to-[#00E5FF] rounded-full transition-all duration-200 shadow-[0_0_8px_#00FF94]"
+                  style={{ width: `${Math.min(100, Math.max(15, dispatchProgress))}%` }}
+                />
+              </div>
+            </div>
+          ) : !isParcelOpened ? (
+            /* State 1: Pure Clean Street Graffiti "THANK YOU!" with Paint Drips */
+            <div className="flex flex-col items-center group cursor-default">
+              {/* RAW WILD GRAFFITI TEXT: THANK YOU! */}
+              <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform duration-300 hover:scale-105">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-br from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
+                  THANK YOU!
+                </h1>
+              </div>
 
-                {/* RAW WILD GRAFFITI TEXT: THANK YOU! */}
-                <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform duration-300 hover:scale-105">
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-br from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
-                    THANK YOU!
-                  </h1>
-                </div>
-
-                {/* Street Art Drip SVG Underline */}
-                <svg className="w-48 sm:w-64 md:w-80 h-4 mt-0.5 text-[#00FF94] fill-current drop-shadow-[0_0_8px_#00FF94]" viewBox="0 0 260 18" fill="none">
-                  <path d="M5 9 Q70 2 130 9 T255 8" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-                  <path d="M45 9 C45 14 48 17 50 17 C52 17 55 14 55 9 Z" fill="currentColor" />
-                  <path d="M125 9 C125 15 128 19 130 19 C132 19 135 15 135 9 Z" fill="currentColor" />
-                  <path d="M195 8 C195 13 197 16 199 16 C201 16 203 13 203 8 Z" fill="currentColor" />
-                </svg>
+              {/* Street Art Drip SVG Underline */}
+              <svg className="w-48 sm:w-64 md:w-80 h-4 mt-0.5 text-[#00FF94] fill-current drop-shadow-[0_0_8px_#00FF94]" viewBox="0 0 260 18" fill="none">
+                <path d="M5 9 Q70 2 130 9 T255 8" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+                <path d="M45 9 C45 14 48 17 50 17 C52 17 55 14 55 9 Z" fill="currentColor" />
+                <path d="M125 9 C125 15 128 19 130 19 C132 19 135 15 135 9 Z" fill="currentColor" />
+                <path d="M195 8 C195 13 197 16 199 16 C201 16 203 13 203 8 Z" fill="currentColor" />
+              </svg>
+            </div>
+          ) : isDownloading ? (
+            /* State 2: Dynamic Downloading Status in Graffiti Style */
+            <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-[#00E5FF] to-[#FFE600] graffiti-downloading-shadow">
+                ⚡ DOWNLOADING YOUR FILE...
+              </h1>
+            </div>
+          ) : downloadSuccess ? (
+            /* State 3: Download Complete */
+            <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-white to-[#00FF94] graffiti-downloading-shadow">
+                🔥 DOWNLOAD STARTED!
+              </h1>
+            </div>
+          ) : downloadError ? (
+            /* State 4: Retry */
+            <button
+              onClick={handleUnboxAndDownload}
+              className="flex flex-col items-center -rotate-1 skew-x-[-3deg] text-red-400 hover:text-red-300 transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-red-400 drop-shadow-[0_0_12px_rgba(255,49,49,0.7)] group-hover:scale-105 transition-transform">
+                  DOWNLOAD BLOCKED? TAP TO RETRY ↺
+                </h1>
               </div>
-            ) : isDownloading ? (
-              /* State 2: Dynamic Downloading Status in Graffiti Style */
-              <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl sm:text-3xl animate-bounce">⚡</span>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-[#00E5FF] to-[#FFE600] graffiti-downloading-shadow">
-                    DOWNLOADING YOUR FILE...
-                  </h1>
-                  <span className="text-2xl sm:text-3xl animate-bounce">⚡</span>
-                </div>
-                <span className="text-[10px] sm:text-xs font-mono text-[#00FF94] tracking-widest uppercase mt-1 drop-shadow-[0_0_8px_#00FF94]">
-                  HANG TIGHT! WE ARE PACKING YOUR STEMS
-                </span>
-              </div>
-            ) : downloadSuccess ? (
-              /* State 3: Download Complete */
-              <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl sm:text-3xl animate-pulse">🔥</span>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-white to-[#00FF94] graffiti-downloading-shadow">
-                    DOWNLOAD STARTED!
-                  </h1>
-                  <span className="text-2xl sm:text-3xl animate-pulse">🎵</span>
-                </div>
-                <span className="text-[10px] sm:text-xs font-mono text-[#00FF94] tracking-widest uppercase mt-1">
-                  CHECK YOUR BROWSER DOWNLOADS • ENJOY THE SOUNDS!
-                </span>
-              </div>
-            ) : downloadError ? (
-              /* State 4: Retry */
-              <button
-                onClick={handleUnboxAndDownload}
-                className="flex flex-col items-center -rotate-1 skew-x-[-3deg] text-red-400 hover:text-red-300 transition-all cursor-pointer group"
-              >
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-red-400 drop-shadow-[0_0_12px_rgba(255,49,49,0.7)] group-hover:scale-105 transition-transform">
-                    DOWNLOAD BLOCKED? TAP TO RETRY ↺
-                  </h1>
-                </div>
-                <span className="text-[10px] font-mono text-white/50 tracking-widest uppercase mt-1">
-                  CLICK TO RE-TRIGGER SECURE DOWNLOAD STREAM
-                </span>
-              </button>
-            ) : null}
-          </div>
-        )}
+              <span className="text-[10px] font-mono text-white/50 tracking-widest uppercase mt-1">
+                CLICK TO RE-TRIGGER SECURE DOWNLOAD STREAM
+              </span>
+            </button>
+          ) : null}
+        </div>
 
         {/* HERO ANIMATION WINDOW (Pure, clean, cinematic - strictly fixed position) */}
         <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto relative z-10">
@@ -1525,71 +1518,31 @@ export default function CheckoutPage() {
           />
         </div>
 
-        {/* ALL STATUS & ACTIONS SIT NICHE WITH FIXED VERTICAL ANCHOR (ZERO JUMP) */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto text-center relative z-10 min-h-[140px] flex flex-col items-center justify-start space-y-3 pt-2">
-          {!isReadyToUnbox ? (
-            /* --- DISPATCHING / VERIFICATION STATUS (NICHE) --- */
-            <div className="space-y-3">
-              <h2 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight text-white font-mono flex items-center justify-center gap-2">
-                <span>PREPARING YOUR SOUND VAULT...</span>
-              </h2>
-
-              {/* Dynamic Graffiti Status Badge */}
-              <div className="flex justify-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/60 border border-[#00FF94]/40 rounded-xs text-[11px] font-mono text-[#00FF94] tracking-wider uppercase shadow-[0_0_12px_rgba(0,255,148,0.2)]">
-                  <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
-                  <span>{TELEMETRY_MESSAGES[telemetryIndex]}</span>
-                </div>
-              </div>
-
-              {/* Sleek Live Telemetry Progress Bar */}
-              <div className="pt-2">
-                <div className="flex justify-between text-[10.5px] font-mono text-white/50 mb-1.5 font-bold">
-                  <span>TELEMETRY: SECURING MASTER AUDIO STEMS</span>
-                  <span className="text-[#FFE600]">{Math.min(100, Math.round(dispatchProgress))}%</span>
-                </div>
-                <div className="w-full h-2.5 bg-black/80 rounded-full border border-white/20 p-0.5 overflow-hidden shadow-[inset_0_1px_4px_rgba(0,0,0,0.8)]">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#FFE600] via-[#00FF94] to-[#00E5FF] rounded-full transition-all duration-200 shadow-[0_0_10px_#00FF94]"
-                    style={{ width: `${Math.min(100, Math.max(15, dispatchProgress))}%` }}
-                  />
-                </div>
-              </div>
-
-              <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider pt-1">
-                Please wait a moment while your hypercar delivers your audio
-              </p>
-            </div>
-          ) : (
-            /* --- UNBOXING & ORDER CONFIRMATION ACTIONS (NICHE) --- */
-            <div className="space-y-2 animate-fade-in flex flex-col items-center w-full max-w-lg mx-auto pt-1">
-              <Link
-                href="/library"
-                className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
-              >
-                go to library &rarr;
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setDispatchStage('idle')
-                  setDispatchProgress(15)
-                  setTimeout(() => setDispatchStage('dispatching'), 100)
-                }}
-                className="text-[10px] font-mono text-white/40 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer pt-1"
-              >
-                <span>REPLAY ARRIVAL</span>
-                <span>&#8634;</span>
-              </button>
-
-              <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider pt-2">
-                Need help? Contact{' '}
-                <a href="mailto:support@sampleswala.com" className="text-white/50 hover:text-white underline">
-                  support@sampleswala.com
-                </a>
-              </p>
-            </div>
-          )}
+        {/* CLEAN MINIMAL FOOTER ACTIONS (BELOW CAR - ZERO CLUTTER) */}
+        <div className="w-full max-w-sm sm:max-w-md mx-auto text-center relative z-10 flex flex-col items-center justify-start space-y-2 pt-2">
+          <Link
+            href="/library"
+            className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
+          >
+            go to library &rarr;
+          </Link>
+          <div className="flex items-center gap-4 text-[10px] font-mono text-white/30 uppercase tracking-wider pt-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                setDispatchStage('idle')
+                setDispatchProgress(15)
+                setTimeout(() => setDispatchStage('dispatching'), 100)
+              }}
+              className="hover:text-white/70 transition-colors underline cursor-pointer"
+            >
+              Replay Delivery &#8634;
+            </button>
+            <span>•</span>
+            <a href="mailto:support@sampleswala.com" className="text-white/50 hover:text-white underline">
+              support@sampleswala.com
+            </a>
+          </div>
         </div>
       </div>
     )
