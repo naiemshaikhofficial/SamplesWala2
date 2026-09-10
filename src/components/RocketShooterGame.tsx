@@ -421,6 +421,7 @@ export function RocketShooterGame() {
   const [currentBpm, setCurrentBpm] = useState(120)
   const [tempoMode, setTempoMode] = useState<'cruise' | 'surge' | 'breather'>('cruise')
   const [soundOn, setSoundOn] = useState(true)
+  const [autoFire, setAutoFire] = useState(false)
   const [hasNewHighScore, setHasNewHighScore] = useState(false)
 
   // End of run stats
@@ -2857,117 +2858,23 @@ export function RocketShooterGame() {
           ctx.shadowBlur = isOverdrive ? 24 : 16
           ctx.shadowColor = flameColor
 
-          const thrusterOffsets = [-7, 7]
-
           // Outer Dual Thruster Flame
           ctx.fillStyle = flameColor
-          for (const offset of thrusterOffsets) {
-            ctx.beginPath()
-            ctx.moveTo(offset - 4, 18)
-            ctx.lineTo(offset, 18 + flameLength)
-            ctx.lineTo(offset + 4, 18)
-            ctx.closePath()
-            ctx.fill()
+            ;[-7, 7].forEach(offset => {
+              ctx.beginPath()
+              ctx.moveTo(offset - 4, 18)
+              ctx.lineTo(offset, 18 + flameLength)
+              ctx.lineTo(offset + 4, 18)
+            })
           }
 
-          // Inner Core Flame
-          ctx.fillStyle = '#FFFFFF'
-          for (const offset of thrusterOffsets) {
-            ctx.beginPath()
-            ctx.moveTo(offset - 2, 18)
-            ctx.lineTo(offset, 18 + flameLength * 0.55)
-            ctx.lineTo(offset + 2, 18)
-            ctx.closePath()
-            ctx.fill()
-          }
-
-          // Rocket Wings
-          ctx.fillStyle = '#27272a'
-          ctx.strokeStyle = '#52525b'
-          ctx.lineWidth = 1.5
-          ctx.beginPath()
-          ctx.moveTo(0, -25)
-          ctx.lineTo(26, 18)
-          ctx.lineTo(15, 21)
-          ctx.lineTo(0, 17)
-          ctx.lineTo(-15, 21)
-          ctx.lineTo(-26, 18)
-          ctx.closePath()
-          ctx.fill()
-          ctx.stroke()
-
-          // Wingtip Plasma Streamers
-          ctx.fillStyle = isOverdrive ? '#FFE600' : isTriple ? '#00E5FF' : '#00FF94'
-          ctx.fillRect(-22, 10, 3.5, 9)
-          ctx.fillRect(18.5, 10, 3.5, 9)
-
-          // Rocket Fuselage Hull
-          ctx.fillStyle = '#FFFFFF'
-          ctx.beginPath()
-          ctx.moveTo(0, -30)
-          ctx.lineTo(11, 16)
-          ctx.lineTo(-11, 16)
-          ctx.closePath()
-          ctx.fill()
-
-          // Hull Racing Stripe Accent
-          ctx.fillStyle = isOverdrive ? '#FFE600' : isTriple ? '#00E5FF' : '#00FF94'
-          ctx.beginPath()
-          ctx.moveTo(0, -28)
-          ctx.lineTo(3.5, 14)
-          ctx.lineTo(-3.5, 14)
-          ctx.closePath()
-          ctx.fill()
-
-          // Cockpit Visor Glass (Reflective)
-          ctx.fillStyle = isOverdrive ? '#FFE600' : '#0074E4'
-          ctx.beginPath()
-          ctx.ellipse(0, -8, 5, 9, 0, 0, Math.PI * 2)
-          ctx.fill()
-
-          // Core 10px Hitbox Visual Center Dot (Precision & Collision Reference)
-          ctx.save()
-          ctx.shadowBlur = 8
-          ctx.shadowColor = '#00FF94'
-          ctx.fillStyle = '#00FF94'
-          ctx.beginPath()
-          ctx.arc(0, 0, 3.2, 0, Math.PI * 2)
-          ctx.fill()
-
-          ctx.fillStyle = '#FFFFFF'
-          ctx.beginPath()
-          ctx.arc(0, 0, 1.4, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.restore()
-
-          ctx.restore()
-        }
-
-        // 16. RED VIGNETTE SCREEN FLASH ON DAMAGE
-        if (state.redVignette > 0) {
-          ctx.save()
-          ctx.fillStyle = `rgba(239, 68, 68, ${state.redVignette * 0.4})`
-          ctx.fillRect(0, 0, width, height)
-          state.redVignette = Math.max(0, state.redVignette - 0.05 * dt)
-          ctx.restore()
-        }
-
-        // 17. THROTTLED REACT STATE SYNC (Updates UI ~10 times/sec, avoiding frame drops)
-        if (timestamp - lastReactSync > 100) {
-          lastReactSync = timestamp
-          setScore(state.score)
-          setCurrentBpm(state.currentBpm)
-          setTempoMode(state.tempoMode)
-        }
+        ctx.restore()
+        animId = requestAnimationFrame(loop)
       }
 
-      ctx.restore()
       animId = requestAnimationFrame(loop)
-    }
-
-    animId = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(animId)
-  }, [])
+      return () => cancelAnimationFrame(animId)
+    }, [])
 
   return (
     <div className={`w-full max-w-2xl mx-auto font-sans select-none rounded-2xl border border-[#262626] bg-[#0c0c0e] shadow-2xl overflow-hidden flex flex-col ${gameState === 'playing' ? 'cursor-none' : ''}`}>
@@ -2976,72 +2883,56 @@ export function RocketShooterGame() {
         <style dangerouslySetInnerHTML={{ __html: '*, *::before, *::after { cursor: none !important; }' }} />
       )}
 
-      {/* 🎮 ARCADE TOP HUD BAR (Sleek Modern Glassmorphism + Micro-Animations) */}
-      <div className="h-14 bg-black/50 backdrop-blur-md border-b border-white/[0.08] px-3 sm:px-4 flex items-center justify-between text-xs font-mono select-none overflow-hidden shrink-0">
+      {/* 🎮 ARCADE TOP HUD BAR (Strict fixed height h-14, never wraps or resizes!) */}
+      <div className="h-14 bg-[#121212] border-b border-[#262626] px-3 sm:px-4 flex items-center justify-between text-xs font-mono select-none overflow-hidden shrink-0">
         {/* Left: Wave & Weapon Level */}
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 bg-white/[0.04] border border-white/[0.08] hover:border-white/20 px-2.5 py-1 rounded-full transition-all duration-300 shadow-sm shrink-0">
-            <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-extrabold text-[10px] tracking-wider shadow-[0_0_8px_rgba(16,185,129,0.3)]">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 bg-[#181818] border border-[#2a2a2a] px-2.5 py-1.5 rounded-lg shrink-0">
+            <span className="px-1.5 py-0.5 rounded bg-studio-neon/20 text-studio-neon font-bold text-[10px]">
               W{currentWave}
             </span>
-            <span className="text-[10px] text-zinc-300 font-semibold tracking-wide uppercase truncate max-w-[85px] sm:max-w-[130px]">
+            <span className="text-[10px] text-zinc-400 font-bold leading-tight truncate max-w-[85px] sm:max-w-[120px]">
               {waveTitle.replace(`WAVE 0${currentWave}: `, '')}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-white/[0.04] border border-white/[0.08] hover:border-white/20 px-2.5 py-1 rounded-full text-[11px] transition-all duration-300 shadow-sm shrink-0">
-            <Crosshair className="w-3.5 h-3.5 text-amber-400 animate-[spin_10s_linear_infinite]" />
-            <span className="text-zinc-500 text-[10px] uppercase font-medium">LVL</span>
-            <span className="font-extrabold text-amber-400 tabular-nums">{weaponLevel}</span>
+          <div className="flex items-center gap-1 bg-[#181818] border border-[#2a2a2a] px-2 py-1.5 rounded-lg text-[11px] shrink-0">
+            <Crosshair className="w-3.5 h-3.5 text-studio-yellow" />
+            <span className="text-zinc-400">LVL</span>
+            <span className="font-bold text-studio-yellow">{weaponLevel}</span>
           </div>
         </div>
 
         {/* Center: Score & Combo */}
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 bg-white/[0.05] border border-white/[0.1] hover:border-white/25 px-3 py-1 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.5)] shrink-0">
-            <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400/30 animate-pulse drop-shadow-[0_0_8px_rgba(251,146,60,0.6)]" />
-            <span className="font-extrabold text-white text-xs sm:text-sm tracking-widest font-mono tabular-nums">
-              {score.toLocaleString()}
-            </span>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 bg-[#181818] border border-[#2a2a2a] px-2.5 py-1.5 rounded-lg shrink-0">
+            <Flame className="w-3.5 h-3.5 text-studio-neon" />
+            <span className="font-bold text-white text-xs sm:text-sm tracking-wider font-mono">{score.toLocaleString()}</span>
           </div>
 
           {combo > 1 && (
-            <div
-              key={combo}
-              className={`px-2 py-0.5 rounded-full font-extrabold text-[10px] sm:text-[11px] tracking-wider border shadow-md shrink-0 animate-bounce transition-all duration-300 ${
-                combo >= 4
-                  ? 'bg-red-500/20 text-red-400 border-red-500/50 shadow-[0_0_12px_rgba(239,68,68,0.5)]'
-                  : combo >= 3
-                  ? 'bg-orange-500/20 text-orange-400 border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.4)]'
-                  : 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
-              }`}
-            >
+            <span className="px-1.5 py-1 rounded bg-studio-orange/20 text-studio-orange border border-studio-orange/40 font-bold text-[10px] sm:text-[11px] shrink-0">
               {combo}X
-            </div>
+            </span>
           )}
         </div>
 
         {/* Right: HEARTS / BROKEN HEARTS LIVES & CONTROLS */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Hearts Pill with Low-Life Danger Heartbeat */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Hearts / Broken Hearts (Zero Shields!) */}
           <div
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full border transition-all duration-300 shrink-0 ${
-              lives === 1
-                ? 'bg-red-500/20 border-red-500/60 shadow-[0_0_16px_rgba(239,68,68,0.5)] animate-pulse'
-                : 'bg-white/[0.04] border-white/[0.08] hover:border-white/20'
-            }`}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border transition-colors shrink-0 ${lives === 1
+              ? 'bg-red-500/20 border-red-500/50 shadow-[0_0_12px_rgba(239,68,68,0.4)]'
+              : 'bg-[#181818] border-[#2a2a2a]'
+              }`}
             title={`${lives} of 3 Hearts remaining`}
           >
             {[1, 2, 3].map(heartIdx => (
               <span key={heartIdx} className="shrink-0">
                 {heartIdx <= lives ? (
-                  <Heart
-                    className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] transition-transform duration-300 hover:scale-125 ${
-                      lives === 1 ? 'animate-[pulse_0.8s_ease-in-out_infinite]' : 'animate-[pulse_2.2s_ease-in-out_infinite]'
-                    }`}
-                  />
+                  <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 fill-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
                 ) : (
-                  <HeartCrack className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600 transition-all duration-300 scale-90 opacity-50" />
+                  <HeartCrack className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600" />
                 )}
               </span>
             ))}
@@ -3051,28 +2942,20 @@ export function RocketShooterGame() {
           <button
             type="button"
             onClick={togglePause}
-            className={`p-1.5 rounded-full border transition-all duration-200 active:scale-90 cursor-pointer shrink-0 ${
-              gameState === 'paused'
-                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]'
-                : 'bg-white/[0.04] border-white/[0.08] hover:border-white/20 text-zinc-400 hover:text-white hover:bg-white/10'
-            }`}
+            className="p-1.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-zinc-300 hover:text-white transition-all cursor-pointer shrink-0"
             title={gameState === 'paused' ? 'Resume Game' : 'Pause Game'}
           >
-            {gameState === 'paused' ? <Play className="w-3.5 h-3.5 fill-emerald-400 text-emerald-400" /> : <Pause className="w-3.5 h-3.5" />}
+            {gameState === 'paused' ? <Play className="w-3.5 h-3.5 text-studio-neon" /> : <Pause className="w-3.5 h-3.5" />}
           </button>
 
           {/* Sound Toggle */}
           <button
             type="button"
             onClick={toggleSound}
-            className={`p-1.5 rounded-full border transition-all duration-200 active:scale-90 cursor-pointer shrink-0 ${
-              soundOn
-                ? 'bg-white/[0.04] border-white/[0.08] hover:border-white/20 text-emerald-400 hover:bg-white/10 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
-                : 'bg-white/[0.04] border-white/[0.08] hover:border-white/20 text-zinc-500 hover:text-zinc-300'
-            }`}
+            className="p-1.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-zinc-300 hover:text-white transition-all cursor-pointer shrink-0"
             title={soundOn ? 'Mute Game Sound' : 'Unmute Sound'}
           >
-            {soundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            {soundOn ? <Volume2 className="w-3.5 h-3.5 text-studio-neon" /> : <VolumeX className="w-3.5 h-3.5 text-zinc-500" />}
           </button>
         </div>
       </div>

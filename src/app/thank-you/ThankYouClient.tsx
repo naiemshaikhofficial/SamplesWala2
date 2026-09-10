@@ -177,18 +177,18 @@ export function ThankYouClient({
   }
 
   return (
-    <div className="max-w-xl sm:max-w-2xl mx-auto relative z-10 space-y-4 select-none pt-2 sm:pt-4 pb-12 sm:pb-16 px-4">
+    <div className="w-full flex flex-col items-center justify-start relative z-10 select-none space-y-3 sm:space-y-4">
       {/* Minimal Brand Logo */}
-      <div className="flex justify-center">
-        <Link href="/" className="inline-flex items-center opacity-80 hover:opacity-100 transition-opacity">
-          <span className="text-lg sm:text-xl font-black uppercase tracking-tight font-mono text-white">
+      <div className="flex justify-center mb-1">
+        <Link href="/" className="inline-flex items-center opacity-85 hover:opacity-100 transition-opacity">
+          <span className="text-xl sm:text-2xl font-black uppercase tracking-tight font-mono text-white">
             SAMPLES<span className="text-white/40">WALA</span>
           </span>
         </Link>
       </div>
 
-      {/* Pure Detailed Hypercar Delivery & Unboxing Experience */}
-      <div className="w-full relative">
+      {/* Pure Detailed Hypercar Delivery & Unboxing Experience (Seamless Full-Bleed Highway) */}
+      <div className="w-full relative z-10 my-0">
         <DeliveryCarAnimation
           key={replayKey}
           mode="return"
@@ -199,7 +199,7 @@ export function ThankYouClient({
       </div>
 
       {/* ALL STATUS, TITLES & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
-      <div className="flex flex-col items-center text-center space-y-3 pt-2">
+      <div className="w-full max-w-lg mx-auto px-4 flex flex-col items-center text-center space-y-3 pt-2">
         <div className="space-y-1">
           <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white font-mono">
             {isFree ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
