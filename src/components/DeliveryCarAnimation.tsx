@@ -10,7 +10,7 @@ interface DeliveryCarAnimationProps {
   isDownloading?: boolean
 }
 
-type DeliveryPhase = 
+type DeliveryPhase =
   | 'screech_in'
   | 'door_up'
   | 'dude_step_out'
@@ -18,8 +18,8 @@ type DeliveryPhase =
   | 'hop_in'
   | 'zoom_off'
 
-export function DeliveryCarAnimation({ 
-  mode, 
+export function DeliveryCarAnimation({
+  mode,
   onDeliveryDelivered,
   onParcelClick,
   isParcelOpened = false,
@@ -243,7 +243,7 @@ export function DeliveryCarAnimation({
 
       {/* Main Visual Stage */}
       <div className="relative w-full max-w-2xl mx-auto h-52 sm:h-56 flex flex-col justify-end items-center overflow-hidden">
-        
+
         {/* Compact Gen-Z English Speech Bubble (Positioned high up) */}
         {mode === 'return' && phase !== 'screech_in' && (
           <div className="absolute top-1 z-40 compact-bubble flex flex-col items-center">
@@ -286,8 +286,8 @@ export function DeliveryCarAnimation({
                 </p>
               </div>
             ) : (
-              <div 
-                className="relative bg-studio-yellow text-black border-2 border-black px-3.5 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center animate-bounce cursor-pointer hover:bg-[#00FF94] transition-colors" 
+              <div
+                className="relative bg-studio-yellow text-black border-2 border-black px-3.5 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center animate-bounce cursor-pointer hover:bg-[#00FF94] transition-colors"
                 onClick={onParcelClick}
               >
                 <p className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-wider flex items-center gap-1.5">
@@ -300,15 +300,14 @@ export function DeliveryCarAnimation({
         )}
 
         {/* The Animated Supercar & Johnny Bravo Container */}
-        <div className={`relative z-20 w-full flex justify-center ${
-          mode === 'drive' 
-            ? 'supercar-drive-across' 
-            : phase === 'zoom_off'
+        <div className={`relative z-20 w-full flex justify-center ${mode === 'drive'
+          ? 'supercar-drive-across'
+          : phase === 'zoom_off'
             ? 'supercar-launch'
             : 'supercar-arrive'
-        }`}>
+          }`}>
           <div className={`${(mode === 'drive' || phase === 'screech_in' || phase === 'zoom_off') ? 'supercar-idle' : ''} relative`}>
-            
+
             {/* Integrated SVG Stage: Tires (y=125) sit directly ON the asphalt road (y=125) */}
             <svg
               viewBox="0 0 460 145"
@@ -449,8 +448,8 @@ export function DeliveryCarAnimation({
                 (phase === 'door_up' || phase === 'dude_step_out' || phase === 'drop_parcel')
                   ? 'door-open-up'
                   : (phase === 'hop_in' || phase === 'zoom_off')
-                  ? 'door-close-down'
-                  : ''
+                    ? 'door-close-down'
+                    : ''
               }>
                 <path
                   d="M 215 65 L 265 65 L 285 96 L 210 96 Z"
@@ -492,10 +491,10 @@ export function DeliveryCarAnimation({
                   phase === 'dude_step_out'
                     ? 'dude-step-out'
                     : phase === 'drop_parcel'
-                    ? 'dude-drop-parcel'
-                    : phase === 'hop_in'
-                    ? 'dude-hop-back'
-                    : ''
+                      ? 'dude-drop-parcel'
+                      : phase === 'hop_in'
+                        ? 'dude-hop-back'
+                        : ''
                 }>
                   {/* Shadow under cool dude planted on road */}
                   <ellipse cx="65" cy="125" rx="16" ry="2.5" fill="#000" opacity="0.6" />
@@ -595,7 +594,7 @@ export function DeliveryCarAnimation({
         {/* === THE PERMANENT PARCEL ON THE ROAD (Dropped by dude, stays forever!) === */}
         {/* ========================================================================= */}
         {mode === 'return' && (phase === 'drop_parcel' || phase === 'hop_in' || phase === 'zoom_off') && (
-          <div 
+          <div
             onClick={onParcelClick}
             className="absolute left-1/2 -translate-x-1/2 bottom-4 z-30 flex flex-col items-center cursor-pointer group"
           >
@@ -603,21 +602,20 @@ export function DeliveryCarAnimation({
             {!isParcelOpened && (
               <div className="absolute -top-9 z-40 animate-bounce pointer-events-none whitespace-nowrap">
                 <span className="px-3 py-1 bg-[#FFE600] text-black text-[10px] font-mono font-black uppercase tracking-wider rounded-xs border-2 border-black shadow-[3px_3px_0px_black] flex items-center gap-1.5 hover:bg-[#00FF94]">
-                  <span>👆 TAP TO OPEN YOUR GIFT!</span>
+                  <span>TAP TO OPEN YOUR GIFT!</span>
                   <span className="text-xs">🎁</span>
                 </span>
               </div>
             )}
 
             {/* Unboxing Container SVG */}
-            <svg 
-              width="90" 
-              height="80" 
-              viewBox="0 0 90 80" 
-              fill="none" 
-              className={`overflow-visible transition-transform duration-200 ${
-                !isParcelOpened ? 'parcel-waiting-bounce group-hover:scale-115 group-hover:rotate-1' : ''
-              }`}
+            <svg
+              width="90"
+              height="80"
+              viewBox="0 0 90 80"
+              fill="none"
+              className={`overflow-visible transition-transform duration-200 ${!isParcelOpened ? 'parcel-waiting-bounce group-hover:scale-115 group-hover:rotate-1' : ''
+                }`}
             >
               <defs>
                 {/* Vinyl Groove Gradient */}
@@ -659,14 +657,14 @@ export function DeliveryCarAnimation({
                 <g className="disc-emerge" transform="translate(21, 6)">
                   {/* Vinyl Outer Halo */}
                   <circle cx="24" cy="24" r="23" fill="#00FF94" opacity="0.25" className="animate-ping" />
-                  
+
                   {/* Shimmering Vinyl Record with concentric grooves */}
                   <g className="vinyl-spin">
                     <circle cx="24" cy="24" r="22" fill="url(#vinylShine)" stroke="#FFE600" strokeWidth="2.5" />
                     <circle cx="24" cy="24" r="18" fill="none" stroke="#2a2a35" strokeWidth="1.2" strokeDasharray="3,2" />
                     <circle cx="24" cy="24" r="15" fill="none" stroke="#333340" strokeWidth="1" />
                     <circle cx="24" cy="24" r="12" fill="none" stroke="#22222c" strokeWidth="1.2" strokeDasharray="2,2" />
-                    
+
                     {/* Neon Center Label */}
                     <circle cx="24" cy="24" r="9" fill="#00FF94" stroke="#000" strokeWidth="2" />
                     <circle cx="24" cy="24" r="3" fill="#000" />
@@ -683,11 +681,11 @@ export function DeliveryCarAnimation({
               <g transform="translate(22, 42)">
                 {/* Main Box Body */}
                 <rect x="0" y="0" width="46" height="32" rx="2" fill="#FFE600" stroke="#000000" strokeWidth="3" />
-                
+
                 {/* Cyber Ribbon Cross */}
                 <line x1="23" y1="0" x2="23" y2="32" stroke="#FF5C00" strokeWidth="5" />
                 <line x1="0" y1="16" x2="46" y2="16" stroke="#FF5C00" strokeWidth="5" />
-                
+
                 {/* VAULT Badge on Box */}
                 <rect x="5" y="6" width="16" height="9" fill="#000" rx="1.5" />
                 <text x="7" y="13" fill="#00FF94" fontSize="6.5" fontWeight="900" fontFamily="monospace">VAULT</text>
@@ -698,7 +696,7 @@ export function DeliveryCarAnimation({
               </g>
 
               {/* PARCEL LID: Pops off and flies away when clicked! */}
-              <g 
+              <g
                 transform="translate(19, 34)"
                 className={isParcelOpened ? 'lid-fly' : ''}
               >
@@ -723,13 +721,12 @@ export function DeliveryCarAnimation({
 
         {/* === REAL ASPHALT ROADWAY: Directly Aligned Under Tires (Zero Gap) === */}
         <div className="w-full relative h-7 bg-[#141416] border-t-3 border-b-3 border-black z-10 overflow-hidden flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.8)] -mt-5">
-          <div className={`w-[200%] flex items-center justify-around ${
-            mode === 'drive'
-              ? 'animate-[roadStripes_0.3s_linear_infinite]'
-              : phase === 'zoom_off'
+          <div className={`w-[200%] flex items-center justify-around ${mode === 'drive'
+            ? 'animate-[roadStripes_0.3s_linear_infinite]'
+            : phase === 'zoom_off'
               ? 'animate-[roadStripesFast_0.15s_linear_infinite]'
               : (phase === 'screech_in' ? 'animate-[roadStripesRev_0.35s_linear_infinite]' : '')
-          }`}>
+            }`}>
             {[...Array(16)].map((_, i) => (
               <div
                 key={i}

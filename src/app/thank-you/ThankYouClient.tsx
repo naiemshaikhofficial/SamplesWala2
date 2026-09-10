@@ -193,14 +193,14 @@ export function ThankYouClient({
           {isFree ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
         </h1>
         <p className="text-[11px] font-mono text-white/45 uppercase tracking-wider">
-          Order #{orderId} • Instant access in your vault
+
         </p>
       </div>
 
       {/* Detailed Animated SamplesWala Delivery Car & Unboxing Experience */}
       <div className="w-full relative">
-        <DeliveryCarAnimation 
-          key={replayKey} 
+        <DeliveryCarAnimation
+          key={replayKey}
           mode="return"
           onParcelClick={handleUnboxAndDownload}
           isParcelOpened={isParcelOpened}
@@ -217,10 +217,10 @@ export function ThankYouClient({
               </div>
             ) : downloadSuccess ? (
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00FF94]/20 text-[#00FF94] border border-[#00FF94]/40 font-mono text-xs uppercase rounded-xs">
-                <span>⚡ DOWNLOAD STARTED! ENJOY YOUR SOUNDS</span>
+                <span> DOWNLOAD STARTED! ENJOY YOUR SOUNDS</span>
               </div>
             ) : downloadError ? (
-              <button 
+              <button
                 onClick={handleUnboxAndDownload}
                 className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/40 font-mono text-xs uppercase rounded-xs cursor-pointer hover:bg-red-500/30"
               >
