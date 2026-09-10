@@ -247,9 +247,9 @@ export function ThankYouClient({
 
           <Link
             href="/library"
-            className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-mono font-bold text-xs uppercase tracking-widest border border-white/20 hover:border-white/40 transition-all rounded-xs hover:scale-[1.02] active:scale-[0.98]"
+            className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline pt-1"
           >
-            GO TO LIBRARY →
+            go to library →
           </Link>
 
           <div className="flex items-center gap-4 text-[10px] font-mono text-white/30 uppercase tracking-wider pt-1">

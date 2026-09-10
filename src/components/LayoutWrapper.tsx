@@ -15,7 +15,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
   if (isAuthPage || isDashboardPage || isMaintenancePage || isThankYouPage || isCheckoutPage) {
     return (
-      <main className="flex-grow flex flex-col relative">
+      <main className="flex-grow flex flex-col relative w-full max-w-full overflow-x-hidden">
         {children}
       </main>
     )

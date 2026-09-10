@@ -68,7 +68,9 @@ a[data-social]:hover {
 
 html,
 body {
-  overflow-x: clip;
+  overflow-x: hidden !important;
+  max-width: 100vw;
+  width: 100%;
 }
 
 @layer base {

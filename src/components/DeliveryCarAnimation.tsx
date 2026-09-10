@@ -42,12 +42,12 @@ export function DeliveryCarAnimation({
       setPhase('screech_in')
       const t1 = setTimeout(() => setPhase('door_up'), 1100)
       const t2 = setTimeout(() => setPhase('dude_step_out'), 1600)
-      const t3 = setTimeout(() => setPhase('drop_parcel'), 2800)
-      const t4 = setTimeout(() => setPhase('hop_in'), 4000)
+      const t3 = setTimeout(() => setPhase('drop_parcel'), 2700)
+      const t4 = setTimeout(() => setPhase('hop_in'), 4900)
       const t5 = setTimeout(() => {
         setPhase('zoom_off')
         onDeliveryDelivered?.()
-      }, 4900)
+      }, 5900)
 
       return () => {
         clearTimeout(t1)
@@ -89,13 +89,21 @@ export function DeliveryCarAnimation({
         }
 
         /* High-speed road line streaming */
-        @keyframes asphaltDash {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+        @keyframes roadStream {
+          from { background-position-x: 0px; }
+          to { background-position-x: -48px; }
         }
-        @keyframes asphaltDashHyper {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+        .road-dashes-stream {
+          background-image: repeating-linear-gradient(
+            90deg,
+            #FFE600 0px,
+            #FFE600 24px,
+            transparent 24px,
+            transparent 48px
+          );
+          background-size: 48px 3px;
+          background-position: 0 center;
+          background-repeat: repeat-x;
         }
 
         /* Speed Streaks across air */
@@ -152,19 +160,19 @@ export function DeliveryCarAnimation({
           100% { transform: translate(-140px, calc(var(--driftY, 0px) - 15px)) scale(0.2); opacity: 0; }
         }
 
-        /* Screech In & Launch Out Travel */
+        /* Screech In & Launch Out Travel (Bounded percentages for 100% responsive safety) */
         @keyframes hyperCarArrive {
-          0% { transform: translateX(120vw); }
-          60% { transform: translateX(-16px); }
-          82% { transform: translateX(8px); }
-          100% { transform: translateX(0px); }
+          0% { transform: translateX(130%); opacity: 0; }
+          10% { opacity: 1; }
+          65% { transform: translateX(-4%); }
+          85% { transform: translateX(1.5%); }
+          100% { transform: translateX(0%); opacity: 1; }
         }
         @keyframes hyperCarLaunchOut {
-          0% { transform: translateX(0px); opacity: 1; }
-          15% { transform: translateX(-18px); opacity: 1; }
-          35% { transform: translateX(60px); opacity: 1; }
-          75% { transform: translateX(850px); opacity: 1; }
-          100% { transform: translateX(1800px); opacity: 0; }
+          0% { transform: translateX(0%); opacity: 1; }
+          15% { transform: translateX(-3%); opacity: 1; }
+          40% { transform: translateX(15%); opacity: 1; }
+          100% { transform: translateX(135%); opacity: 0; }
         }
         @keyframes driveCruise {
           0%, 100% { transform: translateX(0px); }
@@ -240,13 +248,13 @@ export function DeliveryCarAnimation({
       }} />
 
       {/* Main Cinematic Scene Canvas */}
-      <div className="relative w-full max-w-xl mx-auto h-44 sm:h-52 md:h-60 flex flex-col justify-end items-center overflow-hidden rounded-md bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.9)]">
+      <div className="relative w-full max-w-lg mx-auto h-40 sm:h-48 md:h-56 flex flex-col justify-end items-center overflow-hidden rounded-md bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.9)]">
 
         {/* Ambient Top Glow & Speed Grid Lines */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-gradient-to-b from-[#00FF94]/10 via-[#FFE600]/5 to-transparent blur-2xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-20 bg-gradient-to-b from-[#00FF94]/10 via-[#FFE600]/5 to-transparent blur-2xl" />
           {/* Subtle Cyber Horizon Line */}
-          <div className="absolute bottom-12 sm:bottom-14 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00FF94]/30 to-transparent" />
+          <div className="absolute bottom-11 sm:bottom-13 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00FF94]/30 to-transparent" />
         </div>
 
         {/* Speed Streaks in the Air (High Velocity Feel) */}
@@ -290,7 +298,7 @@ export function DeliveryCarAnimation({
             {/* SVG Hypercar Model: Designed with Aerodynamic Depth & 3D Shading */}
             <svg
               viewBox="0 0 520 160"
-              className="w-[270px] xs:w-[310px] sm:w-[380px] md:w-[440px] h-auto overflow-visible"
+              className="w-[260px] xs:w-[300px] sm:w-[360px] md:w-[420px] max-w-full h-auto overflow-visible"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -711,6 +719,15 @@ export function DeliveryCarAnimation({
                       <path d="M 88 80 L 58 106 L 36 120" stroke="#F4A982" strokeWidth="6.5" strokeLinecap="round" />
                       <polygon points="17,118 24,118 20,128" fill="#FFE600" stroke="#000" strokeWidth="1.2" />
                       <polygon points="33,120 40,120 36,130" fill="#FFE600" stroke="#000" strokeWidth="1.2" />
+
+                      {/* Cool Gen-Z Street Dialogue Bubble */}
+                      <g transform="translate(92, 10)">
+                        <polygon points="0,32 -14,40 2,36" fill="#111216" stroke="#FFE600" strokeWidth="1.5" />
+                        <rect x="0" y="0" width="146" height="46" rx="5" fill="#111216" stroke="#FFE600" strokeWidth="1.5" />
+                        <text x="8" y="14" fill="#FFE600" fontSize="7.5" fontWeight="900" fontFamily="monospace">YO MY BAD FAM! 💀</text>
+                        <text x="8" y="26" fill="#E4E4E7" fontSize="6.8" fontWeight="700" fontFamily="monospace">Almost forgot your drop...</text>
+                        <text x="8" y="38" fill="#00FF94" fontSize="7.2" fontWeight="900" fontFamily="monospace">HERE IS YOUR 24-BIT HEAT! 🔥</text>
+                      </g>
                     </>
                   ) : (
                     <>
@@ -748,11 +765,11 @@ export function DeliveryCarAnimation({
 
             {/* Unboxing SVG Component */}
             <svg
-              width="86"
-              height="76"
+              width="80"
+              height="72"
               viewBox="0 0 100 88"
               fill="none"
-              className={`overflow-visible transition-all duration-300 ${!isParcelOpened ? 'group-hover:scale-110 group-hover:-translate-y-1 drop-shadow-[0_0_12px_rgba(255,230,0,0.5)]' : ''
+              className={`overflow-visible transition-all duration-300 ${!isParcelOpened ? 'group-hover:scale-105 group-hover:-translate-y-1 drop-shadow-[0_0_12px_rgba(255,230,0,0.5)]' : ''
                 }`}
             >
               {/* Tarmac Shadow under Crate */}
@@ -835,24 +852,17 @@ export function DeliveryCarAnimation({
           <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-[#00FF94] via-[#FFE600] to-[#00FF94] opacity-50" />
           <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-black" />
 
-          {/* Continuous Dashed Lane Markers with Speed Blur */}
+          {/* Continuous Dashed Lane Markers with Hardware CSS Streaming (Zero Overflow) */}
           <div
-            className="w-[200%] flex items-center justify-around"
+            className="w-full h-1 sm:h-1.5 road-dashes-stream shadow-[0_0_8px_#FFE600]"
             style={{
               animation: isDriving || isLaunching
-                ? 'asphaltDash 0.22s linear infinite'
+                ? 'roadStream 0.18s linear infinite'
                 : isArriving
-                  ? 'asphaltDash 0.35s linear infinite'
+                  ? 'roadStream 0.3s linear infinite'
                   : 'none'
             }}
-          >
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="w-8 sm:w-12 h-1 sm:h-1.5 bg-[#FFE600] border border-black rounded-xs shadow-[0_0_8px_#FFE600]"
-              />
-            ))}
-          </div>
+          />
         </div>
       </div>
     </div>

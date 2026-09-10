@@ -400,6 +400,23 @@ export default function CheckoutPage() {
   const [dispatchStage, setDispatchStage] = useState<'idle' | 'dispatching' | 'delivered'>('idle')
   const [dispatchProgress, setDispatchProgress] = useState(15)
 
+  const TELEMETRY_MESSAGES = [
+    '⚡ SECURING 24-BIT MASTER STEMS...',
+    '🔥 VERIFYING ARTIST ROYALTIES...',
+    '💎 ENCRYPTING AUDIO VAULT KEY...',
+    '🚀 HYPERCAR DISPATCH INITIATED...'
+  ]
+  const [telemetryIndex, setTelemetryIndex] = useState(0)
+
+  useEffect(() => {
+    if (dispatchStage === 'dispatching' || paymentStatus === 'processing') {
+      const interval = setInterval(() => {
+        setTelemetryIndex(i => (i + 1) % 4)
+      }, 1400)
+      return () => clearInterval(interval)
+    }
+  }, [dispatchStage, paymentStatus])
+
   // Active telemetry progress during payment verification
   useEffect(() => {
     if (paymentStatus === 'processing' && dispatchStage === 'idle') {
@@ -1386,8 +1403,8 @@ export default function CheckoutPage() {
         <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-30" />
 
         {/* Ambient Studio Lighting */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-[#00FF94]/10 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute top-1/3 left-1/4 w-[450px] h-[300px] bg-[#FFE600]/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[450px] h-[220px] bg-[#00FF94]/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/3 left-1/4 w-full max-w-[350px] h-[180px] bg-[#FFE600]/10 rounded-full blur-[90px] pointer-events-none" />
 
         {/* Brand Logo at Top */}
         <div className="relative z-10 mb-2">
@@ -1418,10 +1435,13 @@ export default function CheckoutPage() {
                 <span>PREPARING YOUR SOUND VAULT...</span>
               </h2>
 
-              <p className="text-xs font-mono uppercase tracking-widest text-[#00FF94] flex items-center justify-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#00FF94] animate-ping" />
-                <span>Locking in your 24-bit audio tokens...</span>
-              </p>
+              {/* Dynamic Graffiti Status Badge */}
+              <div className="flex justify-center">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/60 border border-[#00FF94]/40 rounded-xs text-[11px] font-mono text-[#00FF94] tracking-wider uppercase shadow-[0_0_12px_rgba(0,255,148,0.2)]">
+                  <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
+                  <span>{TELEMETRY_MESSAGES[telemetryIndex]}</span>
+                </div>
+              </div>
 
               {/* Sleek Live Telemetry Progress Bar */}
               <div className="pt-2">
@@ -1495,9 +1515,9 @@ export default function CheckoutPage() {
 
                 <Link
                   href="/library"
-                  className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-mono font-bold text-xs uppercase tracking-widest border border-white/20 hover:border-white/40 transition-all rounded-xs hover:scale-[1.02] active:scale-[0.98]"
+                  className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline pt-1"
                 >
-                  GO TO LIBRARY →
+                  go to library →
                 </Link>
 
                 <button
