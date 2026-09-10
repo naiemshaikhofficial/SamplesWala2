@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ThankYouPage() {
   return (
-    <main className="min-h-screen bg-[#0d0d10] text-white pt-24 md:pt-28 pb-24 px-4 sm:px-6 relative overflow-hidden select-none">
+    <main className="min-h-screen bg-[#0d0d10] text-white pt-10 sm:pt-14 pb-20 px-4 sm:px-6 relative overflow-hidden select-none flex flex-col justify-center">
       {/* Studio Dot Grid Background */}
       <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40" />
 

@@ -18,6 +18,7 @@ import dynamic from 'next/dynamic'
 import Script from 'next/script'
 import { loadCashfreeSDK } from '@/lib/cashfreeClient'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
+import { DeliveryCarAnimation } from '@/components/DeliveryCarAnimation'
 
 // Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
 const CustomCountrySelect = ({ value, onChange, options, iconComponent: Icon }: any) => {
@@ -1400,11 +1401,18 @@ export default function CheckoutPage() {
 
   if (isOrderComplete) {
     return (
-      <div className="min-h-[75vh] flex flex-col items-center justify-center space-y-5 text-center px-4 relative z-10">
+      <div className="min-h-[75vh] flex flex-col items-center justify-center space-y-4 text-center px-4 relative z-10 max-w-2xl mx-auto">
         <MusicalNotesBackground />
-        <div className="w-14 h-14 border-3 border-white/20 border-t-[#00FF94] rounded-full animate-spin mx-auto mb-2" />
-        <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Preparing Your Sounds...</h2>
-        <p className="text-xs font-mono uppercase tracking-widest text-[#00FF94]">Redirecting to confirmation & receipt...</p>
+        <DeliveryCarAnimation mode="drive" />
+        <div className="space-y-2 pt-1">
+          <h2 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tight text-white font-mono">
+            Heading Out On Delivery!
+          </h2>
+          <p className="text-xs font-mono uppercase tracking-widest text-[#00FF94] flex items-center justify-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
+            Dispatching 24-bit sound pack to your vault...
+          </p>
+        </div>
       </div>
     )
   }
