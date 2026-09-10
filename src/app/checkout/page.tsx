@@ -1399,7 +1399,7 @@ export default function CheckoutPage() {
     const isFreeOrder = completedOrder?.isFree || targetOrderId.startsWith('SW_FREE') || targetOrderId.startsWith('SW_PAY_FREE')
 
     return (
-      <div className="min-h-screen bg-[#090a0f] text-white flex flex-col items-center justify-start pt-6 sm:pt-10 pb-12 px-4 relative overflow-hidden select-none">
+      <div className="min-h-screen w-full max-w-full bg-[#0d0d10] text-white p-3 sm:p-6 relative overflow-hidden select-none flex flex-col justify-center items-center">
         {/* Studio Dot Grid Background */}
         <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-30" />
 
@@ -1407,19 +1407,20 @@ export default function CheckoutPage() {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[450px] h-[220px] bg-[#00FF94]/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute top-1/3 left-1/4 w-full max-w-[350px] h-[180px] bg-[#FFE600]/10 rounded-full blur-[90px] pointer-events-none" />
 
-        {/* Brand Logo at Top */}
-        <div className="relative z-10 mb-1 sm:mb-2">
-          <Link href="/" className="inline-flex items-center group hover:scale-105 transition-transform duration-200">
-            <Image
-              src="/Logo.png"
-              alt="SamplesWala"
-              width={180}
-              height={45}
-              priority
-              className="h-8 sm:h-10 md:h-11 w-auto object-contain"
-            />
-          </Link>
-        </div>
+        <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex flex-col items-center justify-center relative z-10 select-none space-y-3 sm:space-y-4 px-4 py-4 my-auto">
+          {/* Official Brand Logo */}
+          <div className="flex justify-center mb-1 sm:mb-2">
+            <Link href="/" className="inline-flex items-center hover:opacity-90 hover:scale-105 transition-all duration-200">
+              <Image
+                src="/Logo.png"
+                alt="SamplesWala Logo"
+                width={240}
+                height={60}
+                priority
+                className="h-11 sm:h-13 md:h-15 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+              />
+            </Link>
+          </div>
 
         {/* ========================================================================= */}
         {/* 💥 UPAR (TOP): RAW WILD-STYLE GRAFFITI STATUS - NO BORDERS, PURE STREET ART */}
@@ -1513,8 +1514,9 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
   if (itemCount === 0) {
     return (

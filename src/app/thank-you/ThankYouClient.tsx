@@ -175,7 +175,7 @@ export function ThankYouClient({
 
 
   return (
-    <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex flex-col items-center justify-start relative z-10 select-none space-y-3 sm:space-y-4 px-4 pt-3 sm:pt-5 pb-16">
+    <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex flex-col items-center justify-center relative z-10 select-none space-y-3 sm:space-y-4 px-4 py-4 my-auto">
       {/* Official Brand Logo (Prominent & Cinematic) */}
       <div className="flex justify-center mb-1 sm:mb-2">
         <Link href="/" className="inline-flex items-center hover:opacity-90 hover:scale-105 transition-all duration-200">

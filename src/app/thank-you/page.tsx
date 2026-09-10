@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ThankYouPage() {
   return (
-    <div className="min-h-screen w-full max-w-full bg-[#0d0d10] text-white pt-6 sm:pt-12 pb-12 sm:pb-16 px-3 sm:px-6 relative overflow-hidden select-none flex flex-col justify-center items-center">
+    <div className="min-h-screen w-full max-w-full bg-[#0d0d10] text-white p-3 sm:p-6 relative overflow-hidden select-none flex flex-col justify-center items-center">
       {/* Studio Dot Grid Background */}
       <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40" />
 
@@ -25,7 +25,7 @@ export default function ThankYouPage() {
         <div className="max-w-md mx-auto py-24 px-6 text-center space-y-4 bg-[#121215] border-3 border-black shadow-[8px_8px_0px_black] rounded-sm">
           <div className="w-12 h-12 border-4 border-black border-t-[#00FF94] rounded-full animate-spin mx-auto mb-2" />
           <p className="text-xs font-mono font-black uppercase tracking-widest text-[#00FF94]">
-            Preparing Your Sound Vault Receipt...
+            Loading Sound Vault...
           </p>
         </div>
       }>
