@@ -211,15 +211,8 @@ export function ThankYouClient({
 
       <div className="flex flex-col items-center justify-center text-center my-1 sm:my-2 relative z-20 select-none">
         {!isParcelOpened ? (
-          /* State 1: Wild Street Graffiti "THANK YOU!" with Paint Drips */
+          /* State 1: Pure Clean Street Graffiti "THANK YOU!" with Paint Drips */
           <div className="flex flex-col items-center group cursor-default">
-            {/* Street Tag Spray Splatters & Crowns */}
-            <div className="flex items-center gap-1.5 -mb-1.5 sm:-mb-2 text-[#FFE600] opacity-90 drop-shadow-[0_0_8px_#FFE600]">
-              <span className="text-xs sm:text-sm font-black transform -rotate-12">✦</span>
-              <span className="text-[11px] sm:text-xs font-black tracking-widest uppercase font-mono">★ KING OF SOUNDS ★</span>
-              <span className="text-xs sm:text-sm font-black transform rotate-12">✦</span>
-            </div>
-
             {/* RAW WILD GRAFFITI TEXT: THANK YOU! */}
             <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform duration-300 hover:scale-105">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-br from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
@@ -238,30 +231,16 @@ export function ThankYouClient({
         ) : isDownloading ? (
           /* State 2: Dynamic Downloading Status in Graffiti Style */
           <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl sm:text-3xl animate-bounce">⚡</span>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-[#00E5FF] to-[#FFE600] graffiti-downloading-shadow">
-                DOWNLOADING YOUR FILE...
-              </h1>
-              <span className="text-2xl sm:text-3xl animate-bounce">⚡</span>
-            </div>
-            <span className="text-[10px] sm:text-xs font-mono text-[#00FF94] tracking-widest uppercase mt-1 drop-shadow-[0_0_8px_#00FF94]">
-              HANG TIGHT! WE ARE PACKING YOUR STEMS
-            </span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-[#00E5FF] to-[#FFE600] graffiti-downloading-shadow">
+              ⚡ DOWNLOADING YOUR FILE...
+            </h1>
           </div>
         ) : downloadSuccess ? (
           /* State 3: Download Complete */
           <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl sm:text-3xl animate-pulse">🔥</span>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-white to-[#00FF94] graffiti-downloading-shadow">
-                DOWNLOAD STARTED!
-              </h1>
-              <span className="text-2xl sm:text-3xl animate-pulse">🎵</span>
-            </div>
-            <span className="text-[10px] sm:text-xs font-mono text-[#00FF94] tracking-widest uppercase mt-1">
-              CHECK YOUR BROWSER DOWNLOADS • ENJOY THE SOUNDS!
-            </span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-white to-[#00FF94] graffiti-downloading-shadow">
+              🔥 DOWNLOAD STARTED!
+            </h1>
           </div>
         ) : downloadError ? (
           /* State 4: Retry */
