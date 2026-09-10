@@ -177,17 +177,22 @@ export function ThankYouClient({
   }
 
   return (
-    <div className="w-full flex flex-col items-center justify-start relative z-10 select-none space-y-3 sm:space-y-4">
-      {/* Minimal Brand Logo */}
-      <div className="flex justify-center mb-1">
-        <Link href="/" className="inline-flex items-center opacity-85 hover:opacity-100 transition-opacity">
-          <span className="text-xl sm:text-2xl font-black uppercase tracking-tight font-mono text-white">
-            SAMPLES<span className="text-white/40">WALA</span>
-          </span>
+    <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex flex-col items-center justify-start relative z-10 select-none space-y-3 sm:space-y-4 px-4 pt-3 sm:pt-5 pb-16">
+      {/* Official Brand Logo */}
+      <div className="flex justify-center mb-1 sm:mb-2">
+        <Link href="/" className="inline-flex items-center hover:opacity-90 hover:scale-105 transition-all duration-200">
+          <Image
+            src="/Logo.png"
+            alt="SamplesWala Logo"
+            width={180}
+            height={45}
+            priority
+            className="h-8 sm:h-10 md:h-12 w-auto object-contain"
+          />
         </Link>
       </div>
 
-      {/* Pure Detailed Hypercar Delivery & Unboxing Experience (Seamless Full-Bleed Highway) */}
+      {/* Pure Detailed Hypercar Delivery & Unboxing Experience */}
       <div className="w-full relative z-10 my-0">
         <DeliveryCarAnimation
           key={replayKey}
@@ -198,15 +203,87 @@ export function ThankYouClient({
         />
       </div>
 
-      {/* ALL STATUS, TITLES & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
-      <div className="w-full max-w-lg mx-auto px-4 flex flex-col items-center text-center space-y-3 pt-2">
-        <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white font-mono">
-            {isFree ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
-          </h1>
-          <p className="text-[11px] font-mono text-white/50 uppercase tracking-wider">
-            {!isParcelOpened ? 'Tap the crate to unbox & download your sounds' : ''}
-          </p>
+      {/* ALL STATUS & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
+      <div className="w-full max-w-md mx-auto flex flex-col items-center text-center space-y-3 pt-1">
+        {/* AUTHENTIC STREET GRAFFITI "THANK YOU!" */}
+        <div className="relative flex flex-col items-center justify-center my-1 select-none">
+          <svg viewBox="0 0 380 76" className="w-64 sm:w-72 md:w-88 h-auto overflow-visible">
+            <defs>
+              <linearGradient id="graffitiYellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFF275" />
+                <stop offset="45%" stopColor="#FFE600" />
+                <stop offset="100%" stopColor="#00FF94" />
+              </linearGradient>
+              <filter id="graffitiGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* 3D Deep Street Shadow Extrusion */}
+            <text
+              x="194"
+              y="54"
+              textAnchor="middle"
+              fill="#000000"
+              stroke="#000000"
+              strokeWidth="11"
+              strokeLinejoin="round"
+              fontFamily="Impact, 'Arial Black', sans-serif"
+              fontSize="52"
+              fontStyle="italic"
+              letterSpacing="4"
+              transform="skewX(-10)"
+              opacity="0.95"
+            >
+              THANK YOU!
+            </text>
+
+            {/* Cyber Mint Neon Spray Outline */}
+            <text
+              x="190"
+              y="50"
+              textAnchor="middle"
+              fill="#000000"
+              stroke="#00FF94"
+              strokeWidth="7"
+              strokeLinejoin="round"
+              fontFamily="Impact, 'Arial Black', sans-serif"
+              fontSize="52"
+              fontStyle="italic"
+              letterSpacing="4"
+              transform="skewX(-10)"
+              filter="url(#graffitiGlowFilter)"
+            >
+              THANK YOU!
+            </text>
+
+            {/* Electric Yellow Core */}
+            <text
+              x="190"
+              y="50"
+              textAnchor="middle"
+              fill="url(#graffitiYellowGrad)"
+              stroke="#FFE600"
+              strokeWidth="1.2"
+              fontFamily="Impact, 'Arial Black', sans-serif"
+              fontSize="52"
+              fontStyle="italic"
+              letterSpacing="4"
+              transform="skewX(-10)"
+            >
+              THANK YOU!
+            </text>
+
+            {/* Street Tag Spray Splatters */}
+            <circle cx="48" cy="52" r="2.5" fill="#FFE600" />
+            <circle cx="52" cy="59" r="1.6" fill="#00FF94" />
+            <circle cx="332" cy="22" r="3" fill="#00FF94" />
+            <circle cx="337" cy="29" r="1.8" fill="#FFE600" />
+          </svg>
         </div>
 
         {/* Clean Unboxing / Download Status Alert */}
@@ -232,22 +309,11 @@ export function ThankYouClient({
           </div>
         )}
 
-        {/* Order ID & Action Footer */}
-        <div className="flex flex-col items-center space-y-3 pt-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-xs text-[11px] font-mono text-white/60">
-            <span>ORDER ID:</span>
-            <span className="text-white font-bold">{orderId}</span>
-            <button
-              onClick={handleCopy}
-              className="hover:text-white transition-colors cursor-pointer ml-1"
-            >
-              {copied ? <Check size={12} className="text-[#00FF94]" /> : <Copy size={12} />}
-            </button>
-          </div>
-
+        {/* Minimal Action Footer */}
+        <div className="flex flex-col items-center space-y-2 pt-2">
           <Link
             href="/library"
-            className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline pt-1"
+            className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
           >
             go to library →
           </Link>

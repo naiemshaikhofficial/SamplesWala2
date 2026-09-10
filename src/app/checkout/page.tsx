@@ -1407,16 +1407,21 @@ export default function CheckoutPage() {
         <div className="absolute top-1/3 left-1/4 w-full max-w-[350px] h-[180px] bg-[#FFE600]/10 rounded-full blur-[90px] pointer-events-none" />
 
         {/* Brand Logo at Top */}
-        <div className="relative z-10 mb-2">
-          <Link href="/" className="inline-flex items-center group">
-            <span className="text-lg sm:text-xl font-black uppercase tracking-tight font-mono text-white group-hover:text-[#FFE600] transition-colors">
-              SAMPLES<span className="text-white/40">WALA</span>
-            </span>
+        <div className="relative z-10 mb-2 sm:mb-3">
+          <Link href="/" className="inline-flex items-center group hover:scale-105 transition-transform duration-200">
+            <Image
+              src="/Logo.png"
+              alt="SamplesWala"
+              width={180}
+              height={45}
+              priority
+              className="h-8 sm:h-10 md:h-11 w-auto object-contain"
+            />
           </Link>
         </div>
 
         {/* HERO ANIMATION WINDOW (Pure, clean, cinematic - strictly fixed position) */}
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto relative z-10">
+        <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto relative z-10">
           <DeliveryCarAnimation
             mode={isReadyToUnbox ? 'return' : 'drive'}
             onParcelClick={handleUnboxAndDownload}

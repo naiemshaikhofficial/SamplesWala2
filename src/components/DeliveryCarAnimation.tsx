@@ -324,19 +324,19 @@ export function DeliveryCarAnimation({
         `
       }} />
 
-      {/* Main Cinematic Scene Canvas: Full-width, generous height, zero squishing */}
-      <div className="relative w-full max-w-xl sm:max-w-2xl mx-auto h-52 sm:h-60 md:h-64 flex flex-col justify-end items-center overflow-hidden rounded-lg bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.95)]">
+      {/* Main Cinematic Scene Canvas: Mobile compact, PC/Desktop large & cinematic */}
+      <div className="relative w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto h-52 sm:h-56 md:h-[360px] lg:h-[420px] flex flex-col justify-end items-center overflow-hidden rounded-lg sm:rounded-xl bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.95)]">
 
         {/* Ambient Top Glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-gradient-to-b from-[#00FF94]/12 via-[#FFE600]/6 to-transparent blur-2xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-28 md:h-44 bg-gradient-to-b from-[#00FF94]/12 via-[#FFE600]/6 to-transparent blur-2xl md:blur-3xl" />
         </div>
 
         {/* ========================================================================= */}
         {/* === PARALLAX BACKGROUND SCENERY (Forward, Reverse, and Frozen on Stop) === */}
         {/* ========================================================================= */}
         <div
-          className="absolute bottom-6 sm:bottom-7 left-0 h-24 sm:h-28 flex w-[200%] select-none pointer-events-none z-0"
+          className="absolute bottom-6 sm:bottom-7 md:bottom-10 lg:bottom-12 left-0 h-24 sm:h-28 md:h-44 lg:h-52 flex w-[200%] select-none pointer-events-none z-0"
           style={{
             willChange: 'transform',
             animation: isDriving
@@ -590,7 +590,7 @@ export function DeliveryCarAnimation({
               {/* SVG Hypercar Model */}
               <svg
                 viewBox="0 0 520 160"
-                className="w-[280px] xs:w-[320px] sm:w-[380px] md:w-[440px] max-w-full h-auto overflow-visible"
+                className="w-[280px] xs:w-[320px] sm:w-[380px] md:w-[620px] lg:w-[740px] xl:w-[840px] max-w-full h-auto overflow-visible"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -1093,23 +1093,21 @@ export function DeliveryCarAnimation({
         {mode === 'return' && (phase === 'drop_parcel' || phase === 'hop_in' || phase === 'car_leaving' || phase === 'delivered_idle') && (
           <div
             onClick={onParcelClick}
-            className="absolute left-1/2 -translate-x-1/2 bottom-3 sm:bottom-3.5 z-30 flex flex-col items-center cursor-pointer group select-none"
+            className="absolute left-1/2 -translate-x-1/2 bottom-3 sm:bottom-3.5 md:bottom-5 lg:bottom-6 z-30 flex flex-col items-center cursor-pointer group select-none"
           >
             {/* Subtle Minimal Pulse Tap Hint */}
             {(phase === 'delivered_idle' || phase === 'car_leaving') && !isParcelOpened && (
-              <span className="text-[9px] font-mono tracking-widest text-[#00FF94] animate-pulse mb-1 pointer-events-none whitespace-nowrap">
+              <span className="text-[9px] md:text-xs font-mono tracking-widest text-[#00FF94] animate-pulse mb-1 md:mb-1.5 pointer-events-none whitespace-nowrap drop-shadow-[0_0_8px_#00FF94]">
                 TAP TO OPEN
               </span>
             )}
 
             {/* Unboxing SVG Component: Zero movement/translation, only pure radiant glow on hover */}
             <svg
-              width="88"
-              height="78"
               viewBox="0 0 100 88"
               fill="none"
-              className={`overflow-visible transition-all duration-200 ${
-                !isParcelOpened ? 'group-hover:drop-shadow-[0_0_18px_rgba(255,230,0,0.85)] group-hover:brightness-110' : ''
+              className={`w-[84px] h-[74px] md:w-[130px] md:h-[114px] lg:w-[150px] lg:h-[132px] overflow-visible transition-all duration-200 ${
+                !isParcelOpened ? 'group-hover:drop-shadow-[0_0_24px_rgba(255,230,0,0.9)] group-hover:brightness-110' : ''
               }`}
             >
               {/* Tarmac Shadow under Crate */}
@@ -1182,13 +1180,13 @@ export function DeliveryCarAnimation({
         {/* ========================================================================= */}
         {/* === REALISTIC ASPHALT HIGHWAY (Streaming Forward & Reverse, Frozen on Stop) === */}
         {/* ========================================================================= */}
-        <div className="w-full relative h-6 sm:h-7 bg-[#111216] border-t border-b border-black z-10 overflow-hidden flex items-center shadow-[0_4px_16px_rgba(0,0,0,0.9)] -mt-3 sm:-mt-3.5">
-          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-[#00FF94] via-[#FFE600] to-[#00FF94] opacity-50" />
-          <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-black" />
+        <div className="w-full relative h-6 sm:h-7 md:h-10 lg:h-12 bg-[#111216] border-t border-b border-black z-10 overflow-hidden flex items-center shadow-[0_4px_16px_rgba(0,0,0,0.9)] -mt-3 sm:-mt-3.5 md:-mt-5 lg:-mt-6">
+          <div className="absolute top-0 left-0 right-0 h-[1.5px] md:h-[2.5px] bg-gradient-to-r from-[#00FF94] via-[#FFE600] to-[#00FF94] opacity-50" />
+          <div className="absolute bottom-0 left-0 right-0 h-[1.5px] md:h-[2.5px] bg-black" />
 
           {/* Continuous Dashed Lane Markers with Hardware CSS Streaming */}
           <div
-            className="w-full h-1 sm:h-1.5 road-dashes-stream shadow-[0_0_8px_#FFE600]"
+            className="w-full h-1 sm:h-1.5 md:h-2.5 road-dashes-stream shadow-[0_0_8px_#FFE600]"
             style={{
               animation: isDriving
                 ? 'roadStreamForward 0.22s linear infinite'
