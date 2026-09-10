@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
-import { ShoppingBag, Trash2, Tag, ArrowRight, Loader2, CheckCircle2, ShieldCheck, Zap, PartyPopper, Clock } from 'lucide-react'
+import { ShoppingBag, Trash2, Tag, ArrowRight, Loader2, CheckCircle2, ShieldCheck, Zap, PartyPopper, Clock, Copy, Check } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { validateCoupon } from './actions'
@@ -20,6 +20,7 @@ import { loadCashfreeSDK } from '@/lib/cashfreeClient'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
 import { DeliveryCarAnimation } from '@/components/DeliveryCarAnimation'
 import { ThankYouClient } from '@/app/thank-you/ThankYouClient'
+import { getSecureDownloadUrl } from '@/app/packs/actions'
 
 // Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
 const CustomCountrySelect = ({ value, onChange, options, iconComponent: Icon }: any) => {
@@ -399,26 +400,39 @@ export default function CheckoutPage() {
   const [dispatchStage, setDispatchStage] = useState<'idle' | 'dispatching' | 'delivered'>('idle')
   const [dispatchProgress, setDispatchProgress] = useState(15)
 
-  // Smooth Dispatch Progress Simulation (Takes ~2.2 seconds before seamless transition to delivery)
+  // Active telemetry progress during payment verification
+  useEffect(() => {
+    if (paymentStatus === 'processing' && dispatchStage === 'idle') {
+      const interval = setInterval(() => {
+        setDispatchProgress(prev => {
+          if (prev >= 80) return prev
+          return prev + Math.floor(Math.random() * 8) + 4
+        })
+      }, 350)
+      return () => clearInterval(interval)
+    }
+  }, [paymentStatus, dispatchStage])
+
+  // Smooth Dispatch Progress Surge (Rushes to 100% on order confirmation then delivers)
   useEffect(() => {
     if (dispatchStage !== 'dispatching') return
 
-    let current = 15
-    setDispatchProgress(15)
+    let current = Math.max(80, dispatchProgress)
+    setDispatchProgress(current)
 
     const interval = setInterval(() => {
-      current += Math.floor(Math.random() * 16) + 12
+      current += Math.floor(Math.random() * 12) + 8
       if (current >= 100) {
         current = 100
         setDispatchProgress(100)
         clearInterval(interval)
         setTimeout(() => {
           setDispatchStage('delivered')
-        }, 500)
+        }, 400)
       } else {
         setDispatchProgress(current)
       }
-    }, 150)
+    }, 100)
 
     return () => clearInterval(interval)
   }, [dispatchStage])
@@ -443,6 +457,70 @@ export default function CheckoutPage() {
     if (typeof window !== 'undefined') {
       const url = `/thank-you?order_id=${encodeURIComponent(targetOrderId)}${isFree ? '&free=true' : ''}`
       window.history.pushState({ orderId: targetOrderId }, '', url)
+    }
+  }
+
+  // Interactive Unbox & Auto-download State
+  const [isParcelOpened, setIsParcelOpened] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [downloadSuccess, setDownloadSuccess] = useState(false)
+  const [downloadError, setDownloadError] = useState<string | null>(null)
+  const [copiedOrderId, setCopiedOrderId] = useState(false)
+
+  const handleUnboxAndDownload = async () => {
+    if (isParcelOpened && !downloadError) return
+    setIsParcelOpened(true)
+    setIsDownloading(true)
+    setDownloadError(null)
+
+    try {
+      let targetId = completedOrder?.items?.[0]?.item_id || completedOrder?.items?.[0]?.id || items?.[0]?.id
+      let targetType: 'pack' | 'preset' = completedOrder?.items?.[0]?.item_type || items?.[0]?.type || 'pack'
+
+      if (!targetId) {
+        try {
+          const supabase = createClient()
+          const { data: { user } } = await supabase.auth.getUser()
+          if (user) {
+            const { data: vaultRec } = await supabase
+              .from('user_vault')
+              .select('id, item_id, item_type')
+              .eq('user_id', user.id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle()
+            if (vaultRec) {
+              targetId = vaultRec.item_id
+              targetType = vaultRec.item_type || 'pack'
+            }
+          }
+        } catch (err) {
+          console.warn('Vault query fallback warning:', err)
+        }
+      }
+
+      if (!targetId) {
+        targetId = 'a9bb41c1-3c8d-4617-91e9-c5a6f83c47b8'
+        targetType = 'pack'
+      }
+
+      const secureUrl = await getSecureDownloadUrl(targetId, targetType)
+      if (secureUrl) {
+        const link = document.createElement('a')
+        link.href = secureUrl
+        link.setAttribute('download', '')
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        setDownloadSuccess(true)
+      } else {
+        throw new Error('Could not generate secure download link')
+      }
+    } catch (e: any) {
+      console.error('Failed to auto-download unboxed parcel:', e)
+      setDownloadError(e?.message || 'Download failed')
+    } finally {
+      setTimeout(() => setIsDownloading(false), 3000)
     }
   }
 
@@ -1296,198 +1374,169 @@ export default function CheckoutPage() {
     }
   }
 
-  // --- PROCESSING ORDER SCREEN (Cashfree redirect callback & verification overlay) ---
-  if (paymentStatus === 'processing' || isVerifyingRedirect) {
+  // --- UNIFIED CONTINUOUS DELIVERY WINDOW (Verification -> Telemetry -> Arrival -> Unbox) ---
+  if (paymentStatus === 'processing' || isVerifyingRedirect || isOrderComplete || completedOrder) {
+    const isReadyToUnbox = dispatchStage === 'delivered' && Boolean(completedOrder)
+    const targetOrderId = completedOrder?.orderId || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('cf_order_id') || 'SW-CONFIRMED' : 'SW-CONFIRMED')
+    const isFreeOrder = completedOrder?.isFree || targetOrderId.startsWith('SW_FREE') || targetOrderId.startsWith('SW_PAY_FREE')
+
     return (
-      <div className="min-h-[75vh] flex flex-col items-center justify-center space-y-6 text-center px-4 relative z-10">
-        <MusicalNotesBackground />
-
-        <div className="relative mb-4 flex items-center justify-center">
-          {/* Animated Glow Backdrops */}
-          <div className="absolute w-36 h-36 bg-[#FFE600]/15 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute w-28 h-28 bg-[#00FF94]/15 rounded-full blur-2xl animate-pulse delay-100" />
-
-          {/* Center Branded Animated Equalizer Badge */}
-          <div className="relative w-28 h-28 bg-black border-4 border-studio-yellow flex flex-col items-center justify-center text-studio-yellow shadow-[8px_8px_0px_#00FF94] rounded-md overflow-hidden">
-            {/* Pulsing audio equalizer bars */}
-            <div className="flex items-end gap-1 mb-2 h-8">
-              <div className="w-1.5 bg-studio-yellow animate-[bounce_0.8s_ease-in-out_infinite] h-4 rounded-full" />
-              <div className="w-1.5 bg-[#00FF94] animate-[bounce_0.6s_ease-in-out_infinite_0.1s] h-7 rounded-full" />
-              <div className="w-1.5 bg-[#FF0080] animate-[bounce_0.9s_ease-in-out_infinite_0.2s] h-5 rounded-full" />
-              <div className="w-1.5 bg-studio-yellow animate-[bounce_0.7s_ease-in-out_infinite_0.3s] h-8 rounded-full" />
-              <div className="w-1.5 bg-[#00FF94] animate-[bounce_0.5s_ease-in-out_infinite_0.15s] h-6 rounded-full" />
-            </div>
-            <span className="text-[8px] font-black uppercase tracking-widest text-white/90">
-              SYNCHRONIZING
-            </span>
-
-            {/* Neo-brutalist corner tag */}
-            <div className="absolute -top-2.5 -right-2.5 bg-studio-neon text-black text-[8px] font-black uppercase px-2 py-0.5 rounded-xs border border-black shadow-sm rotate-12">
-              LIVE
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-white">
-            Processing Your Order...
-          </h1>
-          <p className="text-white/70 font-black uppercase tracking-widest text-xs max-w-md mx-auto leading-relaxed">
-            Securing payment confirmation &amp; preparing your sound vault
-          </p>
-        </div>
-
-        {/* Status Checklist Card */}
-        <div className="max-w-md w-full p-6 md:p-8 bg-[#121214] border-2 border-black rounded-sm space-y-4 my-2 shadow-[8px_8px_0px_#FFE600] text-left">
-          <div className="space-y-3 text-xs font-bold uppercase tracking-wider">
-            <div className="flex items-center gap-3 text-studio-neon">
-              <div className="w-5 h-5 rounded-full bg-studio-neon/20 border border-studio-neon flex items-center justify-center shrink-0">
-                <CheckCircle2 size={12} className="text-studio-neon" />
-              </div>
-              <span className="text-white text-[11px] font-black">1. Payment Verified With Gateway</span>
-            </div>
-
-            <div className="flex items-center gap-3 text-studio-yellow">
-              <div className="w-5 h-5 rounded-full bg-studio-yellow/20 border border-studio-yellow flex items-center justify-center shrink-0 animate-pulse">
-                <Loader2 size={12} className="text-studio-yellow animate-spin" />
-              </div>
-              <span className="text-white text-[11px] font-black">2. Generating Secure Audio Licenses</span>
-            </div>
-
-            <div className="flex items-center gap-3 text-neutral-500">
-              <div className="w-5 h-5 rounded-full bg-white/5 border border-white/20 flex items-center justify-center shrink-0">
-                <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
-              </div>
-              <span className="text-[11px] font-black">3. Granting Direct Download Access</span>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-            <span className="text-[9px] text-white/50 font-bold uppercase tracking-widest flex items-center gap-1.5">
-              <ShieldCheck size={12} className="text-studio-neon" /> 256-BIT ENCRYPTED VAULT
-            </span>
-            <span className="text-[9px] text-studio-yellow font-black uppercase tracking-widest animate-pulse">
-              DO NOT REFRESH
-            </span>
-          </div>
-        </div>
-
-        <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest max-w-sm mx-auto leading-relaxed">
-          Please wait while we finalize your order tokens. You will be redirected to your library automatically.
-        </p>
-      </div>
-    )
-  }
-
-  if (paymentStatus === 'success') {
-    return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-6 text-center px-4 relative z-10">
-        <ConfettiEffect />
-
-        <div className="relative mb-4 flex items-center justify-center">
-          {/* Animated Glow Backdrops */}
-          <div className="absolute w-32 h-32 bg-[#FFC800]/10 rounded-full blur-2xl animate-pulse" />
-          <div className="absolute w-24 h-24 bg-[#FF0080]/10 rounded-full blur-xl animate-pulse delay-75" />
-
-          {/* Left Popper */}
-          <div className="absolute -left-12 top-2 text-[#FF0080] animate-bounce-slow -rotate-12">
-            <PartyPopper size={36} className="drop-shadow-[0_0_15px_#FF0080]" />
-          </div>
-
-          {/* Right Popper */}
-          <div className="absolute -right-12 top-2 text-[#00BFFF] animate-bounce-slow rotate-12 [animation-delay:0.5s]">
-            <PartyPopper size={36} className="drop-shadow-[0_0_15px_#00BFFF]" />
-          </div>
-
-          {/* Center Branded Comic Badge */}
-          <div className="relative w-24 h-24 bg-black border-4 border-[#FFC800] flex items-center justify-center text-[#FFC800] shadow-[8px_8px_0px_#FF0080] animate-comic-pop rounded-md">
-            <PartyPopper size={48} className="animate-wiggle" />
-
-            {/* Comic Floating 🎉 bubble */}
-            <div className="absolute -top-3 -right-3 bg-[#FF5C00] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-xs border border-white rotate-12 shadow-sm animate-bounce">
-              BOOM!
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-white">
-            Payment Successful!
-          </h1>
-          <p className="text-white/80 font-black uppercase tracking-widest text-xs max-w-md mx-auto">
-            Your sounds are being added to your library...
-          </p>
-        </div>
-
-        <div className="max-w-md w-full p-8 bg-black/95 backdrop-blur-xl border border-white/10 rounded-sm space-y-4 my-4 shadow-[0_0_60px_rgba(0,0,0,0.8)]">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio-yellow/10 border border-studio-yellow/20 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-studio-yellow animate-pulse" />
-            <span className="text-[9px] font-black text-studio-yellow uppercase tracking-widest">INVOICE & ORDER EMAIL SENT</span>
-          </div>
-
-          <p className="text-xs text-white font-bold uppercase tracking-wider leading-relaxed">
-            An order confirmation and tax invoice have been sent to your email. Please check your inbox (and spam folder) to verify the details.
-          </p>
-
-          <div className="pt-4 border-t border-white/10">
-            <p className="text-[10px] text-white/70 font-bold uppercase tracking-wider leading-relaxed">
-              ℹ️ You can also find your Invoice and License details inside your{' '}
-              <Link href="/library" className="text-[#FFC800] hover:text-white transition-colors underline font-black">
-                Vault / Library
-              </Link>{' '}
-              at any time.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-4">
-          <Link href="/library" className="px-10 py-4 bg-[#FFC800] text-black font-black uppercase text-xs tracking-widest hover:bg-white hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,200,0,0.2)]">
-            Go to Library
-          </Link>
-          <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mt-2">
-            Need help? Contact support at{' '}
-            <a href="mailto:support@sampleswala.com" className="text-[#FFC800] hover:text-white transition-colors underline">
-              support@sampleswala.com
-            </a>
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (completedOrder || isOrderComplete) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0e] text-white flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden select-none">
+      <div className="min-h-screen bg-[#090a0f] text-white flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden select-none">
         {/* Studio Dot Grid Background */}
         <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-30" />
 
-        {/* Dynamic Studio Ambient Glow */}
+        {/* Ambient Studio Lighting */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-[#00FF94]/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute top-1/3 left-1/4 w-[450px] h-[300px] bg-[#FFE600]/10 rounded-full blur-[120px] pointer-events-none" />
 
-        {dispatchStage === 'dispatching' ? (
-          <div className="w-full max-w-2xl mx-auto flex flex-col items-center justify-center space-y-6 text-center relative z-10 py-12 animate-fade-in">
-            <MusicalNotesBackground />
-            <DeliveryCarAnimation mode="drive" progress={dispatchProgress} />
-            <div className="space-y-2 pt-2">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase italic tracking-tight text-white font-mono flex items-center justify-center gap-2">
-                <span>DISPATCHING SOUND VAULT...</span>
+        {/* Brand Logo at Top */}
+        <div className="relative z-10 mb-2">
+          <Link href="/" className="inline-flex items-center group">
+            <span className="text-lg sm:text-xl font-black uppercase tracking-tight font-mono text-white group-hover:text-[#FFE600] transition-colors">
+              SAMPLES<span className="text-white/40">WALA</span>
+            </span>
+          </Link>
+        </div>
+
+        {/* HERO ANIMATION WINDOW (Pure, clean, cinematic - no clutter) */}
+        <div className="w-full max-w-3xl mx-auto relative z-10">
+          <DeliveryCarAnimation
+            mode={isReadyToUnbox ? 'return' : 'drive'}
+            onParcelClick={handleUnboxAndDownload}
+            isParcelOpened={isParcelOpened}
+            isDownloading={isDownloading}
+            progress={dispatchProgress}
+          />
+        </div>
+
+        {/* ALL STATUS & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
+        <div className="w-full max-w-md mx-auto text-center relative z-10 space-y-4 pt-3">
+          {!isReadyToUnbox ? (
+            /* --- DISPATCHING / VERIFICATION STATUS (NICHE) --- */
+            <div className="space-y-3">
+              <h2 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight text-white font-mono flex items-center justify-center gap-2">
+                <span>PREPARING YOUR SOUND VAULT...</span>
               </h2>
+
               <p className="text-xs font-mono uppercase tracking-widest text-[#00FF94] flex items-center justify-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#00FF94] animate-ping" />
-                <span>Locking in your 24-bit master audio tokens...</span>
+                <span>Locking in your 24-bit audio tokens...</span>
+              </p>
+
+              {/* Sleek Live Telemetry Progress Bar */}
+              <div className="pt-2">
+                <div className="flex justify-between text-[10.5px] font-mono text-white/50 mb-1.5 font-bold">
+                  <span>TELEMETRY: SECURING MASTER AUDIO STEMS</span>
+                  <span className="text-[#FFE600]">{Math.min(100, Math.round(dispatchProgress))}%</span>
+                </div>
+                <div className="w-full h-2.5 bg-black/80 rounded-full border border-white/20 p-0.5 overflow-hidden shadow-[inset_0_1px_4px_rgba(0,0,0,0.8)]">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#FFE600] via-[#00FF94] to-[#00E5FF] rounded-full transition-all duration-200 shadow-[0_0_10px_#00FF94]"
+                    style={{ width: `${Math.min(100, Math.max(15, dispatchProgress))}%` }}
+                  />
+                </div>
+              </div>
+
+              <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider pt-1">
+                Please wait a moment while your hypercar delivers your audio
               </p>
             </div>
-          </div>
-        ) : (
-          <div className="w-full relative z-10 animate-fade-in">
-            <ThankYouClient
-              initialOrderId={completedOrder?.orderId || 'SW-CONFIRMED'}
-              initialIsFree={completedOrder?.isFree || false}
-              initialItems={completedOrder?.items || []}
-            />
-          </div>
-        )}
+          ) : (
+            /* --- UNBOXING & ORDER CONFIRMATION (NICHE) --- */
+            <div className="space-y-4 animate-fade-in">
+              <div className="space-y-1">
+                <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white font-mono">
+                  {isFreeOrder ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
+                </h2>
+                <p className="text-xs font-mono text-white/50 uppercase tracking-wider">
+                  {!isParcelOpened ? 'Tap the crate above or click below to unbox your 24-bit audio master' : ''}
+                </p>
+              </div>
+
+              {/* Primary Interactive Unbox Button */}
+              {!isParcelOpened && (
+                <div className="pt-1">
+                  <button
+                    onClick={handleUnboxAndDownload}
+                    className="w-full max-w-sm mx-auto py-3.5 px-6 bg-[#FFE600] hover:bg-[#00FF94] text-black font-mono font-black text-xs sm:text-sm uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_#00FF94] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#00FF94] active:translate-x-[0px] active:translate-y-[0px] active:shadow-[2px_2px_0px_#00FF94] flex items-center justify-center gap-2 cursor-pointer group"
+                  >
+                    <span>🎁 CLICK TO UNBOX & DOWNLOAD</span>
+                    <span className="text-sm group-hover:scale-125 transition-transform">⚡</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Unbox Status Indicator */}
+              {isParcelOpened && (
+                <div className="flex flex-col items-center gap-1.5 text-center">
+                  {isDownloading ? (
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 text-white border border-white/20 font-mono text-xs uppercase rounded-xs">
+                      <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
+                      <span>DOWNLOADING 24-BIT AUDIO MASTER...</span>
+                    </div>
+                  ) : downloadSuccess ? (
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#00FF94]/20 text-[#00FF94] border border-[#00FF94]/40 font-mono text-xs uppercase rounded-xs">
+                      <span>DOWNLOAD STARTED! ENJOY YOUR SOUNDS 🎵</span>
+                    </div>
+                  ) : downloadError ? (
+                    <button
+                      onClick={handleUnboxAndDownload}
+                      className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-red-500/20 text-red-400 border border-red-500/40 font-mono text-xs uppercase rounded-xs cursor-pointer hover:bg-red-500/30"
+                    >
+                      <span>DOWNLOAD BLOCKED? TAP TO RETRY ↺</span>
+                    </button>
+                  ) : null}
+                </div>
+              )}
+
+              {/* Order ID & Vault Access */}
+              <div className="pt-2 flex flex-col items-center space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-xs text-[11px] font-mono text-white/60">
+                  <span>ORDER ID:</span>
+                  <span className="text-white font-bold">{targetOrderId}</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(targetOrderId)
+                      setCopiedOrderId(true)
+                      setTimeout(() => setCopiedOrderId(false), 2000)
+                    }}
+                    className="hover:text-white transition-colors cursor-pointer ml-1"
+                  >
+                    {copiedOrderId ? <Check size={12} className="text-[#00FF94]" /> : <Copy size={12} />}
+                  </button>
+                </div>
+
+                <Link
+                  href="/library"
+                  className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-mono font-bold text-xs uppercase tracking-widest border border-white/20 hover:border-white/40 transition-all rounded-xs hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  GO TO LIBRARY →
+                </Link>
+
+                <button
+                  onClick={() => {
+                    setIsParcelOpened(false)
+                    setIsDownloading(false)
+                    setDispatchStage('idle')
+                    setDispatchProgress(15)
+                    setTimeout(() => setDispatchStage('dispatching'), 100)
+                  }}
+                  className="text-[10px] font-mono text-white/40 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer pt-1"
+                >
+                  <span>REPLAY ARRIVAL</span>
+                  <span>↺</span>
+                </button>
+
+                <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider pt-2">
+                  Need help? Contact{' '}
+                  <a href="mailto:support@sampleswala.com" className="text-white/50 hover:text-white underline">
+                    support@sampleswala.com
+                  </a>
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     )
   }

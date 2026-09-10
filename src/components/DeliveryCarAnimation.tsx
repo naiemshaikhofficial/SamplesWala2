@@ -240,7 +240,7 @@ export function DeliveryCarAnimation({
       }} />
 
       {/* Main Cinematic Scene Canvas */}
-      <div className="relative w-full max-w-2xl mx-auto h-56 sm:h-64 flex flex-col justify-end items-center overflow-hidden rounded-md bg-gradient-to-b from-[#08080c]/60 via-[#0e0f14]/80 to-[#07070a] border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.9)]">
+      <div className="relative w-full max-w-3xl mx-auto h-60 sm:h-72 flex flex-col justify-end items-center overflow-hidden rounded-lg bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/15 shadow-[0_16px_50px_rgba(0,0,0,0.95)]">
 
         {/* Ambient Top Glow & Speed Grid Lines */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -268,80 +268,7 @@ export function DeliveryCarAnimation({
           </div>
         )}
 
-        {/* Dynamic Context Speech Bubble (When Driver Interacts) */}
-        {mode === 'return' && phase !== 'screech_in' && (
-          <div className="absolute top-2 z-40 flex flex-col items-center">
-            {phase === 'door_up' ? (
-              <div className="relative bg-[#FFE600] text-black border-2 border-black px-3.5 py-1 rounded-sm shadow-[4px_4px_0px_#00FF94] text-center rotate-[-1deg] animate-bounce">
-                <p className="text-[10.5px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-black animate-ping" />
-                  <span>SPECIAL SOUND VAULT DROP INCOMING!</span>
-                  <span>📦⚡</span>
-                </p>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-black" />
-              </div>
-            ) : phase === 'dude_step_out' ? (
-              <div className="relative bg-[#FFE600] text-black border-2 border-black px-3.5 py-1 rounded-sm shadow-[4px_4px_0px_#FF0080] text-center rotate-[1deg]">
-                <p className="text-[10.5px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
-                  <span>DROPPING YOUR 24-BIT MASTER AUDIO TOKENS!</span>
-                  <span>🏎️💨</span>
-                </p>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-black" />
-              </div>
-            ) : phase === 'drop_parcel' ? (
-              <div className="relative bg-[#00FF94] text-black border-2 border-black px-4 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center rotate-[-1deg] animate-pulse">
-                <p className="text-[11px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
-                  <span>VAULT CRATE PLANTED ON TARMAC! TAP TO UNBOX!</span>
-                  <span>📦👇</span>
-                </p>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-black" />
-              </div>
-            ) : phase === 'hop_in' ? (
-              <div className="relative bg-[#FF5C00] text-white border-2 border-black px-3.5 py-1 rounded-sm shadow-[3px_3px_0px_black] text-center rotate-[1deg]">
-                <p className="text-[10.5px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
-                  <span>SKRRT! NITRO CHARGED, ZOOMING OUT!</span>
-                  <span>✌️🔥</span>
-                </p>
-              </div>
-            ) : isParcelOpened ? (
-              <div className="relative bg-[#00FF94] text-black border-2 border-black px-4 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center animate-bounce">
-                <p className="text-[11px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
-                  <span>{isDownloading ? 'EXTRACTING 24-BIT AUDIO MASTER...' : 'UNBOXED! MASTER AUDIO READY TO PLAY!'}</span>
-                  <span>🎉🔥</span>
-                </p>
-              </div>
-            ) : (
-              <div
-                className="relative bg-[#FFE600] text-black border-2 border-black px-4 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center animate-bounce cursor-pointer hover:bg-[#00FF94] transition-colors"
-                onClick={onParcelClick}
-              >
-                <p className="text-[11px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
-                  <span>CLICK THE CRATE TO UNBOX &amp; DOWNLOAD!</span>
-                  <span>🎁⚡</span>
-                </p>
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* Live Token Dispatch Counter Bar (During Drive Mode) */}
-        {isDriving && (
-          <div className="absolute top-2.5 z-30 flex flex-col items-center w-full px-6 max-w-md">
-            <div className="w-full flex items-center justify-between text-[10px] uppercase font-mono font-black text-white/70 mb-1">
-              <span className="flex items-center gap-1.5 text-[#00FF94]">
-                <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
-                TELEMETRY: NITRO BOOST ACTIVE
-              </span>
-              <span className="text-[#FFE600]">{Math.min(100, Math.round(progress || 78))}% LOCKED</span>
-            </div>
-            <div className="w-full h-2 bg-black/80 rounded-full border border-white/20 p-0.5 overflow-hidden shadow-[inset_0_1px_4px_rgba(0,0,0,0.8)]">
-              <div
-                className="h-full bg-gradient-to-r from-[#FFE600] via-[#00FF94] to-[#00E5FF] rounded-full transition-all duration-300 shadow-[0_0_10px_#00FF94]"
-                style={{ width: `${Math.min(100, Math.max(15, progress || 78))}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* The Animated Hypercar Stage */}
         <div
@@ -645,7 +572,17 @@ export function DeliveryCarAnimation({
                 <path d="M -15 -8 A 16 16 0 0 1 -7 -15 L -5 -11 A 12 12 0 0 0 -11 -6 Z" fill="#00FF94" stroke="#000" strokeWidth="1" />
 
                 {/* Spinning Alloy Rim Assembly */}
-                <g className={isWheelsSpinning ? (isLaunching ? 'anim-wheel-hyper' : 'anim-wheel-fast') : ''}>
+                <g>
+                  {isWheelsSpinning && (
+                    <animateTransform
+                      attributeName="transform"
+                      type="rotate"
+                      from="0 0 0"
+                      to="360 0 0"
+                      dur={isLaunching ? "0.1s" : "0.2s"}
+                      repeatCount="indefinite"
+                    />
+                  )}
                   <circle cx="0" cy="0" r="14.5" fill="url(#rimForgedAlloy)" stroke="#FFE600" strokeWidth="1.2" />
                   {/* 5-Split Spoke Architecture */}
                   {[0, 72, 144, 216, 288].map((angle) => (
@@ -672,7 +609,17 @@ export function DeliveryCarAnimation({
                 <path d="M -15 -8 A 16 16 0 0 1 -7 -15 L -5 -11 A 12 12 0 0 0 -11 -6 Z" fill="#00FF94" stroke="#000" strokeWidth="1" />
 
                 {/* Spinning Alloy Rim Assembly */}
-                <g className={isWheelsSpinning ? (isLaunching ? 'anim-wheel-hyper' : 'anim-wheel-fast') : ''}>
+                <g>
+                  {isWheelsSpinning && (
+                    <animateTransform
+                      attributeName="transform"
+                      type="rotate"
+                      from="0 0 0"
+                      to="360 0 0"
+                      dur={isLaunching ? "0.1s" : "0.2s"}
+                      repeatCount="indefinite"
+                    />
+                  )}
                   <circle cx="0" cy="0" r="14.5" fill="url(#rimForgedAlloy)" stroke="#FFE600" strokeWidth="1.2" />
                   {/* 5-Split Spoke Architecture */}
                   {[0, 72, 144, 216, 288].map((angle) => (
@@ -792,23 +739,13 @@ export function DeliveryCarAnimation({
             onClick={onParcelClick}
             className="absolute left-1/2 -translate-x-1/2 bottom-3.5 z-30 flex flex-col items-center cursor-pointer group"
           >
-            {/* Click to Unbox Floating Label */}
-            {!isParcelOpened && (
-              <div className="absolute -top-10 z-40 animate-bounce pointer-events-none whitespace-nowrap">
-                <span className="px-3 py-1 bg-[#FFE600] text-black text-[10px] font-mono font-black uppercase tracking-wider rounded-xs border-2 border-black shadow-[3px_3px_0px_#00FF94] flex items-center gap-1.5 hover:bg-[#00FF94]">
-                  <span>TAP TO UNBOX YOUR 24-BIT SOUNDS!</span>
-                  <span className="text-xs">🎁🔥</span>
-                </span>
-              </div>
-            )}
-
             {/* Unboxing SVG Component */}
             <svg
               width="100"
               height="88"
               viewBox="0 0 100 88"
               fill="none"
-              className={`overflow-visible transition-transform duration-200 ${!isParcelOpened ? 'group-hover:scale-110 group-hover:rotate-1' : ''
+              className={`overflow-visible transition-all duration-300 ${!isParcelOpened ? 'group-hover:scale-110 group-hover:-translate-y-1 drop-shadow-[0_0_12px_rgba(255,230,0,0.6)]' : ''
                 }`}
             >
               {/* Tarmac Shadow under Crate */}
@@ -832,7 +769,15 @@ export function DeliveryCarAnimation({
               {isParcelOpened && (
                 <g className="anim-vinyl-rise" transform="translate(24, 6)">
                   <circle cx="26" cy="26" r="25" fill="#00FF94" opacity="0.25" className="animate-ping" />
-                  <g className="anim-vinyl-spin">
+                  <g>
+                    <animateTransform
+                      attributeName="transform"
+                      type="rotate"
+                      from="0 26 26"
+                      to="360 26 26"
+                      dur="3.5s"
+                      repeatCount="indefinite"
+                    />
                     <circle cx="26" cy="26" r="24" fill="url(#goldVinylMaster)" stroke="#FFE600" strokeWidth="2.5" />
                     {/* Concentric Grooves */}
                     <circle cx="26" cy="26" r="20" fill="none" stroke="#222" strokeWidth="1" strokeDasharray="3,2" />

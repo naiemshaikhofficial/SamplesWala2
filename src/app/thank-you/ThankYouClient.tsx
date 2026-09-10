@@ -177,7 +177,7 @@ export function ThankYouClient({
   }
 
   return (
-    <div className="max-w-2xl mx-auto relative z-10 space-y-6 select-none pt-4 pb-16 px-4">
+    <div className="max-w-3xl mx-auto relative z-10 space-y-5 select-none pt-4 pb-16 px-4">
       {/* Minimal Brand Logo */}
       <div className="flex justify-center">
         <Link href="/" className="inline-flex items-center opacity-80 hover:opacity-100 transition-opacity">
@@ -187,17 +187,7 @@ export function ThankYouClient({
         </Link>
       </div>
 
-      {/* Clean Minimal Title (Kam Highlight) */}
-      <div className="flex flex-col items-center text-center space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white font-mono">
-          {isFree ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
-        </h1>
-        <p className="text-[11px] font-mono text-white/45 uppercase tracking-wider">
-
-        </p>
-      </div>
-
-      {/* Detailed Animated SamplesWala Delivery Car & Unboxing Experience */}
+      {/* Pure Detailed Hypercar Delivery & Unboxing Experience */}
       <div className="w-full relative">
         <DeliveryCarAnimation
           key={replayKey}
@@ -206,23 +196,48 @@ export function ThankYouClient({
           isParcelOpened={isParcelOpened}
           isDownloading={isDownloading}
         />
+      </div>
+
+      {/* ALL STATUS, TITLES & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
+      <div className="flex flex-col items-center text-center space-y-4 pt-1">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white font-mono">
+            {isFree ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
+          </h1>
+          <p className="text-xs font-mono text-white/50 uppercase tracking-wider">
+            {!isParcelOpened ? 'Tap the crate above or click below to unbox your 24-bit audio master' : ''}
+          </p>
+        </div>
+
+        {/* Primary Interactive Unbox Button */}
+        {!isParcelOpened && (
+          <div className="pt-1">
+            <button
+              onClick={handleUnboxAndDownload}
+              className="w-full max-w-sm mx-auto py-3.5 px-6 bg-[#FFE600] hover:bg-[#00FF94] text-black font-mono font-black text-xs sm:text-sm uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_#00FF94] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#00FF94] active:translate-x-[0px] active:translate-y-[0px] active:shadow-[2px_2px_0px_#00FF94] flex items-center justify-center gap-2 cursor-pointer group"
+            >
+              <span>🎁 CLICK TO UNBOX & DOWNLOAD</span>
+              <span className="text-sm group-hover:scale-125 transition-transform">⚡</span>
+            </button>
+          </div>
+        )}
 
         {/* Clean Unboxing / Download Status Alert */}
         {isParcelOpened && (
-          <div className="flex flex-col items-center gap-1.5 pt-3 text-center">
+          <div className="flex flex-col items-center gap-1.5 pt-1 text-center">
             {isDownloading ? (
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white border border-white/20 font-mono text-xs uppercase rounded-xs">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-white/10 text-white border border-white/20 font-mono text-xs uppercase rounded-xs">
                 <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
                 <span>PREPARING 24-BIT AUDIO MASTER DOWNLOAD...</span>
               </div>
             ) : downloadSuccess ? (
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#00FF94]/20 text-[#00FF94] border border-[#00FF94]/40 font-mono text-xs uppercase rounded-xs">
-                <span> DOWNLOAD STARTED! ENJOY YOUR SOUNDS</span>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-[#00FF94]/20 text-[#00FF94] border border-[#00FF94]/40 font-mono text-xs uppercase rounded-xs">
+                <span>DOWNLOAD STARTED! ENJOY YOUR SOUNDS</span>
               </div>
             ) : downloadError ? (
               <button
                 onClick={handleUnboxAndDownload}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/40 font-mono text-xs uppercase rounded-xs cursor-pointer hover:bg-red-500/30"
+                className="inline-flex items-center gap-2 px-3.5 py-1 bg-red-500/20 text-red-400 border border-red-500/40 font-mono text-xs uppercase rounded-xs cursor-pointer hover:bg-red-500/30"
               >
                 <span>DOWNLOAD BLOCKED? TAP TO RETRY ↺</span>
               </button>
@@ -230,37 +245,45 @@ export function ThankYouClient({
           </div>
         )}
 
-        <div className="flex justify-end pt-1 pr-2">
-          <button
-            onClick={() => {
-              setReplayKey(k => k + 1)
-              setIsParcelOpened(false)
-              setIsDownloading(false)
-              setDownloadSuccess(false)
-              setDownloadError(null)
-            }}
-            className="text-[9px] font-mono font-bold uppercase tracking-wider text-white/30 hover:text-white/70 transition-colors underline cursor-pointer"
+        {/* Order ID & Action Footer */}
+        <div className="flex flex-col items-center space-y-3 pt-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-xs text-[11px] font-mono text-white/60">
+            <span>ORDER ID:</span>
+            <span className="text-white font-bold">{orderId}</span>
+            <button
+              onClick={handleCopy}
+              className="hover:text-white transition-colors cursor-pointer ml-1"
+            >
+              {copied ? <Check size={12} className="text-[#00FF94]" /> : <Copy size={12} />}
+            </button>
+          </div>
+
+          <Link
+            href="/library"
+            className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-mono font-bold text-xs uppercase tracking-widest border border-white/20 hover:border-white/40 transition-all rounded-xs hover:scale-[1.02] active:scale-[0.98]"
           >
-            Replay Delivery ↺
-          </button>
+            GO TO LIBRARY →
+          </Link>
+
+          <div className="flex items-center gap-4 text-[10px] font-mono text-white/30 uppercase tracking-wider pt-1">
+            <button
+              onClick={() => {
+                setReplayKey(k => k + 1)
+                setIsParcelOpened(false)
+                setIsDownloading(false)
+                setDownloadSuccess(false)
+                setDownloadError(null)
+              }}
+              className="hover:text-white/70 transition-colors underline cursor-pointer"
+            >
+              Replay Delivery ↺
+            </button>
+            <span>•</span>
+            <a href="mailto:support@sampleswala.com" className="text-white/50 hover:text-white underline">
+              support@sampleswala.com
+            </a>
+          </div>
         </div>
-      </div>
-
-      {/* Clean, Low-Highlight Action Footer */}
-      <div className="flex flex-col items-center space-y-4 pt-6">
-        <Link
-          href="/library"
-          className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-mono font-bold text-xs uppercase tracking-widest border border-white/20 hover:border-white/40 transition-all rounded-xs hover:scale-[1.02] active:scale-[0.98]"
-        >
-          GO TO LIBRARY →
-        </Link>
-
-        <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider">
-          Need help? Contact{' '}
-          <a href="mailto:support@sampleswala.com" className="text-white/50 hover:text-white underline">
-            support@sampleswala.com
-          </a>
-        </p>
       </div>
     </div>
   )
