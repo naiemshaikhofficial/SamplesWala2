@@ -1424,40 +1424,8 @@ export default function CheckoutPage() {
         {/* ========================================================================= */}
         {/* 💥 UPAR (TOP): RAW WILD-STYLE GRAFFITI STATUS - NO BORDERS, PURE STREET ART */}
         {/* ========================================================================= */}
-        <style dangerouslySetInnerHTML={{
-          __html: `
-          .graffiti-shadow {
-            filter: drop-shadow(3px 3px 0px #000000) 
-                    drop-shadow(-2px -2px 0px #000000) 
-                    drop-shadow(5px 5px 0px #00FF94) 
-                    drop-shadow(0 0 24px rgba(255, 230, 0, 0.75));
-          }
-          .graffiti-downloading-shadow {
-            filter: drop-shadow(3px 3px 0px #000000) 
-                    drop-shadow(4px 4px 0px #00FF94) 
-                    drop-shadow(0 0 20px rgba(0, 255, 148, 0.85));
-          }
-          `
-        }} />
-
         <div className="flex flex-col items-center justify-center text-center my-1 sm:my-2 relative z-20 select-none">
-          {!isReadyToUnbox ? (
-            /* State 0: Preparing in Graffiti Style at the TOP */
-            <div className="flex flex-col items-center group cursor-default">
-              <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
-                  PREPARING SOUNDS...
-                </h1>
-              </div>
-              {/* Minimal sleek graffiti progress line */}
-              <div className="w-48 sm:w-64 md:w-80 h-1.5 bg-black/80 rounded-full border border-white/20 mt-2 overflow-hidden shadow-[0_0_10px_rgba(0,255,148,0.3)]">
-                <div
-                  className="h-full bg-gradient-to-r from-[#FFE600] via-[#00FF94] to-[#00E5FF] rounded-full transition-all duration-200 shadow-[0_0_8px_#00FF94]"
-                  style={{ width: `${Math.min(100, Math.max(15, dispatchProgress))}%` }}
-                />
-              </div>
-            </div>
-          ) : !isParcelOpened ? (
+          {!isParcelOpened ? (
             /* State 1: Pure Clean Street Graffiti "THANK YOU!" with Paint Drips */
             <div className="flex flex-col items-center group cursor-default">
               {/* RAW WILD GRAFFITI TEXT: THANK YOU! */}

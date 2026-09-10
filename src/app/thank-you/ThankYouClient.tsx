@@ -193,22 +193,6 @@ export function ThankYouClient({
       {/* ========================================================================= */}
       {/* 💥 UPAR (TOP): RAW WILD-STYLE GRAFFITI STATUS - NO BORDERS, PURE STREET ART */}
       {/* ========================================================================= */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .graffiti-shadow {
-          filter: drop-shadow(3px 3px 0px #000000) 
-                  drop-shadow(-2px -2px 0px #000000) 
-                  drop-shadow(5px 5px 0px #00FF94) 
-                  drop-shadow(0 0 24px rgba(255, 230, 0, 0.75));
-        }
-        .graffiti-downloading-shadow {
-          filter: drop-shadow(3px 3px 0px #000000) 
-                  drop-shadow(4px 4px 0px #00FF94) 
-                  drop-shadow(0 0 20px rgba(0, 255, 148, 0.85));
-        }
-        `
-      }} />
-
       <div className="flex flex-col items-center justify-center text-center my-1 sm:my-2 relative z-20 select-none">
         {!isParcelOpened ? (
           /* State 1: Pure Clean Street Graffiti "THANK YOU!" with Paint Drips */
