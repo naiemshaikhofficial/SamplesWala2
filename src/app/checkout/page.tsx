@@ -19,6 +19,7 @@ import Script from 'next/script'
 import { loadCashfreeSDK } from '@/lib/cashfreeClient'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
 import { DeliveryCarAnimation } from '@/components/DeliveryCarAnimation'
+import { ThankYouClient } from '@/app/thank-you/ThankYouClient'
 
 // Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
 const CustomCountrySelect = ({ value, onChange, options, iconComponent: Icon }: any) => {
@@ -445,8 +446,9 @@ export default function CheckoutPage() {
           if (data.success) {
             sessionStorage.removeItem('pending_cf_checkout')
             clearCart()
-            setIsOrderComplete(true)
-            window.location.href = `/thank-you?order_id=${data.orderId || cfOrderId}`
+            const targetOrderId = data.orderId || cfOrderId
+            window.location.href = `/thank-you?order_id=${targetOrderId}`
+            return
           } else {
             setError(data.error || 'Verification failed')
             setPaymentStatus('idle')
@@ -695,9 +697,10 @@ export default function CheckoutPage() {
                   console.error('Failed to update newsletter status:', e)
                 }
 
-                setIsOrderComplete(true)
                 clearCart()
-                window.location.href = `/thank-you?order_id=${verifyData.orderId || data.orderID}`
+                const targetOrderId = verifyData.orderId || data.orderID
+                window.location.href = `/thank-you?order_id=${targetOrderId}`
+                return
               } else {
                 setError(verifyData.error || 'Verification failed')
                 setPaymentStatus('idle')
@@ -1031,9 +1034,10 @@ export default function CheckoutPage() {
 
       if (verifyData.success) {
         sessionStorage.removeItem('pending_cf_checkout')
-        setIsOrderComplete(true)
         clearCart()
-        window.location.href = `/thank-you?order_id=${verifyData.orderId || orderData.order_id}`
+        const targetOrderId = verifyData.orderId || orderData.order_id
+        window.location.href = `/thank-you?order_id=${targetOrderId}`
+        return
 
         // Background profile sync (non-blocking for instant UI feedback)
         supabase.auth.updateUser({
@@ -1128,6 +1132,7 @@ export default function CheckoutPage() {
         setLoading(false)
       }
       return
+
     }
 
     // --- 2. REGULAR PAID CHECKOUT ---
@@ -1212,9 +1217,10 @@ export default function CheckoutPage() {
                 console.error('Failed to update newsletter status:', e)
               }
 
-              setIsOrderComplete(true)
               clearCart()
-              window.location.href = `/thank-you?order_id=${verifyData.orderId || response.razorpay_order_id}`
+              const targetOrderId = verifyData.orderId || response.razorpay_order_id
+              window.location.href = `/thank-you?order_id=${targetOrderId}`
+              return
             } else {
               setError('Verification failed')
               setPaymentStatus('idle')
@@ -1401,16 +1407,17 @@ export default function CheckoutPage() {
 
   if (isOrderComplete) {
     return (
-      <div className="min-h-[75vh] flex flex-col items-center justify-center space-y-4 text-center px-4 relative z-10 max-w-2xl mx-auto">
+
+      <div className="min-h-[75vh] flex flex-col items-center justify-center space-y-4 text-center px-4 relative z-10 max-w-2xl mx-auto select-none">
         <MusicalNotesBackground />
         <DeliveryCarAnimation mode="drive" />
-        <div className="space-y-2 pt-1">
-          <h2 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tight text-white font-mono">
-            Heading Out On Delivery!
+        <div className="space-y-1.5 pt-1">
+          <h2 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight text-white font-mono">
+            DISPATCHING SOUND VAULT...
           </h2>
           <p className="text-xs font-mono uppercase tracking-widest text-[#00FF94] flex items-center justify-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
-            Dispatching 24-bit sound pack to your vault...
+            Locking in your 24-bit audio tokens...
           </p>
         </div>
       </div>

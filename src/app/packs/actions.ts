@@ -14,8 +14,8 @@ export async function getSecureDownloadUrl(itemId: string, type: 'pack' | 'prese
 
   const admin = getAdminClient()
 
-  // 1. Check ownership in user_vault
-  const { data: vaultRecord, error: vaultError } = await admin
+  // 1. Strict Ownership Check in user_vault
+  const { data: vaultRecord } = await admin
     .from('user_vault')
     .select('id')
     .eq('user_id', user.id)
@@ -25,16 +25,18 @@ export async function getSecureDownloadUrl(itemId: string, type: 'pack' | 'prese
 
   if (!vaultRecord) {
     // Check if user is Admin
-    const { data: adminCheck } = await admin.from('user_accounts').select('is_admin').eq('user_id', user.id).maybeSingle()
-    
-    // Bypass for development mode or Admin status
-    const isDev = process.env.NODE_ENV === 'development'
-    if (!adminCheck?.is_admin && !isDev) {
-        throw new Error("Access Denied: Product Not Owned")
+    const { data: adminCheck } = await admin
+      .from('user_accounts')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!adminCheck?.is_admin) {
+      throw new Error("Access Denied: Product Not Owned")
     }
   }
 
-  // 2. Generate signed token (Database-less)
+  // 2. Generate signed token (Database-less, strictly bound to user.id and client IP)
   const token = signDownloadToken({
     uid: user.id,
     pid: itemId,
