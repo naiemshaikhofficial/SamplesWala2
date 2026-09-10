@@ -13,15 +13,20 @@ export const metadata: Metadata = {
 
 export default function ThankYouPage() {
   return (
-    <main className="min-h-screen bg-[#080808] text-white pt-28 pb-20 px-4 sm:px-6 relative overflow-hidden">
+    <main className="min-h-screen bg-[#0d0d10] text-white pt-24 md:pt-28 pb-24 px-4 sm:px-6 relative overflow-hidden select-none">
+      {/* Studio Dot Grid Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40" />
+
       {/* Background ambient lighting */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#00FF94]/5 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/3 left-1/3 w-[400px] h-[300px] bg-studio-yellow/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#00FF94]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] bg-[#FFE600]/10 rounded-full blur-[120px] pointer-events-none" />
 
       <Suspense fallback={
-        <div className="max-w-2xl mx-auto py-24 text-center">
-          <div className="w-12 h-12 border-2 border-white/20 border-t-studio-neon rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-xs font-mono uppercase tracking-widest text-white/40">Loading your receipt...</p>
+        <div className="max-w-md mx-auto py-24 px-6 text-center space-y-4 bg-[#121215] border-3 border-black shadow-[8px_8px_0px_black] rounded-sm">
+          <div className="w-12 h-12 border-4 border-black border-t-[#00FF94] rounded-full animate-spin mx-auto mb-2" />
+          <p className="text-xs font-mono font-black uppercase tracking-widest text-[#00FF94]">
+            Preparing Your Sound Vault Receipt...
+          </p>
         </div>
       }>
         <ThankYouClient />

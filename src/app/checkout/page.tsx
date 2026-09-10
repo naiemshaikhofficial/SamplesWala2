@@ -1509,14 +1509,6 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                {activeTotal === 0 && (
-                  <div className="p-3 bg-[#00FF94]/10 border border-[#00FF94]/25 rounded text-left">
-                    <p className="text-[10px] font-black text-[#00FF94] uppercase tracking-wider font-mono">
-                      ⚡ 100% Free Order — Please enter your billing details below to add the items directly to your Sound Vault.
-                    </p>
-                  </div>
-                )}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[9px] font-black uppercase tracking-wider text-white/55 block ml-0.5">Full Name *</label>
