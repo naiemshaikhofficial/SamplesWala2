@@ -1468,14 +1468,86 @@ export default function CheckoutPage() {
             </div>
           ) : (
             /* --- UNBOXING & ORDER CONFIRMATION (NICHE) --- */
-            <div className="space-y-3 animate-fade-in">
-              <div className="space-y-1">
-                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white font-mono">
-                  {isFreeOrder ? 'FREE SOUNDS READY' : 'ORDER CONFIRMED'}
-                </h2>
-                <p className="text-[11px] font-mono text-white/50 uppercase tracking-wider">
-                  {!isParcelOpened ? 'Tap the crate to unbox & download your sounds' : ''}
-                </p>
+            <div className="space-y-3 animate-fade-in flex flex-col items-center">
+              {/* AUTHENTIC STREET GRAFFITI "THANK YOU!" */}
+              <div className="relative flex flex-col items-center justify-center my-1 select-none">
+                <svg viewBox="0 0 380 76" className="w-64 sm:w-72 md:w-88 h-auto overflow-visible">
+                  <defs>
+                    <linearGradient id="graffitiYellowGradCheckout" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FFF275" />
+                      <stop offset="45%" stopColor="#FFE600" />
+                      <stop offset="100%" stopColor="#00FF94" />
+                    </linearGradient>
+                    <filter id="graffitiGlowFilterCheckout" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="3.5" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+
+                  {/* 3D Deep Street Shadow Extrusion */}
+                  <text
+                    x="194"
+                    y="54"
+                    textAnchor="middle"
+                    fill="#000000"
+                    stroke="#000000"
+                    strokeWidth="11"
+                    strokeLinejoin="round"
+                    fontFamily="Impact, 'Arial Black', sans-serif"
+                    fontSize="52"
+                    fontStyle="italic"
+                    letterSpacing="4"
+                    transform="skewX(-10)"
+                    opacity="0.95"
+                  >
+                    THANK YOU!
+                  </text>
+
+                  {/* Cyber Mint Neon Spray Outline */}
+                  <text
+                    x="190"
+                    y="50"
+                    textAnchor="middle"
+                    fill="#000000"
+                    stroke="#00FF94"
+                    strokeWidth="7"
+                    strokeLinejoin="round"
+                    fontFamily="Impact, 'Arial Black', sans-serif"
+                    fontSize="52"
+                    fontStyle="italic"
+                    letterSpacing="4"
+                    transform="skewX(-10)"
+                    filter="url(#graffitiGlowFilterCheckout)"
+                  >
+                    THANK YOU!
+                  </text>
+
+                  {/* Electric Yellow Core */}
+                  <text
+                    x="190"
+                    y="50"
+                    textAnchor="middle"
+                    fill="url(#graffitiYellowGradCheckout)"
+                    stroke="#FFE600"
+                    strokeWidth="1.2"
+                    fontFamily="Impact, 'Arial Black', sans-serif"
+                    fontSize="52"
+                    fontStyle="italic"
+                    letterSpacing="4"
+                    transform="skewX(-10)"
+                  >
+                    THANK YOU!
+                  </text>
+
+                  {/* Street Tag Spray Splatters */}
+                  <circle cx="48" cy="52" r="2.5" fill="#FFE600" />
+                  <circle cx="52" cy="59" r="1.6" fill="#00FF94" />
+                  <circle cx="332" cy="22" r="3" fill="#00FF94" />
+                  <circle cx="337" cy="29" r="1.8" fill="#FFE600" />
+                </svg>
               </div>
 
               {/* Unbox Status Indicator */}
@@ -1503,21 +1575,6 @@ export default function CheckoutPage() {
 
               {/* Order ID & Vault Access */}
               <div className="pt-2 flex flex-col items-center space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-xs text-[11px] font-mono text-white/60">
-                  <span>ORDER ID:</span>
-                  <span className="text-white font-bold">{targetOrderId}</span>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(targetOrderId)
-                      setCopiedOrderId(true)
-                      setTimeout(() => setCopiedOrderId(false), 2000)
-                    }}
-                    className="hover:text-white transition-colors cursor-pointer ml-1"
-                  >
-                    {copiedOrderId ? <Check size={12} className="text-[#00FF94]" /> : <Copy size={12} />}
-                  </button>
-                </div>
-
                 <Link
                   href="/library"
                   className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline pt-1"
