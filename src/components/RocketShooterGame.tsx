@@ -421,7 +421,6 @@ export function RocketShooterGame() {
   const [currentBpm, setCurrentBpm] = useState(120)
   const [tempoMode, setTempoMode] = useState<'cruise' | 'surge' | 'breather'>('cruise')
   const [soundOn, setSoundOn] = useState(true)
-  const [autoFire, setAutoFire] = useState(false)
   const [hasNewHighScore, setHasNewHighScore] = useState(false)
 
   // End of run stats
@@ -2858,27 +2857,29 @@ export function RocketShooterGame() {
           ctx.shadowBlur = isOverdrive ? 24 : 16
           ctx.shadowColor = flameColor
 
+          const thrusterOffsets = [-7, 7]
+
           // Outer Dual Thruster Flame
           ctx.fillStyle = flameColor
-            ;[-7, 7].forEach(offset => {
-              ctx.beginPath()
-              ctx.moveTo(offset - 4, 18)
-              ctx.lineTo(offset, 18 + flameLength)
-              ctx.lineTo(offset + 4, 18)
-              ctx.closePath()
-              ctx.fill()
-            })
+          for (const offset of thrusterOffsets) {
+            ctx.beginPath()
+            ctx.moveTo(offset - 4, 18)
+            ctx.lineTo(offset, 18 + flameLength)
+            ctx.lineTo(offset + 4, 18)
+            ctx.closePath()
+            ctx.fill()
+          }
 
           // Inner Core Flame
           ctx.fillStyle = '#FFFFFF'
-            ;[-7, 7].forEach(offset => {
-              ctx.beginPath()
-              ctx.moveTo(offset - 2, 18)
-              ctx.lineTo(offset, 18 + flameLength * 0.55)
-              ctx.lineTo(offset + 2, 18)
-              ctx.closePath()
-              ctx.fill()
-            })
+          for (const offset of thrusterOffsets) {
+            ctx.beginPath()
+            ctx.moveTo(offset - 2, 18)
+            ctx.lineTo(offset, 18 + flameLength * 0.55)
+            ctx.lineTo(offset + 2, 18)
+            ctx.closePath()
+            ctx.fill()
+          }
 
           // Rocket Wings
           ctx.fillStyle = '#27272a'
