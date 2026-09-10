@@ -363,6 +363,7 @@ const ConfettiEffect = () => {
 export default function CheckoutPage() {
   const countryOptions = React.useMemo(() => countryList().getData(), [])
   const { items, removeItem, total, clearCart, itemCount, setSidebarOpen } = useCart()
+  const cart = items
   const { currency, symbol, formatPrice } = useCurrency()
   const hasPreorder = items.some(item => item.type === 'pack' && item.is_downloadable === false)
 

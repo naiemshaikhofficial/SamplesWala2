@@ -2866,9 +2866,10 @@ export function RocketShooterGame() {
               ctx.lineTo(offset, 18 + flameLength)
               ctx.lineTo(offset + 4, 18)
             })
-          }
 
-        ctx.restore()
+          ctx.restore()
+        }
+
         animId = requestAnimationFrame(loop)
       }
 
