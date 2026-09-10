@@ -195,6 +195,9 @@ export async function POST(request: Request) {
         amount: finalPrice,
         currency: 'INR',
         payment_gateway: 'cashfree',
+        original_price: basePrice,
+        discount_amount: Math.max(0, basePrice - finalPrice),
+        coupon_code: couponCode ? String(couponCode).toUpperCase().trim() : null,
         razorpay_order_id: order_id,
         razorpay_payment_id: finalPaymentId
       }

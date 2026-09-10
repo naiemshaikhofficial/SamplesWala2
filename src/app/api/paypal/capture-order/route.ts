@@ -213,6 +213,9 @@ export async function POST(request: Request) {
         amount: finalPrice,
         currency: 'USD',
         payment_gateway: 'paypal',
+        original_price: basePrice,
+        discount_amount: Math.max(0, Number((basePrice - finalPrice).toFixed(2))),
+        coupon_code: couponCode ? String(couponCode).toUpperCase().trim() : null,
         razorpay_order_id: finalOrderId,
         razorpay_payment_id: finalPaymentId
       }
