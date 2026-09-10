@@ -56,37 +56,38 @@ export function DeliveryCarAnimation({
       const t2 = setTimeout(() => setPhase('door_up'), 2200)
 
       // 4. Johnny Bravo steps out carrying the gold sound vault crate
-      const t3 = setTimeout(() => setPhase('dude_step_out'), 2900)
+      const t3 = setTimeout(() => setPhase('dude_step_out'), 2800)
 
       // 5. Johnny drops crate firmly onto tarmac (glued in place forever)
       const t4 = setTimeout(() => {
         setPhase('drop_parcel')
-      }, 4200)
+      }, 4300)
 
       // 5a. Dialogue Line 1 appears: "YO MY BAD FAM! 💀"
-      const t5a = setTimeout(() => setDialogueStep(1), 4600)
+      const t5a = setTimeout(() => setDialogueStep(1), 4700)
 
-      // 5b. Dialogue Line 2 appears: "Almost forgot your drop..."
-      const t5b = setTimeout(() => setDialogueStep(2), 5800)
+      // 5b. Dialogue Line 2 appears: "Almost forgot your drop... 😅"
+      const t5b = setTimeout(() => setDialogueStep(2), 6200)
 
       // 5c. Dialogue Line 3 appears: "HERE IS YOUR 24-BIT HEAT! 🔥"
-      const t5c = setTimeout(() => setDialogueStep(3), 7000)
+      const t5c = setTimeout(() => setDialogueStep(3), 7700)
 
       // 6. Johnny slicks his golden pompadour, flashes peace sign ✌️, hops back inside
       const t6 = setTimeout(() => {
+        setDialogueStep(0)
         setPhase('hop_in')
-      }, 8500)
+      }, 9300)
 
       // 7. Scissor door seals shut, quad exhausts spit fiery plasma, hypercar zooms away
       const t7 = setTimeout(() => {
         setPhase('car_leaving')
-      }, 9600)
+      }, 10800)
 
       // 8. Car is completely gone out of frame, ALL motion stops, crate is 100% stuck and ready to unbox
       const t8 = setTimeout(() => {
         setPhase('delivered_idle')
         onDeliveryDelivered?.()
-      }, 10600)
+      }, 11900)
 
       return () => {
         clearTimeout(t1)
@@ -168,6 +169,20 @@ export function DeliveryCarAnimation({
           background-repeat: repeat-x;
         }
 
+        /* Scenery animation classes */
+        .scenery-drive { animation: sceneryMoveForward 24s linear infinite; }
+        .scenery-zoom { animation: sceneryMoveForward 0.7s linear infinite; }
+        .scenery-reverse { animation: sceneryMoveReverse 1.5s cubic-bezier(0.16, 0.85, 0.25, 1) infinite; }
+        .scenery-leaving { animation: sceneryMoveForward 0.8s linear infinite; }
+        .scenery-paused { animation-play-state: paused !important; }
+
+        /* Road animation classes */
+        .road-drive { animation: roadStreamForward 0.22s linear infinite; }
+        .road-zoom { animation: roadStreamForward 0.12s linear infinite; }
+        .road-reverse { animation: roadStreamReverse 0.22s linear infinite; }
+        .road-leaving { animation: roadStreamForward 0.1s linear infinite; }
+        .road-paused { animation-play-state: paused !important; }
+
         /* Forward Zoom Past & Reverse Screech Travel */
         @keyframes hyperCarZoomPast {
           0% { transform: translateX(0%); opacity: 1; }
@@ -220,21 +235,46 @@ export function DeliveryCarAnimation({
           100% { transform: rotate(0deg) translate(0, 0); }
         }
 
-        /* Johnny Bravo Step Out, Drop & Hop-In Animations */
+        /* Johnny Bravo Step Out, Drop & Hop-In Animations with Leg Strides */
         @keyframes driverEmerge {
-          0% { transform: translate(160px, 14px) scale(0.65); opacity: 0; }
-          45% { transform: translate(110px, 5px) scale(0.88); opacity: 1; }
+          0% { transform: translate(165px, 14px) scale(0.6); opacity: 0; }
+          20% { transform: translate(145px, 8px) scale(0.72); opacity: 1; }
+          50% { transform: translate(110px, 0px) scale(0.88); opacity: 1; }
+          80% { transform: translate(75px, -2px) scale(0.96); opacity: 1; }
           100% { transform: translate(45px, 0px) scale(1); opacity: 1; }
         }
         @keyframes driverPlaceParcel {
           0% { transform: translate(45px, 0px); }
-          40% { transform: translate(45px, 3px); }
-          100% { transform: translate(45px, 0px); }
+          35% { transform: translate(45px, 8px) scaleY(0.94); }
+          65% { transform: translate(45px, 8px) scaleY(0.94); }
+          100% { transform: translate(45px, 0px) scaleY(1); }
         }
         @keyframes driverHopInside {
           0% { transform: translate(45px, 0px) scale(1); opacity: 1; }
-          40% { transform: translate(95px, 5px) scale(0.85); opacity: 1; }
-          100% { transform: translate(160px, 14px) scale(0.5); opacity: 0; }
+          35% { transform: translate(85px, -2px) scale(0.92); opacity: 1; }
+          70% { transform: translate(130px, 6px) scale(0.78); opacity: 1; }
+          90% { transform: translate(155px, 12px) scale(0.65); opacity: 0.7; }
+          100% { transform: translate(165px, 16px) scale(0.5); opacity: 0; }
+        }
+
+        /* Johnny Leg Walking Strides (Steps when entering/exiting) */
+        @keyframes strideLegL {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(-24deg) translate(-2px, -3px); }
+          75% { transform: rotate(18deg) translate(2px, 0px); }
+        }
+        @keyframes strideLegR {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(20deg) translate(2px, 0px); }
+          75% { transform: rotate(-24deg) translate(-2px, -3px); }
+        }
+        .anim-leg-left {
+          transform-origin: 58px 102px;
+          animation: strideLegL 0.45s ease-in-out infinite;
+        }
+        .anim-leg-right {
+          transform-origin: 76px 102px;
+          animation: strideLegR 0.45s ease-in-out infinite;
         }
 
         /* Nitro Plasma Fire Jet */
@@ -248,41 +288,53 @@ export function DeliveryCarAnimation({
           50% { transform: scaleX(1.45) scaleY(1.2); opacity: 1; }
         }
 
-        /* Funky Johnny Bravo Poses & Gestures */
+        /* Crazy Funky Johnny Bravo Poses & Gestures */
         @keyframes funkyHandWave {
-          0%, 100% { transform: rotate(0deg); }
-          25% { transform: rotate(-18deg); }
-          75% { transform: rotate(14deg); }
+          0% { transform: rotate(0deg); }
+          20% { transform: rotate(-36deg) translate(-3px, -3px); }
+          45% { transform: rotate(28deg) translate(3px, 2px); }
+          70% { transform: rotate(-32deg) translate(-2px, -2px); }
+          90% { transform: rotate(22deg) translate(2px, 1px); }
+          100% { transform: rotate(0deg); }
         }
         .anim-funky-wave {
           transform-origin: 88px 72px;
-          animation: funkyHandWave 0.32s ease-in-out infinite alternate;
+          animation: funkyHandWave 0.42s ease-in-out infinite;
+        }
+        @keyframes johnnyBodyGroove {
+          0%, 100% { transform: rotate(0deg) translateY(0); }
+          30% { transform: rotate(-4deg) translateY(-2px); }
+          70% { transform: rotate(3deg) translateY(1px); }
+        }
+        .anim-body-groove {
+          transform-origin: 67px 101px;
+          animation: johnnyBodyGroove 0.42s ease-in-out infinite;
         }
         @keyframes johnnyHairScratch {
           0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          50% { transform: translate(2px, -3px) rotate(5deg); }
+          50% { transform: translate(3px, -4px) rotate(8deg); }
         }
         .anim-hair-scratch {
           transform-origin: 88px 72px;
-          animation: johnnyHairScratch 0.4s ease-in-out infinite alternate;
+          animation: johnnyHairScratch 0.35s ease-in-out infinite alternate;
         }
         @keyframes johnnyBicepFlex {
           0% { transform: scale(1); }
-          50% { transform: scale(1.06) translateY(-2px); }
+          50% { transform: scale(1.08) translateY(-3px); }
           100% { transform: scale(1); }
         }
         .anim-bicep-flex {
-          animation: johnnyBicepFlex 0.5s ease-in-out infinite;
+          animation: johnnyBicepFlex 0.45s ease-in-out infinite;
         }
 
-        /* Comic Bubble Pop */
+        /* Comic Bubble Pop (Spawns individually with pop) */
         @keyframes comicBubblePop {
-          0% { transform: scale(0.6) translateY(10px); opacity: 0; }
-          70% { transform: scale(1.05) translateY(-2px); opacity: 1; }
+          0% { transform: scale(0.3) translateY(12px); opacity: 0; }
+          65% { transform: scale(1.08) translateY(-3px); opacity: 1; }
           100% { transform: scale(1) translateY(0); opacity: 1; }
         }
         .anim-bubble-pop {
-          transform-origin: 238px 55px;
+          transform-origin: 20px 30px;
           animation: comicBubblePop 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
         }
 
@@ -365,20 +417,18 @@ export function DeliveryCarAnimation({
         {/* === PARALLAX BACKGROUND SCENERY (Forward, Reverse, and Frozen on Stop) === */}
         {/* ========================================================================= */}
         <div
-          className="absolute bottom-6 sm:bottom-7 md:bottom-10 lg:bottom-12 left-0 h-24 sm:h-28 md:h-44 lg:h-52 flex w-[200%] select-none pointer-events-none z-0"
-          style={{
-            willChange: 'transform',
-            animation: isDriving
-              ? 'sceneryMoveForward 24s linear infinite'
+          className={`absolute bottom-6 sm:bottom-7 md:bottom-10 lg:bottom-12 left-0 h-24 sm:h-28 md:h-44 lg:h-52 flex w-[200%] select-none pointer-events-none z-0 ${
+            isDriving
+              ? 'scenery-drive'
               : isZoomingPast
-                ? 'sceneryMoveForward 0.7s linear infinite'
+                ? 'scenery-zoom'
                 : isReversing
-                  ? 'sceneryMoveReverse 1.5s cubic-bezier(0.16, 0.85, 0.25, 1) infinite'
+                  ? 'scenery-reverse'
                   : isCarLeaving
-                    ? 'sceneryMoveForward 0.8s linear infinite'
-                    : 'none',
-            animationPlayState: isParked || isDeliveredIdle ? 'paused' : 'running'
-          }}
+                    ? 'scenery-leaving'
+                    : ''
+          } ${isParked || isDeliveredIdle ? 'scenery-paused' : ''}`}
+          style={{ willChange: 'transform' }}
         >
           {/* Scenery Block A */}
           <svg className="w-1/2 h-full" viewBox="0 0 1200 80" preserveAspectRatio="none" fill="none">
@@ -985,58 +1035,65 @@ export function DeliveryCarAnimation({
                     {/* Shadow under Johnny */}
                     <ellipse cx="68" cy="138" rx="22" ry="3.5" fill="#000" opacity="0.8" />
 
-                    {/* Denim Jeans */}
-                    <path d="M 58 102 L 53 126 L 47 136" stroke="#1d3557" strokeWidth="8" strokeLinecap="round" />
-                    <path d="M 76 102 L 81 126 L 87 136" stroke="#25446e" strokeWidth="8" strokeLinecap="round" />
-                    <polygon points="41,137 54,137 54,131 41,131" fill="#08080c" stroke="#000" strokeWidth="1.5" />
-                    <polygon points="83,137 96,137 96,131 83,131" fill="#08080c" stroke="#000" strokeWidth="1.5" />
+                    {/* Animated Walking/Striding Legs */}
+                    <g className={phase === 'dude_step_out' || phase === 'hop_in' ? 'anim-leg-left' : ''}>
+                      <path d="M 58 102 L 53 126 L 47 136" stroke="#1d3557" strokeWidth="8" strokeLinecap="round" />
+                      <polygon points="41,137 54,137 54,131 41,131" fill="#08080c" stroke="#000" strokeWidth="1.5" />
+                    </g>
+                    <g className={phase === 'dude_step_out' || phase === 'hop_in' ? 'anim-leg-right' : ''}>
+                      <path d="M 76 102 L 81 126 L 87 136" stroke="#25446e" strokeWidth="8" strokeLinecap="round" />
+                      <polygon points="83,137 96,137 96,131 83,131" fill="#08080c" stroke="#000" strokeWidth="1.5" />
+                    </g>
                     <rect x="55" y="100" width="24" height="4" fill="#111116" stroke="#000" strokeWidth="0.8" />
                     <rect x="64" y="99.5" width="6" height="5" rx="1" fill="#FFE600" stroke="#000" strokeWidth="1" />
 
-                    {/* Massive Buff V-Taper Chest in Tight Black T-Shirt */}
-                    <path
-                      d="M 38 68 
-                         C 48 63, 86 63, 96 68 
-                         L 79 101 
-                         L 55 101 
-                         Z"
-                      fill="#0a0a0f"
-                      stroke="#000000"
-                      strokeWidth="2.5"
-                    />
-                    <path d="M 52 74 Q 67 80 82 74" stroke="#232533" strokeWidth="2" fill="none" />
-                    <line x1="67" y1="74" x2="67" y2="92" stroke="#232533" strokeWidth="2" />
+                    {/* Upper Torso & Head (Grooves when doing the funky wave) */}
+                    <g className={dialogueStep === 1 ? 'anim-body-groove' : ''}>
+                      {/* Massive Buff V-Taper Chest in Tight Black T-Shirt */}
+                      <path
+                        d="M 38 68 
+                           C 48 63, 86 63, 96 68 
+                           L 79 101 
+                           L 55 101 
+                           Z"
+                        fill="#0a0a0f"
+                        stroke="#000000"
+                        strokeWidth="2.5"
+                      />
+                      <path d="M 52 74 Q 67 80 82 74" stroke="#232533" strokeWidth="2" fill="none" />
+                      <line x1="67" y1="74" x2="67" y2="92" stroke="#232533" strokeWidth="2" />
 
-                    {/* Golden Chain & "SW" Medallion */}
-                    <path d="M 54 70 Q 67 84 80 70" stroke="#FFE600" strokeWidth="3" fill="none" strokeLinecap="round" />
-                    <circle cx="67" cy="85" r="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.5" />
-                    <text x="67" y="87.5" fill="#000" fontSize="5" fontWeight="900" textAnchor="middle">SW</text>
+                      {/* Golden Chain & "SW" Medallion */}
+                      <path d="M 54 70 Q 67 84 80 70" stroke="#FFE600" strokeWidth="3" fill="none" strokeLinecap="round" />
+                      <circle cx="67" cy="85" r="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.5" />
+                      <text x="67" y="87.5" fill="#000" fontSize="5" fontWeight="900" textAnchor="middle">SW</text>
 
-                    {/* Chiseled Jaw & Smirk */}
-                    <polygon points="58,50 76,50 73,66 61,66" fill="#F4A982" stroke="#000" strokeWidth="1.5" />
-                    <path d="M 61 66 L 67 69 L 73 66" fill="#F4A982" stroke="#000" strokeWidth="1.5" />
-                    <path d="M 64 62 Q 67 65 72 61" stroke="#8A3B14" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                      {/* Chiseled Jaw & Smirk */}
+                      <polygon points="58,50 76,50 73,66 61,66" fill="#F4A982" stroke="#000" strokeWidth="1.5" />
+                      <path d="M 61 66 L 67 69 L 73 66" fill="#F4A982" stroke="#000" strokeWidth="1.5" />
+                      <path d="M 64 62 Q 67 65 72 61" stroke="#8A3B14" strokeWidth="1.5" fill="none" strokeLinecap="round" />
 
-                    {/* Pitch-Black Sunglasses with White Glare Streak */}
-                    <rect x="54" y="47" width="12" height="9" rx="1.5" fill="#050505" stroke="#000" strokeWidth="1.5" />
-                    <rect x="68" y="47" width="12" height="9" rx="1.5" fill="#050505" stroke="#000" strokeWidth="1.5" />
-                    <rect x="64" y="49" width="6" height="3" fill="#050505" />
-                    <line x1="56" y1="49" x2="63" y2="54" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
-                    <line x1="70" y1="49" x2="77" y2="54" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
+                      {/* Pitch-Black Sunglasses with White Glare Streak */}
+                      <rect x="54" y="47" width="12" height="9" rx="1.5" fill="#050505" stroke="#000" strokeWidth="1.5" />
+                      <rect x="68" y="47" width="12" height="9" rx="1.5" fill="#050505" stroke="#000" strokeWidth="1.5" />
+                      <rect x="64" y="49" width="6" height="3" fill="#050505" />
+                      <line x1="56" y1="49" x2="63" y2="54" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
+                      <line x1="70" y1="49" x2="77" y2="54" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
 
-                    {/* Giant Golden Pompadour Hair */}
-                    <path
-                      d="M 52 48 
-                         C 45 30, 48 14, 64 10 
-                         C 80 7, 96 15, 93 34 
-                         C 91 42, 85 48, 79 50 
-                         Z"
-                      fill="#FFE600"
-                      stroke="#000000"
-                      strokeWidth="2.5"
-                    />
-                    <path d="M 60 20 C 72 17, 84 24, 82 35" stroke="#CCA000" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                    <path d="M 64 28 C 72 27, 80 34, 78 42" stroke="#CCA000" strokeWidth="2" fill="none" strokeLinecap="round" />
+                      {/* Giant Golden Pompadour Hair */}
+                      <path
+                        d="M 52 48 
+                           C 45 30, 48 14, 64 10 
+                           C 80 7, 96 15, 93 34 
+                           C 91 42, 85 48, 79 50 
+                           Z"
+                        fill="#FFE600"
+                        stroke="#000000"
+                        strokeWidth="2.5"
+                      />
+                      <path d="M 60 20 C 72 17, 84 24, 82 35" stroke="#CCA000" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                      <path d="M 64 28 C 72 27, 80 34, 78 42" stroke="#CCA000" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    </g>
 
                     {/* Step Out: Holding Vault Crate in Hands */}
                     {phase === 'dude_step_out' && (
@@ -1053,22 +1110,22 @@ export function DeliveryCarAnimation({
                       </>
                     )}
 
-                    {/* Dropped Parcel: Funky Gestures + Separate Comic Dialogue Boxes */}
+                    {/* Dropped Parcel: Funky Gestures + Dedicated Dialogue Bubbles One-by-One */}
                     {phase === 'drop_parcel' && (
                       <>
-                        {/* Pose 1 (Beat 1): Hand waving funky while speaking "YO MY BAD FAM!" */}
+                        {/* Pose 1 (Beat 1): Wild crazy funky hand wave while speaking "YO MY BAD FAM!" */}
                         {dialogueStep === 1 && (
                           <g>
                             <path d="M 46 72 L 30 84 L 42 96" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
                             <g className="anim-funky-wave">
-                              <path d="M 88 72 L 102 60 L 114 68" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
-                              <circle cx="116" cy="68" r="4.5" fill="#F4A982" />
+                              <path d="M 88 72 L 104 58 L 118 64" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
+                              <circle cx="120" cy="64" r="5" fill="#F4A982" />
                             </g>
                             {/* Dialogue Box 1 */}
-                            <g className="anim-bubble-pop" transform="translate(102, 6)">
-                              <polygon points="0,28 -14,36 4,32" fill="#0d0e14" stroke="#FFE600" strokeWidth="1.8" />
-                              <rect x="0" y="0" width="144" height="34" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="1.8" />
-                              <text x="10" y="22" fill="#FFE600" fontSize="9.5" fontWeight="900" fontFamily="monospace">
+                            <g key="dialogue-1" className="anim-bubble-pop" transform="translate(100, 6)">
+                              <polygon points="0,26 -14,34 4,30" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
+                              <rect x="0" y="0" width="144" height="34" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
+                              <text x="12" y="22" fill="#FFE600" fontSize="9.5" fontWeight="900" fontFamily="monospace">
                                 YO MY BAD FAM! 💀
                               </text>
                             </g>
@@ -1084,10 +1141,10 @@ export function DeliveryCarAnimation({
                               <circle cx="74" cy="34" r="4.5" fill="#F4A982" />
                             </g>
                             {/* Dialogue Box 2 */}
-                            <g className="anim-bubble-pop" transform="translate(98, 6)">
-                              <polygon points="0,28 -14,36 4,32" fill="#0d0e14" stroke="#FFE600" strokeWidth="1.8" />
-                              <rect x="0" y="0" width="158" height="34" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="1.8" />
-                              <text x="10" y="22" fill="#E4E4E7" fontSize="8.2" fontWeight="700" fontFamily="monospace">
+                            <g key="dialogue-2" className="anim-bubble-pop" transform="translate(96, 6)">
+                              <polygon points="0,26 -14,34 4,30" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
+                              <rect x="0" y="0" width="160" height="34" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
+                              <text x="10" y="22" fill="#FFFFFF" fontSize="8.2" fontWeight="800" fontFamily="monospace">
                                 Almost forgot your drop... 😅
                               </text>
                             </g>
@@ -1104,9 +1161,9 @@ export function DeliveryCarAnimation({
                             </g>
                             {/* Dialogue Box 3 */}
                             {dialogueStep === 3 && (
-                              <g className="anim-bubble-pop" transform="translate(92, 4)">
-                                <polygon points="0,30 -14,38 4,34" fill="#0d0e14" stroke="#00FF94" strokeWidth="1.8" />
-                                <rect x="0" y="0" width="176" height="36" rx="7" fill="#0d0e14" stroke="#00FF94" strokeWidth="1.8" />
+                              <g key="dialogue-3" className="anim-bubble-pop" transform="translate(90, 4)">
+                                <polygon points="0,28 -14,36 4,32" fill="#0d0e14" stroke="#00FF94" strokeWidth="2" />
+                                <rect x="0" y="0" width="176" height="36" rx="7" fill="#0d0e14" stroke="#00FF94" strokeWidth="2" />
                                 <text x="10" y="23" fill="#00FF94" fontSize="8.8" fontWeight="900" fontFamily="monospace">
                                   HERE IS YOUR 24-BIT HEAT! 🔥
                                 </text>
@@ -1117,7 +1174,7 @@ export function DeliveryCarAnimation({
                       </>
                     )}
 
-                    {/* Hop In: Peace Sign ✌️ Wave */}
+                    {/* Hop In: Peace Sign ✌️ Wave & Steps Back into Seat */}
                     {phase === 'hop_in' && (
                       <>
                         <path d="M 46 72 L 34 56 L 54 44" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
@@ -1266,19 +1323,17 @@ export function DeliveryCarAnimation({
 
           {/* Continuous Dashed Lane Markers with Hardware CSS Streaming */}
           <div
-            className="w-full h-1 sm:h-1.5 md:h-2.5 road-dashes-stream shadow-[0_0_8px_#FFE600]"
-            style={{
-              animation: isDriving
-                ? 'roadStreamForward 0.22s linear infinite'
+            className={`w-full h-1 sm:h-1.5 md:h-2.5 road-dashes-stream shadow-[0_0_8px_#FFE600] ${
+              isDriving
+                ? 'road-drive'
                 : isZoomingPast
-                  ? 'roadStreamForward 0.12s linear infinite'
+                  ? 'road-zoom'
                   : isReversing
-                    ? 'roadStreamReverse 0.22s linear infinite'
+                    ? 'road-reverse'
                     : isCarLeaving
-                      ? 'roadStreamForward 0.1s linear infinite'
-                      : 'none',
-              animationPlayState: isParked || isDeliveredIdle ? 'paused' : 'running'
-            }}
+                      ? 'road-leaving'
+                      : ''
+            } ${isParked || isDeliveredIdle ? 'road-paused' : ''}`}
           />
         </div>
       </div>

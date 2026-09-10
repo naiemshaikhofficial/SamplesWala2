@@ -4,22 +4,8 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import {
-  PartyPopper,
-  ArrowRight,
-  Copy,
-  Check,
-  Download,
-  Sparkles,
-  Music,
-  Volume2,
-  MailCheck,
-  HelpCircle
-} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { PartyCelebration } from '@/components/PartyCelebration'
 import { DeliveryCarAnimation } from '@/components/DeliveryCarAnimation'
-import { DownloadButton } from '@/components/DownloadButton'
 import { getSecureDownloadUrl } from '@/app/packs/actions'
 
 interface ThankYouClientProps {
@@ -187,11 +173,6 @@ export function ThankYouClient({
     }
   }, [orderId])
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(orderId)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
 
   return (
     <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex flex-col items-center justify-start relative z-10 select-none space-y-3 sm:space-y-4 px-4 pt-3 sm:pt-5 pb-16">
@@ -221,44 +202,92 @@ export function ThankYouClient({
         />
       </div>
 
+      {/* Keyframe Styles for Burning Neon Border */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes burningNeonGlow {
+          0%, 100% {
+            box-shadow: 
+              0 0 14px #FFE600,
+              0 0 30px rgba(255, 230, 0, 0.75),
+              0 0 60px rgba(255, 230, 0, 0.4),
+              inset 0 0 16px rgba(255, 230, 0, 0.3);
+            border-color: #FFE600;
+          }
+          50% {
+            box-shadow: 
+              0 0 20px #00FF94,
+              0 0 45px rgba(0, 255, 148, 0.85),
+              0 0 85px rgba(0, 255, 148, 0.45),
+              inset 0 0 22px rgba(0, 255, 148, 0.35);
+            border-color: #00FF94;
+          }
+        }
+        @keyframes burningNeonDownloading {
+          0%, 100% {
+            box-shadow: 
+              0 0 20px #00FF94,
+              0 0 45px rgba(0, 255, 148, 0.9),
+              0 0 90px rgba(0, 255, 148, 0.55),
+              inset 0 0 24px rgba(0, 255, 148, 0.4);
+            border-color: #00FF94;
+          }
+          50% {
+            box-shadow: 
+              0 0 28px #00E5FF,
+              0 0 65px rgba(0, 229, 255, 0.95),
+              0 0 110px rgba(0, 229, 255, 0.6),
+              inset 0 0 30px rgba(0, 229, 255, 0.45);
+            border-color: #00E5FF;
+          }
+        }
+        .anim-burning-neon {
+          animation: burningNeonGlow 2.4s ease-in-out infinite;
+        }
+        .anim-burning-downloading {
+          animation: burningNeonDownloading 1.2s ease-in-out infinite;
+        }
+        `
+      }} />
+
       {/* ALL STATUS & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
       <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center space-y-3 pt-2">
         {/* BURNING NEON STATUS BANNER (Morphs seamlessly from THANK YOU into Downloading) */}
-        <div className={`relative px-6 py-3.5 sm:px-9 sm:py-4.5 rounded-xl border-2 bg-[#090a10]/85 backdrop-blur-md transition-all duration-500 flex items-center justify-center ${
+        <div className={`relative px-7 py-4 sm:px-10 sm:py-5 rounded-2xl border-2 bg-[#08090f]/90 backdrop-blur-md transition-all duration-500 flex items-center justify-center select-none ${
           isDownloading
-            ? 'border-[#00FF94] shadow-[0_0_28px_rgba(0,255,148,0.5),inset_0_0_16px_rgba(0,255,148,0.25)] animate-pulse'
+            ? 'anim-burning-downloading'
             : downloadSuccess
-              ? 'border-[#00FF94] shadow-[0_0_28px_rgba(0,255,148,0.5),inset_0_0_16px_rgba(0,255,148,0.25)]'
-              : 'border-[#FFE600] shadow-[0_0_24px_rgba(255,230,0,0.4),inset_0_0_12px_rgba(255,230,0,0.15)] hover:shadow-[0_0_36px_rgba(255,230,0,0.6)]'
+              ? 'border-[#00FF94] shadow-[0_0_35px_rgba(0,255,148,0.7),inset_0_0_20px_rgba(0,255,148,0.35)]'
+              : 'anim-burning-neon'
         }`}>
           {/* Glowing Neon Corner Rivets */}
-          <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_8px_#FFE600]" />
-          <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_8px_#00FF94]" />
-          <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_8px_#00FF94]" />
-          <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_8px_#FFE600]" />
+          <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_10px_#FFE600]" />
+          <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_10px_#00FF94]" />
+          <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_10px_#00FF94]" />
+          <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_10px_#FFE600]" />
 
           {!isParcelOpened ? (
-            /* State 1: Burning Electric Neon "THANK YOU!" */
+            /* State 1: Burning Electric Neon "THANK YOU!" in Street Graffiti Style */
             <div className="flex items-center justify-center gap-1.5">
-              <span className="text-2xl sm:text-3xl md:text-4xl font-black uppercase italic tracking-[0.14em] font-mono text-transparent bg-clip-text bg-gradient-to-r from-[#FFE600] via-white to-[#00FF94] drop-shadow-[0_0_16px_rgba(255,230,0,0.5)]">
+              <span className="text-3xl sm:text-4xl md:text-5xl font-black uppercase italic tracking-[0.16em] font-mono text-transparent bg-clip-text bg-gradient-to-r from-[#FFE600] via-white to-[#00FF94] drop-shadow-[0_0_20px_rgba(255,230,0,0.7)]">
                 THANK YOU
               </span>
-              <span className="text-2xl sm:text-3xl md:text-4xl font-black italic text-[#00FF94] drop-shadow-[0_0_18px_#00FF94]">
+              <span className="text-3xl sm:text-4xl md:text-5xl font-black italic text-[#00FF94] drop-shadow-[0_0_22px_#00FF94]">
                 !
               </span>
             </div>
           ) : isDownloading ? (
-            /* State 2: Dynamic Downloading Status */
-            <div className="flex items-center gap-2.5 px-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#00FF94] animate-ping" />
-              <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_12px_#00FF94]">
+            /* State 2: Dynamic Downloading Status right in the same neon banner */
+            <div className="flex items-center gap-3 px-2">
+              <span className="w-3 h-3 rounded-full bg-[#00FF94] animate-ping" />
+              <span className="text-sm sm:text-base md:text-lg font-black uppercase italic tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_16px_#00FF94]">
                 ⚡ YOUR FILE IS DOWNLOADING... PLEASE WAIT
               </span>
             </div>
           ) : downloadSuccess ? (
             /* State 3: Download Complete */
             <div className="flex items-center gap-2 px-2">
-              <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_12px_#00FF94]">
+              <span className="text-sm sm:text-base md:text-lg font-black uppercase italic tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_16px_#00FF94]">
                 DOWNLOAD STARTED! ENJOY YOUR SOUNDS 🎵
               </span>
             </div>
@@ -268,7 +297,7 @@ export function ThankYouClient({
               onClick={handleUnboxAndDownload}
               className="flex items-center gap-2 px-2 text-red-400 hover:text-red-300 transition-colors cursor-pointer"
             >
-              <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono">
+              <span className="text-sm sm:text-base md:text-lg font-black uppercase italic tracking-wider font-mono">
                 DOWNLOAD BLOCKED? TAP TO RETRY ↺
               </span>
             </button>
