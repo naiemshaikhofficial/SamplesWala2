@@ -2,15 +2,17 @@
 
 import React, { useState, useEffect } from 'react'
 
-interface DeliveryCarAnimationProps {
-  mode: 'drive' | 'return'
+export interface DeliveryCarAnimationProps {
+  mode: 'drive' | 'return' | 'seamless'
   onDeliveryDelivered?: () => void
   onParcelClick?: () => void
   isParcelOpened?: boolean
   isDownloading?: boolean
+  progress?: number // 0 to 100 for dispatch progress
 }
 
-type DeliveryPhase =
+export type DeliveryPhase =
+  | 'drive_speed'
   | 'screech_in'
   | 'door_up'
   | 'dude_step_out'
@@ -23,22 +25,29 @@ export function DeliveryCarAnimation({
   onDeliveryDelivered,
   onParcelClick,
   isParcelOpened = false,
-  isDownloading = false
+  isDownloading = false,
+  progress = 0
 }: DeliveryCarAnimationProps) {
   const [phase, setPhase] = useState<DeliveryPhase>(
-    mode === 'drive' ? 'screech_in' : 'screech_in'
+    mode === 'drive' ? 'drive_speed' : 'screech_in'
   )
 
   useEffect(() => {
+    if (mode === 'drive') {
+      setPhase('drive_speed')
+      return
+    }
+
     if (mode === 'return') {
-      const t1 = setTimeout(() => setPhase('door_up'), 1200)
-      const t2 = setTimeout(() => setPhase('dude_step_out'), 1700)
-      const t3 = setTimeout(() => setPhase('drop_parcel'), 3200)
-      const t4 = setTimeout(() => setPhase('hop_in'), 4800)
+      setPhase('screech_in')
+      const t1 = setTimeout(() => setPhase('door_up'), 1400)
+      const t2 = setTimeout(() => setPhase('dude_step_out'), 1900)
+      const t3 = setTimeout(() => setPhase('drop_parcel'), 3400)
+      const t4 = setTimeout(() => setPhase('hop_in'), 5000)
       const t5 = setTimeout(() => {
         setPhase('zoom_off')
         onDeliveryDelivered?.()
-      }, 5800)
+      }, 6000)
 
       return () => {
         clearTimeout(t1)
@@ -50,537 +59,722 @@ export function DeliveryCarAnimation({
     }
   }, [mode, onDeliveryDelivered])
 
+  const isDriving = phase === 'drive_speed'
+  const isLaunching = phase === 'zoom_off'
+  const isArriving = phase === 'screech_in'
+  const isWheelsSpinning = isDriving || isLaunching || isArriving
+
   return (
-    <div className="w-full relative overflow-hidden select-none my-1">
-      {/* Precision CSS Animations */}
+    <div className="w-full relative overflow-hidden select-none my-2 font-mono">
+      {/* Precision High-End Visual Keyframes */}
       <style dangerouslySetInnerHTML={{
         __html: `
-        @keyframes supercarRollRight {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        /* Supercar Dynamic Physics */
+        @keyframes chassisVibe {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          25% { transform: translateY(-0.8px) rotate(-0.15deg); }
+          50% { transform: translateY(0.4px) rotate(0.1deg); }
+          75% { transform: translateY(-0.5px) rotate(-0.08deg); }
         }
-        @keyframes supercarRollLeft {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(-360deg); }
+        @keyframes accelerationSquat {
+          0% { transform: translateY(0px) rotate(0deg); }
+          30% { transform: translateY(2px) rotate(1.2deg); }
+          100% { transform: translateY(0px) rotate(0deg); }
         }
-        @keyframes supercarIdleVibe {
-          0% { transform: translateY(0px); }
-          50% { transform: translateY(-1.2px); }
-          100% { transform: translateY(0px); }
-        }
-        @keyframes driveFastAcrossStage {
-          0% { transform: translateX(-120%); }
-          30% { transform: translateX(-10%); }
-          65% { transform: translateX(45%); }
-          100% { transform: translateX(130vw); }
-        }
-        @keyframes supercarArriveScreech {
-          0% { transform: translateX(110vw); }
-          65% { transform: translateX(-14px); }
-          85% { transform: translateX(6px); }
-          100% { transform: translateX(0px); }
-        }
-        @keyframes supercarLaunchSpeed {
-          0% { transform: translateX(0px); opacity: 1; }
-          12% { transform: translateX(-16px); opacity: 1; }
-          30% { transform: translateX(45px); opacity: 1; }
-          70% { transform: translateX(700px); opacity: 1; }
-          100% { transform: translateX(1600px); opacity: 0; pointer-events: none; }
-        }
-        @keyframes scissorDoorOpen {
-          0% { transform: rotate(0deg) translateY(0); }
-          100% { transform: rotate(-65deg) translate(-14px, -18px); }
-        }
-        @keyframes scissorDoorClose {
-          0% { transform: rotate(-65deg) translate(-14px, -18px); }
-          100% { transform: rotate(0deg) translateY(0); }
-        }
-        @keyframes dudeStepOutAnim {
-          0% { transform: translate(160px, 12px) scale(0.6); opacity: 0; }
-          40% { transform: translate(130px, 4px) scale(0.85); opacity: 1; }
-          100% { transform: translate(90px, 0px) scale(1); opacity: 1; }
-        }
-        @keyframes dudeBendAndDropAnim {
-          0% { transform: translate(90px, 0px); }
-          40% { transform: translate(60px, 4px) rotate(3deg); }
-          70% { transform: translate(45px, 6px) rotate(4deg); }
-          100% { transform: translate(50px, 0px) rotate(0deg); }
-        }
-        @keyframes dudeHopBackAnim {
-          0% { transform: translate(50px, 0px) scale(1); opacity: 1; }
-          50% { transform: translate(100px, 4px) scale(0.85); opacity: 1; }
-          100% { transform: translate(160px, 12px) scale(0.5); opacity: 0; }
-        }
-        @keyframes flameTongue1 {
-          0% { transform: scaleX(0.7) scaleY(0.85); opacity: 0.8; }
-          50% { transform: scaleX(1.35) scaleY(1.15) translateY(-1px); opacity: 1; }
-          100% { transform: scaleX(0.7) scaleY(0.85); opacity: 0.8; }
-        }
-        @keyframes flameTongue2 {
-          0% { transform: scaleX(1.2) scaleY(1.1); opacity: 0.9; }
-          50% { transform: scaleX(0.75) scaleY(0.8); opacity: 0.7; }
-          100% { transform: scaleX(1.2) scaleY(1.1); opacity: 0.9; }
-        }
-        @keyframes bubbleCompactPop {
-          0% { transform: scale(0.4) translateY(10px); opacity: 0; }
-          70% { transform: scale(1.04) translateY(-1px); opacity: 1; }
-          100% { transform: scale(1) translateY(0); opacity: 1; }
-        }
-        @keyframes giftLidFlyOff {
-          0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-          30% { transform: translate(8px, -35px) rotate(-15deg) scale(1.08); opacity: 1; }
-          60% { transform: translate(25px, -70px) rotate(40deg) scale(1.15); opacity: 0.9; }
-          100% { transform: translate(45px, -110px) rotate(85deg) scale(0.7); opacity: 0; }
-        }
-        @keyframes discPopOut {
-          0% { transform: translate(0, 20px) scale(0.2); opacity: 0; }
-          50% { transform: translate(0, -42px) scale(1.22); opacity: 1; }
-          75% { transform: translate(0, -32px) scale(0.96); opacity: 1; }
-          100% { transform: translate(0, -36px) scale(1); opacity: 1; }
-        }
-        @keyframes vinylSpinGrooves {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes boxExcitedBounce {
-          0%, 100% { transform: translateY(0) scale(1); }
-          25% { transform: translateY(-3px) scale(1.03) rotate(-1deg); }
-          75% { transform: translateY(-1.5px) scale(1.02) rotate(1deg); }
-        }
-        @keyframes sunburstRadiate {
-          0% { transform: scale(0.3) rotate(0deg); opacity: 0; }
-          50% { transform: scale(1.2) rotate(60deg); opacity: 0.9; }
-          100% { transform: scale(1) rotate(120deg); opacity: 0.7; }
-        }
-        @keyframes starFloatUp1 {
-          0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-          50% { transform: translate(-28px, -45px) scale(1.2); opacity: 1; }
-          100% { transform: translate(-38px, -70px) scale(0.8); opacity: 0; }
-        }
-        @keyframes starFloatUp2 {
-          0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-          50% { transform: translate(30px, -48px) scale(1.2); opacity: 1; }
-          100% { transform: translate(42px, -75px) scale(0.8); opacity: 0; }
-        }
-        @keyframes starFloatUp3 {
-          0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-          50% { transform: translate(0px, -55px) scale(1.3); opacity: 1; }
-          100% { transform: translate(0px, -85px) scale(0.8); opacity: 0; }
+        @keyframes brakeDive {
+          0% { transform: translateY(0) rotate(0deg); }
+          40% { transform: translateY(1.8px) rotate(-1.5deg); }
+          75% { transform: translateY(-0.8px) rotate(0.4deg); }
+          100% { transform: translateY(0) rotate(0deg); }
         }
 
-        .supercar-idle {
-          animation: supercarIdleVibe 0.15s ease-in-out infinite;
+        /* High-speed road line streaming */
+        @keyframes asphaltDash {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
-        .roll-forward {
-          transform-origin: center;
-          animation: supercarRollRight 0.2s linear infinite;
+        @keyframes asphaltDashHyper {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
-        .nitro-flame-1 {
-          transform-origin: 118px 105px;
-          animation: flameTongue1 0.08s ease-in-out infinite;
+
+        /* Speed Streaks across air */
+        @keyframes speedStreakMove {
+          0% { transform: translateX(180%) scaleX(0.4); opacity: 0; }
+          30% { opacity: 0.9; transform: translateX(50%) scaleX(1.4); }
+          80% { opacity: 0.8; transform: translateX(-120%) scaleX(2); }
+          100% { transform: translateX(-220%) scaleX(0.2); opacity: 0; }
         }
-        .nitro-flame-2 {
-          transform-origin: 118px 105px;
-          animation: flameTongue2 0.1s ease-in-out infinite;
+
+
+        /* Scissor Door Hydraulic Lift */
+        @keyframes scissorHydraulicOpen {
+          0% { transform: rotate(0deg) translate(0, 0); }
+          40% { transform: rotate(-25deg) translate(-6px, -10px); }
+          100% { transform: rotate(-62deg) translate(-16px, -24px); }
         }
-        .door-open-up {
-          transform-origin: 228px 72px;
-          animation: scissorDoorOpen 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        @keyframes scissorHydraulicClose {
+          0% { transform: rotate(-62deg) translate(-16px, -24px); }
+          60% { transform: rotate(-15deg) translate(-4px, -6px); }
+          100% { transform: rotate(0deg) translate(0, 0); }
         }
-        .door-close-down {
-          transform-origin: 228px 72px;
-          animation: scissorDoorClose 0.35s ease-in forwards;
+
+        /* Driver step out & drop animations */
+        @keyframes driverEmerge {
+          0% { transform: translate(160px, 14px) scale(0.65); opacity: 0; }
+          45% { transform: translate(120px, 5px) scale(0.88); opacity: 1; }
+          100% { transform: translate(75px, 0px) scale(1); opacity: 1; }
         }
-        .dude-step-out {
-          animation: dudeStepOutAnim 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+        @keyframes driverPlaceParcel {
+          0% { transform: translate(75px, 0px); }
+          35% { transform: translate(50px, 4px) rotate(3deg); }
+          70% { transform: translate(40px, 6px) rotate(4deg); }
+          100% { transform: translate(45px, 0px) rotate(0deg); }
         }
-        .dude-drop-parcel {
-          animation: dudeBendAndDropAnim 1.4s ease-in-out forwards;
+        @keyframes driverHopInside {
+          0% { transform: translate(45px, 0px) scale(1); opacity: 1; }
+          40% { transform: translate(95px, 5px) scale(0.85); opacity: 1; }
+          100% { transform: translate(160px, 14px) scale(0.5); opacity: 0; }
         }
-        .dude-hop-back {
-          animation: dudeHopBackAnim 0.75s ease-in forwards;
+
+        /* Nitro Plasma Fire Jet */
+        @keyframes plasmaTorchPulse {
+          0% { transform: scaleX(0.85) scaleY(0.9); opacity: 0.85; filter: brightness(1.1); }
+          50% { transform: scaleX(1.3) scaleY(1.18) translateY(-1px); opacity: 1; filter: brightness(1.4); }
+          100% { transform: scaleX(0.85) scaleY(0.9); opacity: 0.85; filter: brightness(1.1); }
         }
-        .compact-bubble {
-          animation: bubbleCompactPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        @keyframes plasmaCoreFlicker {
+          0%, 100% { transform: scaleX(0.9) scaleY(0.8); opacity: 0.95; }
+          50% { transform: scaleX(1.45) scaleY(1.2); opacity: 1; }
         }
-        .supercar-launch {
-          animation: supercarLaunchSpeed 0.85s cubic-bezier(0.5, 0.05, 0.9, 0.3) forwards;
+        @keyframes emberFlyBack {
+          0% { transform: translate(0, 0) scale(1); opacity: 1; }
+          100% { transform: translate(-140px, calc(var(--driftY, 0px) - 15px)) scale(0.2); opacity: 0; }
         }
-        .supercar-arrive {
-          animation: supercarArriveScreech 1.2s cubic-bezier(0.15, 0.85, 0.25, 1) forwards;
+
+        /* Screech In & Launch Out Travel */
+        @keyframes hyperCarArrive {
+          0% { transform: translateX(120vw); }
+          60% { transform: translateX(-16px); }
+          82% { transform: translateX(8px); }
+          100% { transform: translateX(0px); }
         }
-        .supercar-drive-across {
-          animation: driveFastAcrossStage 3s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+        @keyframes hyperCarLaunchOut {
+          0% { transform: translateX(0px); opacity: 1; }
+          15% { transform: translateX(-18px); opacity: 1; }
+          35% { transform: translateX(60px); opacity: 1; }
+          75% { transform: translateX(850px); opacity: 1; }
+          100% { transform: translateX(1800px); opacity: 0; }
         }
-        .lid-fly {
-          animation: giftLidFlyOff 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+        @keyframes driveCruise {
+          0%, 100% { transform: translateX(0px); }
+          50% { transform: translateX(8px); }
         }
-        .disc-emerge {
-          animation: discPopOut 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+        /* Parcel unboxing & vinyl burst */
+        @keyframes crateLidFlyAway {
+          0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+          25% { transform: translate(12px, -35px) rotate(-18deg) scale(1.1); opacity: 1; }
+          60% { transform: translate(35px, -80px) rotate(45deg) scale(1.15); opacity: 0.85; }
+          100% { transform: translate(65px, -130px) rotate(110deg) scale(0.6); opacity: 0; }
         }
-        .vinyl-spin {
-          transform-origin: 24px 24px;
-          animation: vinylSpinGrooves 4s linear infinite;
+        @keyframes vinylRecordRise {
+          0% { transform: translate(0, 24px) scale(0.25); opacity: 0; }
+          45% { transform: translate(0, -48px) scale(1.25); opacity: 1; }
+          75% { transform: translate(0, -36px) scale(0.96); opacity: 1; }
+          100% { transform: translate(0, -40px) scale(1); opacity: 1; }
         }
-        .parcel-waiting-bounce {
-          animation: boxExcitedBounce 1.5s ease-in-out infinite;
+
+        @keyframes starFloat {
+          0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+          40% { transform: translate(var(--sx), var(--sy)) scale(1.25); opacity: 1; }
+          100% { transform: translate(calc(var(--sx) * 1.5), calc(var(--sy) * 1.6)) scale(0.7); opacity: 0; }
         }
-        .sunburst-anim {
-          transform-origin: 40px 30px;
-          animation: sunburstRadiate 0.8s ease-out forwards;
+
+        .anim-chassis-vibe {
+          animation: chassisVibe 0.18s linear infinite;
         }
-        .star-burst-1 {
-          animation: starFloatUp1 0.9s cubic-bezier(0.1, 0.9, 0.3, 1) forwards;
+        .anim-acceleration-squat {
+          animation: accelerationSquat 0.8s ease-out forwards;
         }
-        .star-burst-2 {
-          animation: starFloatUp2 0.9s cubic-bezier(0.1, 0.9, 0.3, 1) forwards;
+        .anim-brake-dive {
+          animation: brakeDive 1.1s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
         }
-        .star-burst-3 {
-          animation: starFloatUp3 0.9s cubic-bezier(0.1, 0.9, 0.3, 1) forwards;
+
+        .anim-flame-outer {
+          transform-origin: 105px 105px;
+          animation: plasmaTorchPulse 0.08s ease-in-out infinite alternate;
+        }
+        .anim-flame-core {
+          transform-origin: 105px 105px;
+          animation: plasmaCoreFlicker 0.06s ease-in-out infinite alternate;
+        }
+        .anim-scissor-open {
+          transform-origin: 220px 72px;
+          animation: scissorHydraulicOpen 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .anim-scissor-close {
+          transform-origin: 220px 72px;
+          animation: scissorHydraulicClose 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .anim-driver-step {
+          animation: driverEmerge 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .anim-driver-drop {
+          animation: driverPlaceParcel 1.4s ease-in-out forwards;
+        }
+        .anim-driver-hop {
+          animation: driverHopInside 0.75s ease-in forwards;
+        }
+        .anim-lid-pop {
+          animation: crateLidFlyAway 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .anim-vinyl-rise {
+          animation: vinylRecordRise 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .anim-vinyl-spin {
+          transform-origin: 26px 26px;
+          animation: vinylGrooveSpin 3.5s linear infinite;
         }
         `
       }} />
 
-      {/* Main Visual Stage */}
-      <div className="relative w-full max-w-2xl mx-auto h-52 sm:h-56 flex flex-col justify-end items-center overflow-hidden">
+      {/* Main Cinematic Scene Canvas */}
+      <div className="relative w-full max-w-2xl mx-auto h-56 sm:h-64 flex flex-col justify-end items-center overflow-hidden rounded-md bg-gradient-to-b from-[#08080c]/60 via-[#0e0f14]/80 to-[#07070a] border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.9)]">
 
-        {/* Compact Gen-Z English Speech Bubble (Positioned high up) */}
+        {/* Ambient Top Glow & Speed Grid Lines */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-gradient-to-b from-[#00FF94]/10 via-[#FFE600]/5 to-transparent blur-2xl" />
+          {/* Subtle Cyber Horizon Line */}
+          <div className="absolute bottom-16 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00FF94]/30 to-transparent" />
+        </div>
+
+        {/* Speed Streaks in the Air (High Velocity Feel) */}
+        {isDriving && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+            {[...Array(9)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute h-[1.5px] bg-gradient-to-r from-transparent via-[#00FF94] to-white rounded-full opacity-0"
+                style={{
+                  top: `${18 + (i * 9)}%`,
+                  width: `${60 + (i % 3) * 45}px`,
+                  left: '100%',
+                  animation: `speedStreakMove ${0.6 + (i * 0.08)}s cubic-bezier(0.1, 0.7, 0.2, 1) infinite`,
+                  animationDelay: `${i * 0.12}s`
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Dynamic Context Speech Bubble (When Driver Interacts) */}
         {mode === 'return' && phase !== 'screech_in' && (
-          <div className="absolute top-1 z-40 compact-bubble flex flex-col items-center">
+          <div className="absolute top-2 z-40 flex flex-col items-center">
             {phase === 'door_up' ? (
-              <div className="relative bg-studio-yellow text-black border-2 border-black px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] text-center rotate-[-1deg]">
-                <p className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-wider flex items-center gap-1.5">
-                  <span>YO! SPECIAL DROP INCOMING!</span>
-                  <span className="text-xs">📦🔥</span>
+              <div className="relative bg-[#FFE600] text-black border-2 border-black px-3.5 py-1 rounded-sm shadow-[4px_4px_0px_#00FF94] text-center rotate-[-1deg] animate-bounce">
+                <p className="text-[10.5px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-black animate-ping" />
+                  <span>SPECIAL SOUND VAULT DROP INCOMING!</span>
+                  <span>📦⚡</span>
                 </p>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-black" />
+                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-black" />
               </div>
             ) : phase === 'dude_step_out' ? (
-              <div className="relative bg-studio-yellow text-black border-2 border-black px-3 py-1 rounded-sm shadow-[4px_4px_0px_black] text-center rotate-[1deg]">
-                <p className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-wider flex items-center gap-1.5">
-                  <span>ALMOST FORGOT TO DROP YOUR SOUND VAULT!</span>
-                  <span className="text-xs">🏎️💨</span>
+              <div className="relative bg-[#FFE600] text-black border-2 border-black px-3.5 py-1 rounded-sm shadow-[4px_4px_0px_#FF0080] text-center rotate-[1deg]">
+                <p className="text-[10.5px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
+                  <span>DROPPING YOUR 24-BIT MASTER AUDIO TOKENS!</span>
+                  <span>🏎️💨</span>
                 </p>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-black" />
+                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-black" />
               </div>
             ) : phase === 'drop_parcel' ? (
-              <div className="relative bg-[#00FF94] text-black border-2 border-black px-3.5 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center rotate-[-1deg] animate-pulse">
-                <p className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-wider flex items-center gap-1.5">
-                  <span>DROPPED YOUR VAULT DROP RIGHT HERE! TAP IT TO UNBOX!</span>
-                  <span className="text-xs">📦👇</span>
+              <div className="relative bg-[#00FF94] text-black border-2 border-black px-4 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center rotate-[-1deg] animate-pulse">
+                <p className="text-[11px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
+                  <span>VAULT CRATE PLANTED ON TARMAC! TAP TO UNBOX!</span>
+                  <span>📦👇</span>
                 </p>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-black" />
+                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-black" />
               </div>
             ) : phase === 'hop_in' ? (
-              <div className="relative bg-[#FF5C00] text-white border-2 border-black px-3 py-1 rounded-sm shadow-[3px_3px_0px_black] text-center rotate-[1deg]">
-                <p className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-wider flex items-center gap-1.5">
-                  <span>SKRRT! TAP TO UNBOX, I&apos;M ZOOMING OUT!</span>
-                  <span className="text-xs">🏎️💨</span>
+              <div className="relative bg-[#FF5C00] text-white border-2 border-black px-3.5 py-1 rounded-sm shadow-[3px_3px_0px_black] text-center rotate-[1deg]">
+                <p className="text-[10.5px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
+                  <span>SKRRT! NITRO CHARGED, ZOOMING OUT!</span>
+                  <span>✌️🔥</span>
                 </p>
               </div>
             ) : isParcelOpened ? (
               <div className="relative bg-[#00FF94] text-black border-2 border-black px-4 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center animate-bounce">
-                <p className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-wider flex items-center gap-1.5">
-                  <span>{isDownloading ? 'DOWNLOADING 24-BIT AUDIO MASTER...' : 'UNBOXED! ENJOY YOUR NEW SOUNDS!'}</span>
-                  <span className="text-xs">🎉🔥</span>
+                <p className="text-[11px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
+                  <span>{isDownloading ? 'EXTRACTING 24-BIT AUDIO MASTER...' : 'UNBOXED! MASTER AUDIO READY TO PLAY!'}</span>
+                  <span>🎉🔥</span>
                 </p>
               </div>
             ) : (
               <div
-                className="relative bg-studio-yellow text-black border-2 border-black px-3.5 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center animate-bounce cursor-pointer hover:bg-[#00FF94] transition-colors"
+                className="relative bg-[#FFE600] text-black border-2 border-black px-4 py-1.5 rounded-sm shadow-[4px_4px_0px_black] text-center animate-bounce cursor-pointer hover:bg-[#00FF94] transition-colors"
                 onClick={onParcelClick}
               >
-                <p className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-wider flex items-center gap-1.5">
-                  <span>YOUR PARCEL IS WAITING! CLICK THE BOX TO UNBOX &amp; DOWNLOAD!</span>
-                  <span className="text-xs">🎁⚡</span>
+                <p className="text-[11px] sm:text-xs font-black tracking-wider flex items-center gap-1.5">
+                  <span>CLICK THE CRATE TO UNBOX &amp; DOWNLOAD!</span>
+                  <span>🎁⚡</span>
                 </p>
               </div>
             )}
           </div>
         )}
 
-        {/* The Animated Supercar & Johnny Bravo Container */}
-        <div className={`relative z-20 w-full flex justify-center ${mode === 'drive'
-          ? 'supercar-drive-across'
-          : phase === 'zoom_off'
-            ? 'supercar-launch'
-            : 'supercar-arrive'
-          }`}>
-          <div className={`${(mode === 'drive' || phase === 'screech_in' || phase === 'zoom_off') ? 'supercar-idle' : ''} relative`}>
+        {/* Live Token Dispatch Counter Bar (During Drive Mode) */}
+        {isDriving && (
+          <div className="absolute top-2.5 z-30 flex flex-col items-center w-full px-6 max-w-md">
+            <div className="w-full flex items-center justify-between text-[10px] uppercase font-mono font-black text-white/70 mb-1">
+              <span className="flex items-center gap-1.5 text-[#00FF94]">
+                <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
+                TELEMETRY: NITRO BOOST ACTIVE
+              </span>
+              <span className="text-[#FFE600]">{Math.min(100, Math.round(progress || 78))}% LOCKED</span>
+            </div>
+            <div className="w-full h-2 bg-black/80 rounded-full border border-white/20 p-0.5 overflow-hidden shadow-[inset_0_1px_4px_rgba(0,0,0,0.8)]">
+              <div
+                className="h-full bg-gradient-to-r from-[#FFE600] via-[#00FF94] to-[#00E5FF] rounded-full transition-all duration-300 shadow-[0_0_10px_#00FF94]"
+                style={{ width: `${Math.min(100, Math.max(15, progress || 78))}%` }}
+              />
+            </div>
+          </div>
+        )}
 
-            {/* Integrated SVG Stage: Tires (y=125) sit directly ON the asphalt road (y=125) */}
+        {/* The Animated Hypercar Stage */}
+        <div
+          className={`relative z-20 w-full flex justify-center ${mode === 'drive'
+              ? 'animate-[driveCruise_2.5s_ease-in-out_infinite]'
+              : isLaunching
+                ? 'animate-[hyperCarLaunchOut_0.9s_cubic-bezier(0.5,0.05,0.9,0.3)_forwards]'
+                : isArriving
+                  ? 'animate-[hyperCarArrive_1.2s_cubic-bezier(0.16,0.85,0.25,1)_forwards]'
+                  : ''
+            }`}
+        >
+          <div
+            className={`relative ${isDriving || isLaunching
+                ? 'anim-acceleration-squat'
+                : isArriving
+                  ? 'anim-brake-dive'
+                  : 'anim-chassis-vibe'
+              }`}
+          >
+            {/* SVG Hypercar Model: Designed with Aerodynamic Depth & 3D Shading */}
             <svg
-              viewBox="0 0 460 145"
-              className="w-76 sm:w-92 md:w-[460px] h-auto overflow-visible"
+              viewBox="0 0 520 160"
+              className="w-80 sm:w-96 md:w-[480px] h-auto overflow-visible"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
-                {/* Headlight Volumetric Beam */}
-                <linearGradient id="hyperBeam" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#00FF94" stopOpacity="0.9" />
-                  <stop offset="60%" stopColor="#FFE600" stopOpacity="0.3" />
+                {/* Metallic Carbon Hypercar Body Gradient */}
+                <linearGradient id="bodyCarbonMetal" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#08080a" />
+                  <stop offset="25%" stopColor="#181920" />
+                  <stop offset="50%" stopColor="#22242e" />
+                  <stop offset="75%" stopColor="#13141a" />
+                  <stop offset="100%" stopColor="#252733" />
+                </linearGradient>
+
+                {/* Roof & Cockpit Gloss Highlight */}
+                <linearGradient id="roofGloss" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#4a4d5e" />
+                  <stop offset="50%" stopColor="#1a1b22" />
+                  <stop offset="100%" stopColor="#0a0a0d" />
+                </linearGradient>
+
+                {/* Tinted Aerodynamic Glass with Interior Glow */}
+                <linearGradient id="canopyGlass" x1="0%" y1="0%" x2="100%" y2="50%">
+                  <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.45" />
+                  <stop offset="45%" stopColor="#002b36" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#00FF94" stopOpacity="0.3" />
+                </linearGradient>
+
+                {/* Volumetric Headlight Projection */}
+                <linearGradient id="headlightVolumetric" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.95" />
+                  <stop offset="35%" stopColor="#00FF94" stopOpacity="0.45" />
+                  <stop offset="70%" stopColor="#FFE600" stopOpacity="0.15" />
                   <stop offset="100%" stopColor="#FFE600" stopOpacity="0" />
                 </linearGradient>
 
-                {/* Stealth Body Gradient */}
-                <linearGradient id="stealthBody" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#0a0a0c" />
-                  <stop offset="35%" stopColor="#181820" />
-                  <stop offset="70%" stopColor="#0d0d12" />
-                  <stop offset="100%" stopColor="#1f1f28" />
-                </linearGradient>
-
-                {/* Neon Rim Gradient */}
-                <radialGradient id="hyperRim" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#FFE600" />
-                  <stop offset="65%" stopColor="#00FF94" />
-                  <stop offset="100%" stopColor="#000000" />
+                {/* Ground Specular Light Pool */}
+                <radialGradient id="roadSpecularPool" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.6" />
+                  <stop offset="60%" stopColor="#00FF94" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#000000" stopOpacity="0" />
                 </radialGradient>
 
-                {/* High-Heat Nitro Flame Gradients */}
-                <linearGradient id="nitroOuter" x1="100%" y1="0%" x2="0%" y2="0%">
-                  <stop offset="0%" stopColor="#FFE600" />
-                  <stop offset="30%" stopColor="#FF5C00" />
-                  <stop offset="70%" stopColor="#FF0055" />
-                  <stop offset="100%" stopColor="#0074E4" stopOpacity="0" />
+                {/* 3D Concave Alloy Wheel Rim Gradient */}
+                <radialGradient id="rimForgedAlloy" cx="45%" cy="45%" r="55%">
+                  <stop offset="0%" stopColor="#444654" />
+                  <stop offset="45%" stopColor="#181920" />
+                  <stop offset="85%" stopColor="#0a0a0d" />
+                  <stop offset="100%" stopColor="#00FF94" />
+                </radialGradient>
+
+                {/* Cross-Drilled Ceramic Brake Rotor */}
+                <radialGradient id="brakeRotor" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#888c99" />
+                  <stop offset="65%" stopColor="#3a3d47" />
+                  <stop offset="100%" stopColor="#1a1a20" />
+                </radialGradient>
+
+                {/* Nitro Plasma Torch Jet (High Heat) */}
+                <linearGradient id="plasmaFireOuter" x1="100%" y1="0%" x2="0%" y2="0%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="15%" stopColor="#00F0FF" />
+                  <stop offset="40%" stopColor="#0066FF" />
+                  <stop offset="70%" stopColor="#FF0077" />
+                  <stop offset="90%" stopColor="#FF9900" />
+                  <stop offset="100%" stopColor="#FFE600" stopOpacity="0" />
                 </linearGradient>
 
-                <linearGradient id="nitroCore" x1="100%" y1="0%" x2="0%" y2="0%">
+                <linearGradient id="plasmaFireCore" x1="100%" y1="0%" x2="0%" y2="0%">
                   <stop offset="0%" stopColor="#FFFFFF" />
-                  <stop offset="40%" stopColor="#00E5FF" />
-                  <stop offset="100%" stopColor="#0074E4" />
+                  <stop offset="35%" stopColor="#CCFFFF" />
+                  <stop offset="70%" stopColor="#00E5FF" />
+                  <stop offset="100%" stopColor="#0044FF" stopOpacity="0" />
                 </linearGradient>
+
+                {/* Scorched Titanium Exhaust Bluing */}
+                <linearGradient id="titaniumBluing" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#33333d" />
+                  <stop offset="45%" stopColor="#9966cc" />
+                  <stop offset="80%" stopColor="#00aaff" />
+                  <stop offset="100%" stopColor="#ffaa00" />
+                </linearGradient>
+
+                {/* Golden Vinyl Master Gradient */}
+                <radialGradient id="goldVinylMaster" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#fff8db" />
+                  <stop offset="25%" stopColor="#d4af37" />
+                  <stop offset="55%" stopColor="#aa820a" />
+                  <stop offset="80%" stopColor="#664d00" />
+                  <stop offset="95%" stopColor="#FFE600" />
+                  <stop offset="100%" stopColor="#111111" />
+                </radialGradient>
               </defs>
 
-              {/* === TIRE CONTACT SHADOWS ON ROAD (y=125) === */}
-              <ellipse cx="167" cy="125" rx="19" ry="2" fill="#000000" />
-              <ellipse cx="327" cy="125" rx="19" ry="2" fill="#000000" />
+              {/* === TIRE CONTACT GROUND SHADOWS === */}
+              <ellipse cx="178" cy="145" rx="26" ry="3.5" fill="#000000" opacity="0.9" />
+              <ellipse cx="366" cy="145" rx="26" ry="3.5" fill="#000000" opacity="0.9" />
 
-              {/* === NEON ROAD UNDERGLOW (Planted on tarmac at y=125) === */}
-              <ellipse cx="250" cy="125" rx="130" ry="4" fill="#00FF94" opacity="0.5" />
+              {/* === NEON GROUND UNDERGLOW (Illuminating the tarmac) === */}
+              <ellipse cx="270" cy="145" rx="160" ry="5.5" fill="#00FF94" opacity="0.65" />
+              <ellipse cx="270" cy="145" rx="90" ry="3" fill="#FFE600" opacity="0.5" />
 
-              {/* Headlight Beam shining forward on road */}
-              <polygon points="390,92 470,75 470,125 390,102" fill="url(#hyperBeam)" opacity="0.65" />
+              {/* === VOLUMETRIC FORWARD HEADLIGHT BEAM === */}
+              <polygon
+                points="435,102 535,78 535,142 435,116"
+                fill="url(#headlightVolumetric)"
+                opacity="0.8"
+              />
+              <ellipse cx="490" cy="136" rx="40" ry="4" fill="url(#roadSpecularPool)" />
 
-              {/* === PROPER NITRO EXHAUST FLAMES (Blasting directly from tailpipes at x=118, y=105) === */}
-              {(phase === 'zoom_off' || mode === 'drive') && (
+              {/* === NITRO EXHAUST SYSTEM (Mounted at rear x=122, y=114) === */}
+              {(isDriving || isLaunching) && (
                 <g>
-                  {/* Outer Wild Fire Tongue */}
+                  {/* Outer Roaring Plasma Plume */}
                   <polygon
-                    points="118,103 35,93 75,103 20,105 75,107 35,117 118,107"
-                    fill="url(#nitroOuter)"
-                    className="nitro-flame-1"
+                    points="122,112 30,98 75,112 10,114 75,116 30,130 122,116"
+                    fill="url(#plasmaFireOuter)"
+                    className="anim-flame-outer"
                   />
-                  {/* Inner Blue-White Torch Flame */}
+                  {/* Inner Supersonic Shock Core */}
                   <polygon
-                    points="118,104 60,98 88,104 45,105 88,106 60,112 118,106"
-                    fill="url(#nitroCore)"
-                    className="nitro-flame-2"
+                    points="122,113 55,107 90,113 35,114 90,115 55,121 122,115"
+                    fill="url(#plasmaFireCore)"
+                    className="anim-flame-core"
                   />
-                  {/* Nozzle Hot Spot */}
-                  <circle cx="116" cy="105" r="4.5" fill="#FFFFFF" />
-                  <circle cx="106" cy="105" r="6.5" fill="#00E5FF" opacity="0.8" />
-                  {/* Trailing sparks */}
-                  <circle cx="45" cy="100" r="1.5" fill="#FFE600" />
-                  <circle cx="28" cy="108" r="1.5" fill="#FF5C00" />
-                  <circle cx="16" cy="104" r="2" fill="#00FF94" />
+                  {/* Nozzle White Ignition Spot */}
+                  <circle cx="120" cy="114" r="5" fill="#FFFFFF" />
+                  <circle cx="112" cy="114" r="7.5" fill="#00F0FF" opacity="0.85" />
+
+                  {/* Supersonic Mach Shock Diamonds */}
+                  <ellipse cx="98" cy="114" rx="4" ry="2" fill="#FFFFFF" opacity="0.9" />
+                  <ellipse cx="78" cy="114" rx="3.5" ry="1.8" fill="#FFFFFF" opacity="0.75" />
+                  <ellipse cx="60" cy="114" rx="2.5" ry="1.2" fill="#CCFFFF" opacity="0.6" />
+
+                  {/* Trailing Fiery Embers & Sparks */}
+                  <circle cx="48" cy="108" r="2" fill="#FFE600" />
+                  <circle cx="28" cy="118" r="1.5" fill="#FF5C00" />
+                  <circle cx="12" cy="112" r="2.2" fill="#00FF94" />
+                  <circle cx="-5" cy="106" r="1.5" fill="#00E5FF" />
+                  <circle cx="-18" cy="120" r="1.2" fill="#FFFFFF" />
                 </g>
               )}
 
-              {/* === SUPERCAR CHASSIS === */}
-              {/* Carbon Rear Wing / Spoiler */}
-              <path d="M 125 76 L 105 58 L 138 58 L 135 76 Z" fill="#0d0d12" stroke="#000" strokeWidth="2" />
-              <rect x="95" y="55" width="48" height="4.5" rx="1.5" fill="#FFE600" stroke="#000" strokeWidth="1.5" />
-              <rect x="94" y="54" width="4" height="6" fill="#00FF94" />
-
-              {/* Main Supercar Body Shell */}
+              {/* === HYPERCAR REAR SPOILER / SWAN-NECK GT WING === */}
+              {/* Carbon Uprights */}
+              <path d="M 148 84 L 126 56 L 134 56 L 154 84 Z" fill="#0a0a0d" stroke="#000" strokeWidth="1.5" />
+              <path d="M 166 84 L 148 56 L 156 56 L 172 84 Z" fill="#0a0a0d" stroke="#000" strokeWidth="1.5" />
+              {/* Main Aerofoil Wing with Gurney Flap */}
               <path
-                d="M 120 108 
-                   L 125 86 
-                   L 155 76 
-                   L 205 60 
-                   L 275 60 
-                   L 335 84 
-                   L 395 94 
-                   L 395 108 
-                   Z"
-                fill="url(#stealthBody)"
+                d="M 112 55 C 125 53, 168 53, 178 57 L 176 61 C 166 58, 125 58, 114 60 Z"
+                fill="#FFE600"
                 stroke="#000000"
-                strokeWidth="3.5"
+                strokeWidth="1.5"
+              />
+              {/* Wing Endplate with Neon Accent */}
+              <polygon points="108,48 122,48 118,66 104,66" fill="#08080a" stroke="#FFE600" strokeWidth="1.2" />
+              <rect x="109" y="52" width="2" height="10" fill="#00FF94" />
+
+              {/* === MAIN HYPERCAR CHASSIS BODYWORK (Sculpted with 3D curves) === */}
+              {/* Bottom Aerodynamic Carbon Diffuser Strakes */}
+              <polygon points="120,122 138,122 135,127 116,127" fill="#050507" stroke="#000" strokeWidth="1" />
+              <polygon points="138,122 156,122 153,127 136,127" fill="#050507" stroke="#000" strokeWidth="1" />
+
+              {/* Main Silhouette Path with Muscular Fenders & Air Scoops */}
+              <path
+                d="M 124 122 
+                   L 128 98 
+                   C 134 84, 155 78, 175 76 
+                   L 225 58 
+                   C 260 55, 305 55, 335 68 
+                   L 395 86 
+                   C 418 90, 435 98, 445 106 
+                   L 448 120 
+                   L 435 124 
+                   C 425 116, 400 116, 390 124 
+                   L 205 124 
+                   C 198 116, 162 116, 152 124 
+                   Z"
+                fill="url(#bodyCarbonMetal)"
+                stroke="#000000"
+                strokeWidth="2.5"
               />
 
-              {/* Dual Exhaust Tailpipe Housing at rear (x=118, y=103-107) */}
-              <rect x="116" y="102" width="7" height="7" rx="1.5" fill="#333" stroke="#000" strokeWidth="1" />
-              <circle cx="118" cy="105.5" r="2.2" fill="#000" />
-
-              {/* Cockpit Canopy */}
+              {/* Upper Body Reflective Specular Shoulder Crease */}
               <path
-                d="M 210 63 L 270 63 L 325 84 L 205 84 Z"
-                fill="#00E5FF"
-                fillOpacity="0.3"
-                stroke="#000"
+                d="M 132 96 C 160 84, 210 74, 260 74 L 370 86 L 438 104"
+                stroke="#FFFFFF"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                opacity="0.35"
+              />
+
+              {/* Dual Titanium Exhaust Nozzles (x=122, y=114) */}
+              <rect x="120" y="108" width="9" height="11" rx="2" fill="url(#titaniumBluing)" stroke="#000" strokeWidth="1.2" />
+              <ellipse cx="122" cy="114" rx="2.5" ry="4.5" fill="#08080a" />
+
+              {/* Mid-Engine Recessed Side Radiator Scoop */}
+              <path
+                d="M 215 88 L 260 88 L 255 108 L 220 108 Z"
+                fill="#050508"
+                stroke="#00FF94"
+                strokeWidth="1"
+              />
+              <line x1="225" y1="92" x2="225" y2="104" stroke="#1c1d26" strokeWidth="1" />
+              <line x1="235" y1="92" x2="235" y2="104" stroke="#1c1d26" strokeWidth="1" />
+              <line x1="245" y1="92" x2="245" y2="104" stroke="#1c1d26" strokeWidth="1" />
+
+              {/* Panoramic Cockpit Windshield & Glass Canopy */}
+              <path
+                d="M 230 62 
+                   C 265 60, 298 60, 328 72 
+                   L 378 88 
+                   L 230 88 
+                   Z"
+                fill="url(#canopyGlass)"
+                stroke="#000000"
                 strokeWidth="2"
               />
-              <line x1="225" y1="65" x2="310" y2="82" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+              {/* Glass Horizon Reflection Streak */}
+              <line x1="250" y1="65" x2="355" y2="84" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
 
-              {/* Front Splitter & Intakes */}
-              <polygon points="385,102 398,102 402,110 380,110" fill="#FFE600" stroke="#000" strokeWidth="1.5" />
-              <polygon points="360,94 388,94 384,102 355,102" fill="#00FF94" stroke="#000" strokeWidth="1" />
+              {/* Interior Digital Cockpit HUD (Glow behind glass) */}
+              <rect x="330" y="78" width="8" height="5" rx="1" fill="#00FF94" opacity="0.8" />
+              <circle cx="334" cy="80.5" r="1.5" fill="#FFE600" />
 
-              {/* Twin Sharp LED Headlights */}
-              <polygon points="380,88 394,92 388,96 376,92" fill="#00FF94" stroke="#000" strokeWidth="1.2" />
-              <polygon points="382,90 392,93 388,95 380,93" fill="#FFFFFF" />
+              {/* Front Aerodynamic Splitter & Carbon Canards */}
+              <polygon points="432,118 456,118 452,126 428,126" fill="#050508" stroke="#FFE600" strokeWidth="1.5" />
+              <polygon points="410,110 442,110 438,118 406,118" fill="#00FF94" stroke="#000" strokeWidth="1" />
 
-              {/* Side Racing Stripes */}
-              <polygon points="145,86 360,86 355,90 145,90" fill="#FFE600" stroke="#000" strokeWidth="0.8" />
-              <polygon points="148,90 355,90 350,93 148,93" fill="#00FF94" stroke="#000" strokeWidth="0.8" />
+              {/* Aggressive Quad LED Projector Headlights */}
+              <polygon points="424,102 444,106 438,112 418,108" fill="#05050a" stroke="#00E5FF" strokeWidth="1.2" />
+              <circle cx="426" cy="105" r="2" fill="#00E5FF" />
+              <circle cx="432" cy="106.5" r="2" fill="#00E5FF" />
+              <circle cx="438" cy="108" r="2.2" fill="#FFFFFF" />
+              {/* Cyan DRL Eyebrow */}
+              <line x1="422" y1="102" x2="444" y2="106" stroke="#00FF94" strokeWidth="1.8" strokeLinecap="round" />
 
-              {/* Brand Label */}
-              <g transform="translate(180, 88)">
-                <text x="35" y="8" fill="#FFE600" fontSize="7.5" fontWeight="900" fontStyle="italic" fontFamily="monospace" textAnchor="middle">
-                  SAMPLES<tspan fill="#00FF94">WALA</tspan>
+              {/* Racing Livery & SamplesWala Monogram */}
+              <polygon points="170,94 405,94 400,99 170,99" fill="#FFE600" opacity="0.9" />
+              <polygon points="175,99 400,99 395,103 175,103" fill="#00FF94" opacity="0.9" />
+              <g transform="translate(268, 97)">
+                <text x="0" y="5" fill="#000000" fontSize="7" fontWeight="900" fontStyle="italic" textAnchor="middle">
+                  SAMPLES<tspan fill="#FFFFFF">WALA</tspan>
                 </text>
               </g>
 
-              {/* Scissor Door (Swings UPWARD) */}
+              {/* Scissor / Butterfly Door (Swings Upward) */}
               <g className={
                 (phase === 'door_up' || phase === 'dude_step_out' || phase === 'drop_parcel')
-                  ? 'door-open-up'
+                  ? 'anim-scissor-open'
                   : (phase === 'hop_in' || phase === 'zoom_off')
-                    ? 'door-close-down'
+                    ? 'anim-scissor-close'
                     : ''
               }>
                 <path
-                  d="M 215 65 L 265 65 L 285 96 L 210 96 Z"
-                  fill="#181822"
+                  d="M 235 65 L 285 65 L 310 102 L 230 102 Z"
+                  fill="#181924"
                   stroke="#FFE600"
                   strokeWidth="2"
                 />
-                <rect x="250" y="78" width="8" height="3" rx="1" fill="#00FF94" />
+                {/* Door Carbon Mirror */}
+                <polygon points="305,82 318,80 316,86 304,86" fill="#0a0a0d" stroke="#000" strokeWidth="1" />
+                <circle cx="316" cy="83" r="1.5" fill="#00FF94" />
+                {/* Door Handle */}
+                <rect x="270" y="88" width="10" height="3" rx="1.5" fill="#00FF94" />
               </g>
 
-              {/* Wheels */}
-              {/* Rear Wheel */}
-              <path d="M 145 108 A 19 19 0 0 1 189 108 Z" fill="#000" />
-              <g transform="translate(167, 108)">
-                <circle cx="0" cy="0" r="17" fill="#0a0a0a" stroke="#000" strokeWidth="3" />
-                <g className={(mode === 'drive' || phase === 'zoom_off') ? 'roll-forward' : ''}>
-                  <circle cx="0" cy="0" r="11" fill="url(#hyperRim)" stroke="#000" strokeWidth="1.5" />
-                  <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="#00FF94" stroke="#000" strokeWidth="0.8" />
-                  <circle cx="0" cy="0" r="3.5" fill="#FFE600" />
+              {/* === HIGH-PERFORMANCE 3D FORGED WHEELS === */}
+              {/* REAR WHEEL (Center: x=178, y=122) */}
+              <path d="M 152 122 A 26 26 0 0 1 204 122 Z" fill="#000000" />
+              <g transform="translate(178, 122)">
+                {/* Rubber Tire Outer with Tread Rib */}
+                <circle cx="0" cy="0" r="23" fill="#0d0d12" stroke="#000000" strokeWidth="3" />
+                <circle cx="0" cy="0" r="20.5" fill="none" stroke="#222430" strokeWidth="1" strokeDasharray="3,2" />
+
+                {/* Disc Brake Rotor & Neon Brembo Caliper */}
+                <circle cx="0" cy="0" r="16.5" fill="url(#brakeRotor)" stroke="#111" strokeWidth="1" />
+                <path d="M -15 -8 A 16 16 0 0 1 -7 -15 L -5 -11 A 12 12 0 0 0 -11 -6 Z" fill="#00FF94" stroke="#000" strokeWidth="1" />
+
+                {/* Spinning Alloy Rim Assembly */}
+                <g className={isWheelsSpinning ? (isLaunching ? 'anim-wheel-hyper' : 'anim-wheel-fast') : ''}>
+                  <circle cx="0" cy="0" r="14.5" fill="url(#rimForgedAlloy)" stroke="#FFE600" strokeWidth="1.2" />
+                  {/* 5-Split Spoke Architecture */}
+                  {[0, 72, 144, 216, 288].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle})`}>
+                      <line x1="0" y1="-2" x2="0" y2="-13" stroke="#CCCCCC" strokeWidth="2.2" strokeLinecap="round" />
+                      <line x1="-2" y1="-5" x2="-4" y2="-12" stroke="#666677" strokeWidth="1.2" />
+                    </g>
+                  ))}
+                  {/* Center Hub Nut */}
+                  <circle cx="0" cy="0" r="4.5" fill="#00FF94" stroke="#000000" strokeWidth="1.2" />
+                  <circle cx="0" cy="0" r="2" fill="#FFE600" />
                 </g>
               </g>
 
-              {/* Front Wheel */}
-              <path d="M 305 108 A 19 19 0 0 1 349 108 Z" fill="#000" />
-              <g transform="translate(327, 108)">
-                <circle cx="0" cy="0" r="17" fill="#0a0a0a" stroke="#000" strokeWidth="3" />
-                <g className={(mode === 'drive' || phase === 'zoom_off') ? 'roll-forward' : ''}>
-                  <circle cx="0" cy="0" r="11" fill="url(#hyperRim)" stroke="#000" strokeWidth="1.5" />
-                  <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="#00FF94" stroke="#000" strokeWidth="0.8" />
-                  <circle cx="0" cy="0" r="3.5" fill="#FFE600" />
+              {/* FRONT WHEEL (Center: x=366, y=122) */}
+              <path d="M 340 122 A 26 26 0 0 1 392 122 Z" fill="#000000" />
+              <g transform="translate(366, 122)">
+                {/* Rubber Tire Outer with Tread Rib */}
+                <circle cx="0" cy="0" r="23" fill="#0d0d12" stroke="#000000" strokeWidth="3" />
+                <circle cx="0" cy="0" r="20.5" fill="none" stroke="#222430" strokeWidth="1" strokeDasharray="3,2" />
+
+                {/* Disc Brake Rotor & Neon Brembo Caliper */}
+                <circle cx="0" cy="0" r="16.5" fill="url(#brakeRotor)" stroke="#111" strokeWidth="1" />
+                <path d="M -15 -8 A 16 16 0 0 1 -7 -15 L -5 -11 A 12 12 0 0 0 -11 -6 Z" fill="#00FF94" stroke="#000" strokeWidth="1" />
+
+                {/* Spinning Alloy Rim Assembly */}
+                <g className={isWheelsSpinning ? (isLaunching ? 'anim-wheel-hyper' : 'anim-wheel-fast') : ''}>
+                  <circle cx="0" cy="0" r="14.5" fill="url(#rimForgedAlloy)" stroke="#FFE600" strokeWidth="1.2" />
+                  {/* 5-Split Spoke Architecture */}
+                  {[0, 72, 144, 216, 288].map((angle) => (
+                    <g key={angle} transform={`rotate(${angle})`}>
+                      <line x1="0" y1="-2" x2="0" y2="-13" stroke="#CCCCCC" strokeWidth="2.2" strokeLinecap="round" />
+                      <line x1="-2" y1="-5" x2="-4" y2="-12" stroke="#666677" strokeWidth="1.2" />
+                    </g>
+                  ))}
+                  {/* Center Hub Nut */}
+                  <circle cx="0" cy="0" r="4.5" fill="#00FF94" stroke="#000000" strokeWidth="1.2" />
+                  <circle cx="0" cy="0" r="2" fill="#FFE600" />
                 </g>
               </g>
 
-              {/* ========================================================================= */}
-              {/* === JOHNNY BRAVO COOL DUDE === */}
-              {/* ========================================================================= */}
+              {/* === STYLIZED STREETWEAR DRIVER (Step out & Drop Parcel) === */}
               {mode === 'return' && phase !== 'screech_in' && phase !== 'door_up' && phase !== 'zoom_off' && (
                 <g className={
                   phase === 'dude_step_out'
-                    ? 'dude-step-out'
+                    ? 'anim-driver-step'
                     : phase === 'drop_parcel'
-                      ? 'dude-drop-parcel'
+                      ? 'anim-driver-drop'
                       : phase === 'hop_in'
-                        ? 'dude-hop-back'
+                        ? 'anim-driver-hop'
                         : ''
                 }>
-                  {/* Shadow under cool dude planted on road */}
-                  <ellipse cx="65" cy="125" rx="16" ry="2.5" fill="#000" opacity="0.6" />
+                  {/* Ground Shadow */}
+                  <ellipse cx="68" cy="138" rx="18" ry="3" fill="#000" opacity="0.75" />
 
-                  {/* Legs with dark jeans (Sneakers touch road at y=124) */}
-                  <path d="M 58 98 L 55 118 L 50 123" stroke="#16161c" strokeWidth="7.5" strokeLinecap="round" />
-                  <path d="M 68 98 L 73 118 L 78 123" stroke="#1c1c24" strokeWidth="7.5" strokeLinecap="round" />
-                  {/* High-top Sneakers */}
-                  <path d="M 47 124 L 56 124 L 56 120 L 47 120 Z" fill="#FFE600" stroke="#000" strokeWidth="1.5" />
-                  <path d="M 75 124 L 84 124 L 84 120 L 75 120 Z" fill="#00FF94" stroke="#000" strokeWidth="1.5" />
+                  {/* Denim Jeans & Sneakers */}
+                  <path d="M 60 106 L 56 128 L 50 137" stroke="#161822" strokeWidth="8" strokeLinecap="round" />
+                  <path d="M 74 106 L 80 128 L 86 137" stroke="#1e212d" strokeWidth="8" strokeLinecap="round" />
+                  {/* Cyber Sneakers */}
+                  <polygon points="46,138 58,138 58,133 46,133" fill="#FFE600" stroke="#000" strokeWidth="1.5" />
+                  <polygon points="82,138 94,138 94,133 82,133" fill="#00FF94" stroke="#000" strokeWidth="1.5" />
 
-                  {/* Johnny Bravo Broad-Shouldered Tight Black T-Shirt */}
+                  {/* Bomber Jacket with Metallic Zipper */}
                   <path
-                    d="M 44 70 L 84 70 L 78 98 L 50 98 Z"
-                    fill="#050505"
+                    d="M 46 76 L 90 76 L 82 108 L 52 108 Z"
+                    fill="#0a0a0f"
                     stroke="#000000"
                     strokeWidth="2.5"
                   />
-                  <polygon points="60,70 68,70 64,78" fill="#F3A87C" stroke="#000" strokeWidth="1" />
+                  <line x1="67" y1="76" x2="67" y2="108" stroke="#FFE600" strokeWidth="2" />
 
-                  {/* Thick Golden Chain around neck */}
-                  <path d="M 58 73 Q 64 83 70 73" stroke="#FFE600" strokeWidth="3" fill="none" strokeLinecap="round" />
-                  <circle cx="64" cy="84" r="3.5" fill="#FFE600" stroke="#000" strokeWidth="1.2" />
-                  <text x="64" y="86" fill="#000" fontSize="4.5" fontWeight="900" textAnchor="middle">S</text>
+                  {/* Chunky Golden Chain & "SW" Medallion */}
+                  <path d="M 58 78 Q 67 92 76 78" stroke="#FFE600" strokeWidth="3" fill="none" strokeLinecap="round" />
+                  <circle cx="67" cy="92" r="4.5" fill="#FFE600" stroke="#000" strokeWidth="1.5" />
+                  <text x="67" y="94.5" fill="#000" fontSize="5" fontWeight="900" textAnchor="middle">SW</text>
 
-                  {/* Head, Johnny Bravo Pompadour Hair & Sunglasses */}
-                  <rect x="60" y="63" width="8" height="9" fill="#F3A87C" stroke="#000" strokeWidth="1" />
-                  <polygon points="56,52 72,52 70,64 58,64" fill="#F3A87C" stroke="#000" strokeWidth="1.5" />
-                  <path d="M 61 60 Q 65 62 68 59" stroke="#000" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+                  {/* Head, Aviators & Pompadour Hair */}
+                  <rect x="62" y="66" width="10" height="12" fill="#F4A982" stroke="#000" strokeWidth="1.2" />
+                  <polygon points="56,54 78,54 74,68 60,68" fill="#F4A982" stroke="#000" strokeWidth="1.5" />
 
-                  {/* Sunglasses (Chasma) */}
-                  <rect x="55" y="52" width="8.5" height="5.5" rx="1.5" fill="#000000" stroke="#FFE600" strokeWidth="1" />
-                  <rect x="64.5" y="52" width="8.5" height="5.5" rx="1.5" fill="#000000" stroke="#FFE600" strokeWidth="1" />
-                  <line x1="63.5" y1="54" x2="64.5" y2="54" stroke="#000" strokeWidth="2" />
-                  <line x1="57" y1="53" x2="61" y2="56" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" />
-                  <line x1="66" y1="53" x2="70" y2="56" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" />
+                  {/* Dark Aviator Sunglasses with Neon Horizon Reflection */}
+                  <rect x="56" y="55" width="10" height="7" rx="2" fill="#000000" stroke="#FFE600" strokeWidth="1.2" />
+                  <rect x="67" y="55" width="10" height="7" rx="2" fill="#000000" stroke="#FFE600" strokeWidth="1.2" />
+                  <line x1="57" y1="57" x2="65" y2="60" stroke="#00E5FF" strokeWidth="1.2" strokeLinecap="round" />
+                  <line x1="68" y1="57" x2="76" y2="60" stroke="#00E5FF" strokeWidth="1.2" strokeLinecap="round" />
 
-                  {/* Big Slick Pompadour Hair */}
+                  {/* Voluminous Pompadour Hairstyle */}
                   <path
-                    d="M 55 52 
-                       C 52 40, 56 28, 68 28 
-                       C 78 28, 86 36, 80 50 
-                       C 76 53, 73 52, 72 52 
+                    d="M 55 54 
+                       C 50 38, 56 25, 70 25 
+                       C 82 25, 92 34, 85 52 
+                       C 81 55, 78 54, 76 54 
                        Z"
                     fill="#FFE600"
                     stroke="#000000"
                     strokeWidth="2.5"
                   />
-                  <path d="M 62 33 Q 72 36 73 44" stroke="#FFAA00" strokeWidth="1.8" fill="none" />
-                  <path d="M 58 40 Q 66 42 68 48" stroke="#FFAA00" strokeWidth="1.5" fill="none" />
+                  <path d="M 64 32 Q 76 36 78 46" stroke="#FFAA00" strokeWidth="2" fill="none" />
 
-                  {/* Arms & Hands (Holding box while stepping out, pointing down when dropping) */}
+                  {/* Arm Action: Holding Parcel or Pointing */}
                   {phase === 'dude_step_out' ? (
                     <>
-                      <path d="M 45 71 L 34 81 L 28 84" stroke="#F3A87C" strokeWidth="6" strokeLinecap="round" />
-                      <path d="M 83 71 L 62 82 L 42 84" stroke="#F3A87C" strokeWidth="6" strokeLinecap="round" />
-                      <circle cx="27" cy="84" r="3.5" fill="#F3A87C" stroke="#000" strokeWidth="1" />
-                      <circle cx="39" cy="85" r="3.5" fill="#F3A87C" stroke="#000" strokeWidth="1" />
-
-                      {/* Holding the Golden Parcel in hands */}
-                      <g transform="translate(10, 72)" className="animate-pulse">
-                        <rect x="0" y="0" width="28" height="22" rx="2" fill="#FFE600" stroke="#000000" strokeWidth="2.5" />
-                        <line x1="14" y1="0" x2="14" y2="22" stroke="#FF5C00" strokeWidth="3.5" />
-                        <line x1="0" y1="11" x2="28" y2="11" stroke="#FF5C00" strokeWidth="3.5" />
-                        <circle cx="14" cy="-1" r="3.5" fill="#FF0055" stroke="#000" strokeWidth="1" />
-                        <rect x="3" y="3" width="10" height="6" fill="#000" rx="1" />
-                        <text x="4" y="8" fill="#00FF94" fontSize="4.5" fontWeight="900" fontFamily="monospace">VAULT</text>
+                      <path d="M 48 78 L 36 90 L 28 94" stroke="#F4A982" strokeWidth="6.5" strokeLinecap="round" />
+                      <path d="M 88 78 L 66 91 L 46 94" stroke="#F4A982" strokeWidth="6.5" strokeLinecap="round" />
+                      {/* Holding the Sound Vault Parcel in hands */}
+                      <g transform="translate(14, 82)">
+                        <rect x="0" y="0" width="32" height="24" rx="2" fill="#FFE600" stroke="#000" strokeWidth="2.5" />
+                        <line x1="16" y1="0" x2="16" y2="24" stroke="#FF5C00" strokeWidth="4" />
+                        <line x1="0" y1="12" x2="32" y2="12" stroke="#FF5C00" strokeWidth="4" />
+                        <rect x="4" y="4" width="12" height="7" fill="#000" rx="1" />
+                        <text x="5" y="9.5" fill="#00FF94" fontSize="5" fontWeight="900">VAULT</text>
                       </g>
                     </>
                   ) : phase === 'drop_parcel' ? (
                     <>
-                      {/* Hands Pointing Directly Down at the Dropped Parcel on Road */}
-                      <path d="M 45 72 L 30 92 L 20 106" stroke="#F3A87C" strokeWidth="6" strokeLinecap="round" />
-                      <path d="M 83 72 L 55 94 L 35 108" stroke="#F3A87C" strokeWidth="6" strokeLinecap="round" />
-                      {/* Pointing Fingers Down */}
-                      <polygon points="17,106 23,106 20,115" fill="#FFE600" stroke="#000" strokeWidth="1" />
-                      <polygon points="32,108 38,108 35,117" fill="#FFE600" stroke="#000" strokeWidth="1" />
+                      {/* Pointing down at parcel on tarmac */}
+                      <path d="M 48 80 L 32 102 L 20 118" stroke="#F4A982" strokeWidth="6.5" strokeLinecap="round" />
+                      <path d="M 88 80 L 58 106 L 36 120" stroke="#F4A982" strokeWidth="6.5" strokeLinecap="round" />
+                      <polygon points="17,118 24,118 20,128" fill="#FFE600" stroke="#000" strokeWidth="1.2" />
+                      <polygon points="33,120 40,120 36,130" fill="#FFE600" stroke="#000" strokeWidth="1.2" />
                     </>
                   ) : (
                     <>
-                      {/* Peace Sign Pose when hopping back in */}
-                      <path d="M 45 71 L 34 81 L 28 84" stroke="#F3A87C" strokeWidth="6" strokeLinecap="round" />
-                      <path d="M 83 71 L 62 82 L 42 84" stroke="#F3A87C" strokeWidth="6" strokeLinecap="round" />
-                      <g transform="translate(85, 55)" className="compact-bubble">
-                        <rect x="0" y="0" width="16" height="13" rx="2" fill="#00FF94" stroke="#000" strokeWidth="1.5" />
-                        <text x="8" y="10" fill="#000" fontSize="8" fontWeight="900" textAnchor="middle">✌️</text>
+                      {/* Peace Sign when hopping back in */}
+                      <path d="M 48 78 L 36 90 L 28 94" stroke="#F4A982" strokeWidth="6.5" strokeLinecap="round" />
+                      <path d="M 88 78 L 66 91 L 46 94" stroke="#F4A982" strokeWidth="6.5" strokeLinecap="round" />
+                      <g transform="translate(92, 58)">
+                        <rect x="0" y="0" width="18" height="15" rx="3" fill="#00FF94" stroke="#000" strokeWidth="1.5" />
+                        <text x="9" y="11" fill="#000" fontSize="9" fontWeight="900" textAnchor="middle">✌️</text>
                       </g>
                     </>
                   )}
@@ -591,146 +785,119 @@ export function DeliveryCarAnimation({
         </div>
 
         {/* ========================================================================= */}
-        {/* === THE PERMANENT PARCEL ON THE ROAD (Dropped by dude, stays forever!) === */}
+        {/* === INTERACTIVE PARCEL ON ASPHALT (Planted by driver) === */}
         {/* ========================================================================= */}
         {mode === 'return' && (phase === 'drop_parcel' || phase === 'hop_in' || phase === 'zoom_off') && (
           <div
             onClick={onParcelClick}
-            className="absolute left-1/2 -translate-x-1/2 bottom-4 z-30 flex flex-col items-center cursor-pointer group"
+            className="absolute left-1/2 -translate-x-1/2 bottom-3.5 z-30 flex flex-col items-center cursor-pointer group"
           >
-            {/* Click-Me Floating Indicator (Only before opening) */}
+            {/* Click to Unbox Floating Label */}
             {!isParcelOpened && (
-              <div className="absolute -top-9 z-40 animate-bounce pointer-events-none whitespace-nowrap">
-                <span className="px-3 py-1 bg-[#FFE600] text-black text-[10px] font-mono font-black uppercase tracking-wider rounded-xs border-2 border-black shadow-[3px_3px_0px_black] flex items-center gap-1.5 hover:bg-[#00FF94]">
-                  <span>TAP TO OPEN YOUR GIFT!</span>
-                  <span className="text-xs">🎁</span>
+              <div className="absolute -top-10 z-40 animate-bounce pointer-events-none whitespace-nowrap">
+                <span className="px-3 py-1 bg-[#FFE600] text-black text-[10px] font-mono font-black uppercase tracking-wider rounded-xs border-2 border-black shadow-[3px_3px_0px_#00FF94] flex items-center gap-1.5 hover:bg-[#00FF94]">
+                  <span>TAP TO UNBOX YOUR 24-BIT SOUNDS!</span>
+                  <span className="text-xs">🎁🔥</span>
                 </span>
               </div>
             )}
 
-            {/* Unboxing Container SVG */}
+            {/* Unboxing SVG Component */}
             <svg
-              width="90"
-              height="80"
-              viewBox="0 0 90 80"
+              width="100"
+              height="88"
+              viewBox="0 0 100 88"
               fill="none"
-              className={`overflow-visible transition-transform duration-200 ${!isParcelOpened ? 'parcel-waiting-bounce group-hover:scale-115 group-hover:rotate-1' : ''
+              className={`overflow-visible transition-transform duration-200 ${!isParcelOpened ? 'group-hover:scale-110 group-hover:rotate-1' : ''
                 }`}
             >
-              <defs>
-                {/* Vinyl Groove Gradient */}
-                <radialGradient id="vinylShine" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#222228" />
-                  <stop offset="45%" stopColor="#08080a" />
-                  <stop offset="55%" stopColor="#181820" />
-                  <stop offset="85%" stopColor="#050508" />
-                  <stop offset="100%" stopColor="#FFE600" />
-                </radialGradient>
+              {/* Tarmac Shadow under Crate */}
+              <ellipse cx="50" cy="82" rx="38" ry="5.5" fill="#000000" opacity="0.85" />
+              <ellipse cx="50" cy="82" rx="30" ry="3.5" fill="#00FF94" opacity="0.45" />
 
-                {/* Sunburst Burst Gradient */}
-                <radialGradient id="sunburstGrad" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#FFE600" stopOpacity="0.9" />
-                  <stop offset="60%" stopColor="#00FF94" stopOpacity="0.6" />
-                  <stop offset="100%" stopColor="#FF0080" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Tarmac Shadow under parcel */}
-              <ellipse cx="45" cy="74" rx="34" ry="5" fill="#000000" opacity="0.75" />
-              <ellipse cx="45" cy="74" rx="28" ry="3" fill="#00FF94" opacity="0.4" />
-
-              {/* SUNBURST / LIGHT BURST WHEN OPENED */}
+              {/* UNBOXING BURST OF PARTICLES & STARS */}
               {isParcelOpened && (
-                <g className="sunburst-anim" transform="translate(5, 5)">
-                  <circle cx="40" cy="30" r="36" fill="url(#sunburstGrad)" />
-                  {/* Exploding Particles Arcs */}
-                  <text x="10" y="10" fill="#FFE600" fontSize="15" className="star-burst-1">⭐</text>
-                  <text x="60" y="12" fill="#00FF94" fontSize="16" className="star-burst-2">✨</text>
-                  <text x="35" y="0" fill="#FF5C00" fontSize="16" className="star-burst-3">🔥</text>
-                  <text x="2" y="35" fill="#00E5FF" fontSize="14" className="star-burst-1">🎶</text>
-                  <text x="68" y="32" fill="#FF0080" fontSize="14" className="star-burst-2">💥</text>
+                <g transform="translate(10, 8)">
+                  <circle cx="40" cy="30" r="38" fill="url(#headlightVolumetric)" opacity="0.4" className="animate-ping" />
+                  {/* Floating Starburst Emojis */}
+                  <text x="5" y="10" fill="#FFE600" fontSize="16" className="animate-bounce">⭐</text>
+                  <text x="65" y="12" fill="#00FF94" fontSize="16" className="animate-pulse">✨</text>
+                  <text x="38" y="-4" fill="#FF5C00" fontSize="18">🔥</text>
+                  <text x="-4" y="38" fill="#00E5FF" fontSize="14">🎵</text>
+                  <text x="74" y="34" fill="#FF0080" fontSize="15">💥</text>
                 </g>
               )}
 
-              {/* UNBOXED 24-BIT GOLD AUDIO MASTER VINYL (Emerges upwards!) */}
+              {/* 24-BIT GOLD AUDIO MASTER VINYL (Rises out of crate) */}
               {isParcelOpened && (
-                <g className="disc-emerge" transform="translate(21, 6)">
-                  {/* Vinyl Outer Halo */}
-                  <circle cx="24" cy="24" r="23" fill="#00FF94" opacity="0.25" className="animate-ping" />
-
-                  {/* Shimmering Vinyl Record with concentric grooves */}
-                  <g className="vinyl-spin">
-                    <circle cx="24" cy="24" r="22" fill="url(#vinylShine)" stroke="#FFE600" strokeWidth="2.5" />
-                    <circle cx="24" cy="24" r="18" fill="none" stroke="#2a2a35" strokeWidth="1.2" strokeDasharray="3,2" />
-                    <circle cx="24" cy="24" r="15" fill="none" stroke="#333340" strokeWidth="1" />
-                    <circle cx="24" cy="24" r="12" fill="none" stroke="#22222c" strokeWidth="1.2" strokeDasharray="2,2" />
-
-                    {/* Neon Center Label */}
-                    <circle cx="24" cy="24" r="9" fill="#00FF94" stroke="#000" strokeWidth="2" />
-                    <circle cx="24" cy="24" r="3" fill="#000" />
+                <g className="anim-vinyl-rise" transform="translate(24, 6)">
+                  <circle cx="26" cy="26" r="25" fill="#00FF94" opacity="0.25" className="animate-ping" />
+                  <g className="anim-vinyl-spin">
+                    <circle cx="26" cy="26" r="24" fill="url(#goldVinylMaster)" stroke="#FFE600" strokeWidth="2.5" />
+                    {/* Concentric Grooves */}
+                    <circle cx="26" cy="26" r="20" fill="none" stroke="#222" strokeWidth="1" strokeDasharray="3,2" />
+                    <circle cx="26" cy="26" r="16" fill="none" stroke="#333" strokeWidth="1" />
+                    <circle cx="26" cy="26" r="12" fill="none" stroke="#222" strokeWidth="1" strokeDasharray="2,2" />
+                    {/* Center Label */}
+                    <circle cx="26" cy="26" r="9" fill="#00FF94" stroke="#000" strokeWidth="2" />
+                    <circle cx="26" cy="26" r="3.5" fill="#000000" />
                   </g>
-
-                  {/* Starburst Highlights */}
-                  <text x="-4" y="6" fill="#00FF94" fontSize="12" fontWeight="bold">✨</text>
-                  <text x="42" y="8" fill="#FFE600" fontSize="13" fontWeight="bold">⭐</text>
-                  <text x="18" y="-4" fill="#FF0080" fontSize="14" fontWeight="bold">🔥</text>
                 </g>
               )}
 
               {/* PARCEL CRATE BODY */}
-              <g transform="translate(22, 42)">
-                {/* Main Box Body */}
-                <rect x="0" y="0" width="46" height="32" rx="2" fill="#FFE600" stroke="#000000" strokeWidth="3" />
+              <g transform="translate(24, 46)">
+                <rect x="0" y="0" width="52" height="34" rx="2" fill="#FFE600" stroke="#000000" strokeWidth="3" />
+                <line x1="26" y1="0" x2="26" y2="34" stroke="#FF5C00" strokeWidth="5.5" />
+                <line x1="0" y1="17" x2="52" y2="17" stroke="#FF5C00" strokeWidth="5.5" />
 
-                {/* Cyber Ribbon Cross */}
-                <line x1="23" y1="0" x2="23" y2="32" stroke="#FF5C00" strokeWidth="5" />
-                <line x1="0" y1="16" x2="46" y2="16" stroke="#FF5C00" strokeWidth="5" />
+                {/* Badges on Box */}
+                <rect x="5" y="6" width="18" height="10" fill="#000000" rx="1.5" />
+                <text x="6.5" y="13.5" fill="#00FF94" fontSize="7" fontWeight="900">VAULT</text>
 
-                {/* VAULT Badge on Box */}
-                <rect x="5" y="6" width="16" height="9" fill="#000" rx="1.5" />
-                <text x="7" y="13" fill="#00FF94" fontSize="6.5" fontWeight="900" fontFamily="monospace">VAULT</text>
-
-                {/* 24-Bit Gold Stamp */}
-                <rect x="27" y="6" width="14" height="9" fill="#000" rx="1.5" />
-                <text x="29" y="13" fill="#FFE600" fontSize="6.5" fontWeight="900" fontFamily="monospace">24B</text>
+                <rect x="30" y="6" width="16" height="10" fill="#000000" rx="1.5" />
+                <text x="32" y="13.5" fill="#FFE600" fontSize="7" fontWeight="900">24B</text>
               </g>
 
-              {/* PARCEL LID: Pops off and flies away when clicked! */}
+              {/* CRATE LID: Pops off when unboxed */}
               <g
-                transform="translate(19, 34)"
-                className={isParcelOpened ? 'lid-fly' : ''}
+                transform="translate(21, 38)"
+                className={isParcelOpened ? 'anim-lid-pop' : ''}
               >
-                <rect x="0" y="0" width="52" height="10" rx="2" fill="#FFE600" stroke="#000000" strokeWidth="3" />
-                <line x1="26" y1="0" x2="26" y2="10" stroke="#FF5C00" strokeWidth="5" />
-                {/* Big 3D Ribbon Bow on Lid */}
-                <circle cx="26" cy="-3" r="6" fill="#FF0055" stroke="#000" strokeWidth="2" />
-                <ellipse cx="20" cy="-4" rx="4" ry="2.5" fill="#FF5C00" stroke="#000" strokeWidth="1.2" transform="rotate(-25 20 -4)" />
-                <ellipse cx="32" cy="-4" rx="4" ry="2.5" fill="#FF5C00" stroke="#000" strokeWidth="1.2" transform="rotate(25 32 -4)" />
+                <rect x="0" y="0" width="58" height="11" rx="2" fill="#FFE600" stroke="#000000" strokeWidth="3" />
+                <line x1="29" y1="0" x2="29" y2="11" stroke="#FF5C00" strokeWidth="5.5" />
+                {/* 3D Bow Knot */}
+                <circle cx="29" cy="-3.5" r="7" fill="#FF0055" stroke="#000" strokeWidth="2" />
+                <ellipse cx="22" cy="-4.5" rx="4.5" ry="3" fill="#FF5C00" stroke="#000" strokeWidth="1.2" transform="rotate(-25 22 -4.5)" />
+                <ellipse cx="36" cy="-4.5" rx="4.5" ry="3" fill="#FF5C00" stroke="#000" strokeWidth="1.2" transform="rotate(25 36 -4.5)" />
               </g>
-
-              {/* Sparkles around parcel box (before unboxing) */}
-              {!isParcelOpened && (
-                <g className="animate-pulse">
-                  <text x="6" y="38" fill="#00FF94" fontSize="13" fontWeight="bold">✨</text>
-                  <text x="72" y="40" fill="#FFE600" fontSize="14" fontWeight="bold">⭐</text>
-                </g>
-              )}
             </svg>
           </div>
         )}
 
-        {/* === REAL ASPHALT ROADWAY: Directly Aligned Under Tires (Zero Gap) === */}
-        <div className="w-full relative h-7 bg-[#141416] border-t-3 border-b-3 border-black z-10 overflow-hidden flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.8)] -mt-5">
-          <div className={`w-[200%] flex items-center justify-around ${mode === 'drive'
-            ? 'animate-[roadStripes_0.3s_linear_infinite]'
-            : phase === 'zoom_off'
-              ? 'animate-[roadStripesFast_0.15s_linear_infinite]'
-              : (phase === 'screech_in' ? 'animate-[roadStripesRev_0.35s_linear_infinite]' : '')
-            }`}>
-            {[...Array(16)].map((_, i) => (
+        {/* ========================================================================= */}
+        {/* === REALISTIC ASPHALT HIGHWAY (Directly aligned with tire contact) === */}
+        {/* ========================================================================= */}
+        <div className="w-full relative h-8 bg-[#111216] border-t-2 border-b-2 border-black z-10 overflow-hidden flex items-center shadow-[0_4px_16px_rgba(0,0,0,0.9)] -mt-4">
+          {/* Textured Tarmac Grain & Shoulder Lines */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00FF94] via-[#FFE600] to-[#00FF94] opacity-50" />
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" />
+
+          {/* Continuous Dashed Lane Markers with Speed Blur */}
+          <div
+            className="w-[200%] flex items-center justify-around"
+            style={{
+              animation: isDriving || isLaunching
+                ? 'asphaltDash 0.22s linear infinite'
+                : isArriving
+                  ? 'asphaltDash 0.35s linear infinite'
+                  : 'none'
+            }}
+          >
+            {[...Array(20)].map((_, i) => (
               <div
                 key={i}
-                className="w-10 h-1.5 bg-studio-yellow border border-black rounded-xs shadow-[0_0_8px_#FFE600]"
+                className="w-12 h-1.5 bg-[#FFE600] border border-black rounded-xs shadow-[0_0_8px_#FFE600]"
               />
             ))}
           </div>
@@ -739,4 +906,3 @@ export function DeliveryCarAnimation({
     </div>
   )
 }
-

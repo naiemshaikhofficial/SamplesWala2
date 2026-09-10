@@ -391,6 +391,61 @@ export default function CheckoutPage() {
   const [error, setError] = useState('')
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
   const [isOrderComplete, setIsOrderComplete] = useState(false)
+  const [completedOrder, setCompletedOrder] = useState<{
+    orderId: string
+    isFree: boolean
+    items: any[]
+  } | null>(null)
+  const [dispatchStage, setDispatchStage] = useState<'idle' | 'dispatching' | 'delivered'>('idle')
+  const [dispatchProgress, setDispatchProgress] = useState(15)
+
+  // Smooth Dispatch Progress Simulation (Takes ~2.2 seconds before seamless transition to delivery)
+  useEffect(() => {
+    if (dispatchStage !== 'dispatching') return
+
+    let current = 15
+    setDispatchProgress(15)
+
+    const interval = setInterval(() => {
+      current += Math.floor(Math.random() * 16) + 12
+      if (current >= 100) {
+        current = 100
+        setDispatchProgress(100)
+        clearInterval(interval)
+        setTimeout(() => {
+          setDispatchStage('delivered')
+        }, 500)
+      } else {
+        setDispatchProgress(current)
+      }
+    }, 150)
+
+    return () => clearInterval(interval)
+  }, [dispatchStage])
+
+  // Unified Seamless Order Success Handler (Zero page reload)
+  const handleOrderSuccess = (targetOrderId: string, isFree: boolean = false, orderItems: any[] = items) => {
+    try {
+      sessionStorage.removeItem('pending_cf_checkout')
+    } catch (e) {}
+    clearCart()
+    setCompletedOrder({
+      orderId: targetOrderId,
+      isFree,
+      items: orderItems && orderItems.length > 0 ? orderItems : items
+    })
+    setIsOrderComplete(true)
+    setDispatchStage('dispatching')
+    setPaymentStatus('idle')
+    setLoading(false)
+
+    // Update browser URL seamlessly without page reload
+    if (typeof window !== 'undefined') {
+      const url = `/thank-you?order_id=${encodeURIComponent(targetOrderId)}${isFree ? '&free=true' : ''}`
+      window.history.pushState({ orderId: targetOrderId }, '', url)
+    }
+  }
+
   const [isVerifyingRedirect, setIsVerifyingRedirect] = useState(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
@@ -444,10 +499,8 @@ export default function CheckoutPage() {
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            sessionStorage.removeItem('pending_cf_checkout')
-            clearCart()
             const targetOrderId = data.orderId || cfOrderId
-            window.location.href = `/thank-you?order_id=${targetOrderId}`
+            handleOrderSuccess(targetOrderId, false, parsed?.items || items)
             return
           } else {
             setError(data.error || 'Verification failed')
@@ -697,9 +750,8 @@ export default function CheckoutPage() {
                   console.error('Failed to update newsletter status:', e)
                 }
 
-                clearCart()
                 const targetOrderId = verifyData.orderId || data.orderID
-                window.location.href = `/thank-you?order_id=${targetOrderId}`
+                handleOrderSuccess(targetOrderId, false, items)
                 return
               } else {
                 setError(verifyData.error || 'Verification failed')
@@ -1033,12 +1085,6 @@ export default function CheckoutPage() {
       const verifyData = await verifyRes.json()
 
       if (verifyData.success) {
-        sessionStorage.removeItem('pending_cf_checkout')
-        clearCart()
-        const targetOrderId = verifyData.orderId || orderData.order_id
-        window.location.href = `/thank-you?order_id=${targetOrderId}`
-        return
-
         // Background profile sync (non-blocking for instant UI feedback)
         supabase.auth.updateUser({
           data: {
@@ -1058,6 +1104,10 @@ export default function CheckoutPage() {
             .update({ newsletter: newsletterOptIn })
             .eq('user_id', user.id)
         ).catch(e => console.error('Background newsletter update error:', e))
+
+        const targetOrderId = verifyData.orderId || orderData.order_id
+        handleOrderSuccess(targetOrderId, false, items)
+        return
       } else {
         setError(verifyData.error || 'Payment was not confirmed. If money was deducted, contact support.')
         setPaymentStatus('idle')
@@ -1116,17 +1166,18 @@ export default function CheckoutPage() {
           } catch (e) {
             console.error('Failed to update newsletter status:', e)
           }
-          clearCart()
           const targetOrderId = verifyData.orderId || `SW_FREE_${Date.now()}`
-          window.location.href = `/thank-you?order_id=${targetOrderId}&free=true`
+          handleOrderSuccess(targetOrderId, true, items)
           return
         } else {
           setIsOrderComplete(false)
+          setDispatchStage('idle')
           const err = await verifyRes.json()
           setError(err.error || 'Checkout failed')
         }
       } catch (err) {
         setIsOrderComplete(false)
+        setDispatchStage('idle')
         setError('Network error during checkout')
       } finally {
         setLoading(false)
@@ -1217,9 +1268,8 @@ export default function CheckoutPage() {
                 console.error('Failed to update newsletter status:', e)
               }
 
-              clearCart()
               const targetOrderId = verifyData.orderId || response.razorpay_order_id
-              window.location.href = `/thank-you?order_id=${targetOrderId}`
+              handleOrderSuccess(targetOrderId, false, items)
               return
             } else {
               setError('Verification failed')
@@ -1405,21 +1455,39 @@ export default function CheckoutPage() {
     )
   }
 
-  if (isOrderComplete) {
+  if (completedOrder || isOrderComplete) {
     return (
+      <div className="min-h-screen bg-[#0a0a0e] text-white flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden select-none">
+        {/* Studio Dot Grid Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-30" />
 
-      <div className="min-h-[75vh] flex flex-col items-center justify-center space-y-4 text-center px-4 relative z-10 max-w-2xl mx-auto select-none">
-        <MusicalNotesBackground />
-        <DeliveryCarAnimation mode="drive" />
-        <div className="space-y-1.5 pt-1">
-          <h2 className="text-xl sm:text-2xl font-black uppercase italic tracking-tight text-white font-mono">
-            DISPATCHING SOUND VAULT...
-          </h2>
-          <p className="text-xs font-mono uppercase tracking-widest text-[#00FF94] flex items-center justify-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
-            Locking in your 24-bit audio tokens...
-          </p>
-        </div>
+        {/* Dynamic Studio Ambient Glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-[#00FF94]/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/3 left-1/4 w-[450px] h-[300px] bg-[#FFE600]/10 rounded-full blur-[120px] pointer-events-none" />
+
+        {dispatchStage === 'dispatching' ? (
+          <div className="w-full max-w-2xl mx-auto flex flex-col items-center justify-center space-y-6 text-center relative z-10 py-12 animate-fade-in">
+            <MusicalNotesBackground />
+            <DeliveryCarAnimation mode="drive" progress={dispatchProgress} />
+            <div className="space-y-2 pt-2">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase italic tracking-tight text-white font-mono flex items-center justify-center gap-2">
+                <span>DISPATCHING SOUND VAULT...</span>
+              </h2>
+              <p className="text-xs font-mono uppercase tracking-widest text-[#00FF94] flex items-center justify-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#00FF94] animate-ping" />
+                <span>Locking in your 24-bit master audio tokens...</span>
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full relative z-10 animate-fade-in">
+            <ThankYouClient
+              initialOrderId={completedOrder?.orderId || 'SW-CONFIRMED'}
+              initialIsFree={completedOrder?.isFree || false}
+              initialItems={completedOrder?.items || []}
+            />
+          </div>
+        )}
       </div>
     )
   }
@@ -1440,7 +1508,29 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-black text-white relative">
       <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="afterInteractive" />
-      <div className="container mx-auto max-w-5xl px-4 pt-16 pb-24 relative z-10">
+      <div className="container mx-auto max-w-5xl px-4 pt-8 pb-24 relative z-10">
+        {/* Minimal Clean Checkout Top Bar (Distraction-Free) */}
+        <div className="flex items-center justify-between pb-6 mb-8 border-b border-white/10 select-none">
+          <Link
+            href="/browse"
+            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-white/50 hover:text-[#FFE600] transition-colors"
+          >
+            <span>←</span>
+            <span>BACK TO STORE</span>
+          </Link>
+
+          <Link href="/" className="inline-flex items-center group">
+            <span className="text-lg font-black uppercase tracking-tight font-mono text-white group-hover:text-[#FFE600] transition-colors">
+              SAMPLES<span className="text-white/40">WALA</span>
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-2 text-[10.5px] font-mono font-black uppercase tracking-widest text-[#00FF94]">
+            <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-pulse" />
+            <span className="hidden sm:inline">256-BIT ENCRYPTED</span>
+          </div>
+        </div>
+
         {/* Graffiti Branded Header */}
         <div className="flex flex-col items-center mb-12 text-center">
           <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic text-white graffiti-title-text">
