@@ -1398,7 +1398,7 @@ export default function CheckoutPage() {
     const isFreeOrder = completedOrder?.isFree || targetOrderId.startsWith('SW_FREE') || targetOrderId.startsWith('SW_PAY_FREE')
 
     return (
-      <div className="min-h-screen bg-[#090a0f] text-white flex flex-col justify-center items-center px-4 py-6 sm:py-8 relative overflow-hidden select-none">
+      <div className="min-h-screen bg-[#090a0f] text-white flex flex-col items-center justify-start pt-6 sm:pt-10 pb-12 px-4 relative overflow-hidden select-none">
         {/* Studio Dot Grid Background */}
         <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-30" />
 
@@ -1415,7 +1415,7 @@ export default function CheckoutPage() {
           </Link>
         </div>
 
-        {/* HERO ANIMATION WINDOW (Pure, clean, cinematic - no clutter) */}
+        {/* HERO ANIMATION WINDOW (Pure, clean, cinematic - strictly fixed position) */}
         <div className="w-full max-w-xl sm:max-w-2xl mx-auto relative z-10">
           <DeliveryCarAnimation
             mode={isReadyToUnbox ? 'return' : 'drive'}
@@ -1426,8 +1426,8 @@ export default function CheckoutPage() {
           />
         </div>
 
-        {/* ALL STATUS & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
-        <div className="w-full max-w-sm sm:max-w-md mx-auto text-center relative z-10 space-y-3 pt-2">
+        {/* ALL STATUS & ACTIONS SIT NICHE WITH FIXED VERTICAL ANCHOR (ZERO JUMP) */}
+        <div className="w-full max-w-sm sm:max-w-md mx-auto text-center relative z-10 min-h-[220px] flex flex-col items-center justify-start space-y-3 pt-2">
           {!isReadyToUnbox ? (
             /* --- DISPATCHING / VERIFICATION STATUS (NICHE) --- */
             <div className="space-y-3">
