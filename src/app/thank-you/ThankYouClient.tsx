@@ -190,6 +190,97 @@ export function ThankYouClient({
         </Link>
       </div>
 
+      {/* ========================================================================= */}
+      {/* 💥 UPAR (TOP): RAW WILD-STYLE GRAFFITI STATUS - NO BORDERS, PURE STREET ART */}
+      {/* ========================================================================= */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .graffiti-shadow {
+          filter: drop-shadow(3px 3px 0px #000000) 
+                  drop-shadow(-2px -2px 0px #000000) 
+                  drop-shadow(5px 5px 0px #00FF94) 
+                  drop-shadow(0 0 24px rgba(255, 230, 0, 0.75));
+        }
+        .graffiti-downloading-shadow {
+          filter: drop-shadow(3px 3px 0px #000000) 
+                  drop-shadow(4px 4px 0px #00FF94) 
+                  drop-shadow(0 0 20px rgba(0, 255, 148, 0.85));
+        }
+        `
+      }} />
+
+      <div className="flex flex-col items-center justify-center text-center my-1 sm:my-2 relative z-20 select-none">
+        {!isParcelOpened ? (
+          /* State 1: Wild Street Graffiti "THANK YOU!" with Paint Drips */
+          <div className="flex flex-col items-center group cursor-default">
+            {/* Street Tag Spray Splatters & Crowns */}
+            <div className="flex items-center gap-1.5 -mb-1.5 sm:-mb-2 text-[#FFE600] opacity-90 drop-shadow-[0_0_8px_#FFE600]">
+              <span className="text-xs sm:text-sm font-black transform -rotate-12">✦</span>
+              <span className="text-[11px] sm:text-xs font-black tracking-widest uppercase font-mono">★ KING OF SOUNDS ★</span>
+              <span className="text-xs sm:text-sm font-black transform rotate-12">✦</span>
+            </div>
+
+            {/* RAW WILD GRAFFITI TEXT: THANK YOU! */}
+            <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform duration-300 hover:scale-105">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-br from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
+                THANK YOU!
+              </h1>
+            </div>
+
+            {/* Street Art Drip SVG Underline */}
+            <svg className="w-48 sm:w-64 md:w-80 h-4 mt-0.5 text-[#00FF94] fill-current drop-shadow-[0_0_8px_#00FF94]" viewBox="0 0 260 18" fill="none">
+              <path d="M5 9 Q70 2 130 9 T255 8" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+              <path d="M45 9 C45 14 48 17 50 17 C52 17 55 14 55 9 Z" fill="currentColor" />
+              <path d="M125 9 C125 15 128 19 130 19 C132 19 135 15 135 9 Z" fill="currentColor" />
+              <path d="M195 8 C195 13 197 16 199 16 C201 16 203 13 203 8 Z" fill="currentColor" />
+            </svg>
+          </div>
+        ) : isDownloading ? (
+          /* State 2: Dynamic Downloading Status in Graffiti Style */
+          <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl sm:text-3xl animate-bounce">⚡</span>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-[#00E5FF] to-[#FFE600] graffiti-downloading-shadow">
+                DOWNLOADING YOUR FILE...
+              </h1>
+              <span className="text-2xl sm:text-3xl animate-bounce">⚡</span>
+            </div>
+            <span className="text-[10px] sm:text-xs font-mono text-[#00FF94] tracking-widest uppercase mt-1 drop-shadow-[0_0_8px_#00FF94]">
+              HANG TIGHT! WE ARE PACKING YOUR STEMS
+            </span>
+          </div>
+        ) : downloadSuccess ? (
+          /* State 3: Download Complete */
+          <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl sm:text-3xl animate-pulse">🔥</span>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-white to-[#00FF94] graffiti-downloading-shadow">
+                DOWNLOAD STARTED!
+              </h1>
+              <span className="text-2xl sm:text-3xl animate-pulse">🎵</span>
+            </div>
+            <span className="text-[10px] sm:text-xs font-mono text-[#00FF94] tracking-widest uppercase mt-1">
+              CHECK YOUR BROWSER DOWNLOADS • ENJOY THE SOUNDS!
+            </span>
+          </div>
+        ) : downloadError ? (
+          /* State 4: Retry */
+          <button
+            onClick={handleUnboxAndDownload}
+            className="flex flex-col items-center -rotate-1 skew-x-[-3deg] text-red-400 hover:text-red-300 transition-all cursor-pointer group"
+          >
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-red-400 drop-shadow-[0_0_12px_rgba(255,49,49,0.7)] group-hover:scale-105 transition-transform">
+                DOWNLOAD BLOCKED? TAP TO RETRY ↺
+              </h1>
+            </div>
+            <span className="text-[10px] font-mono text-white/50 tracking-widest uppercase mt-1">
+              CLICK TO RE-TRIGGER SECURE DOWNLOAD STREAM
+            </span>
+          </button>
+        ) : null}
+      </div>
+
       {/* Pure Detailed Hypercar Delivery & Unboxing Experience */}
       <div className="w-full relative z-10 my-0">
         <DeliveryCarAnimation
@@ -202,135 +293,32 @@ export function ThankYouClient({
         />
       </div>
 
-      {/* Keyframe Styles for Burning Neon Border */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes burningNeonGlow {
-          0%, 100% {
-            box-shadow: 
-              0 0 14px #FFE600,
-              0 0 30px rgba(255, 230, 0, 0.75),
-              0 0 60px rgba(255, 230, 0, 0.4),
-              inset 0 0 16px rgba(255, 230, 0, 0.3);
-            border-color: #FFE600;
-          }
-          50% {
-            box-shadow: 
-              0 0 20px #00FF94,
-              0 0 45px rgba(0, 255, 148, 0.85),
-              0 0 85px rgba(0, 255, 148, 0.45),
-              inset 0 0 22px rgba(0, 255, 148, 0.35);
-            border-color: #00FF94;
-          }
-        }
-        @keyframes burningNeonDownloading {
-          0%, 100% {
-            box-shadow: 
-              0 0 20px #00FF94,
-              0 0 45px rgba(0, 255, 148, 0.9),
-              0 0 90px rgba(0, 255, 148, 0.55),
-              inset 0 0 24px rgba(0, 255, 148, 0.4);
-            border-color: #00FF94;
-          }
-          50% {
-            box-shadow: 
-              0 0 28px #00E5FF,
-              0 0 65px rgba(0, 229, 255, 0.95),
-              0 0 110px rgba(0, 229, 255, 0.6),
-              inset 0 0 30px rgba(0, 229, 255, 0.45);
-            border-color: #00E5FF;
-          }
-        }
-        .anim-burning-neon {
-          animation: burningNeonGlow 2.4s ease-in-out infinite;
-        }
-        .anim-burning-downloading {
-          animation: burningNeonDownloading 1.2s ease-in-out infinite;
-        }
-        `
-      }} />
+      {/* Minimal Action Footer (Below Car) */}
+      <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center space-y-2 pt-1">
+        <Link
+          href="/library"
+          className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
+        >
+          go to library &rarr;
+        </Link>
 
-      {/* ALL STATUS & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
-      <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center space-y-3 pt-2">
-        {/* BURNING NEON STATUS BANNER (Morphs seamlessly from THANK YOU into Downloading) */}
-        <div className={`relative px-7 py-4 sm:px-10 sm:py-5 rounded-2xl border-2 bg-[#08090f]/90 backdrop-blur-md transition-all duration-500 flex items-center justify-center select-none ${
-          isDownloading
-            ? 'anim-burning-downloading'
-            : downloadSuccess
-              ? 'border-[#00FF94] shadow-[0_0_35px_rgba(0,255,148,0.7),inset_0_0_20px_rgba(0,255,148,0.35)]'
-              : 'anim-burning-neon'
-        }`}>
-          {/* Glowing Neon Corner Rivets */}
-          <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_10px_#FFE600]" />
-          <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_10px_#00FF94]" />
-          <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_10px_#00FF94]" />
-          <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_10px_#FFE600]" />
-
-          {!isParcelOpened ? (
-            /* State 1: Burning Electric Neon "THANK YOU!" in Street Graffiti Style */
-            <div className="flex items-center justify-center gap-1.5">
-              <span className="text-3xl sm:text-4xl md:text-5xl font-black uppercase italic tracking-[0.16em] font-mono text-transparent bg-clip-text bg-gradient-to-r from-[#FFE600] via-white to-[#00FF94] drop-shadow-[0_0_20px_rgba(255,230,0,0.7)]">
-                THANK YOU
-              </span>
-              <span className="text-3xl sm:text-4xl md:text-5xl font-black italic text-[#00FF94] drop-shadow-[0_0_22px_#00FF94]">
-                !
-              </span>
-            </div>
-          ) : isDownloading ? (
-            /* State 2: Dynamic Downloading Status right in the same neon banner */
-            <div className="flex items-center gap-3 px-2">
-              <span className="w-3 h-3 rounded-full bg-[#00FF94] animate-ping" />
-              <span className="text-sm sm:text-base md:text-lg font-black uppercase italic tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_16px_#00FF94]">
-                ⚡ YOUR FILE IS DOWNLOADING... PLEASE WAIT
-              </span>
-            </div>
-          ) : downloadSuccess ? (
-            /* State 3: Download Complete */
-            <div className="flex items-center gap-2 px-2">
-              <span className="text-sm sm:text-base md:text-lg font-black uppercase italic tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_16px_#00FF94]">
-                DOWNLOAD STARTED! ENJOY YOUR SOUNDS 🎵
-              </span>
-            </div>
-          ) : downloadError ? (
-            /* State 4: Retry */
-            <button
-              onClick={handleUnboxAndDownload}
-              className="flex items-center gap-2 px-2 text-red-400 hover:text-red-300 transition-colors cursor-pointer"
-            >
-              <span className="text-sm sm:text-base md:text-lg font-black uppercase italic tracking-wider font-mono">
-                DOWNLOAD BLOCKED? TAP TO RETRY ↺
-              </span>
-            </button>
-          ) : null}
-        </div>
-
-        {/* Minimal Action Footer */}
-        <div className="flex flex-col items-center space-y-2 pt-2">
-          <Link
-            href="/library"
-            className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
+        <div className="flex items-center gap-4 text-[10px] font-mono text-white/30 uppercase tracking-wider pt-1">
+          <button
+            onClick={() => {
+              setReplayKey(k => k + 1)
+              setIsParcelOpened(false)
+              setIsDownloading(false)
+              setDownloadSuccess(false)
+              setDownloadError(null)
+            }}
+            className="hover:text-white/70 transition-colors underline cursor-pointer"
           >
-            go to library →
-          </Link>
-
-          <div className="flex items-center gap-4 text-[10px] font-mono text-white/30 uppercase tracking-wider pt-1">
-            <button
-              onClick={() => {
-                setReplayKey(k => k + 1)
-                setIsParcelOpened(false)
-                setIsDownloading(false)
-                setDownloadSuccess(false)
-                setDownloadError(null)
-              }}
-              className="hover:text-white/70 transition-colors underline cursor-pointer"
-            >
-              Replay Delivery ↺
-            </button>
-            <span>•</span>
-            <a href="mailto:support@sampleswala.com" className="text-white/50 hover:text-white underline">
-              support@sampleswala.com
-            </a>
-          </div>
+            Replay Delivery &#8634;
+          </button>
+          <span>•</span>
+          <a href="mailto:support@sampleswala.com" className="text-white/50 hover:text-white underline">
+            support@sampleswala.com
+          </a>
         </div>
       </div>
     </div>
