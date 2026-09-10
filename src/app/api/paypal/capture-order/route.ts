@@ -181,7 +181,21 @@ export async function POST(request: Request) {
       )
     }
 
-    // 4. Add to User Vault (with discounted item prices)
+    // 4. Fetch live USD to INR rate at this exact second
+    let liveUsdRate = 90.0
+    try {
+      const rateRes = await fetch('https://api.exchangerate-api.com/v4/latest/USD', { cache: 'no-store' })
+      if (rateRes.ok) {
+        const rateData = await rateRes.json()
+        if (rateData?.rates?.INR && typeof rateData.rates.INR === 'number') {
+          liveUsdRate = Math.round(rateData.rates.INR * 100) / 100
+        }
+      }
+    } catch (e) {
+      console.warn('[PAYPAL_EXCHANGE_RATE] Fallback rate used:', e)
+    }
+
+    // Add to User Vault (with discounted item prices and frozen live conversion rate)
     let calculatedSum = 0
     const vaultEntries = items.map((item: any, index: number) => {
       const dbItem = allPurchasedItems.find(p => p.id === item.id)
@@ -205,6 +219,8 @@ export async function POST(request: Request) {
         calculatedSum += finalPrice
       }
 
+      const convertedInr = Number((finalPrice * liveUsdRate).toFixed(2))
+
       return {
         user_id: userId,
         item_id: item.id,
@@ -216,6 +232,8 @@ export async function POST(request: Request) {
         original_price: basePrice,
         discount_amount: Math.max(0, Number((basePrice - finalPrice).toFixed(2))),
         coupon_code: couponCode ? String(couponCode).toUpperCase().trim() : null,
+        exchange_rate: liveUsdRate,
+        converted_amount_inr: convertedInr,
         razorpay_order_id: finalOrderId,
         razorpay_payment_id: finalPaymentId
       }

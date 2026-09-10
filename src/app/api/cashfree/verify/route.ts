@@ -198,6 +198,8 @@ export async function POST(request: Request) {
         original_price: basePrice,
         discount_amount: Math.max(0, basePrice - finalPrice),
         coupon_code: couponCode ? String(couponCode).toUpperCase().trim() : null,
+        exchange_rate: 1.0,
+        converted_amount_inr: finalPrice,
         razorpay_order_id: order_id,
         razorpay_payment_id: finalPaymentId
       }
