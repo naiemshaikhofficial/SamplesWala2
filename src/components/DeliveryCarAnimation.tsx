@@ -9,6 +9,7 @@ export interface DeliveryCarAnimationProps {
   isParcelOpened?: boolean
   isDownloading?: boolean
   progress?: number // 0 to 100 for dispatch progress
+  itemCoverUrl?: string
 }
 
 export type DeliveryPhase =
@@ -28,7 +29,8 @@ export function DeliveryCarAnimation({
   onParcelClick,
   isParcelOpened = false,
   isDownloading = false,
-  progress = 0
+  progress = 0,
+  itemCoverUrl
 }: DeliveryCarAnimationProps) {
   const [phase, setPhase] = useState<DeliveryPhase>(
     mode === 'drive' ? 'drive_speed' : 'zoom_past'
@@ -244,6 +246,33 @@ export function DeliveryCarAnimation({
         @keyframes plasmaCoreFlicker {
           0%, 100% { transform: scaleX(0.9) scaleY(0.8); opacity: 0.95; }
           50% { transform: scaleX(1.45) scaleY(1.2); opacity: 1; }
+        }
+
+        /* Funky Johnny Bravo Poses & Gestures */
+        @keyframes funkyHandWave {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(-18deg); }
+          75% { transform: rotate(14deg); }
+        }
+        .anim-funky-wave {
+          transform-origin: 88px 72px;
+          animation: funkyHandWave 0.32s ease-in-out infinite alternate;
+        }
+        @keyframes johnnyHairScratch {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(2px, -3px) rotate(5deg); }
+        }
+        .anim-hair-scratch {
+          transform-origin: 88px 72px;
+          animation: johnnyHairScratch 0.4s ease-in-out infinite alternate;
+        }
+        @keyframes johnnyBicepFlex {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.06) translateY(-2px); }
+          100% { transform: scale(1); }
+        }
+        .anim-bicep-flex {
+          animation: johnnyBicepFlex 0.5s ease-in-out infinite;
         }
 
         /* Comic Bubble Pop */
@@ -1024,42 +1053,61 @@ export function DeliveryCarAnimation({
                       </>
                     )}
 
-                    {/* Dropped Parcel: Hand on Hip Swagger Pose + Sequential Dialogue */}
+                    {/* Dropped Parcel: Funky Gestures + Separate Comic Dialogue Boxes */}
                     {phase === 'drop_parcel' && (
                       <>
-                        {/* Classic Bravo Pose: Left hand on hip, right hand gestures to drop */}
-                        <path d="M 46 72 L 30 84 L 42 96" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
-                        <path d="M 88 72 L 72 92 L 56 110" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
-                        <polygon points="52,110 60,110 56,118" fill="#FFE600" stroke="#000" strokeWidth="1.2" />
-
-                        {/* COMIC SPEECH BUBBLE: Sequential Line-by-Line Reveal so user can read! */}
-                        {dialogueStep >= 1 && (
-                          <g className="anim-bubble-pop" transform="translate(92, 4)">
-                            {/* Comic Speech Pointer Tail */}
-                            <polygon points="0,38 -14,46 4,42" fill="#111216" stroke="#FFE600" strokeWidth="1.5" />
-                            {/* Comic Speech Box */}
-                            <rect x="0" y="0" width="168" height="52" rx="6" fill="#111216" stroke="#FFE600" strokeWidth="1.5" />
-
-                            {/* Line 1 (Beat 1) */}
-                            <g className="anim-line-in">
-                              <text x="10" y="16" fill="#FFE600" fontSize="8.5" fontWeight="900" fontFamily="monospace">
+                        {/* Pose 1 (Beat 1): Hand waving funky while speaking "YO MY BAD FAM!" */}
+                        {dialogueStep === 1 && (
+                          <g>
+                            <path d="M 46 72 L 30 84 L 42 96" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
+                            <g className="anim-funky-wave">
+                              <path d="M 88 72 L 102 60 L 114 68" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
+                              <circle cx="116" cy="68" r="4.5" fill="#F4A982" />
+                            </g>
+                            {/* Dialogue Box 1 */}
+                            <g className="anim-bubble-pop" transform="translate(102, 6)">
+                              <polygon points="0,28 -14,36 4,32" fill="#0d0e14" stroke="#FFE600" strokeWidth="1.8" />
+                              <rect x="0" y="0" width="144" height="34" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="1.8" />
+                              <text x="10" y="22" fill="#FFE600" fontSize="9.5" fontWeight="900" fontFamily="monospace">
                                 YO MY BAD FAM! 💀
                               </text>
                             </g>
+                          </g>
+                        )}
 
-                            {/* Line 2 (Beat 2) */}
-                            {dialogueStep >= 2 && (
-                              <g className="anim-line-in">
-                                <text x="10" y="30" fill="#E4E4E7" fontSize="7.2" fontWeight="700" fontFamily="monospace">
-                                  Almost forgot your drop...
-                                </text>
-                              </g>
-                            )}
+                        {/* Pose 2 (Beat 2): Scratching back of head/hair with sheepish smirk */}
+                        {dialogueStep === 2 && (
+                          <g>
+                            <path d="M 46 72 L 30 84 L 42 96" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
+                            <g className="anim-hair-scratch">
+                              <path d="M 88 72 L 86 48 L 74 36" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
+                              <circle cx="74" cy="34" r="4.5" fill="#F4A982" />
+                            </g>
+                            {/* Dialogue Box 2 */}
+                            <g className="anim-bubble-pop" transform="translate(98, 6)">
+                              <polygon points="0,28 -14,36 4,32" fill="#0d0e14" stroke="#FFE600" strokeWidth="1.8" />
+                              <rect x="0" y="0" width="158" height="34" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="1.8" />
+                              <text x="10" y="22" fill="#E4E4E7" fontSize="8.2" fontWeight="700" fontFamily="monospace">
+                                Almost forgot your drop... 😅
+                              </text>
+                            </g>
+                          </g>
+                        )}
 
-                            {/* Line 3 (Beat 3) */}
-                            {dialogueStep >= 3 && (
-                              <g className="anim-line-in">
-                                <text x="10" y="44" fill="#00FF94" fontSize="7.8" fontWeight="900" fontFamily="monospace">
+                        {/* Pose 3 (Beat 3): Biceps flex & pointing directly down at the gold vault crate */}
+                        {(dialogueStep === 3 || dialogueStep === 0) && (
+                          <g>
+                            <g className="anim-bicep-flex">
+                              <path d="M 46 72 L 28 82 L 40 94" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
+                              <path d="M 88 72 L 72 94 L 56 112" stroke="#F4A982" strokeWidth="7" strokeLinecap="round" />
+                              <polygon points="52,112 60,112 56,120" fill="#FFE600" stroke="#000" strokeWidth="1.2" />
+                            </g>
+                            {/* Dialogue Box 3 */}
+                            {dialogueStep === 3 && (
+                              <g className="anim-bubble-pop" transform="translate(92, 4)">
+                                <polygon points="0,30 -14,38 4,34" fill="#0d0e14" stroke="#00FF94" strokeWidth="1.8" />
+                                <rect x="0" y="0" width="176" height="36" rx="7" fill="#0d0e14" stroke="#00FF94" strokeWidth="1.8" />
+                                <text x="10" y="23" fill="#00FF94" fontSize="8.8" fontWeight="900" fontFamily="monospace">
                                   HERE IS YOUR 24-BIT HEAT! 🔥
                                 </text>
                               </g>
@@ -1110,6 +1158,12 @@ export function DeliveryCarAnimation({
                 !isParcelOpened ? 'group-hover:drop-shadow-[0_0_24px_rgba(255,230,0,0.9)] group-hover:brightness-110' : ''
               }`}
             >
+              <defs>
+                <clipPath id="cdVinylDiscClip">
+                  <circle cx="26" cy="26" r="23.5" />
+                </clipPath>
+              </defs>
+
               {/* Tarmac Shadow under Crate */}
               <ellipse cx="50" cy="82" rx="38" ry="5.5" fill="#000000" opacity="0.85" />
               <ellipse cx="50" cy="82" rx="30" ry="3.5" fill="#00FF94" opacity="0.45" />
@@ -1126,7 +1180,7 @@ export function DeliveryCarAnimation({
                 </g>
               )}
 
-              {/* 24-BIT GOLD AUDIO MASTER VINYL (Rises out of crate) */}
+              {/* 24-BIT CUSTOM PACK CD / VINYL MASTER (Rises out of crate) */}
               {isParcelOpened && (
                 <g className="anim-vinyl-rise" transform="translate(24, 6)">
                   <circle cx="26" cy="26" r="25" fill="#00FF94" opacity="0.25" className="animate-ping" />
@@ -1136,15 +1190,41 @@ export function DeliveryCarAnimation({
                       type="rotate"
                       from="0 26 26"
                       to="360 26 26"
-                      dur="3.5s"
+                      dur="4s"
                       repeatCount="indefinite"
                     />
-                    <circle cx="26" cy="26" r="24" fill="url(#goldVinylMaster)" stroke="#FFE600" strokeWidth="2.5" />
-                    <circle cx="26" cy="26" r="20" fill="none" stroke="#222" strokeWidth="1" strokeDasharray="3,2" />
-                    <circle cx="26" cy="26" r="16" fill="none" stroke="#333" strokeWidth="1" />
-                    <circle cx="26" cy="26" r="12" fill="none" stroke="#222" strokeWidth="1" strokeDasharray="2,2" />
-                    <circle cx="26" cy="26" r="9" fill="#00FF94" stroke="#000" strokeWidth="2" />
-                    <circle cx="26" cy="26" r="3.5" fill="#000000" />
+                    {/* Vinyl Disc Base */}
+                    <circle cx="26" cy="26" r="24" fill="#0c0d12" stroke="#FFE600" strokeWidth="2" />
+
+                    {/* Customer's Purchased Sound Pack Artwork / Cover Art */}
+                    {itemCoverUrl ? (
+                      <image
+                        href={itemCoverUrl}
+                        x="2.5"
+                        y="2.5"
+                        width="47"
+                        height="47"
+                        preserveAspectRatio="xMidYMid slice"
+                        clipPath="url(#cdVinylDiscClip)"
+                      />
+                    ) : (
+                      <circle cx="26" cy="26" r="24" fill="url(#goldVinylMaster)" />
+                    )}
+
+                    {/* Realistic Vinyl Grooves & Holographic Sheen Overlay */}
+                    <circle cx="26" cy="26" r="23.5" fill="none" stroke="#000000" strokeWidth="2.5" opacity="0.45" />
+                    <circle cx="26" cy="26" r="21" fill="none" stroke="#ffffff" strokeWidth="0.6" opacity="0.25" strokeDasharray="3,2" />
+                    <circle cx="26" cy="26" r="17" fill="none" stroke="#000000" strokeWidth="1" opacity="0.35" />
+                    <circle cx="26" cy="26" r="13" fill="none" stroke="#ffffff" strokeWidth="0.5" opacity="0.2" strokeDasharray="2,2" />
+
+                    {/* High-Gloss Light Flare */}
+                    <path d="M 6 6 L 22 22 L 16 38 L 2 20 Z" fill="#ffffff" opacity="0.16" clipPath="url(#cdVinylDiscClip)" />
+
+                    {/* Center Hub & Spindle Cutout */}
+                    <circle cx="26" cy="26" r="7" fill="#0a0b10" stroke="#00FF94" strokeWidth="1.2" />
+                    <text x="26" y="24" fill="#00FF94" fontSize="2.5" fontWeight="900" textAnchor="middle">24-BIT</text>
+                    <text x="26" y="30.5" fill="#FFE600" fontSize="2.2" fontWeight="900" textAnchor="middle">MASTER</text>
+                    <circle cx="26" cy="26" r="2.8" fill="#000000" stroke="#FFE600" strokeWidth="0.8" />
                   </g>
                 </g>
               )}

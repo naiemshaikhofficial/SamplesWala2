@@ -37,13 +37,30 @@ export function ThankYouClient({
   const orderId = initialOrderId || searchParams.get('order_id') || 'SW-CONFIRMED'
   const isFree = initialIsFree ?? (searchParams.get('free') === 'true' || orderId.startsWith('SW_FREE') || orderId.startsWith('SW_PAY_FREE'))
 
-  const [copied, setCopied] = useState(false)
   const [claimedItems, setClaimedItems] = useState<any[]>(initialItems || [])
+  const [fallbackCover, setFallbackCover] = useState<string>('')
   const [replayKey, setReplayKey] = useState(0)
   const [isParcelOpened, setIsParcelOpened] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadSuccess, setDownloadSuccess] = useState(false)
   const [downloadError, setDownloadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (claimedItems.length === 0) {
+      try {
+        const supabase = createClient()
+        supabase
+          .from('sample_packs')
+          .select('cover_url')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data?.cover_url) setFallbackCover(data.cover_url)
+          })
+      } catch (e) {}
+    }
+  }, [claimedItems.length])
 
   const handleUnboxAndDownload = async () => {
     if (isParcelOpened && !downloadError) return
@@ -178,16 +195,16 @@ export function ThankYouClient({
 
   return (
     <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex flex-col items-center justify-start relative z-10 select-none space-y-3 sm:space-y-4 px-4 pt-3 sm:pt-5 pb-16">
-      {/* Official Brand Logo */}
+      {/* Official Brand Logo (Prominent & Cinematic) */}
       <div className="flex justify-center mb-1 sm:mb-2">
         <Link href="/" className="inline-flex items-center hover:opacity-90 hover:scale-105 transition-all duration-200">
           <Image
             src="/Logo.png"
             alt="SamplesWala Logo"
-            width={180}
-            height={45}
+            width={240}
+            height={60}
             priority
-            className="h-8 sm:h-10 md:h-12 w-auto object-contain"
+            className="h-11 sm:h-13 md:h-15 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
           />
         </Link>
       </div>
@@ -200,114 +217,63 @@ export function ThankYouClient({
           onParcelClick={handleUnboxAndDownload}
           isParcelOpened={isParcelOpened}
           isDownloading={isDownloading}
+          itemCoverUrl={claimedItems[0]?.cover_url || fallbackCover || ''}
         />
       </div>
 
       {/* ALL STATUS & ACTIONS SIT NICHE (BELOW THE ANIMATION) */}
-      <div className="w-full max-w-md mx-auto flex flex-col items-center text-center space-y-3 pt-1">
-        {/* AUTHENTIC STREET GRAFFITI "THANK YOU!" */}
-        <div className="relative flex flex-col items-center justify-center my-1 select-none">
-          <svg viewBox="0 0 380 76" className="w-64 sm:w-72 md:w-88 h-auto overflow-visible">
-            <defs>
-              <linearGradient id="graffitiYellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FFF275" />
-                <stop offset="45%" stopColor="#FFE600" />
-                <stop offset="100%" stopColor="#00FF94" />
-              </linearGradient>
-              <filter id="graffitiGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
+      <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center space-y-3 pt-2">
+        {/* BURNING NEON STATUS BANNER (Morphs seamlessly from THANK YOU into Downloading) */}
+        <div className={`relative px-6 py-3.5 sm:px-9 sm:py-4.5 rounded-xl border-2 bg-[#090a10]/85 backdrop-blur-md transition-all duration-500 flex items-center justify-center ${
+          isDownloading
+            ? 'border-[#00FF94] shadow-[0_0_28px_rgba(0,255,148,0.5),inset_0_0_16px_rgba(0,255,148,0.25)] animate-pulse'
+            : downloadSuccess
+              ? 'border-[#00FF94] shadow-[0_0_28px_rgba(0,255,148,0.5),inset_0_0_16px_rgba(0,255,148,0.25)]'
+              : 'border-[#FFE600] shadow-[0_0_24px_rgba(255,230,0,0.4),inset_0_0_12px_rgba(255,230,0,0.15)] hover:shadow-[0_0_36px_rgba(255,230,0,0.6)]'
+        }`}>
+          {/* Glowing Neon Corner Rivets */}
+          <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_8px_#FFE600]" />
+          <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_8px_#00FF94]" />
+          <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_8px_#00FF94]" />
+          <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_8px_#FFE600]" />
 
-            {/* 3D Deep Street Shadow Extrusion */}
-            <text
-              x="194"
-              y="54"
-              textAnchor="middle"
-              fill="#000000"
-              stroke="#000000"
-              strokeWidth="11"
-              strokeLinejoin="round"
-              fontFamily="Impact, 'Arial Black', sans-serif"
-              fontSize="52"
-              fontStyle="italic"
-              letterSpacing="4"
-              transform="skewX(-10)"
-              opacity="0.95"
+          {!isParcelOpened ? (
+            /* State 1: Burning Electric Neon "THANK YOU!" */
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-black uppercase italic tracking-[0.14em] font-mono text-transparent bg-clip-text bg-gradient-to-r from-[#FFE600] via-white to-[#00FF94] drop-shadow-[0_0_16px_rgba(255,230,0,0.5)]">
+                THANK YOU
+              </span>
+              <span className="text-2xl sm:text-3xl md:text-4xl font-black italic text-[#00FF94] drop-shadow-[0_0_18px_#00FF94]">
+                !
+              </span>
+            </div>
+          ) : isDownloading ? (
+            /* State 2: Dynamic Downloading Status */
+            <div className="flex items-center gap-2.5 px-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00FF94] animate-ping" />
+              <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_12px_#00FF94]">
+                ⚡ YOUR FILE IS DOWNLOADING... PLEASE WAIT
+              </span>
+            </div>
+          ) : downloadSuccess ? (
+            /* State 3: Download Complete */
+            <div className="flex items-center gap-2 px-2">
+              <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_12px_#00FF94]">
+                DOWNLOAD STARTED! ENJOY YOUR SOUNDS 🎵
+              </span>
+            </div>
+          ) : downloadError ? (
+            /* State 4: Retry */
+            <button
+              onClick={handleUnboxAndDownload}
+              className="flex items-center gap-2 px-2 text-red-400 hover:text-red-300 transition-colors cursor-pointer"
             >
-              THANK YOU!
-            </text>
-
-            {/* Cyber Mint Neon Spray Outline */}
-            <text
-              x="190"
-              y="50"
-              textAnchor="middle"
-              fill="#000000"
-              stroke="#00FF94"
-              strokeWidth="7"
-              strokeLinejoin="round"
-              fontFamily="Impact, 'Arial Black', sans-serif"
-              fontSize="52"
-              fontStyle="italic"
-              letterSpacing="4"
-              transform="skewX(-10)"
-              filter="url(#graffitiGlowFilter)"
-            >
-              THANK YOU!
-            </text>
-
-            {/* Electric Yellow Core */}
-            <text
-              x="190"
-              y="50"
-              textAnchor="middle"
-              fill="url(#graffitiYellowGrad)"
-              stroke="#FFE600"
-              strokeWidth="1.2"
-              fontFamily="Impact, 'Arial Black', sans-serif"
-              fontSize="52"
-              fontStyle="italic"
-              letterSpacing="4"
-              transform="skewX(-10)"
-            >
-              THANK YOU!
-            </text>
-
-            {/* Street Tag Spray Splatters */}
-            <circle cx="48" cy="52" r="2.5" fill="#FFE600" />
-            <circle cx="52" cy="59" r="1.6" fill="#00FF94" />
-            <circle cx="332" cy="22" r="3" fill="#00FF94" />
-            <circle cx="337" cy="29" r="1.8" fill="#FFE600" />
-          </svg>
+              <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono">
+                DOWNLOAD BLOCKED? TAP TO RETRY ↺
+              </span>
+            </button>
+          ) : null}
         </div>
-
-        {/* Clean Unboxing / Download Status Alert */}
-        {isParcelOpened && (
-          <div className="flex flex-col items-center gap-1.5 pt-1 text-center">
-            {isDownloading ? (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/5 text-white border border-white/15 font-mono text-xs uppercase rounded-xs">
-                <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
-                <span>PREPARING 24-BIT AUDIO MASTER DOWNLOAD...</span>
-              </div>
-            ) : downloadSuccess ? (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#00FF94]/10 text-[#00FF94] border border-[#00FF94]/30 font-mono text-xs uppercase rounded-xs">
-                <span>DOWNLOAD STARTED! ENJOY YOUR SOUNDS 🎵</span>
-              </div>
-            ) : downloadError ? (
-              <button
-                onClick={handleUnboxAndDownload}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 font-mono text-xs uppercase rounded-xs cursor-pointer hover:bg-red-500/20"
-              >
-                <span>DOWNLOAD BLOCKED? TAP TO RETRY ↺</span>
-              </button>
-            ) : null}
-          </div>
-        )}
 
         {/* Minimal Action Footer */}
         <div className="flex flex-col items-center space-y-2 pt-2">

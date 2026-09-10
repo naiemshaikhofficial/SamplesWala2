@@ -1427,7 +1427,7 @@ export default function CheckoutPage() {
             onParcelClick={handleUnboxAndDownload}
             isParcelOpened={isParcelOpened}
             isDownloading={isDownloading}
-            progress={dispatchProgress}
+            itemCoverUrl={completedOrder?.items?.[0]?.cover_url || items[0]?.cover_url || ''}
           />
         </div>
 
@@ -1468,124 +1468,69 @@ export default function CheckoutPage() {
             </div>
           ) : (
             /* --- UNBOXING & ORDER CONFIRMATION (NICHE) --- */
-            <div className="space-y-3 animate-fade-in flex flex-col items-center">
-              {/* AUTHENTIC STREET GRAFFITI "THANK YOU!" */}
-              <div className="relative flex flex-col items-center justify-center my-1 select-none">
-                <svg viewBox="0 0 380 76" className="w-64 sm:w-72 md:w-88 h-auto overflow-visible">
-                  <defs>
-                    <linearGradient id="graffitiYellowGradCheckout" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#FFF275" />
-                      <stop offset="45%" stopColor="#FFE600" />
-                      <stop offset="100%" stopColor="#00FF94" />
-                    </linearGradient>
-                    <filter id="graffitiGlowFilterCheckout" x="-20%" y="-20%" width="140%" height="140%">
-                      <feGaussianBlur stdDeviation="3.5" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                  </defs>
+            <div className="space-y-3 animate-fade-in flex flex-col items-center w-full max-w-lg mx-auto">
+              {/* BURNING NEON STATUS BANNER (Morphs seamlessly from THANK YOU into Downloading) */}
+              <div className={`relative px-6 py-3.5 sm:px-9 sm:py-4.5 rounded-xl border-2 bg-[#090a10]/85 backdrop-blur-md transition-all duration-500 flex items-center justify-center w-full ${
+                isDownloading
+                  ? 'border-[#00FF94] shadow-[0_0_28px_rgba(0,255,148,0.5),inset_0_0_16px_rgba(0,255,148,0.25)] animate-pulse'
+                  : downloadSuccess
+                    ? 'border-[#00FF94] shadow-[0_0_28px_rgba(0,255,148,0.5),inset_0_0_16px_rgba(0,255,148,0.25)]'
+                    : 'border-[#FFE600] shadow-[0_0_24px_rgba(255,230,0,0.4),inset_0_0_12px_rgba(255,230,0,0.15)] hover:shadow-[0_0_36px_rgba(255,230,0,0.6)]'
+              }`}>
+                {/* Glowing Neon Corner Rivets */}
+                <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_8px_#FFE600]" />
+                <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_8px_#00FF94]" />
+                <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#00FF94] rounded-xs shadow-[0_0_8px_#00FF94]" />
+                <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#FFE600] rounded-xs shadow-[0_0_8px_#FFE600]" />
 
-                  {/* 3D Deep Street Shadow Extrusion */}
-                  <text
-                    x="194"
-                    y="54"
-                    textAnchor="middle"
-                    fill="#000000"
-                    stroke="#000000"
-                    strokeWidth="11"
-                    strokeLinejoin="round"
-                    fontFamily="Impact, 'Arial Black', sans-serif"
-                    fontSize="52"
-                    fontStyle="italic"
-                    letterSpacing="4"
-                    transform="skewX(-10)"
-                    opacity="0.95"
+                {!isParcelOpened ? (
+                  /* State 1: Burning Electric Neon "THANK YOU!" */
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span className="text-2xl sm:text-3xl md:text-4xl font-black uppercase italic tracking-[0.14em] font-mono text-transparent bg-clip-text bg-gradient-to-r from-[#FFE600] via-white to-[#00FF94] drop-shadow-[0_0_16px_rgba(255,230,0,0.5)]">
+                      THANK YOU
+                    </span>
+                    <span className="text-2xl sm:text-3xl md:text-4xl font-black italic text-[#00FF94] drop-shadow-[0_0_18px_#00FF94]">
+                      !
+                    </span>
+                  </div>
+                ) : isDownloading ? (
+                  /* State 2: Dynamic Downloading Status */
+                  <div className="flex items-center gap-2.5 px-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#00FF94] animate-ping" />
+                    <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_12px_#00FF94]">
+                      ⚡ YOUR FILE IS DOWNLOADING... PLEASE WAIT
+                    </span>
+                  </div>
+                ) : downloadSuccess ? (
+                  /* State 3: Download Complete */
+                  <div className="flex items-center gap-2 px-2">
+                    <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono text-[#00FF94] drop-shadow-[0_0_12px_#00FF94]">
+                      DOWNLOAD STARTED! ENJOY YOUR SOUNDS 🎵
+                    </span>
+                  </div>
+                ) : downloadError ? (
+                  /* State 4: Retry */
+                  <button
+                    onClick={handleUnboxAndDownload}
+                    className="flex items-center gap-2 px-2 text-red-400 hover:text-red-300 transition-colors cursor-pointer"
                   >
-                    THANK YOU!
-                  </text>
-
-                  {/* Cyber Mint Neon Spray Outline */}
-                  <text
-                    x="190"
-                    y="50"
-                    textAnchor="middle"
-                    fill="#000000"
-                    stroke="#00FF94"
-                    strokeWidth="7"
-                    strokeLinejoin="round"
-                    fontFamily="Impact, 'Arial Black', sans-serif"
-                    fontSize="52"
-                    fontStyle="italic"
-                    letterSpacing="4"
-                    transform="skewX(-10)"
-                    filter="url(#graffitiGlowFilterCheckout)"
-                  >
-                    THANK YOU!
-                  </text>
-
-                  {/* Electric Yellow Core */}
-                  <text
-                    x="190"
-                    y="50"
-                    textAnchor="middle"
-                    fill="url(#graffitiYellowGradCheckout)"
-                    stroke="#FFE600"
-                    strokeWidth="1.2"
-                    fontFamily="Impact, 'Arial Black', sans-serif"
-                    fontSize="52"
-                    fontStyle="italic"
-                    letterSpacing="4"
-                    transform="skewX(-10)"
-                  >
-                    THANK YOU!
-                  </text>
-
-                  {/* Street Tag Spray Splatters */}
-                  <circle cx="48" cy="52" r="2.5" fill="#FFE600" />
-                  <circle cx="52" cy="59" r="1.6" fill="#00FF94" />
-                  <circle cx="332" cy="22" r="3" fill="#00FF94" />
-                  <circle cx="337" cy="29" r="1.8" fill="#FFE600" />
-                </svg>
+                    <span className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider font-mono">
+                      DOWNLOAD BLOCKED? TAP TO RETRY ↺
+                    </span>
+                  </button>
+                ) : null}
               </div>
 
-              {/* Unbox Status Indicator */}
-              {isParcelOpened && (
-                <div className="flex flex-col items-center gap-1.5 text-center">
-                  {isDownloading ? (
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 text-white border border-white/20 font-mono text-xs uppercase rounded-xs">
-                      <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-ping" />
-                      <span>DOWNLOADING 24-BIT AUDIO MASTER...</span>
-                    </div>
-                  ) : downloadSuccess ? (
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#00FF94]/20 text-[#00FF94] border border-[#00FF94]/40 font-mono text-xs uppercase rounded-xs">
-                      <span>DOWNLOAD STARTED! ENJOY YOUR SOUNDS 🎵</span>
-                    </div>
-                  ) : downloadError ? (
-                    <button
-                      onClick={handleUnboxAndDownload}
-                      className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-red-500/20 text-red-400 border border-red-500/40 font-mono text-xs uppercase rounded-xs cursor-pointer hover:bg-red-500/30"
-                    >
-                      <span>DOWNLOAD BLOCKED? TAP TO RETRY ↺</span>
-                    </button>
-                  ) : null}
-                </div>
-              )}
-
-              {/* Order ID & Vault Access */}
-              <div className="pt-2 flex flex-col items-center space-y-3">
+              {/* Minimal Library Link */}
+              <div className="pt-2 flex flex-col items-center space-y-2">
                 <Link
                   href="/library"
-                  className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline pt-1"
+                  className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
                 >
                   go to library →
                 </Link>
-
                 <button
                   onClick={() => {
-                    setIsParcelOpened(false)
-                    setIsDownloading(false)
                     setDispatchStage('idle')
                     setDispatchProgress(15)
                     setTimeout(() => setDispatchStage('dispatching'), 100)
@@ -1627,30 +1572,16 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-black text-white relative">
       <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="afterInteractive" />
       <div className="container mx-auto max-w-5xl px-4 pt-8 pb-24 relative z-10">
-        {/* Minimal Clean Checkout Top Bar (Distraction-Free) */}
-        <div className="flex items-center justify-between pb-6 mb-8 border-b border-white/10 select-none">
+        {/* Graffiti Branded Header with Back To Store in marked location */}
+        <div className="relative mb-10 text-center">
           <Link
             href="/browse"
-            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-white/50 hover:text-[#FFE600] transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-white/50 hover:text-[#FFE600] transition-colors mb-4 md:mb-0 md:absolute md:left-0 md:top-2 select-none"
           >
             <span>←</span>
             <span>BACK TO STORE</span>
           </Link>
 
-          <Link href="/" className="inline-flex items-center group">
-            <span className="text-lg font-black uppercase tracking-tight font-mono text-white group-hover:text-[#FFE600] transition-colors">
-              SAMPLES<span className="text-white/40">WALA</span>
-            </span>
-          </Link>
-
-          <div className="flex items-center gap-2 text-[10.5px] font-mono font-black uppercase tracking-widest text-[#00FF94]">
-            <span className="w-2 h-2 rounded-full bg-[#00FF94] animate-pulse" />
-            <span className="hidden sm:inline">256-BIT ENCRYPTED</span>
-          </div>
-        </div>
-
-        {/* Graffiti Branded Header */}
-        <div className="flex flex-col items-center mb-12 text-center">
           <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic text-white graffiti-title-text">
             Checkout
           </h1>
