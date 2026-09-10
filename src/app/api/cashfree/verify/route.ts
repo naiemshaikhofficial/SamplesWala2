@@ -193,6 +193,8 @@ export async function POST(request: Request) {
         item_type: item.type,
         item_name: dbItem?.name || 'Unknown Item',
         amount: finalPrice,
+        currency: 'INR',
+        payment_gateway: 'cashfree',
         razorpay_order_id: order_id,
         razorpay_payment_id: finalPaymentId
       }

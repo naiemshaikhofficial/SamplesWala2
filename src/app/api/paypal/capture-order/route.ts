@@ -211,6 +211,8 @@ export async function POST(request: Request) {
         item_type: item.type,
         item_name: dbItem?.name || 'Unknown Item',
         amount: finalPrice,
+        currency: 'USD',
+        payment_gateway: 'paypal',
         razorpay_order_id: finalOrderId,
         razorpay_payment_id: finalPaymentId
       }
