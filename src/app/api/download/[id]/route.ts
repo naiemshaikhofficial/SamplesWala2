@@ -7,6 +7,31 @@ import { getGoogleDriveAccessToken } from '@/lib/googleDrive'
 
 export const dynamic = 'force-dynamic'
 
+// Anti-piracy in-memory rate limiting (per edge node): max 5 downloads per 5 minutes per user/IP
+const downloadRateStore = new Map<string, { count: number; resetAt: number }>()
+
+function isRateLimited(key: string, maxAttempts = 6, windowMs = 5 * 60 * 1000): boolean {
+  const now = Date.now()
+  const entry = downloadRateStore.get(key)
+  if (!entry || now > entry.resetAt) {
+    downloadRateStore.set(key, { count: 1, resetAt: now + windowMs })
+    return false
+  }
+  if (entry.count >= maxAttempts) {
+    return true
+  }
+  entry.count++
+  return false
+}
+
+// Cleanup stale entries periodically
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of downloadRateStore.entries()) {
+    if (now > entry.resetAt) downloadRateStore.delete(key)
+  }
+}, 10 * 60 * 1000)
+
 function isIpInSameSubnet(ip1: string, ip2: string): boolean {
   if (ip1 === 'unknown' || ip2 === 'unknown') return true
   if (ip1 === ip2) return true
@@ -28,6 +53,15 @@ function isIpInSameSubnet(ip1: string, ip2: string): boolean {
   return false
 }
 
+const SECURE_RESPONSE_HEADERS: Record<string, string> = {
+  'Cache-Control': 'private, no-store, no-cache, must-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'no-referrer',
+  'X-Robots-Tag': 'noindex, nofollow',
+}
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: rawParam } = await params
@@ -35,36 +69,81 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const token = queryToken || rawParam
 
     if (!token) {
-      return new NextResponse('Unauthorized: Missing download token', { status: 401 })
+      return new NextResponse('Unauthorized: Missing download token', { 
+        status: 401,
+        headers: SECURE_RESPONSE_HEADERS
+      })
     }
 
-    const admin = getAdminClient()
-
-    // 1. Verify Token (Database-less cryptographic verification)
-    const payload = verifyDownloadToken(token)
-
-    if (!payload) {
-      return new NextResponse('Forbidden: Unauthorized or Expired Download Link', { status: 403 })
-    }
-
-    // 2. Extra Security: Verify Subnet IP address
     const headerList = await headers()
     const currentIp =
       headerList.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       headerList.get('x-real-ip') ||
       'unknown'
 
+    // 1. Anti-Scraping / Anti-Piracy Rate Limiting Check
+    const rateLimitKey = `${currentIp}:${token.slice(-16)}`
+    if (isRateLimited(rateLimitKey)) {
+      console.warn(`[SECURITY_RATE_LIMIT_EXCEEDED] IP: ${currentIp}`)
+      return new NextResponse('Too Many Requests: Download limit reached. Please wait before retrying.', {
+        status: 429,
+        headers: {
+          ...SECURE_RESPONSE_HEADERS,
+          'Retry-After': '300'
+        }
+      })
+    }
+
+    // 2. Cryptographic Token Verification (Timing-safe HMAC & expiry)
+    const payload = verifyDownloadToken(token)
+    if (!payload) {
+      return new NextResponse('Forbidden: Unauthorized or Expired Download Link', { 
+        status: 403,
+        headers: SECURE_RESPONSE_HEADERS
+      })
+    }
+
+    // 3. Subnet IP Binding Defense
     if (!isIpInSameSubnet(payload.ip, currentIp) && process.env.NODE_ENV !== 'development') {
       console.warn(`[IP_MISMATCH] Token IP: ${payload.ip}, Current IP: ${currentIp}`)
       return new NextResponse('IP Address Mismatch: Download link must be used on the requesting device/network.', {
         status: 403,
+        headers: SECURE_RESPONSE_HEADERS
       })
     }
 
     const itemId = payload.pid
     const itemType = payload.type || 'pack'
+    const admin = getAdminClient()
 
-    // 3. Get Item Download URL from respective table
+    // 4. ZERO-TRUST REAL-TIME OWNERSHIP CHECK IN USER_VAULT
+    // Even if token was forged or leaked, verify caller actually paid and owns item in database!
+    const { data: vaultRecord } = await admin
+      .from('user_vault')
+      .select('id')
+      .eq('user_id', payload.uid)
+      .eq('item_id', itemId)
+      .eq('item_type', itemType)
+      .maybeSingle()
+
+    if (!vaultRecord) {
+      // Check if user is an administrator
+      const { data: adminCheck } = await admin
+        .from('user_accounts')
+        .select('is_admin')
+        .eq('user_id', payload.uid)
+        .maybeSingle()
+
+      if (!adminCheck?.is_admin) {
+        console.warn(`[SECURITY_UNPAID_DOWNLOAD_BLOCKED] User ${payload.uid} has not purchased item ${itemId} (${itemType})`)
+        return new NextResponse('Access Denied: Product Not Owned or Payment Required', { 
+          status: 403,
+          headers: SECURE_RESPONSE_HEADERS
+        })
+      }
+    }
+
+    // 5. Retrieve Download URL strictly through service_role admin client
     let downloadUrl = ''
     let itemName = ''
 
@@ -83,10 +162,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     if (!downloadUrl) {
-      return new NextResponse('File not found in registry', { status: 404 })
+      return new NextResponse('File not found in registry', { 
+        status: 404,
+        headers: SECURE_RESPONSE_HEADERS
+      })
     }
 
-    // 4. Extract Google Drive ID if present
+    // 6. Extract Google Drive ID if present
     const driveIdMatch = downloadUrl.match(/[-\w]{25,}/)?.[0]
     const sanitizedName = (itemName || 'Audio Pack').replace(/[^a-zA-Z0-9\s-_]/g, '').trim()
     const fileName = `SamplesWala - ${sanitizedName}.zip`
@@ -111,7 +193,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         hmac.update(`${payloadStr}:${timestamp}`)
         const sig = hmac.digest('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 
-        return NextResponse.redirect(`${workerUrl}?payload=${payloadStr}&sig=${sig}&exp=${timestamp}&name=${encodedName}&download=1`)
+        return NextResponse.redirect(`${workerUrl}?payload=${payloadStr}&sig=${sig}&exp=${timestamp}&name=${encodedName}&download=1`, {
+          headers: SECURE_RESPONSE_HEADERS
+        })
       } catch (err) {
         console.warn('[CLOUDFLARE_WORKER_ENCRYPT_ERROR] Falling back to Tier 2 stream:', err)
       }
@@ -136,6 +220,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             responseHeaders.set('Content-Type', 'application/octet-stream')
             responseHeaders.delete('set-cookie')
 
+            for (const [headerKey, headerVal] of Object.entries(SECURE_RESPONSE_HEADERS)) {
+              responseHeaders.set(headerKey, headerVal)
+            }
+
             return new Response(driveRes.body, {
               status: 200,
               headers: responseHeaders,
@@ -148,13 +236,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
       // Tier 3: Direct Google Drive usercontent download redirect
       const directGoogleDriveUrl = `https://drive.usercontent.google.com/download?id=${driveIdMatch}&export=download&confirm=t`
-      return NextResponse.redirect(directGoogleDriveUrl)
+      return NextResponse.redirect(directGoogleDriveUrl, {
+        headers: SECURE_RESPONSE_HEADERS
+      })
     }
 
     // Tier 4: Direct origin storage URL redirect
-    return NextResponse.redirect(downloadUrl)
+    return NextResponse.redirect(downloadUrl, {
+      headers: SECURE_RESPONSE_HEADERS
+    })
   } catch (error: any) {
     console.error('[DOWNLOAD_API_ERROR]', error)
-    return new NextResponse('Internal Download Server Error', { status: 500 })
+    return new NextResponse('Internal Download Server Error', { 
+      status: 500,
+      headers: SECURE_RESPONSE_HEADERS
+    })
   }
 }

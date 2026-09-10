@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { SearchableLibrary } from '@/components/SearchableLibrary'
 
+import { getAdminClient } from '@/lib/supabase/admin'
+
 export default async function LibraryPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,6 +18,8 @@ export default async function LibraryPage() {
       </div>
     )
   }
+
+  const admin = getAdminClient()
 
   // 1. Fetch ALL vault items for billing history
   const { data: allVaultItems } = await supabase
@@ -31,16 +35,16 @@ export default async function LibraryPage() {
   const packIds = vaultPacks.map(v => v.item_id)
   const presetIds = vaultPresets.map(v => v.item_id)
 
-  // Run queries in parallel
+  // Run queries in parallel using admin client (bypasses RLS & avoids exposing URLs in client session)
   const packsPromise = packIds.length > 0
-    ? supabase
+    ? admin
         .from('sample_packs')
         .select('id, name, slug, cover_url, full_pack_download_url')
         .in('id', packIds)
     : Promise.resolve({ data: null })
 
   const presetsPromise = presetIds.length > 0
-    ? supabase
+    ? admin
         .from('presets')
         .select('id, name, slug, cover_url, drive_url')
         .in('id', presetIds)
@@ -66,7 +70,10 @@ export default async function LibraryPage() {
   
   if (packData) {
     libraryItems.push(...packData.map((p: any) => ({
-      ...p,
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      cover_url: p.cover_url,
       type: 'pack',
       created_at: vaultPacks.find(v => v.item_id === p.id)?.created_at,
       is_downloadable: !!p.full_pack_download_url
@@ -75,7 +82,10 @@ export default async function LibraryPage() {
 
   if (presetData) {
     libraryItems.push(...presetData.map((p: any) => ({
-      ...p,
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      cover_url: p.cover_url,
       type: 'preset',
       created_at: vaultPresets.find(v => v.item_id === p.id)?.created_at,
       is_downloadable: !!p.drive_url

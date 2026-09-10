@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
 import { createClient } from '@/lib/supabase/server'
+import { getAdminClient } from '@/lib/supabase/admin'
 import { validateCoupon } from '@/app/checkout/actions'
 import { getPackPriceDetails } from '../../../../lib/pricing'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
@@ -52,9 +53,10 @@ export async function POST(request: Request) {
     const packIds = items.filter((i: any) => i.type === 'pack').map((i: any) => i.id)
     const presetIds = items.filter((i: any) => i.type === 'preset').map((i: any) => i.id)
 
+    const admin = getAdminClient()
     const [packsRes, presetsRes] = await Promise.all([
-      packIds.length > 0 ? supabase.from('sample_packs').select('id, name, price_inr, created_at, full_pack_download_url').in('id', packIds) : { data: [] },
-      presetIds.length > 0 ? supabase.from('presets').select('id, name, price_inr').in('id', presetIds) : { data: [] }
+      packIds.length > 0 ? admin.from('sample_packs').select('id, name, price_inr, created_at, full_pack_download_url').in('id', packIds) : { data: [] },
+      presetIds.length > 0 ? admin.from('presets').select('id, name, price_inr').in('id', presetIds) : { data: [] }
     ])
 
     // Securely calculate dynamic prices for packs

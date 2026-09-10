@@ -1528,9 +1528,10 @@ export default function CheckoutPage() {
                   href="/library"
                   className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
                 >
-                  go to library →
+                  go to library &rarr;
                 </Link>
                 <button
+                  type="button"
                   onClick={() => {
                     setDispatchStage('idle')
                     setDispatchProgress(15)
@@ -1539,7 +1540,7 @@ export default function CheckoutPage() {
                   className="text-[10px] font-mono text-white/40 hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1 cursor-pointer pt-1"
                 >
                   <span>REPLAY ARRIVAL</span>
-                  <span>↺</span>
+                  <span>&#8634;</span>
                 </button>
 
                 <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider pt-2">

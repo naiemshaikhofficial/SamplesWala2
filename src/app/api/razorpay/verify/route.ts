@@ -28,11 +28,11 @@ export async function POST(request: Request) {
     // 0. SECURITY HARDENING: Session Cookie User Authentication
     const supabase = await createClient()
     const { data: { user: sessionUser } } = await supabase.auth.getUser()
-    const targetUserId = sessionUser?.id || userId
 
-    if (!targetUserId) {
-      return NextResponse.json({ error: 'User authentication required' }, { status: 401 })
+    if (!sessionUser) {
+      return NextResponse.json({ error: 'User authentication required. Please sign in.' }, { status: 401 })
     }
+    const targetUserId = sessionUser.id
 
     // Strict Billing Details Validation (Mandatory for all orders, including free orders)
     const billingCheck = validateBillingDetails(billingDetails)

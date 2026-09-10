@@ -2872,10 +2872,11 @@ export function RocketShooterGame() {
 
         animId = requestAnimationFrame(loop)
       }
+    }
 
-      animId = requestAnimationFrame(loop)
-      return () => cancelAnimationFrame(animId)
-    }, [])
+    animId = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(animId)
+  }, [])
 
   return (
     <div className={`w-full max-w-2xl mx-auto font-sans select-none rounded-2xl border border-[#262626] bg-[#0c0c0e] shadow-2xl overflow-hidden flex flex-col ${gameState === 'playing' ? 'cursor-none' : ''}`}>
