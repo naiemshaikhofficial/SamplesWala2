@@ -157,8 +157,13 @@ async function handleRevalidation(req: NextRequest) {
           revalidatedItems.push(`path:/software/${currentSlug}`)
         }
       } else if (table === 'app_metadata') {
+        safeRevalidateTag('settings')
+        safeRevalidateTag('site-settings')
+        safeRevalidateTag('maintenance')
         revalidatePath('/')
-        revalidatedItems.push('path:/ (app_metadata)')
+        revalidatePath('/maintenance')
+        revalidatePath('/checkout')
+        revalidatedItems.push('path:/ (app_metadata)', 'tag:settings', 'tag:maintenance')
       } else if (table === 'coupons') {
         safeRevalidateTag('coupons')
         revalidatePath('/checkout')
@@ -169,6 +174,14 @@ async function handleRevalidation(req: NextRequest) {
     // 4. Direct Revalidation by Tag
     if (tag) {
       safeRevalidateTag(tag)
+      if (tag === 'maintenance' || tag === 'settings' || tag === 'admin-settings') {
+        safeRevalidateTag('settings')
+        safeRevalidateTag('site-settings')
+        safeRevalidateTag('maintenance')
+        revalidatePath('/')
+        revalidatePath('/maintenance')
+        revalidatePath('/checkout')
+      }
       revalidatedItems.push(`tag:${tag}`)
     }
 

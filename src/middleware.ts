@@ -72,27 +72,35 @@ function checkRateLimit(ip: string, isSensitive: boolean): { allowed: boolean; r
 }
 
 // ============================================================================
-// MAINTENANCE MODE RESOLVER (Edge-compatible, 5s in-memory cache)
+// ============================================================================
+// SITE STATUS & MAINTENANCE RESOLVER (Edge-compatible, 5s in-memory cache)
 // ============================================================================
 
-let maintenanceCache: { enabled: boolean; expires: number } = { enabled: false, expires: 0 };
+interface CachedSiteStatus {
+  maintenance: boolean;
+  readOnly: boolean;
+  storeEnabled: boolean;
+  expires: number;
+}
 
-async function getMaintenanceModeStatus(): Promise<boolean> {
+let siteStatusCache: CachedSiteStatus = { maintenance: false, readOnly: false, storeEnabled: true, expires: 0 };
+
+async function getSiteStatus(): Promise<CachedSiteStatus> {
   const now = Date.now();
-  if (now < maintenanceCache.expires) {
-    return maintenanceCache.enabled;
+  if (now < siteStatusCache.expires) {
+    return siteStatusCache;
   }
 
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !anonKey) return false;
+    if (!supabaseUrl || !anonKey) return siteStatusCache;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 1200);
 
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/app_metadata?key=eq.maintenance_mode&select=value`,
+      `${supabaseUrl}/rest/v1/app_metadata?key=in.(maintenance_mode,site_settings)&select=key,value`,
       {
         headers: {
           apikey: anonKey,
@@ -105,15 +113,36 @@ async function getMaintenanceModeStatus(): Promise<boolean> {
     clearTimeout(timeout);
 
     if (res.ok) {
-      const data = await res.json();
-      const isEnabled = data?.[0]?.value === 'true';
-      maintenanceCache = { enabled: isEnabled, expires: now + 5000 };
-      return isEnabled;
+      const rows = await res.json();
+      let isMaintenance = false;
+      let isReadOnly = false;
+      let isStoreEnabled = true;
+
+      for (const row of rows) {
+        if (row.key === 'maintenance_mode') {
+          isMaintenance = row.value === 'true';
+        } else if (row.key === 'site_settings') {
+          try {
+            const parsed = JSON.parse(row.value);
+            if (parsed.maintenance_mode !== undefined) isMaintenance = Boolean(parsed.maintenance_mode);
+            if (parsed.read_only_mode !== undefined) isReadOnly = Boolean(parsed.read_only_mode);
+            if (parsed.store_enabled !== undefined) isStoreEnabled = Boolean(parsed.store_enabled);
+          } catch {}
+        }
+      }
+
+      siteStatusCache = {
+        maintenance: isMaintenance,
+        readOnly: isReadOnly,
+        storeEnabled: isStoreEnabled,
+        expires: now + 5000
+      };
+      return siteStatusCache;
     }
   } catch {
-    maintenanceCache.expires = now + 5000;
+    siteStatusCache.expires = now + 5000;
   }
-  return maintenanceCache.enabled;
+  return siteStatusCache;
 }
 
 // ============================================================================
@@ -145,7 +174,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/maintenance', request.url), 307);
   }
 
-  const isMaintenance = await getMaintenanceModeStatus();
+  const siteStatus = await getSiteStatus();
+  const isMaintenance = siteStatus.maintenance;
   const isMaintenancePage = pathname === '/maintenance';
   const hasPreviewParam = request.nextUrl.searchParams.get('preview') === '1';
   const hasAdminBypass =
@@ -160,6 +190,13 @@ export async function middleware(request: NextRequest) {
   } else if (!isMaintenance && isMaintenancePage && !hasPreviewParam) {
     // If maintenance is OFF, and user visits /maintenance directly without preview, return to home:
     return NextResponse.redirect(new URL('/', request.url), 307);
+  }
+
+  // 🟢 READ-ONLY OR STORE PAUSED PROTECTION:
+  if ((siteStatus.readOnly || !siteStatus.storeEnabled) && !hasAdminBypass) {
+    if (pathname === '/checkout' || pathname.startsWith('/checkout/')) {
+      return NextResponse.redirect(new URL('/browse/packs?notice=checkout_paused', request.url), 307);
+    }
   }
 
   // 1. IP & API/Action Rate Limiting

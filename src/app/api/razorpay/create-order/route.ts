@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { validateCoupon } from '@/app/checkout/actions'
 import { getPackPriceDetails } from '../../../../lib/pricing'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
+import { getSiteSettings } from '@/lib/siteSettings'
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -12,6 +13,21 @@ const razorpay = new Razorpay({
 
 export async function POST(request: Request) {
   try {
+    const settings = await getSiteSettings()
+    if (!settings.store_enabled || !settings.purchasing_enabled || settings.read_only_mode) {
+      return NextResponse.json(
+        { error: 'Purchasing is temporarily paused for routine maintenance. Please try again later.' },
+        { status: 503 }
+      )
+    }
+
+    if (!settings.razorpay_enabled) {
+      return NextResponse.json(
+        { error: 'Razorpay checkout is currently disabled by store administration.' },
+        { status: 503 }
+      )
+    }
+
     const { items, couponCode, billingDetails } = await request.json()
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -85,6 +101,14 @@ export async function POST(request: Request) {
     }
 
     const total = Math.max(0, subtotalAfterBundle - couponDiscountAmount)
+
+    const minAllowed = settings.min_order_value_inr || 10
+    if (total > 0 && total < minAllowed) {
+      return NextResponse.json(
+        { error: `Minimum order value must be at least ₹${minAllowed}.` },
+        { status: 400 }
+      )
+    }
 
     // 3. Create Razorpay order
     const options = {

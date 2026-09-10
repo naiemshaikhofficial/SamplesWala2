@@ -1,11 +1,17 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
+import { getSiteSettings } from '@/lib/siteSettings'
 
 export async function validateCoupon(
   code: string,
   userId: string | null,
   items: { id: string; price: number }[]
 ) {
+  const settings = await getSiteSettings()
+  if (!settings.coupons_enabled) {
+    return { success: false, message: "Promotional discount codes are currently disabled." }
+  }
+
   const supabase = await createClient()
   const cleanCode = code.toUpperCase().trim()
 
