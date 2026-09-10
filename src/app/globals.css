@@ -55,6 +55,19 @@
   text-shadow: 4px 4px 0px black, 8px 8px 0px var(--color-studio-pink);
 }
 
+.graffiti-shadow {
+  filter: drop-shadow(3px 3px 0px #000000) 
+          drop-shadow(-2px -2px 0px #000000) 
+          drop-shadow(5px 5px 0px #00FF94) 
+          drop-shadow(0 0 24px rgba(255, 230, 0, 0.75));
+}
+
+.graffiti-downloading-shadow {
+  filter: drop-shadow(3px 3px 0px #000000) 
+          drop-shadow(4px 4px 0px #00FF94) 
+          drop-shadow(0 0 20px rgba(0, 255, 148, 0.85));
+}
+
 /* Social Icon Hover Colors */
 a[data-social]:hover {
   color: var(--social-color) !important;
