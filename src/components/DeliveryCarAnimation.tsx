@@ -30,9 +30,9 @@ export type DeliveryPhase =
 // =========================================================================
 class SoundEngine {
   private ctx: AudioContext | null = null
-  public isMuted: boolean = true
+  public isMuted: boolean = false
 
-  private initCtx(): AudioContext | null {
+  public initCtx(): AudioContext | null {
     if (typeof window === 'undefined') return null
     try {
       if (!this.ctx) {
@@ -81,37 +81,129 @@ class SoundEngine {
     if (!ctx) return
     try {
       const now = ctx.currentTime
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      const filter = ctx.createBiquadFilter()
+      const duration = reverse ? 1.4 : 1.15
 
-      osc.type = 'sawtooth'
-      filter.type = 'lowpass'
+      // 1. Master Output Gain
+      const masterGain = ctx.createGain()
+      masterGain.gain.setValueAtTime(0.01, now)
+      masterGain.gain.linearRampToValueAtTime(0.28, now + 0.12)
+      masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
+      masterGain.connect(ctx.destination)
+
+      // 2. Dual Detuned Engine Oscillators (Throaty V10 / V8 cylinder rumble)
+      const osc1 = ctx.createOscillator()
+      const osc2 = ctx.createOscillator()
+      osc1.type = 'sawtooth'
+      osc2.type = 'triangle'
+
+      // 3. Cylinder Firing Pulse Modulation (Mechanical Engine Texture)
+      const pulseMod = ctx.createOscillator()
+      const pulseGain = ctx.createGain()
+      pulseMod.type = 'sawtooth'
+
+      // 4. Sweeping Resonant Exhaust Filter
+      const exhaustFilter = ctx.createBiquadFilter()
+      exhaustFilter.type = 'lowpass'
+      exhaustFilter.Q.value = 4.2
 
       if (reverse) {
-        osc.frequency.setValueAtTime(380, now)
-        osc.frequency.exponentialRampToValueAtTime(110, now + 1.2)
-        filter.frequency.setValueAtTime(1600, now)
-        filter.frequency.exponentialRampToValueAtTime(350, now + 1.2)
-        gain.gain.setValueAtTime(0.01, now)
-        gain.gain.linearRampToValueAtTime(0.16, now + 0.1)
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.35)
+        // High rev decelerating down to reverse idle rumble
+        osc1.frequency.setValueAtTime(360, now)
+        osc1.frequency.exponentialRampToValueAtTime(85, now + duration * 0.9)
+
+        osc2.frequency.setValueAtTime(182, now)
+        osc2.frequency.exponentialRampToValueAtTime(43, now + duration * 0.9)
+
+        pulseMod.frequency.setValueAtTime(45, now)
+        pulseMod.frequency.linearRampToValueAtTime(15, now + duration)
+        pulseGain.gain.setValueAtTime(25, now)
+
+        exhaustFilter.frequency.setValueAtTime(2200, now)
+        exhaustFilter.frequency.exponentialRampToValueAtTime(380, now + duration)
       } else {
-        osc.frequency.setValueAtTime(115, now)
-        osc.frequency.exponentialRampToValueAtTime(540, now + 0.85)
-        filter.frequency.setValueAtTime(550, now)
-        filter.frequency.exponentialRampToValueAtTime(2800, now + 0.85)
-        gain.gain.setValueAtTime(0.01, now)
-        gain.gain.linearRampToValueAtTime(0.18, now + 0.15)
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.95)
+        // Aggressive acceleration: deep throat -> roaring high-RPM hypercar scream
+        osc1.frequency.setValueAtTime(75, now)
+        osc1.frequency.exponentialRampToValueAtTime(480, now + duration * 0.82)
+
+        osc2.frequency.setValueAtTime(150, now)
+        osc2.frequency.exponentialRampToValueAtTime(960, now + duration * 0.82)
+
+        pulseMod.frequency.setValueAtTime(18, now)
+        pulseMod.frequency.linearRampToValueAtTime(65, now + duration)
+        pulseGain.gain.setValueAtTime(35, now)
+
+        exhaustFilter.frequency.setValueAtTime(400, now)
+        exhaustFilter.frequency.exponentialRampToValueAtTime(3600, now + duration * 0.82)
       }
 
-      osc.connect(filter)
-      filter.connect(gain)
-      gain.connect(ctx.destination)
+      pulseMod.connect(pulseGain)
+      pulseGain.connect(osc1.frequency)
 
-      osc.start(now)
-      osc.stop(now + (reverse ? 1.35 : 0.95))
+      osc1.connect(exhaustFilter)
+      osc2.connect(exhaustFilter)
+      exhaustFilter.connect(masterGain)
+
+      // 5. Twin-Turbocharger Spool Whistle & High Boost Air Hiss
+      const bufferSize = Math.floor(ctx.sampleRate * duration)
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+      const noiseData = noiseBuffer.getChannelData(0)
+      for (let i = 0; i < bufferSize; i++) {
+        noiseData[i] = (Math.random() * 2 - 1) * 0.35
+      }
+
+      const turboNoise = ctx.createBufferSource()
+      turboNoise.buffer = noiseBuffer
+
+      const turboFilter = ctx.createBiquadFilter()
+      turboFilter.type = 'bandpass'
+      turboFilter.Q.value = 4.8
+
+      const turboGain = ctx.createGain()
+      turboGain.gain.setValueAtTime(0.001, now)
+
+      if (reverse) {
+        turboFilter.frequency.setValueAtTime(2800, now)
+        turboFilter.frequency.exponentialRampToValueAtTime(800, now + duration * 0.6)
+        turboGain.gain.linearRampToValueAtTime(0.12, now + 0.1)
+        turboGain.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.7)
+      } else {
+        turboFilter.frequency.setValueAtTime(1100, now)
+        turboFilter.frequency.exponentialRampToValueAtTime(4200, now + duration * 0.75)
+        turboGain.gain.linearRampToValueAtTime(0.16, now + 0.3)
+        turboGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
+      }
+
+      turboNoise.connect(turboFilter)
+      turboFilter.connect(turboGain)
+      turboGain.connect(masterGain)
+
+      // 6. Exhaust Deceleration Pops (Backfire Burble)
+      if (reverse) {
+        const popTimes = [now + 0.42, now + 0.65]
+        popTimes.forEach(t => {
+          const popOsc = ctx.createOscillator()
+          const popGain = ctx.createGain()
+          popOsc.type = 'triangle'
+          popOsc.frequency.setValueAtTime(130, t)
+          popOsc.frequency.exponentialRampToValueAtTime(32, t + 0.04)
+          popGain.gain.setValueAtTime(0.18, t)
+          popGain.gain.exponentialRampToValueAtTime(0.001, t + 0.04)
+          popOsc.connect(popGain)
+          popGain.connect(masterGain)
+          popOsc.start(t)
+          popOsc.stop(t + 0.045)
+        })
+      }
+
+      pulseMod.start(now)
+      osc1.start(now)
+      osc2.start(now)
+      turboNoise.start(now)
+
+      pulseMod.stop(now + duration)
+      osc1.stop(now + duration)
+      osc2.stop(now + duration)
+      turboNoise.stop(now + duration)
     } catch {}
   }
 
@@ -121,41 +213,74 @@ class SoundEngine {
     if (!ctx) return
     try {
       const now = ctx.currentTime
+      const duration = 1.05
+
+      const masterGain = ctx.createGain()
+      masterGain.gain.setValueAtTime(0.001, now)
+      masterGain.gain.linearRampToValueAtTime(0.24, now + 0.07)
+      masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
+      masterGain.connect(ctx.destination)
+
+      // 1. High Rubber Squeal (Dual-Tone FM Screech)
       const osc = ctx.createOscillator()
       const mod = ctx.createOscillator()
       const modGain = ctx.createGain()
-      const gain = ctx.createGain()
-      const filter = ctx.createBiquadFilter()
+      const squealFilter = ctx.createBiquadFilter()
 
-      osc.type = 'triangle'
-      mod.type = 'sawtooth'
-      filter.type = 'bandpass'
-      filter.Q.value = 6
+      osc.type = 'sawtooth'
+      mod.type = 'sine'
+      squealFilter.type = 'bandpass'
+      squealFilter.Q.value = 7.5
 
-      osc.frequency.setValueAtTime(2600, now)
-      osc.frequency.exponentialRampToValueAtTime(1100, now + 0.75)
+      osc.frequency.setValueAtTime(2900, now)
+      osc.frequency.exponentialRampToValueAtTime(1350, now + duration * 0.85)
 
-      mod.frequency.setValueAtTime(320, now)
-      modGain.gain.setValueAtTime(650, now)
-      modGain.gain.linearRampToValueAtTime(150, now + 0.75)
+      mod.frequency.setValueAtTime(420, now)
+      mod.frequency.linearRampToValueAtTime(180, now + duration * 0.85)
+      modGain.gain.setValueAtTime(850, now)
+      modGain.gain.linearRampToValueAtTime(200, now + duration * 0.85)
 
-      filter.frequency.setValueAtTime(2400, now)
-      filter.frequency.exponentialRampToValueAtTime(1000, now + 0.75)
-
-      gain.gain.setValueAtTime(0.001, now)
-      gain.gain.linearRampToValueAtTime(0.14, now + 0.06)
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8)
+      squealFilter.frequency.setValueAtTime(2700, now)
+      squealFilter.frequency.exponentialRampToValueAtTime(1250, now + duration * 0.85)
 
       mod.connect(modGain)
       modGain.connect(osc.frequency)
-      osc.connect(filter)
-      filter.connect(gain)
-      gain.connect(ctx.destination)
+      osc.connect(squealFilter)
+      squealFilter.connect(masterGain)
+
+      // 2. Asphalt Tread Scrub Noise (Heavy Friction Texture)
+      const bufferSize = Math.floor(ctx.sampleRate * duration)
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+      const noiseData = noiseBuffer.getChannelData(0)
+      for (let i = 0; i < bufferSize; i++) {
+        noiseData[i] = (Math.random() * 2 - 1) * 0.42
+      }
+
+      const scrubNoise = ctx.createBufferSource()
+      scrubNoise.buffer = noiseBuffer
+
+      const scrubFilter = ctx.createBiquadFilter()
+      scrubFilter.type = 'bandpass'
+      scrubFilter.frequency.setValueAtTime(1650, now)
+      scrubFilter.frequency.exponentialRampToValueAtTime(920, now + duration * 0.85)
+      scrubFilter.Q.value = 3.6
+
+      const scrubGain = ctx.createGain()
+      scrubGain.gain.setValueAtTime(0.01, now)
+      scrubGain.gain.linearRampToValueAtTime(0.18, now + 0.06)
+      scrubGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
+
+      scrubNoise.connect(scrubFilter)
+      scrubFilter.connect(scrubGain)
+      scrubGain.connect(masterGain)
 
       mod.start(now)
       osc.start(now)
-      mod.stop(now + 0.8)
-      osc.stop(now + 0.8)
+      scrubNoise.start(now)
+
+      mod.stop(now + duration)
+      osc.stop(now + duration)
+      scrubNoise.stop(now + duration)
     } catch {}
   }
 
@@ -165,11 +290,13 @@ class SoundEngine {
     if (!ctx) return
     try {
       const now = ctx.currentTime
-      const bufferSize = Math.floor(ctx.sampleRate * 0.5)
+
+      // 1. Pneumatic Air Hiss (Scissor Strut Release)
+      const bufferSize = Math.floor(ctx.sampleRate * 0.45)
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
       const data = buffer.getChannelData(0)
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * 0.4
+        data[i] = (Math.random() * 2 - 1) * 0.35
       }
 
       const noise = ctx.createBufferSource()
@@ -177,21 +304,35 @@ class SoundEngine {
 
       const filter = ctx.createBiquadFilter()
       filter.type = 'bandpass'
-      filter.frequency.setValueAtTime(1500, now)
-      filter.frequency.exponentialRampToValueAtTime(500, now + 0.45)
-      filter.Q.value = 2.5
+      filter.frequency.setValueAtTime(2200, now)
+      filter.frequency.exponentialRampToValueAtTime(450, now + 0.4)
+      filter.Q.value = 3.2
 
       const gain = ctx.createGain()
       gain.gain.setValueAtTime(0.01, now)
-      gain.gain.linearRampToValueAtTime(0.11, now + 0.04)
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5)
+      gain.gain.linearRampToValueAtTime(0.16, now + 0.03)
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42)
 
       noise.connect(filter)
       filter.connect(gain)
       gain.connect(ctx.destination)
 
       noise.start(now)
-      noise.stop(now + 0.52)
+      noise.stop(now + 0.45)
+
+      // 2. Mechanical Latch Engagement Click
+      const clickOsc = ctx.createOscillator()
+      const clickGain = ctx.createGain()
+      clickOsc.type = 'triangle'
+      clickOsc.frequency.setValueAtTime(1400, now + 0.04)
+      clickOsc.frequency.exponentialRampToValueAtTime(220, now + 0.08)
+      clickGain.gain.setValueAtTime(0.15, now + 0.04)
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09)
+
+      clickOsc.connect(clickGain)
+      clickGain.connect(ctx.destination)
+      clickOsc.start(now + 0.04)
+      clickOsc.stop(now + 0.095)
     } catch {}
   }
 
@@ -325,7 +466,8 @@ export function DeliveryCarAnimation({
     mode === 'return' ? 'zoom_past' : 'drive_speed'
   )
   const [dialogueStep, setDialogueStep] = useState<0 | 1 | 2 | 3>(0)
-  const [isMuted, setIsMuted] = useState(true)
+  // Sound is ON by default with authentic hypercar acoustics
+  const [isMuted, setIsMuted] = useState(false)
   const [hasImpactShockwave, setHasImpactShockwave] = useState(false)
   const [isImpactShaking, setIsImpactShaking] = useState(false)
   const [unlockStage, setUnlockStage] = useState<'locked' | 'authorizing' | 'revealed'>(
@@ -368,11 +510,25 @@ export function DeliveryCarAnimation({
   useEffect(() => {
     isMountedRef.current = true
     const engine = new SoundEngine()
+    engine.setMuted(false)
     soundEngineRef.current = engine
+
+    // Auto-unlock AudioContext on first user interaction in case browser suspended autoplay
+    const unlockAudio = () => {
+      engine.initCtx()
+    }
+    window.addEventListener('pointerdown', unlockAudio, { once: true })
+    window.addEventListener('touchstart', unlockAudio, { once: true })
+    window.addEventListener('keydown', unlockAudio, { once: true })
+    window.addEventListener('click', unlockAudio, { once: true })
 
     return () => {
       isMountedRef.current = false
       clearAllTimers()
+      window.removeEventListener('pointerdown', unlockAudio)
+      window.removeEventListener('touchstart', unlockAudio)
+      window.removeEventListener('keydown', unlockAudio)
+      window.removeEventListener('click', unlockAudio)
       engine.dispose()
       soundEngineRef.current = null
     }
@@ -972,11 +1128,15 @@ export function DeliveryCarAnimation({
           onClick={toggleAudio}
           aria-label={isMuted ? 'Enable Sound FX' : 'Mute Sound FX'}
           aria-pressed={!isMuted}
-          className="absolute top-2.5 left-2.5 z-40 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white/80 hover:text-white hover:border-[#00FF94]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00FF94] flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-200 cursor-pointer"
+          className={`absolute top-2.5 left-2.5 z-40 px-2.5 py-1 rounded-full backdrop-blur-md border flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00FF94] ${
+            isMuted
+              ? 'bg-black/60 border-white/15 text-white/50 hover:text-white hover:border-white/30'
+              : 'bg-black/70 border-[#00FF94]/50 text-[#00FF94] shadow-[0_0_12px_rgba(0,255,148,0.25)] hover:border-[#00FF94]'
+          }`}
           title={isMuted ? 'Click to enable Sound FX' : 'Click to mute Sound FX'}
         >
           <span className="text-xs" aria-hidden="true">{isMuted ? '🔇' : '🔊'}</span>
-          <span className="text-[9px] uppercase tracking-widest text-white/70">
+          <span className={`text-[9px] uppercase tracking-widest font-bold ${isMuted ? 'text-white/50' : 'text-[#00FF94]'}`}>
             {isMuted ? 'SOUND OFF' : 'SOUND ON'}
           </span>
         </button>
