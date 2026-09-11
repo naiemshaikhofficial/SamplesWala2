@@ -28,67 +28,153 @@ export type DeliveryPhase =
 // =========================================================================
 // === PURE WEB AUDIO SYNTHESIZER (Zero external files, safe lifecycle) ===
 // =========================================================================
+// BULLETPROOF STUDIO-GRADE HYPERCAR SOUND ENGINE
+// =========================================================================
+
+// Persistent module-level AudioContext singleton so re-renders/mounts never exhaust browser context limits
+let globalAudioCtx: AudioContext | null = null
+
+function getOrCreateGlobalAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null
+  try {
+    if (!globalAudioCtx || globalAudioCtx.state === 'closed') {
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      if (AudioCtx) {
+        globalAudioCtx = new AudioCtx()
+      }
+    }
+    return globalAudioCtx
+  } catch {
+    return null
+  }
+}
+
 class SoundEngine {
-  private ctx: AudioContext | null = null
   public isMuted: boolean = false
+  private masterCompressor: DynamicsCompressorNode | null = null
+  private noiseBuffer: AudioBuffer | null = null
+  private activeNodes: { stop: (time?: number) => void }[] = []
+
+  constructor() {
+    this.ensureContext()
+  }
+
+  public ensureContext(): AudioContext | null {
+    const ctx = getOrCreateGlobalAudioContext()
+    if (!ctx) return null
+
+    // Initialize master dynamics compressor (anti-clipping / studio limiter) once
+    if (!this.masterCompressor || this.masterCompressor.context !== ctx) {
+      try {
+        const comp = ctx.createDynamicsCompressor()
+        comp.threshold.setValueAtTime(-10, ctx.currentTime)
+        comp.knee.setValueAtTime(20, ctx.currentTime)
+        comp.ratio.setValueAtTime(8, ctx.currentTime)
+        comp.attack.setValueAtTime(0.003, ctx.currentTime)
+        comp.release.setValueAtTime(0.2, ctx.currentTime)
+        comp.connect(ctx.destination)
+        this.masterCompressor = comp
+      } catch {}
+    }
+
+    // Pre-allocate a 2-second white noise buffer once (zero main-thread lag on triggers)
+    if (!this.noiseBuffer || this.noiseBuffer.sampleRate !== ctx.sampleRate) {
+      try {
+        const length = Math.floor(ctx.sampleRate * 2.0)
+        const buffer = ctx.createBuffer(1, length, ctx.sampleRate)
+        const data = buffer.getChannelData(0)
+        for (let i = 0; i < length; i++) {
+          data[i] = Math.random() * 2 - 1
+        }
+        this.noiseBuffer = buffer
+      } catch {}
+    }
+
+    return ctx
+  }
+
+  public unlock(): void {
+    const ctx = this.ensureContext()
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().catch(() => {})
+    }
+  }
 
   public initCtx(): AudioContext | null {
-    if (typeof window === 'undefined') return null
-    try {
-      if (!this.ctx) {
-        const AudioCtx =
-          window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-        if (AudioCtx) {
-          this.ctx = new AudioCtx()
+    this.unlock()
+    return this.ensureContext()
+  }
+
+  private withContext(fn: (ctx: AudioContext, destination: AudioNode) => void): void {
+    if (this.isMuted) return
+    const ctx = this.ensureContext()
+    if (!ctx) return
+
+    const dest = this.masterCompressor || ctx.destination
+
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        if (ctx.state === 'running' && !this.isMuted) {
+          try {
+            fn(ctx, dest)
+          } catch {}
         }
-      }
-      if (this.ctx && this.ctx.state === 'suspended') {
-        this.ctx.resume().catch(() => {})
-      }
-      return this.ctx
-    } catch {
-      return null
+      }).catch(() => {})
+      return
+    }
+
+    if (ctx.state === 'running') {
+      try {
+        fn(ctx, dest)
+      } catch {}
     }
   }
 
   public setMuted(muted: boolean) {
     this.isMuted = muted
     if (!muted) {
-      const ctx = this.initCtx()
-      if (ctx) {
-        try {
-          const now = ctx.currentTime
-          const osc = ctx.createOscillator()
-          const gain = ctx.createGain()
-          osc.type = 'sine'
-          osc.frequency.setValueAtTime(880, now)
-          gain.gain.setValueAtTime(0.001, now)
-          gain.gain.linearRampToValueAtTime(0.08, now + 0.02)
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12)
-          osc.connect(gain)
-          gain.connect(ctx.destination)
-          osc.start(now)
-          osc.stop(now + 0.13)
-        } catch {}
-      }
+      this.unlock()
+      this.withContext((ctx, dest) => {
+        const now = ctx.currentTime
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(880, now)
+        gain.gain.setValueAtTime(0.001, now)
+        gain.gain.linearRampToValueAtTime(0.08, now + 0.02)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12)
+        osc.connect(gain)
+        gain.connect(dest)
+        osc.start(now)
+        osc.stop(now + 0.13)
+      })
+    } else {
+      this.stopAllActive()
     }
   }
 
+  public stopAllActive() {
+    this.activeNodes.forEach(node => {
+      try {
+        node.stop()
+      } catch {}
+    })
+    this.activeNodes = []
+  }
+
   public playEngineZoom(reverse = false) {
-    if (this.isMuted) return
-    const ctx = this.initCtx()
-    if (!ctx) return
-    try {
+    this.withContext((ctx, dest) => {
       const now = ctx.currentTime
-      const duration = reverse ? 1.4 : 1.15
+      const duration = reverse ? 1.35 : 1.15
 
       // 1. Master Output Gain
       const masterGain = ctx.createGain()
-      masterGain.gain.setValueAtTime(0.01, now)
-      masterGain.gain.linearRampToValueAtTime(0.28, now + 0.12)
+      masterGain.gain.setValueAtTime(0.001, now)
+      masterGain.gain.linearRampToValueAtTime(0.24, now + 0.1)
       masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
-      masterGain.connect(ctx.destination)
+      masterGain.connect(dest)
 
       // 2. Dual Detuned Engine Oscillators (Throaty V10 / V8 cylinder rumble)
       const osc1 = ctx.createOscillator()
@@ -104,36 +190,36 @@ class SoundEngine {
       // 4. Sweeping Resonant Exhaust Filter
       const exhaustFilter = ctx.createBiquadFilter()
       exhaustFilter.type = 'lowpass'
-      exhaustFilter.Q.value = 4.2
+      exhaustFilter.Q.value = 3.8
 
       if (reverse) {
         // High rev decelerating down to reverse idle rumble
-        osc1.frequency.setValueAtTime(360, now)
-        osc1.frequency.exponentialRampToValueAtTime(85, now + duration * 0.9)
+        osc1.frequency.setValueAtTime(320, now)
+        osc1.frequency.exponentialRampToValueAtTime(80, now + duration * 0.9)
 
-        osc2.frequency.setValueAtTime(182, now)
-        osc2.frequency.exponentialRampToValueAtTime(43, now + duration * 0.9)
+        osc2.frequency.setValueAtTime(160, now)
+        osc2.frequency.exponentialRampToValueAtTime(40, now + duration * 0.9)
 
-        pulseMod.frequency.setValueAtTime(45, now)
-        pulseMod.frequency.linearRampToValueAtTime(15, now + duration)
-        pulseGain.gain.setValueAtTime(25, now)
+        pulseMod.frequency.setValueAtTime(40, now)
+        pulseMod.frequency.linearRampToValueAtTime(14, now + duration)
+        pulseGain.gain.setValueAtTime(20, now)
 
-        exhaustFilter.frequency.setValueAtTime(2200, now)
-        exhaustFilter.frequency.exponentialRampToValueAtTime(380, now + duration)
+        exhaustFilter.frequency.setValueAtTime(2000, now)
+        exhaustFilter.frequency.exponentialRampToValueAtTime(350, now + duration)
       } else {
         // Aggressive acceleration: deep throat -> roaring high-RPM hypercar scream
-        osc1.frequency.setValueAtTime(75, now)
-        osc1.frequency.exponentialRampToValueAtTime(480, now + duration * 0.82)
+        osc1.frequency.setValueAtTime(70, now)
+        osc1.frequency.exponentialRampToValueAtTime(440, now + duration * 0.8)
 
-        osc2.frequency.setValueAtTime(150, now)
-        osc2.frequency.exponentialRampToValueAtTime(960, now + duration * 0.82)
+        osc2.frequency.setValueAtTime(140, now)
+        osc2.frequency.exponentialRampToValueAtTime(880, now + duration * 0.8)
 
-        pulseMod.frequency.setValueAtTime(18, now)
-        pulseMod.frequency.linearRampToValueAtTime(65, now + duration)
-        pulseGain.gain.setValueAtTime(35, now)
+        pulseMod.frequency.setValueAtTime(16, now)
+        pulseMod.frequency.linearRampToValueAtTime(60, now + duration)
+        pulseGain.gain.setValueAtTime(28, now)
 
-        exhaustFilter.frequency.setValueAtTime(400, now)
-        exhaustFilter.frequency.exponentialRampToValueAtTime(3600, now + duration * 0.82)
+        exhaustFilter.frequency.setValueAtTime(380, now)
+        exhaustFilter.frequency.exponentialRampToValueAtTime(3200, now + duration * 0.8)
       }
 
       pulseMod.connect(pulseGain)
@@ -143,39 +229,38 @@ class SoundEngine {
       osc2.connect(exhaustFilter)
       exhaustFilter.connect(masterGain)
 
-      // 5. Twin-Turbocharger Spool Whistle & High Boost Air Hiss
-      const bufferSize = Math.floor(ctx.sampleRate * duration)
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-      const noiseData = noiseBuffer.getChannelData(0)
-      for (let i = 0; i < bufferSize; i++) {
-        noiseData[i] = (Math.random() * 2 - 1) * 0.35
+      // 5. Twin-Turbocharger Spool Whistle & High Boost Air Hiss (Using Pre-allocated Noise)
+      if (this.noiseBuffer) {
+        const turboNoise = ctx.createBufferSource()
+        turboNoise.buffer = this.noiseBuffer
+        turboNoise.loop = true
+
+        const turboFilter = ctx.createBiquadFilter()
+        turboFilter.type = 'bandpass'
+        turboFilter.Q.value = 4.5
+
+        const turboGain = ctx.createGain()
+        turboGain.gain.setValueAtTime(0.001, now)
+
+        if (reverse) {
+          turboFilter.frequency.setValueAtTime(2400, now)
+          turboFilter.frequency.exponentialRampToValueAtTime(700, now + duration * 0.6)
+          turboGain.gain.linearRampToValueAtTime(0.09, now + 0.08)
+          turboGain.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.7)
+        } else {
+          turboFilter.frequency.setValueAtTime(950, now)
+          turboFilter.frequency.exponentialRampToValueAtTime(3800, now + duration * 0.75)
+          turboGain.gain.linearRampToValueAtTime(0.12, now + 0.25)
+          turboGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
+        }
+
+        turboNoise.connect(turboFilter)
+        turboFilter.connect(turboGain)
+        turboGain.connect(masterGain)
+
+        turboNoise.start(now)
+        turboNoise.stop(now + duration)
       }
-
-      const turboNoise = ctx.createBufferSource()
-      turboNoise.buffer = noiseBuffer
-
-      const turboFilter = ctx.createBiquadFilter()
-      turboFilter.type = 'bandpass'
-      turboFilter.Q.value = 4.8
-
-      const turboGain = ctx.createGain()
-      turboGain.gain.setValueAtTime(0.001, now)
-
-      if (reverse) {
-        turboFilter.frequency.setValueAtTime(2800, now)
-        turboFilter.frequency.exponentialRampToValueAtTime(800, now + duration * 0.6)
-        turboGain.gain.linearRampToValueAtTime(0.12, now + 0.1)
-        turboGain.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.7)
-      } else {
-        turboFilter.frequency.setValueAtTime(1100, now)
-        turboFilter.frequency.exponentialRampToValueAtTime(4200, now + duration * 0.75)
-        turboGain.gain.linearRampToValueAtTime(0.16, now + 0.3)
-        turboGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
-      }
-
-      turboNoise.connect(turboFilter)
-      turboFilter.connect(turboGain)
-      turboGain.connect(masterGain)
 
       // 6. Exhaust Deceleration Pops (Backfire Burble)
       if (reverse) {
@@ -184,9 +269,9 @@ class SoundEngine {
           const popOsc = ctx.createOscillator()
           const popGain = ctx.createGain()
           popOsc.type = 'triangle'
-          popOsc.frequency.setValueAtTime(130, t)
-          popOsc.frequency.exponentialRampToValueAtTime(32, t + 0.04)
-          popGain.gain.setValueAtTime(0.18, t)
+          popOsc.frequency.setValueAtTime(125, t)
+          popOsc.frequency.exponentialRampToValueAtTime(30, t + 0.04)
+          popGain.gain.setValueAtTime(0.15, t)
           popGain.gain.exponentialRampToValueAtTime(0.001, t + 0.04)
           popOsc.connect(popGain)
           popGain.connect(masterGain)
@@ -198,28 +283,23 @@ class SoundEngine {
       pulseMod.start(now)
       osc1.start(now)
       osc2.start(now)
-      turboNoise.start(now)
 
       pulseMod.stop(now + duration)
       osc1.stop(now + duration)
       osc2.stop(now + duration)
-      turboNoise.stop(now + duration)
-    } catch {}
+    })
   }
 
   public playBrakeScreech() {
-    if (this.isMuted) return
-    const ctx = this.initCtx()
-    if (!ctx) return
-    try {
+    this.withContext((ctx, dest) => {
       const now = ctx.currentTime
-      const duration = 1.05
+      const duration = 1.0
 
       const masterGain = ctx.createGain()
       masterGain.gain.setValueAtTime(0.001, now)
-      masterGain.gain.linearRampToValueAtTime(0.24, now + 0.07)
+      masterGain.gain.linearRampToValueAtTime(0.2, now + 0.06)
       masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
-      masterGain.connect(ctx.destination)
+      masterGain.connect(dest)
 
       // 1. High Rubber Squeal (Dual-Tone FM Screech)
       const osc = ctx.createOscillator()
@@ -230,142 +310,126 @@ class SoundEngine {
       osc.type = 'sawtooth'
       mod.type = 'sine'
       squealFilter.type = 'bandpass'
-      squealFilter.Q.value = 7.5
+      squealFilter.Q.value = 6.5
 
-      osc.frequency.setValueAtTime(2900, now)
-      osc.frequency.exponentialRampToValueAtTime(1350, now + duration * 0.85)
+      osc.frequency.setValueAtTime(2800, now)
+      osc.frequency.exponentialRampToValueAtTime(1300, now + duration * 0.85)
 
-      mod.frequency.setValueAtTime(420, now)
-      mod.frequency.linearRampToValueAtTime(180, now + duration * 0.85)
-      modGain.gain.setValueAtTime(850, now)
-      modGain.gain.linearRampToValueAtTime(200, now + duration * 0.85)
+      mod.frequency.setValueAtTime(380, now)
+      mod.frequency.linearRampToValueAtTime(160, now + duration * 0.85)
+      modGain.gain.setValueAtTime(750, now)
+      modGain.gain.linearRampToValueAtTime(180, now + duration * 0.85)
 
-      squealFilter.frequency.setValueAtTime(2700, now)
-      squealFilter.frequency.exponentialRampToValueAtTime(1250, now + duration * 0.85)
+      squealFilter.frequency.setValueAtTime(2600, now)
+      squealFilter.frequency.exponentialRampToValueAtTime(1200, now + duration * 0.85)
 
       mod.connect(modGain)
       modGain.connect(osc.frequency)
       osc.connect(squealFilter)
       squealFilter.connect(masterGain)
 
-      // 2. Asphalt Tread Scrub Noise (Heavy Friction Texture)
-      const bufferSize = Math.floor(ctx.sampleRate * duration)
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-      const noiseData = noiseBuffer.getChannelData(0)
-      for (let i = 0; i < bufferSize; i++) {
-        noiseData[i] = (Math.random() * 2 - 1) * 0.42
+      // 2. Asphalt Friction Scrub using pre-allocated noise
+      if (this.noiseBuffer) {
+        const scrubNoise = ctx.createBufferSource()
+        scrubNoise.buffer = this.noiseBuffer
+        scrubNoise.loop = true
+
+        const scrubFilter = ctx.createBiquadFilter()
+        scrubFilter.type = 'bandpass'
+        scrubFilter.frequency.setValueAtTime(1600, now)
+        scrubFilter.frequency.exponentialRampToValueAtTime(900, now + duration * 0.85)
+        scrubFilter.Q.value = 3.2
+
+        const scrubGain = ctx.createGain()
+        scrubGain.gain.setValueAtTime(0.005, now)
+        scrubGain.gain.linearRampToValueAtTime(0.14, now + 0.05)
+        scrubGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
+
+        scrubNoise.connect(scrubFilter)
+        scrubFilter.connect(scrubGain)
+        scrubGain.connect(masterGain)
+
+        scrubNoise.start(now)
+        scrubNoise.stop(now + duration)
       }
-
-      const scrubNoise = ctx.createBufferSource()
-      scrubNoise.buffer = noiseBuffer
-
-      const scrubFilter = ctx.createBiquadFilter()
-      scrubFilter.type = 'bandpass'
-      scrubFilter.frequency.setValueAtTime(1650, now)
-      scrubFilter.frequency.exponentialRampToValueAtTime(920, now + duration * 0.85)
-      scrubFilter.Q.value = 3.6
-
-      const scrubGain = ctx.createGain()
-      scrubGain.gain.setValueAtTime(0.01, now)
-      scrubGain.gain.linearRampToValueAtTime(0.18, now + 0.06)
-      scrubGain.gain.exponentialRampToValueAtTime(0.001, now + duration)
-
-      scrubNoise.connect(scrubFilter)
-      scrubFilter.connect(scrubGain)
-      scrubGain.connect(masterGain)
 
       mod.start(now)
       osc.start(now)
-      scrubNoise.start(now)
 
       mod.stop(now + duration)
       osc.stop(now + duration)
-      scrubNoise.stop(now + duration)
-    } catch {}
+    })
   }
 
   public playHydraulicDoor() {
-    if (this.isMuted) return
-    const ctx = this.initCtx()
-    if (!ctx) return
-    try {
+    this.withContext((ctx, dest) => {
       const now = ctx.currentTime
 
-      // 1. Pneumatic Air Hiss (Scissor Strut Release)
-      const bufferSize = Math.floor(ctx.sampleRate * 0.45)
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-      const data = buffer.getChannelData(0)
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * 0.35
+      // 1. Pneumatic Air Release using pre-allocated noise
+      if (this.noiseBuffer) {
+        const air = ctx.createBufferSource()
+        air.buffer = this.noiseBuffer
+        air.loop = true
+
+        const filter = ctx.createBiquadFilter()
+        filter.type = 'bandpass'
+        filter.frequency.setValueAtTime(2000, now)
+        filter.frequency.exponentialRampToValueAtTime(420, now + 0.38)
+        filter.Q.value = 3.0
+
+        const gain = ctx.createGain()
+        gain.gain.setValueAtTime(0.005, now)
+        gain.gain.linearRampToValueAtTime(0.14, now + 0.03)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4)
+
+        air.connect(filter)
+        filter.connect(gain)
+        gain.connect(dest)
+
+        air.start(now)
+        air.stop(now + 0.42)
       }
-
-      const noise = ctx.createBufferSource()
-      noise.buffer = buffer
-
-      const filter = ctx.createBiquadFilter()
-      filter.type = 'bandpass'
-      filter.frequency.setValueAtTime(2200, now)
-      filter.frequency.exponentialRampToValueAtTime(450, now + 0.4)
-      filter.Q.value = 3.2
-
-      const gain = ctx.createGain()
-      gain.gain.setValueAtTime(0.01, now)
-      gain.gain.linearRampToValueAtTime(0.16, now + 0.03)
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42)
-
-      noise.connect(filter)
-      filter.connect(gain)
-      gain.connect(ctx.destination)
-
-      noise.start(now)
-      noise.stop(now + 0.45)
 
       // 2. Mechanical Latch Engagement Click
       const clickOsc = ctx.createOscillator()
       const clickGain = ctx.createGain()
       clickOsc.type = 'triangle'
-      clickOsc.frequency.setValueAtTime(1400, now + 0.04)
-      clickOsc.frequency.exponentialRampToValueAtTime(220, now + 0.08)
-      clickGain.gain.setValueAtTime(0.15, now + 0.04)
-      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09)
+      clickOsc.frequency.setValueAtTime(1300, now + 0.03)
+      clickOsc.frequency.exponentialRampToValueAtTime(200, now + 0.07)
+      clickGain.gain.setValueAtTime(0.12, now + 0.03)
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08)
 
       clickOsc.connect(clickGain)
-      clickGain.connect(ctx.destination)
-      clickOsc.start(now + 0.04)
-      clickOsc.stop(now + 0.095)
-    } catch {}
+      clickGain.connect(dest)
+      clickOsc.start(now + 0.03)
+      clickOsc.stop(now + 0.085)
+    })
   }
 
   public playBassBoom() {
-    if (this.isMuted) return
-    const ctx = this.initCtx()
-    if (!ctx) return
-    try {
+    this.withContext((ctx, dest) => {
       const now = ctx.currentTime
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
 
       osc.type = 'sine'
-      osc.frequency.setValueAtTime(138, now)
-      osc.frequency.exponentialRampToValueAtTime(36, now + 0.6)
+      osc.frequency.setValueAtTime(135, now)
+      osc.frequency.exponentialRampToValueAtTime(32, now + 0.55)
 
       gain.gain.setValueAtTime(0.01, now)
-      gain.gain.linearRampToValueAtTime(0.3, now + 0.02)
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7)
+      gain.gain.linearRampToValueAtTime(0.26, now + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65)
 
       osc.connect(gain)
-      gain.connect(ctx.destination)
+      gain.connect(dest)
 
       osc.start(now)
-      osc.stop(now + 0.72)
-    } catch {}
+      osc.stop(now + 0.68)
+    })
   }
 
   public playVaultUnlock() {
-    if (this.isMuted) return
-    const ctx = this.initCtx()
-    if (!ctx) return
-    try {
+    this.withContext((ctx, dest) => {
       const now = ctx.currentTime
       const freqs = [880, 1174, 1568]
       freqs.forEach((freq, idx) => {
@@ -381,19 +445,16 @@ class SoundEngine {
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07)
 
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        gain.connect(dest)
 
         osc.start(t)
         osc.stop(t + 0.075)
       })
-    } catch {}
+    })
   }
 
   public playPackRevealChime() {
-    if (this.isMuted) return
-    const ctx = this.initCtx()
-    if (!ctx) return
-    try {
+    this.withContext((ctx, dest) => {
       const now = ctx.currentTime
       const notes = [1046.5, 1318.5, 1567.98, 1975.53, 2349.32]
       notes.forEach((freq, i) => {
@@ -409,23 +470,17 @@ class SoundEngine {
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4)
 
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        gain.connect(dest)
 
         osc.start(t)
         osc.stop(t + 0.42)
       })
-    } catch {}
+    })
   }
 
   public dispose() {
-    if (this.ctx) {
-      try {
-        if (this.ctx.state !== 'closed') {
-          this.ctx.close().catch(() => {})
-        }
-      } catch {}
-      this.ctx = null
-    }
+    this.stopAllActive()
+    // Intentionally keep globalAudioCtx alive for session continuity and zero-latency replays
   }
 }
 
