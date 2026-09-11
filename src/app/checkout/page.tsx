@@ -1501,18 +1501,19 @@ export default function CheckoutPage() {
         </div>
 
         {/* HERO ANIMATION WINDOW (Pure, clean, cinematic - strictly fixed position) */}
-        <div className="w-full relative z-10 my-0 flex-1 flex flex-col justify-center items-center min-h-0">
+        <div className="w-full relative z-10 my-0 shrink-0">
           <DeliveryCarAnimation
             mode={isReadyToUnbox ? 'return' : 'drive'}
             onParcelClick={handleUnboxAndDownload}
             isParcelOpened={isParcelOpened}
             isDownloading={isDownloading}
             itemCoverUrl={completedOrder?.items?.[0]?.cover_url || items[0]?.cover_url || ''}
+            itemName={completedOrder?.items?.[0]?.name || items[0]?.name || 'India Street Rhythm'}
           />
         </div>
 
         {/* CLEAN MINIMAL FOOTER ACTIONS (BELOW CAR - ZERO CLUTTER) */}
-        <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center space-y-1 pt-0.5 pb-1 shrink-0">
+        <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center space-y-1.5 pt-1.5 sm:pt-2 shrink-0">
           <Link
             href="/library"
             className="text-[10px] sm:text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"

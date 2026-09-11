@@ -277,6 +277,7 @@ export function ThankYouClient({
           isParcelOpened={isParcelOpened}
           isDownloading={isDownloading}
           itemCoverUrl={claimedItems[0]?.cover_url || fallbackCover || ''}
+          itemName={claimedItems[0]?.item_name || 'India Street Rhythm'}
         />
       </div>
 
