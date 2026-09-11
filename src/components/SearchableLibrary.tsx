@@ -65,8 +65,6 @@ export function SearchableLibrary({
   const [samplesError, setSamplesError] = useState<string | null>(null)
   const [searchPackText, setSearchPackText] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | 'loop' | 'one_shot'>('all')
-  // Client-side cache to save Vercel serverless function invocations
-  const [packSamplesCache, setPackSamplesCache] = useState<Record<string, any[]>>({})
 
   // Audio Player states
   const [currentSampleId, setCurrentSampleId] = useState<string | null>(null)
@@ -112,6 +110,9 @@ export function SearchableLibrary({
   }, [])
 
   // Load samples when a pack is selected in the explorer
+  const packSamplesCacheRef = useRef<Record<string, any[]>>({})
+
+  // Load samples when a pack is selected in the explorer
   useEffect(() => {
     if (!activePack) {
       setSamples([])
@@ -120,36 +121,40 @@ export function SearchableLibrary({
     }
 
     // Check client-side cache first to avoid Vercel API / Serverless execution
-    if (packSamplesCache[activePack.id]) {
-      setSamples(packSamplesCache[activePack.id])
+    if (packSamplesCacheRef.current[activePack.id]) {
+      setSamples(packSamplesCacheRef.current[activePack.id])
       setSamplesError(null)
       return
     }
 
+    let isMounted = true
     const loadSamples = async () => {
       setLoadingSamples(true)
       setSamplesError(null)
       try {
         const data = await getPackSamples(activePack.id)
+        if (!isMounted) return
         setSamples(data)
-        // Save in client cache
-        setPackSamplesCache(prev => ({
-          ...prev,
-          [activePack.id]: data
-        }))
+        packSamplesCacheRef.current[activePack.id] = data
       } catch (err: any) {
+        if (!isMounted) return
         console.error('Error fetching samples:', err)
         setSamplesError(err.message || 'Failed to retrieve cloud samples.')
       } finally {
-        setLoadingSamples(false)
+        if (isMounted) {
+          setLoadingSamples(false)
+        }
       }
     }
 
     loadSamples()
-  }, [activePack, packSamplesCache])
+    return () => {
+      isMounted = false
+    }
+  }, [activePack])
 
   // Playback handlers
-  const togglePlay = (sample: any) => {
+  const togglePlay = async (sample: any) => {
     if (!audioRef.current || !sample.stream_url) return
 
     if (currentSampleId === sample.id) {
@@ -157,17 +162,28 @@ export function SearchableLibrary({
         audioRef.current.pause()
         setIsPlaying(false)
       } else {
-        audioRef.current.play().catch(err => console.error('Playback error:', err))
-        setIsPlaying(true)
+        try {
+          await audioRef.current.play()
+          setIsPlaying(true)
+        } catch (err) {
+          console.error('Playback error:', err)
+          setIsPlaying(false)
+        }
       }
     } else {
+      audioRef.current.pause()
       audioRef.current.src = sample.stream_url
       audioRef.current.load()
-      audioRef.current.play().catch(err => console.error('Playback error:', err))
       setCurrentSampleId(sample.id)
-      setIsPlaying(true)
       setCurrentTime(0)
       setDuration(0)
+      try {
+        await audioRef.current.play()
+        setIsPlaying(true)
+      } catch (err) {
+        console.error('Playback error:', err)
+        setIsPlaying(false)
+      }
     }
   }
 

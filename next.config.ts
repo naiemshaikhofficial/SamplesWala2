@@ -85,12 +85,7 @@ const nextConfig: NextConfig = {
         headers: cdnCacheHeaders,
       },
       {
-        // 2. Next.js Static Builds (Immutable chunks & bundles)
-        source: '/_next/static/:path*',
-        headers: cdnCacheHeaders,
-      },
-      {
-        // 3. Apply security headers to all routes
+        // 2. Apply security headers to all routes
         source: '/(.*)',
         headers: securityHeaders,
       },

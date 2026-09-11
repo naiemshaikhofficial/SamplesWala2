@@ -182,9 +182,11 @@ export async function middleware(request: NextRequest) {
     request.cookies.has('sampleswala_admin_bypass') ||
     request.nextUrl.searchParams.get('bypass') === 'sampleswala_admin';
 
+  const isWebhook = pathname.startsWith('/api/cashfree/webhook') || pathname.startsWith('/api/revalidate');
+
   if (isMaintenance && !hasAdminBypass) {
-    // If maintenance is ON and user is NOT on /maintenance and NOT calling revalidation API:
-    if (!isMaintenancePage && !pathname.startsWith('/api/revalidate')) {
+    // If maintenance is ON and user is NOT on /maintenance and NOT calling webhooks/revalidation API:
+    if (!isMaintenancePage && !isWebhook) {
       return NextResponse.redirect(new URL('/maintenance', request.url), 307);
     }
   } else if (!isMaintenance && isMaintenancePage && !hasPreviewParam) {
@@ -208,7 +210,7 @@ export async function middleware(request: NextRequest) {
   const isApi = pathname.startsWith("/api");
   const isServerAction = request.headers.has('next-action') || request.method === 'POST';
 
-  if (isApi || isServerAction) {
+  if ((isApi || isServerAction) && !isWebhook) {
     // Server actions are treated as sensitive operations (e.g. cart modifications, auth, forms)
     const isSensitive = isServerAction || SENSITIVE_PATTERNS.some(pattern => pathname.startsWith(pattern));
     const rateLimit = checkRateLimit(ip, isSensitive);
@@ -233,12 +235,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. Bot Scraper Protection (Allow search engines & Lighthouse for audits)
+  // 2. Bot Scraper Protection (Allow search engines, webhooks & Lighthouse for audits)
   const ua = request.headers.get("user-agent") || "";
   const isSuspicious = /bot|spider|crawl|scraper|curl|wget|python|libwww|headless/i.test(ua) &&
     !/googlebot|bingbot|yandexbot|duckduckbot|lighthouse/i.test(ua);
 
-  if (!isLocal && isSuspicious && (isApi || isServerAction)) {
+  if (!isLocal && isSuspicious && (isApi || isServerAction) && !isWebhook) {
     return new NextResponse(
       JSON.stringify({ error: "Access Denied: Automated tools are blocked." }),
       {

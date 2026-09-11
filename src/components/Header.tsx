@@ -360,20 +360,40 @@ export function Header() {
                 { name: 'Production Blog', href: '/blog' },
                 { name: 'About Us', href: '/about' },
                 { name: 'Help Center', href: '/support' },
-              ].map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`group flex items-center justify-between p-4 border-4 border-black shadow-[6px_6px_0px_black] hover:-translate-y-1 transition-all italic ${link.name === 'ARTIST DASHBOARD'
+              ].map((link) => {
+                const isInternal = link.href.startsWith('/')
+                const className = `group flex items-center justify-between p-4 border-4 border-black shadow-[6px_6px_0px_black] hover:-translate-y-1 transition-all italic ${
+                  link.name === 'ARTIST DASHBOARD'
                     ? 'bg-studio-neon text-black font-black'
                     : 'bg-studio-charcoal text-white hover:bg-studio-pink'
-                    }`}
-                >
-                  <span>{link.name}</span>
-                  <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
-                </a>
-              ))}
+                }`
+                const content = (
+                  <>
+                    <span>{link.name}</span>
+                    <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
+                  </>
+                )
+
+                return isInternal ? (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={className}
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={className}
+                  >
+                    {content}
+                  </a>
+                )
+              })}
 
               <div className="pt-8">
                 {user ? (

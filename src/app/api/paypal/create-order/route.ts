@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       return {
         id: pack.id,
         name: pack.name,
-        price_usd: pack.price_usd ? Number(pack.price_usd) : Math.round(priceDetails.priceInr / 80)
+        price_usd: (pack.price_usd !== null && pack.price_usd !== undefined) ? Number(pack.price_usd) : Math.round(priceDetails.priceInr / 80)
       }
     })
 

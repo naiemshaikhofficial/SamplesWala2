@@ -17,9 +17,10 @@ export const metadata = generatePageMetadata({
 export default async function BrowsePage({ 
   searchParams 
 }: { 
-  searchParams: Promise<{ q?: string; type?: string }> 
+  searchParams: Promise<{ q?: string; query?: string; type?: string }> 
 }) {
-  const { q, type = 'packs' } = await searchParams
+  const { q, query, type = 'packs' } = await searchParams
+  const effectiveQuery = q || query || ''
   
   // Parallelize and fetch conditionally to minimize serverless CPU usage and page response time
   const categoriesPromise = getAllCategories()
@@ -103,7 +104,7 @@ export default async function BrowsePage({
                    </h1>
                    <p className="text-sm font-bold text-white/40 uppercase tracking-widest">Professional Indian Sample Kits & Vocal Stacks</p>
                 </div>
-                <BrowseLibrary initialPacks={packs} searchQuery={q} />
+                <BrowseLibrary initialPacks={packs} searchQuery={effectiveQuery} />
              </div>
           ) : (
              <div className="space-y-12">

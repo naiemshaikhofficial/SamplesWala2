@@ -269,17 +269,25 @@ export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignu
           )}
         </button>
 
-        {allowSignup && (
-          <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
+          {mode === 'forgot' ? (
+            <button 
+              type="button"
+              onClick={() => setMode('login')}
+              className="w-full text-center text-sm text-white/50 hover:text-white transition-colors cursor-pointer"
+            >
+              Remember your password? Sign In
+            </button>
+          ) : allowSignup ? (
             <button 
               type="button"
               onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
-              className="w-full text-center text-sm text-white/50 hover:text-white transition-colors"
+              className="w-full text-center text-sm text-white/50 hover:text-white transition-colors cursor-pointer"
             >
               {mode === 'signup' ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
             </button>
-          </div>
-        )}
+          ) : null}
+        </div>
       </form>
     </div>
   )

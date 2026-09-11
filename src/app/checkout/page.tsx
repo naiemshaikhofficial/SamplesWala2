@@ -655,10 +655,10 @@ export default function CheckoutPage() {
 
   // 1. Setup client-side dynamic pricing calculations
   const itemsWithPrices = items.map(item => {
-    const priceUsd = item.price_usd ? Number(item.price_usd) :
+    const priceUsd = (item.price_usd !== null && item.price_usd !== undefined) ? Number(item.price_usd) :
       (item.type === 'preset'
         ? (item.price === 0 ? 0 : Math.round((item.price / 80) * 100) / 100 || 2.99)
-        : Math.round(item.price / 80))
+        : (item.price === 0 ? 0 : Math.round(item.price / 80)))
     return {
       ...item,
       displayPrice: currency === 'USD' ? `$${priceUsd.toFixed(2)}` : `₹${item.price}`,
@@ -873,7 +873,7 @@ export default function CheckoutPage() {
         console.error('Failed to render PayPal buttons:', e)
       }
     }
-  }, [paypalLoaded, currency, activeTotal, user])
+  }, [paypalLoaded, currency, activeTotal, user, mounted, isMobile])
 
   useEffect(() => {
     const ensureE164 = (phone: any) => {
@@ -1426,7 +1426,22 @@ export default function CheckoutPage() {
         {/* 💥 UPAR (TOP): RAW WILD-STYLE GRAFFITI STATUS - NO BORDERS, PURE STREET ART */}
         {/* ========================================================================= */}
         <div className="flex flex-col items-center justify-center text-center my-0.5 sm:my-1 relative z-20 select-none shrink-0">
-          {!isParcelOpened ? (
+          {!completedOrder && (paymentStatus === 'processing' || isVerifyingRedirect) ? (
+            /* Telemetry State: Verifying payment / Dispatching */
+            <div className="flex flex-col items-center group cursor-default animate-fade-in">
+              <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform duration-300 hover:scale-105">
+                <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-[#00E5FF] to-[#FFE600] graffiti-shadow select-none">
+                  {TELEMETRY_MESSAGES[telemetryIndex]}
+                </h1>
+              </div>
+              <svg className="w-52 xs:w-64 sm:w-72 md:w-96 h-3.5 sm:h-4 mt-0.5 text-[#00E5FF] fill-current drop-shadow-[0_0_10px_#00E5FF] animate-pulse" viewBox="0 0 260 18" fill="none">
+                <path d="M5 9 Q70 2 130 9 T255 8" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+                <path d="M45 9 C45 14 48 17 50 17 C52 17 55 14 55 9 Z" fill="currentColor" />
+                <path d="M125 9 C125 15 128 19 130 19 C132 19 135 15 135 9 Z" fill="currentColor" />
+                <path d="M195 8 C195 13 197 16 199 16 C201 16 203 13 203 8 Z" fill="currentColor" />
+              </svg>
+            </div>
+          ) : !isParcelOpened ? (
             /* State 1: Pure Clean Street Graffiti "THANK YOU!" with Paint Drips */
             <div className="flex flex-col items-center group cursor-default">
               {/* RAW WILD GRAFFITI TEXT: THANK YOU! */}
@@ -1504,6 +1519,7 @@ export default function CheckoutPage() {
         <div className="w-full relative z-10 my-0 shrink-0">
           <DeliveryCarAnimation
             mode={isReadyToUnbox ? 'return' : 'drive'}
+            progress={dispatchProgress}
             onParcelClick={handleUnboxAndDownload}
             isParcelOpened={isParcelOpened}
             isDownloading={isDownloading}

@@ -67,8 +67,12 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       if (usdAmount !== undefined && usdAmount !== null) {
         return Number(usdAmount)
       }
+      if (Number(inrAmount) === 0) {
+        return 0
+      }
       // Fallback conversion rate if price_usd is missing
-      return Math.round((Number(inrAmount) / 80) * 100) / 100 || 9.99
+      const converted = Math.round((Number(inrAmount) / 80) * 100) / 100
+      return converted > 0 ? converted : 9.99
     }
   }
 
