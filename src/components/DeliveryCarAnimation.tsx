@@ -1702,15 +1702,20 @@ export function DeliveryCarAnimation({
                               <circle cx="120" cy="64" r="5" fill="#F4A982" />
                             </g>
                             {/* Dialogue Box 1 (Gen-Z) */}
-                            <g key="dialogue-1" className="anim-bubble-pop" transform="translate(90, 4)">
+                            <g key="dialogue-1" className="anim-bubble-pop" transform="translate(88, 2)">
                               <polygon points="0,26 -14,34 4,30" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
-                              <rect x="0" y="0" width="186" height="34" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
-                              {/* Mini Audio Equalizer Accent */}
-                              <rect x="168" y="12" width="2" height="10" fill="#FFE600" className="anim-eq-bar-1" />
-                              <rect x="172" y="12" width="2" height="10" fill="#00FF94" className="anim-eq-bar-2" />
-                              <rect x="176" y="12" width="2" height="10" fill="#FFE600" className="anim-eq-bar-3" />
-                              <text x="10" y="21.5" fill="#FFE600" fontSize="8.6" fontWeight="900" fontFamily="monospace">
-                                YO CHILL FAM! 💀 My bad on that drift...
+                              <rect x="0" y="0" width="176" height="38" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
+                              {/* Mini Audio Equalizer Accent in Dedicated Right Column */}
+                              <g transform="translate(156, 14)">
+                                <rect x="0" y="0" width="2.5" height="10" fill="#FFE600" className="anim-eq-bar-1" />
+                                <rect x="4.5" y="0" width="2.5" height="10" fill="#00FF94" className="anim-eq-bar-2" />
+                                <rect x="9" y="0" width="2.5" height="10" fill="#FFE600" className="anim-eq-bar-3" />
+                              </g>
+                              <text x="10" y="17" fill="#FFE600" fontSize="8.5" fontWeight="900" fontFamily="monospace">
+                                YO CHILL FAM! 💀
+                              </text>
+                              <text x="10" y="30" fill="#FFFFFF" fontSize="8" fontWeight="800" fontFamily="monospace">
+                                My bad on that drift...
                               </text>
                             </g>
                           </g>
@@ -1725,14 +1730,20 @@ export function DeliveryCarAnimation({
                               <circle cx="74" cy="34" r="4.5" fill="#F4A982" />
                             </g>
                             {/* Dialogue Box 2 (Gen-Z) */}
-                            <g key="dialogue-2" className="anim-bubble-pop" transform="translate(86, 4)">
+                            <g key="dialogue-2" className="anim-bubble-pop" transform="translate(86, 2)">
                               <polygon points="0,26 -14,34 4,30" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
-                              <rect x="0" y="0" width="194" height="34" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
-                              <rect x="176" y="12" width="2" height="10" fill="#00FF94" className="anim-eq-bar-2" />
-                              <rect x="180" y="12" width="2" height="10" fill="#FFE600" className="anim-eq-bar-3" />
-                              <rect x="184" y="12" width="2" height="10" fill="#00E5FF" className="anim-eq-bar-1" />
-                              <text x="10" y="21.5" fill="#FFFFFF" fontSize="8.2" fontWeight="800" fontFamily="monospace">
-                                Almost ghosted your drop... no cap 🧢
+                              <rect x="0" y="0" width="176" height="38" rx="7" fill="#0d0e14" stroke="#FFE600" strokeWidth="2" />
+                              {/* Mini Audio Equalizer Accent */}
+                              <g transform="translate(156, 14)">
+                                <rect x="0" y="0" width="2.5" height="10" fill="#00FF94" className="anim-eq-bar-2" />
+                                <rect x="4.5" y="0" width="2.5" height="10" fill="#FFE600" className="anim-eq-bar-3" />
+                                <rect x="9" y="0" width="2.5" height="10" fill="#00E5FF" className="anim-eq-bar-1" />
+                              </g>
+                              <text x="10" y="17" fill="#FFE600" fontSize="8.5" fontWeight="900" fontFamily="monospace">
+                                ALMOST GHOSTED 📦
+                              </text>
+                              <text x="10" y="30" fill="#FFFFFF" fontSize="8" fontWeight="800" fontFamily="monospace">
+                                your drop... no cap 🧢
                               </text>
                             </g>
                           </g>
@@ -1750,12 +1761,18 @@ export function DeliveryCarAnimation({
                             {dialogueStep === 3 && (
                               <g key="dialogue-3" className="anim-bubble-pop" transform="translate(78, 2)">
                                 <polygon points="0,28 -14,36 4,32" fill="#0d0e14" stroke="#00FF94" strokeWidth="2" />
-                                <rect x="0" y="0" width="216" height="36" rx="7" fill="#0d0e14" stroke="#00FF94" strokeWidth="2" />
-                                <rect x="198" y="13" width="2" height="10" fill="#00FF94" className="anim-eq-bar-1" />
-                                <rect x="202" y="13" width="2" height="10" fill="#FFE600" className="anim-eq-bar-2" />
-                                <rect x="206" y="13" width="2" height="10" fill="#00E5FF" className="anim-eq-bar-3" />
-                                <text x="10" y="23" fill="#00FF94" fontSize="8.2" fontWeight="900" fontFamily="monospace">
-                                  HERE IS YOUR 24-BIT HEAT! Certified banger 🔥
+                                <rect x="0" y="0" width="186" height="38" rx="7" fill="#0d0e14" stroke="#00FF94" strokeWidth="2" />
+                                {/* Mini Audio Equalizer Accent */}
+                                <g transform="translate(166, 14)">
+                                  <rect x="0" y="0" width="2.5" height="10" fill="#00FF94" className="anim-eq-bar-1" />
+                                  <rect x="4.5" y="0" width="2.5" height="10" fill="#FFE600" className="anim-eq-bar-2" />
+                                  <rect x="9" y="0" width="2.5" height="10" fill="#00E5FF" className="anim-eq-bar-3" />
+                                </g>
+                                <text x="10" y="17" fill="#00FF94" fontSize="8.5" fontWeight="900" fontFamily="monospace">
+                                  HERE IS YOUR 24-BIT HEAT!
+                                </text>
+                                <text x="10" y="30" fill="#FFE600" fontSize="8" fontWeight="800" fontFamily="monospace">
+                                  Certified banger 🔥
                                 </text>
                               </g>
                             )}
