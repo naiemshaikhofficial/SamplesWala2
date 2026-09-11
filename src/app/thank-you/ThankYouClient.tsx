@@ -175,9 +175,9 @@ export function ThankYouClient({
 
 
   return (
-    <div className="w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex flex-col items-center justify-center relative z-10 select-none space-y-3 sm:space-y-4 px-4 py-4 my-auto">
+    <div className="w-full max-w-full sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto flex flex-col items-center justify-center relative z-10 select-none space-y-1 xs:space-y-1.5 sm:space-y-2 px-1 sm:px-4 my-auto h-full max-h-full overflow-hidden">
       {/* Official Brand Logo (Prominent & Cinematic) */}
-      <div className="flex justify-center mb-1 sm:mb-2">
+      <div className="flex justify-center mb-0.5 sm:mb-1 shrink-0">
         <Link href="/" className="inline-flex items-center hover:opacity-90 hover:scale-105 transition-all duration-200">
           <Image
             src="/Logo.png"
@@ -185,7 +185,7 @@ export function ThankYouClient({
             width={240}
             height={60}
             priority
-            className="h-11 sm:h-13 md:h-15 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+            className="h-8 xs:h-9 sm:h-11 md:h-13 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
           />
         </Link>
       </div>
@@ -193,19 +193,19 @@ export function ThankYouClient({
       {/* ========================================================================= */}
       {/* 💥 UPAR (TOP): RAW WILD-STYLE GRAFFITI STATUS - NO BORDERS, PURE STREET ART */}
       {/* ========================================================================= */}
-      <div className="flex flex-col items-center justify-center text-center my-1 sm:my-2 relative z-20 select-none">
+      <div className="flex flex-col items-center justify-center text-center my-0.5 sm:my-1 relative z-20 select-none shrink-0">
         {!isParcelOpened ? (
           /* State 1: Pure Clean Street Graffiti "THANK YOU!" with Paint Drips */
           <div className="flex flex-col items-center group cursor-default">
             {/* RAW WILD GRAFFITI TEXT: THANK YOU! */}
             <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform duration-300 hover:scale-105">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-br from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
+              <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-br from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
                 THANK YOU!
               </h1>
             </div>
 
             {/* Street Art Drip SVG Underline */}
-            <svg className="w-48 sm:w-64 md:w-80 h-4 mt-0.5 text-[#00FF94] fill-current drop-shadow-[0_0_8px_#00FF94]" viewBox="0 0 260 18" fill="none">
+            <svg className="w-44 xs:w-56 sm:w-64 md:w-80 h-3.5 sm:h-4 mt-0.5 text-[#00FF94] fill-current drop-shadow-[0_0_8px_#00FF94]" viewBox="0 0 260 18" fill="none">
               <path d="M5 9 Q70 2 130 9 T255 8" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
               <path d="M45 9 C45 14 48 17 50 17 C52 17 55 14 55 9 Z" fill="currentColor" />
               <path d="M125 9 C125 15 128 19 130 19 C132 19 135 15 135 9 Z" fill="currentColor" />
@@ -213,39 +213,63 @@ export function ThankYouClient({
             </svg>
           </div>
         ) : isDownloading ? (
-          /* State 2: Dynamic Downloading Status in Graffiti Style */
-          <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-[#00E5FF] to-[#FFE600] graffiti-downloading-shadow">
-              ⚡ DOWNLOADING YOUR FILE...
-            </h1>
-          </div>
-        ) : downloadSuccess ? (
-          /* State 3: Download Complete */
-          <div className="flex flex-col items-center -rotate-1 sm:-rotate-2 skew-x-[-4deg]">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-white to-[#00FF94] graffiti-downloading-shadow">
-              🔥 DOWNLOAD STARTED!
-            </h1>
-          </div>
-        ) : downloadError ? (
-          /* State 4: Retry */
-          <button
-            onClick={handleUnboxAndDownload}
-            className="flex flex-col items-center -rotate-1 skew-x-[-3deg] text-red-400 hover:text-red-300 transition-all cursor-pointer group"
-          >
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-wide font-[family-name:var(--font-permanent-marker)] text-red-400 drop-shadow-[0_0_12px_rgba(255,49,49,0.7)] group-hover:scale-105 transition-transform">
-                DOWNLOAD BLOCKED? TAP TO RETRY ↺
+          /* State 2: Dynamic Downloading Status in Authentic Graffiti Style */
+          <div className="flex flex-col items-center group cursor-default animate-fade-in">
+            <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform duration-300 hover:scale-105">
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#00FF94] via-[#00E5FF] to-[#FFE600] graffiti-shadow select-none">
+                DOWNLOADING SOUNDS...
               </h1>
             </div>
-            <span className="text-[10px] font-mono text-white/50 tracking-widest uppercase mt-1">
-              CLICK TO RE-TRIGGER SECURE DOWNLOAD STREAM
-            </span>
+
+            {/* Cyan/Neon Animated Street Art Drip SVG Underline */}
+            <svg className="w-52 xs:w-64 sm:w-72 md:w-96 h-3.5 sm:h-4 mt-0.5 text-[#00E5FF] fill-current drop-shadow-[0_0_10px_#00E5FF] animate-pulse" viewBox="0 0 260 18" fill="none">
+              <path d="M5 9 Q70 2 130 9 T255 8" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+              <path d="M45 9 C45 14 48 17 50 17 C52 17 55 14 55 9 Z" fill="currentColor" />
+              <path d="M125 9 C125 15 128 19 130 19 C132 19 135 15 135 9 Z" fill="currentColor" />
+              <path d="M195 8 C195 13 197 16 199 16 C201 16 203 13 203 8 Z" fill="currentColor" />
+            </svg>
+          </div>
+        ) : downloadSuccess ? (
+          /* State 3: Download Complete in Authentic Graffiti Style */
+          <div className="flex flex-col items-center group cursor-default animate-fade-in">
+            <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg] transition-transform duration-300 hover:scale-105">
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-br from-[#FFE600] via-[#FFFFFF] to-[#00FF94] graffiti-shadow select-none">
+                FILE DOWNLOADED!
+              </h1>
+            </div>
+
+            {/* Neon Green Street Art Drip SVG Underline */}
+            <svg className="w-52 xs:w-64 sm:w-72 md:w-96 h-3.5 sm:h-4 mt-0.5 text-[#00FF94] fill-current drop-shadow-[0_0_10px_#00FF94]" viewBox="0 0 260 18" fill="none">
+              <path d="M5 9 Q70 2 130 9 T255 8" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+              <path d="M45 9 C45 14 48 17 50 17 C52 17 55 14 55 9 Z" fill="currentColor" />
+              <path d="M125 9 C125 15 128 19 130 19 C132 19 135 15 135 9 Z" fill="currentColor" />
+              <path d="M195 8 C195 13 197 16 199 16 C201 16 203 13 203 8 Z" fill="currentColor" />
+            </svg>
+          </div>
+        ) : downloadError ? (
+          /* State 4: Retry in Street Graffiti Style */
+          <button
+            onClick={handleUnboxAndDownload}
+            className="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105"
+          >
+            <div className="relative flex items-center justify-center -rotate-2 sm:-rotate-3 skew-x-[-6deg]">
+              <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-wider font-[family-name:var(--font-permanent-marker)] text-transparent bg-clip-text bg-gradient-to-r from-[#FFE600] via-[#FF3131] to-[#FF0055] drop-shadow-[0_0_16px_rgba(255,49,49,0.85)] select-none">
+                TAP TO RETRY DOWNLOAD ↺
+              </h1>
+            </div>
+            {/* Fiery Red Street Art Drip SVG Underline */}
+            <svg className="w-52 xs:w-64 sm:w-72 md:w-96 h-3.5 sm:h-4 mt-0.5 text-[#FF3131] fill-current drop-shadow-[0_0_10px_#FF3131]" viewBox="0 0 260 18" fill="none">
+              <path d="M5 9 Q70 2 130 9 T255 8" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+              <path d="M45 9 C45 14 48 17 50 17 C52 17 55 14 55 9 Z" fill="currentColor" />
+              <path d="M125 9 C125 15 128 19 130 19 C132 19 135 15 135 9 Z" fill="currentColor" />
+              <path d="M195 8 C195 13 197 16 199 16 C201 16 203 13 203 8 Z" fill="currentColor" />
+            </svg>
           </button>
         ) : null}
       </div>
 
       {/* Pure Detailed Hypercar Delivery & Unboxing Experience */}
-      <div className="w-full relative z-10 my-0">
+      <div className="w-full relative z-10 my-0 flex-1 flex flex-col justify-center items-center min-h-0">
         <DeliveryCarAnimation
           key={replayKey}
           mode="return"
@@ -257,15 +281,15 @@ export function ThankYouClient({
       </div>
 
       {/* Minimal Action Footer (Below Car) */}
-      <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center space-y-2 pt-1">
+      <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center space-y-1 pt-0.5 pb-1 shrink-0">
         <Link
           href="/library"
-          className="text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
+          className="text-[10px] sm:text-[11px] font-mono text-white/40 hover:text-white/90 transition-colors uppercase tracking-widest hover:underline"
         >
           go to library &rarr;
         </Link>
 
-        <div className="flex items-center gap-4 text-[10px] font-mono text-white/30 uppercase tracking-wider pt-1">
+        <div className="flex items-center gap-3 sm:gap-4 text-[9px] sm:text-[10px] font-mono text-white/30 uppercase tracking-wider">
           <button
             onClick={() => {
               setReplayKey(k => k + 1)

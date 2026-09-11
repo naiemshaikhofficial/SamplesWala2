@@ -113,7 +113,7 @@ export function DeliveryCarAnimation({
   const isWheelsSpinning = isDriving || isZoomingPast || isReversing || isCarLeaving
 
   return (
-    <div className="w-full relative overflow-hidden select-none my-2 font-mono">
+    <div className="w-full relative overflow-hidden select-none my-0.5 sm:my-1 font-mono">
       {/* Precision High-End Visual Keyframes */}
       <style dangerouslySetInnerHTML={{
         __html: `
@@ -405,19 +405,19 @@ export function DeliveryCarAnimation({
         `
       }} />
 
-      {/* Main Cinematic Scene Canvas: Mobile compact, PC/Desktop large & cinematic */}
-      <div className="relative w-full max-w-xl sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto h-52 sm:h-56 md:h-[360px] lg:h-[420px] flex flex-col justify-end items-center overflow-hidden rounded-lg sm:rounded-xl bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.95)]">
+      {/* Main Cinematic Scene Canvas: Mobile large & immersive, PC/Desktop widescreen & cinematic */}
+      <div className="relative w-full max-w-full sm:max-w-2xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto h-[320px] xs:h-[360px] sm:h-[390px] md:h-[430px] lg:h-[470px] max-h-[58vh] flex flex-col justify-end items-center overflow-hidden rounded-xl bg-gradient-to-b from-[#08080c] via-[#0d0e14] to-[#07070a] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.95)]">
 
         {/* Ambient Top Glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-28 md:h-44 bg-gradient-to-b from-[#00FF94]/12 via-[#FFE600]/6 to-transparent blur-2xl md:blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 md:h-48 bg-gradient-to-b from-[#00FF94]/12 via-[#FFE600]/6 to-transparent blur-2xl md:blur-3xl" />
         </div>
 
         {/* ========================================================================= */}
         {/* === PARALLAX BACKGROUND SCENERY (Forward, Reverse, and Frozen on Stop) === */}
         {/* ========================================================================= */}
         <div
-          className={`absolute bottom-6 sm:bottom-7 md:bottom-10 lg:bottom-12 left-0 h-24 sm:h-28 md:h-44 lg:h-52 flex w-[200%] select-none pointer-events-none z-0 ${
+          className={`absolute bottom-6 sm:bottom-7 md:bottom-10 lg:bottom-12 left-0 h-36 sm:h-42 md:h-50 lg:h-56 flex w-[200%] select-none pointer-events-none z-0 ${
             isDriving
               ? 'scenery-drive'
               : isZoomingPast
@@ -669,7 +669,7 @@ export function DeliveryCarAnimation({
               {/* SVG Hypercar Model */}
               <svg
                 viewBox="0 0 520 160"
-                className="w-[280px] xs:w-[320px] sm:w-[380px] md:w-[620px] lg:w-[740px] xl:w-[840px] max-w-full h-auto overflow-visible"
+                className="w-[340px] xs:w-[380px] sm:w-[440px] md:w-[620px] lg:w-[740px] xl:w-[840px] max-w-full h-auto overflow-visible"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -1211,7 +1211,7 @@ export function DeliveryCarAnimation({
             <svg
               viewBox="0 0 100 88"
               fill="none"
-              className={`w-[84px] h-[74px] md:w-[130px] md:h-[114px] lg:w-[150px] lg:h-[132px] overflow-visible transition-all duration-200 ${
+              className={`w-[94px] h-[82px] sm:w-[110px] sm:h-[96px] md:w-[130px] md:h-[114px] lg:w-[150px] lg:h-[132px] overflow-visible transition-all duration-200 ${
                 !isParcelOpened ? 'group-hover:drop-shadow-[0_0_24px_rgba(255,230,0,0.9)] group-hover:brightness-110' : ''
               }`}
             >

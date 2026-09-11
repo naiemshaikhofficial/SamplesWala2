@@ -13,7 +13,15 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const isThankYouPage = pathname?.startsWith('/thank-you') || pathname?.startsWith('/confirmation')
   const isCheckoutPage = pathname?.startsWith('/checkout')
 
-  if (isAuthPage || isDashboardPage || isMaintenancePage || isThankYouPage || isCheckoutPage) {
+  if (isThankYouPage) {
+    return (
+      <main className="h-screen h-[100dvh] max-h-[100dvh] w-full max-w-full overflow-hidden flex flex-col">
+        {children}
+      </main>
+    )
+  }
+
+  if (isAuthPage || isDashboardPage || isMaintenancePage || isCheckoutPage) {
     return (
       <main className="flex-grow flex flex-col relative w-full max-w-full overflow-x-hidden">
         {children}

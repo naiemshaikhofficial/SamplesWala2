@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ThankYouPage() {
   return (
-    <div className="min-h-screen w-full max-w-full bg-[#0d0d10] text-white p-3 sm:p-6 relative overflow-hidden select-none flex flex-col justify-center items-center">
+    <div className="h-screen h-[100dvh] max-h-[100dvh] w-full max-w-full bg-[#0d0d10] text-white px-2 sm:px-4 py-1 sm:py-2 relative overflow-hidden select-none flex flex-col justify-center items-center">
       {/* Studio Dot Grid Background */}
       <div className="absolute inset-0 bg-[radial-gradient(#2a2a30_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40" />
 
