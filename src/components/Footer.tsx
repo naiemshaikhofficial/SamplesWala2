@@ -94,13 +94,18 @@ export function Footer() {
             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-neon italic">Explore</h4>
             <ul className="space-y-2.5 text-[10px] font-bold text-white/45 uppercase tracking-widest">
               <li>
-                <Link href="/browse" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
-                  Browse Packs
+                <Link href="/browse/packs" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
+                  Indian Sample Packs
                 </Link>
               </li>
               <li>
-                <Link href="/about" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
-                  About Us
+                <Link href="/free" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
+                  Free Indian Loops
+                </Link>
+              </li>
+              <li>
+                <Link href="/browse/presets" prefetch={false} className="hover:text-studio-pink transition-all duration-150">
+                  Producer Presets
                 </Link>
               </li>
               <li>
@@ -115,12 +120,12 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/careers" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
-                  Sell Your Samples
+                  Sell Your Sounds
                 </Link>
               </li>
               <li>
                 <Link href="/faq" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
-                  FAQs
+                  FAQs & Licensing
                 </Link>
               </li>
               <li>

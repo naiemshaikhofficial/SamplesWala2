@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidateTag, revalidatePath } from 'next/cache'
+import { submitIndexNowUrls } from '@/lib/seo/indexing'
 
 /**
  * On-Demand Cache Invalidation Endpoint
@@ -82,12 +83,16 @@ async function handleRevalidation(req: NextRequest) {
     }
 
     const revalidatedItems: string[] = []
+    let webhookTable: string | null = null
+    let webhookSlug: string | null = null
 
     // 3. Process Supabase Database Webhook
     if (isSupabaseWebhook && webhookBody) {
       const table = webhookBody.table
+      webhookTable = table
       const eventType = webhookBody.type || 'UNKNOWN'
       const currentSlug = webhookBody.record?.slug
+      webhookSlug = currentSlug
       const previousSlug = webhookBody.old_record?.slug
 
       console.log(`[Revalidate Webhook] Supabase ${eventType} event for table: "${table}"`)
@@ -209,6 +214,26 @@ async function handleRevalidation(req: NextRequest) {
       revalidatePath('/browse/presets/[slug]', 'page')
 
       revalidatedItems.push('all_core_routes')
+    }
+
+    // 7. Instant Search Engine Ping via IndexNow Protocol (Fire-and-forget, non-blocking)
+    try {
+      const urlsToPing: string[] = []
+      if (webhookSlug && (webhookTable === 'sample_packs' || tag === 'packs')) {
+        urlsToPing.push(`https://sampleswala.com/packs/${webhookSlug}`)
+        urlsToPing.push('https://sampleswala.com/browse')
+        urlsToPing.push('https://sampleswala.com/browse/packs')
+      } else if (webhookSlug && (webhookTable === 'presets' || tag === 'presets')) {
+        urlsToPing.push(`https://sampleswala.com/browse/presets/${webhookSlug}`)
+        urlsToPing.push('https://sampleswala.com/browse/presets')
+      } else if (path) {
+        urlsToPing.push(`https://sampleswala.com${path.startsWith('/') ? path : `/${path}`}`)
+      }
+      if (urlsToPing.length > 0) {
+        submitIndexNowUrls(urlsToPing).catch(err => console.warn('[IndexNow Ping Notice]:', err?.message || err))
+      }
+    } catch {
+      // Ignore IndexNow errors to never block revalidation response
     }
 
     return NextResponse.json({

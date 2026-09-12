@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Music, Sparkles } from 'lucide-react'
 import { generatePageMetadata } from '@/lib/seo/metadata'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
-import { generateBreadcrumbData } from '@/lib/seo/structuredData'
+import { generateBreadcrumbData, generateFaqStructuredData } from '@/lib/seo/structuredData'
 import { FlashSalePromo } from '@/components/FlashSalePromo'
 import { BrowseClientView } from '@/components/BrowseClientView'
 
@@ -14,8 +14,21 @@ import { BrowseClientView } from '@/components/BrowseClientView'
 export const revalidate = false
 
 export const metadata = generatePageMetadata({
-  title: 'Browse Music Production Tools | SamplesWala',
-  description: 'Explore our library of premium Indian Sample Packs and Producer Presets.',
+  title: 'Indian Sample Packs, Royalty-Free Loops & Presets (24-Bit WAV) | SamplesWala',
+  description: 'Download 100% royalty-free Indian sample packs, Bollywood vocal stacks, tabla & dholak loops, and producer presets in studio-grade 24-bit WAV for FL Studio, Ableton & Logic Pro.',
+  keywords: [
+    'Indian sample packs',
+    'Bollywood loops',
+    'Indian vocal samples',
+    'tabla loops free download',
+    'dholak loops WAV',
+    'royalty free indian samples',
+    'FL Studio presets',
+    'punjabi drum kit',
+    'desi melody loops',
+    'best indian sample library',
+    'SamplesWala'
+  ],
   path: '/browse'
 })
 
@@ -32,11 +45,30 @@ export default async function BrowsePage() {
     { name: 'Browse', item: 'https://sampleswala.com/browse' }
   ])
 
+  const faqData = generateFaqStructuredData([
+    {
+      q: 'What makes SamplesWala Indian sample packs different?',
+      a: 'SamplesWala delivers studio-recorded, high-fidelity Indian instruments (tabla, dholak, bansuri, sarangi) and authentic Bollywood vocal stacks in pristine 24-bit WAV format, mixed specifically for modern hip-hop, drill, trap, and electronic producers.'
+    },
+    {
+      q: 'Are all sample packs and loops 100% royalty-free?',
+      a: 'Yes. Every sound is 100% royalty-free for commercial use in monetized YouTube videos, Spotify and Apple Music streaming releases, beat leasing, and sync licensing without paying any royalties or split sheets.'
+    },
+    {
+      q: 'Which DAWs are compatible with these samples?',
+      a: 'All files are delivered as standard 24-bit 44.1kHz WAV files and are compatible with all digital audio workstations including FL Studio, Ableton Live, Logic Pro, Cubase, Studio One, and Reaper.'
+    }
+  ])
+
   return (
     <div className="container mx-auto px-4 py-12 min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }}
       />
 
       <Suspense fallback={<BrowseFallback packs={packs} categories={categories} />}>

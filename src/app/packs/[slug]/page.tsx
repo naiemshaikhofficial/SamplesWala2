@@ -3,7 +3,7 @@ import { getPackBySlug, getRelatedPacks, getPacks } from '@/app/browse/actions'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { generatePackStructuredData, generateBreadcrumbData } from '@/lib/seo/structuredData'
+import { generatePackStructuredData, generateBreadcrumbData, generateFaqStructuredData } from '@/lib/seo/structuredData'
 import { getPackPriceDetails } from '@/lib/pricing'
 
 // 🟢 CPU OPTIMIZATION: Infinite cache (until dynamic on-demand revalidation triggers via webhook).
@@ -56,6 +56,21 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
     { name: pack.name, item: `https://sampleswala.com/packs/${pack.slug}` }
   ])
 
+  const faqData = generateFaqStructuredData([
+    {
+      q: `Are the samples in ${pack.name} 100% royalty-free?`,
+      a: `Yes, all loops, one-shots, and vocal samples in ${pack.name} are 100% royalty-free for commercial music releases, beat sales, YouTube monetization, and film sync licensing.`
+    },
+    {
+      q: `What audio format and bit depth is ${pack.name}?`,
+      a: `Delivered in professional studio-standard 24-bit 44.1kHz WAV format, compatible with all major DAWs including FL Studio, Ableton Live, Logic Pro, Cubase, and Studio One.`
+    },
+    {
+      q: `How do I download ${pack.name} after purchase?`,
+      a: `Downloads are instant upon checkout and permanently accessible in your SamplesWala Library account for high-speed download at any time.`
+    }
+  ])
+
   return (
     <div className="flex flex-col min-h-screen">
       <script
@@ -65,6 +80,10 @@ export default async function PackDetailPage({ params }: { params: Promise<{ slu
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }}
       />
       <div className="flex-grow">
         <PackDetailClient initialPack={pack} />
