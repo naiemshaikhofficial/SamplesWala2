@@ -247,7 +247,8 @@ async function fetchSiteSettingsFromDB(): Promise<GlobalSiteSettings> {
           apikey: anonKey,
           Authorization: `Bearer ${anonKey}`,
         },
-        next: { revalidate: 15, tags: ['settings', 'site-settings', 'maintenance'] }
+        // On-demand webhook invalidation via tags ('settings', 'site-settings', 'maintenance') with 24h fallback
+        next: { revalidate: 86400, tags: ['settings', 'site-settings', 'maintenance'] }
       }
     )
 
@@ -285,6 +286,6 @@ export async function getSiteSettings(): Promise<GlobalSiteSettings> {
   return unstable_cache(
     async () => fetchSiteSettingsFromDB(),
     ['sampleswala2-site-settings-cache-v1'],
-    { revalidate: 15, tags: ['settings', 'site-settings', 'maintenance'] }
+    { revalidate: 86400, tags: ['settings', 'site-settings', 'maintenance'] }
   )()
 }

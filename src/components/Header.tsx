@@ -231,12 +231,12 @@ export function Header() {
 
   const NavLinks = () => (
     <>
-      <Link href="/" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Home</Link>
-      <Link href="/browse" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Browse</Link>
-      <Link href="/browse/packs" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Sample Packs</Link>
-      <Link href="/browse/presets" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
-      <Link href="/free" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Free</Link>
-      <Link href="/library" onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
+      <Link href="/" prefetch={false} onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Home</Link>
+      <Link href="/browse" prefetch={false} onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Browse</Link>
+      <Link href="/browse/packs" prefetch={false} onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Sample Packs</Link>
+      <Link href="/browse/presets" prefetch={false} onClick={() => setIsMenuOpen(false)} className="hover:text-studio-pink transition-colors">Presets</Link>
+      <Link href="/free" prefetch={false} onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Free</Link>
+      <Link href="/library" prefetch={false} onClick={() => setIsMenuOpen(false)} className="hover:text-studio-yellow transition-colors">Library</Link>
 
       {isArtist && (
         <a
@@ -254,6 +254,7 @@ export function Header() {
         ) : (
           <Link
             href="/auth"
+            prefetch={false}
             onClick={() => setIsMenuOpen(false)}
             className="px-4 py-2 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[11px] tracking-wide whitespace-nowrap"
           >
@@ -269,6 +270,7 @@ export function Header() {
       <div className="container mx-auto px-4 flex items-center justify-between w-full h-full relative z-[110]">
         <Link
           href="/"
+          prefetch={false}
           onClick={() => setIsMenuOpen(false)}
           className="flex items-center select-none hover:scale-105 translate-y-[28px] transition-transform duration-200"
         >
@@ -294,15 +296,16 @@ export function Header() {
 
         {/* Mobile Header Nav Links */}
         <div className="flex md:hidden items-center gap-2.5 text-[10px] font-black uppercase tracking-wider italic mr-1">
-          <Link href="/" className="hover:text-studio-yellow transition-colors">Home</Link>
-          <Link href="/browse" className="hover:text-studio-yellow transition-colors">Browse</Link>
-          <Link href="/free" className="hover:text-studio-yellow transition-colors">Free</Link>
+          <Link href="/" prefetch={false} className="hover:text-studio-yellow transition-colors">Home</Link>
+          <Link href="/browse" prefetch={false} className="hover:text-studio-yellow transition-colors">Browse</Link>
+          <Link href="/free" prefetch={false} className="hover:text-studio-yellow transition-colors">Free</Link>
         </div>
 
         <div className="flex md:hidden items-center gap-3">
           {!user && (
             <Link
               href="/auth"
+              prefetch={false}
               className="px-3 py-1.5 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[10px] whitespace-nowrap"
             >
               Sign In
@@ -314,7 +317,7 @@ export function Header() {
             className="w-8 h-8 flex flex-col items-center justify-center gap-1 border-4 border-black bg-white shadow-[3px_3px_0px_black] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all group overflow-hidden"
           >
             <motion.div
-              animate={isMenuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
+              animate={isMenuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
               className="w-5 h-1 bg-black rounded-full origin-center"
             />
             <motion.div
@@ -378,6 +381,7 @@ export function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
+                    prefetch={false}
                     onClick={() => setIsMenuOpen(false)}
                     className={className}
                   >
@@ -407,6 +411,7 @@ export function Header() {
                 ) : (
                   <Link
                     href="/auth"
+                    prefetch={false}
                     onClick={() => setIsMenuOpen(false)}
                     className="w-full h-16 bg-studio-yellow text-black flex items-center justify-center text-lg font-black tracking-widest border-4 border-black shadow-[8px_8px_0px_black] italic hover:bg-white transition-all"
                   >

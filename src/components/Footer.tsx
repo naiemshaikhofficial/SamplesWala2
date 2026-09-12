@@ -94,37 +94,37 @@ export function Footer() {
             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-studio-neon italic">Explore</h4>
             <ul className="space-y-2.5 text-[10px] font-bold text-white/45 uppercase tracking-widest">
               <li>
-                <Link href="/browse" className="hover:text-studio-yellow transition-all duration-150">
+                <Link href="/browse" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
                   Browse Packs
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-studio-yellow transition-all duration-150">
+                <Link href="/about" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/library" className="hover:text-studio-yellow transition-all duration-150">
+                <Link href="/library" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
                   Your Library
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="hover:text-studio-yellow transition-all duration-150">
+                <Link href="/blog" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
                   Production Blog
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="hover:text-studio-yellow transition-all duration-150">
+                <Link href="/careers" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
                   Sell Your Samples
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="hover:text-studio-yellow transition-all duration-150">
+                <Link href="/faq" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
                   FAQs
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-studio-yellow transition-all duration-150">
+                <Link href="/contact" prefetch={false} className="hover:text-studio-yellow transition-all duration-150">
                   Contact Us
                 </Link>
               </li>
