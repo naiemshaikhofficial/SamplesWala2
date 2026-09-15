@@ -78,7 +78,7 @@
       border: 4px solid #000000;
       box-shadow: 6px 6px 0px #ff0080;
       text-decoration: none;
-      transition: all 0.2s ease-in-out;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .btn-main:hover {
@@ -87,6 +87,82 @@
       box-shadow: 8px 8px 0px #00EAFF !important;
       transform: translate(-2px, -2px);
     }
+
+    /* Keyframe Animations */
+    @keyframes ctaPulse {
+      0%, 100% {
+        box-shadow: 6px 6px 0px #ff0080;
+        transform: translate(0, 0);
+      }
+      50% {
+        box-shadow: 8px 8px 16px rgba(255, 0, 128, 0.6), 6px 6px 0px #ff0080;
+        transform: translate(-2px, -2px);
+      }
+    }
+
+    @keyframes rainbowFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes discountGlow {
+      0%, 100% { transform: scale(1); color: #FFC800; }
+      50% { transform: scale(1.08); color: #00FF94; }
+    }
+
+    @keyframes eqBar1 {
+      0%, 100% { height: 6px; }
+      50% { height: 16px; }
+    }
+
+    @keyframes eqBar2 {
+      0%, 100% { height: 16px; }
+      50% { height: 8px; }
+    }
+
+    @keyframes eqBar3 {
+      0%, 100% { height: 10px; }
+      50% { height: 18px; }
+    }
+
+    .btn-main-animated {
+      animation: ctaPulse 3s infinite ease-in-out;
+    }
+
+    .rainbow-strip {
+      background: linear-gradient(90deg, #ff0080, #00FF94, #00EAFF, #FFC800, #ff0080) !important;
+      background-size: 300% 100% !important;
+      animation: rainbowFlow 4s linear infinite !important;
+    }
+
+    .badge-pulse {
+      display: inline-block;
+      animation: badgePulse 2.5s infinite ease-in-out;
+    }
+
+    .discount-tag {
+      display: inline-block;
+      animation: discountGlow 2.2s infinite ease-in-out;
+    }
+
+    .eq-bar {
+      display: inline-block;
+      width: 3px;
+      background-color: #00FF94;
+      margin: 0 1px;
+      vertical-align: bottom;
+      border-radius: 1px;
+    }
+
+    .eq-bar-1 { height: 8px; animation: eqBar1 1.2s infinite ease-in-out; }
+    .eq-bar-2 { height: 14px; animation: eqBar2 1.5s infinite ease-in-out; background-color: #00EAFF; }
+    .eq-bar-3 { height: 10px; animation: eqBar3 1.1s infinite ease-in-out; background-color: #ff0080; }
 
     .btn-secondary {
       display: inline-block;
@@ -100,25 +176,27 @@
       border: 3px solid #000000;
       box-shadow: 4px 4px 0px #000000;
       text-decoration: none;
-      transition: all 0.2s ease-in-out;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .btn-secondary:hover {
       background-color: #00FF94 !important;
       box-shadow: 5px 5px 0px #ff0080 !important;
-      transform: translate(-1px, -1px);
+      transform: translate(-2px, -2px);
+      color: #000000 !important;
     }
 
     .product-card {
       background-color: #111111;
       border: 3px solid #000000;
       box-shadow: 6px 6px 0px #000000;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .product-card:hover {
-      border-color: #00FF94;
-      box-shadow: 8px 8px 0px #00FF94;
+      border-color: #00FF94 !important;
+      box-shadow: 8px 8px 0px #00FF94 !important;
+      transform: translateY(-3px) !important;
     }
 
     .pill-badge {
@@ -141,8 +219,8 @@
       }
 
       .mobile-padding {
-        padding-left: 20px !important;
-        padding-right: 20px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
       }
 
       .mobile-stack {
@@ -172,6 +250,87 @@
         width: 100% !important;
         padding: 16px 20px !important;
         font-size: 15px !important;
+        text-align: center !important;
+      }
+
+      /* Responsive Product Cards on Mobile */
+      .product-card {
+        margin-bottom: 20px !important;
+      }
+
+      .product-card-body {
+        padding: 14px !important;
+      }
+
+      .product-cover-td {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-right: 0 !important;
+        margin-bottom: 14px !important;
+        text-align: center !important;
+      }
+
+      .product-cover-link {
+        display: block !important;
+        width: 100% !important;
+        max-width: 220px !important;
+        margin: 0 auto !important;
+      }
+
+      .product-thumb-img {
+        width: 100% !important;
+        max-width: 220px !important;
+        height: auto !important;
+        aspect-ratio: 1 / 1 !important;
+        margin: 0 auto !important;
+        display: block !important;
+      }
+
+      .product-details-td {
+        display: block !important;
+        width: 100% !important;
+        padding-top: 4px !important;
+        text-align: left !important;
+      }
+
+      .product-title-h4 {
+        font-size: 16px !important;
+        line-height: 1.35 !important;
+        margin: 6px 0 8px 0 !important;
+      }
+
+      .product-desc-p {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 14px !important;
+      }
+
+      .product-action-table {
+        display: block !important;
+        width: 100% !important;
+      }
+
+      .product-price-td {
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+        margin-bottom: 12px !important;
+      }
+
+      .product-btn-td {
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+      }
+
+      .btn-secondary {
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
+        padding: 14px 18px !important;
+        font-size: 14px !important;
+        box-sizing: border-box !important;
       }
 
       .footer-social-link {
@@ -201,7 +360,7 @@
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="email-container"
           style="max-width: 600px; width: 100%;">
           <tr>
-            <td
+            <td class="rainbow-strip"
               style="height: 8px; background: linear-gradient(90deg, #ff0080, #00FF94, #00EAFF, #FFC800); border-top: 3px solid #000; border-left: 3px solid #000; border-right: 3px solid #000;">
             </td>
           </tr>
@@ -242,7 +401,7 @@
             <td align="center" style="background-color: #00FF94; padding: 14px 20px; border-bottom: 4px solid #000000;">
               <p
                 style="margin: 0; color: #000000; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
-                🔥 NEW FREE DROP IS LIVE &bull; 100% ROYALTY-FREE
+                <span class="badge-pulse">🔥 NEW FREE DROP IS LIVE &bull; 100% ROYALTY-FREE</span>
               </p>
             </td>
           </tr>
@@ -255,7 +414,7 @@
 
               <!-- Tag -->
               <div style="margin-bottom: 18px;">
-                <span
+                <span class="badge-pulse"
                   style="display: inline-block; background-color: #00EAFF; color: #000000; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; padding: 6px 14px; border: 3px solid #000; box-shadow: 4px 4px 0px #000;">
                   FREE RHYTHM PACK
                 </span>
@@ -278,7 +437,7 @@
                 <tr>
                   <td align="center"
                     style="background-color: #000000; border: 4px solid #000000; box-shadow: 10px 10px 0px #00FF94;">
-                    <a href="https://www.sampleswala.com/pack/india-street" target="_blank" rel="noopener noreferrer"
+                    <a href="https://www.sampleswala.com/packs/india-street" target="_blank" rel="noopener noreferrer"
                       style="text-decoration: none; display: block; border: none; outline: none;">
                       <img src="https://imagizer.imageshack.com/img921/4723/6EtjtS.png"
                         alt="India Street Rhythm – 25 FREE Rhythm Loops" width="500" class="product-cover-img"
@@ -294,8 +453,8 @@
                 style="margin: 10px auto 15px auto;">
                 <tr>
                   <td align="center">
-                    <a href="https://www.sampleswala.com/pack/india-street" target="_blank" rel="noopener noreferrer"
-                      class="btn-main">
+                    <a href="https://www.sampleswala.com/packs/india-street" target="_blank" rel="noopener noreferrer"
+                      class="btn-main btn-main-animated">
                       ⚡ DOWNLOAD FREE NOW (25 LOOPS)
                     </a>
                   </td>
@@ -654,7 +813,8 @@
               </p>
 
               <!-- Secondary Download CTA Button -->
-              <a href="https://www.sampleswala.com/pack/india-street" target="_blank" rel="noopener noreferrer"
+              <a href="https://www.sampleswala.com/packs/india-street" target="_blank" rel="noopener noreferrer"
+                class="btn-main-animated"
                 style="display: inline-block; background-color: #000000; color: #00FF94 !important; font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; padding: 16px 32px; border: 3px solid #000000; box-shadow: 6px 6px 0px #ff0080; text-decoration: none;">
                 👉 CLAIM YOUR 25 FREE LOOPS
               </a>
@@ -670,17 +830,22 @@
 
               <!-- Section Title -->
               <div align="center" style="margin-bottom: 30px;">
-                <span
+                <span class="badge-pulse"
                   style="display: inline-block; background-color: #ff0080; color: #ffffff; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; padding: 5px 14px; border: 2px solid #000;">
                   EXPAND YOUR SOUND VAULT
                 </span>
                 <h3
                   style="margin: 14px 0 6px 0; color: #ffffff; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">
                   EXPLORE OUR BESTSELLERS
+                  <span style="display: inline-block; vertical-align: middle; margin-left: 6px;">
+                    <span class="eq-bar eq-bar-1"></span>
+                    <span class="eq-bar eq-bar-2"></span>
+                    <span class="eq-bar eq-bar-3"></span>
+                  </span>
                 </h3>
                 <p
                   style="margin: 0; color: #888888; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
-                  Upgrade your productions with authentic, studio-grade Indian sample packs
+                  Loved the free loops? Level up your tracks with our studio-grade authentic Indian sound packs
                 </p>
               </div>
 
@@ -688,46 +853,47 @@
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="product-card"
                 style="margin-bottom: 22px; background-color: #111111; border: 3px solid #000000; box-shadow: 6px 6px 0px #000000;">
                 <tr>
-                  <td style="padding: 16px;">
+                  <td class="product-card-body" style="padding: 16px;">
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <!-- Cover Thumbnail -->
-                        <td width="110" valign="top" class="mobile-stack" style="padding-right: 15px;">
-                          <a href="https://www.sampleswala.com/pack/the-south" target="_blank" rel="noopener noreferrer"
+                        <td width="110" valign="top" class="mobile-stack product-cover-td" style="padding-right: 15px;">
+                          <a href="https://www.sampleswala.com/packs/the-south" target="_blank" rel="noopener noreferrer"
+                            class="product-cover-link"
                             style="text-decoration: none; display: block; border: 2px solid #000;">
                             <img src="https://imagizer.imageshack.com/img922/4591/uA7sLt.jpg"
                               alt="The South – South Indian And Tapori Loop Pack" width="110" height="110"
-                              draggable="false" oncontextmenu="return false;"
+                              class="product-thumb-img" draggable="false" oncontextmenu="return false;"
                               style="display: block; width: 110px; height: 110px; object-fit: cover; -webkit-user-drag: none; user-select: none;">
                           </a>
                         </td>
                         <!-- Details -->
-                        <td valign="top" class="mobile-stack" style="padding-top: 5px;">
-                          <span
+                        <td valign="top" class="mobile-stack product-details-td" style="padding-top: 5px;">
+                          <span class="pill-badge"
                             style="display: inline-block; background-color: #ff0080; color: #fff; font-size: 9px; font-weight: 900; padding: 2px 6px; text-transform: uppercase; letter-spacing: 1px; border: 1px solid #000; margin-bottom: 5px;">
                             BESTSELLER &bull; 110+ SAMPLES
                           </span>
-                          <h4
+                          <h4 class="product-title-h4"
                             style="margin: 4px 0; font-size: 15px; font-weight: 900; text-transform: uppercase; line-height: 1.3;">
-                            <a href="https://www.sampleswala.com/pack/the-south" target="_blank"
+                            <a href="https://www.sampleswala.com/packs/the-south" target="_blank"
                               rel="noopener noreferrer" style="color: #ffffff; text-decoration: none;">
                               The South – South Indian & Tapori Loops
                             </a>
                           </h4>
-                          <p style="margin: 0 0 10px 0; color: #888888; font-size: 11px; font-weight: 600;">
+                          <p class="product-desc-p" style="margin: 0 0 10px 0; color: #888888; font-size: 11px; font-weight: 600;">
                             Kuthu, festival beats, dhol grooves & authentic Tamil/Telugu street flavours.
                           </p>
-                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="product-action-table">
                             <tr>
-                              <td valign="middle">
+                              <td valign="middle" class="product-price-td">
                                 <span style="color: #00FF94; font-size: 18px; font-weight: 900;">₹999</span>
                                 <span
                                   style="color: #666666; font-size: 12px; font-weight: 700; text-decoration: line-through; margin-left: 6px;">₹1,999</span>
-                                <span style="color: #FFC800; font-size: 11px; font-weight: 900; margin-left: 6px;">50%
+                                <span class="discount-tag" style="color: #FFC800; font-size: 11px; font-weight: 900; margin-left: 6px;">50%
                                   OFF</span>
                               </td>
-                              <td align="right" valign="middle">
-                                <a href="https://www.sampleswala.com/pack/the-south" target="_blank"
+                              <td align="right" valign="middle" class="product-btn-td">
+                                <a href="https://www.sampleswala.com/packs/the-south" target="_blank"
                                   rel="noopener noreferrer" class="btn-secondary">
                                   LISTEN & GET &rarr;
                                 </a>
@@ -745,47 +911,47 @@
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="product-card"
                 style="margin-bottom: 22px; background-color: #111111; border: 3px solid #000000; box-shadow: 6px 6px 0px #000000;">
                 <tr>
-                  <td style="padding: 16px;">
+                  <td class="product-card-body" style="padding: 16px;">
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <!-- Cover Thumbnail -->
-                        <td width="110" valign="top" class="mobile-stack" style="padding-right: 15px;">
-                          <a href="https://www.sampleswala.com/pack/sambalpur-rhythm" target="_blank"
-                            rel="noopener noreferrer"
+                        <td width="110" valign="top" class="mobile-stack product-cover-td" style="padding-right: 15px;">
+                          <a href="https://www.sampleswala.com/packs/sambalpur-rhythm" target="_blank"
+                            rel="noopener noreferrer" class="product-cover-link"
                             style="text-decoration: none; display: block; border: 2px solid #000;">
                             <img src="https://imagizer.imageshack.com/img923/627/vc1DbH.png"
                               alt="Sambalpur Rhythm – Authentic Odisha Folk Sounds" width="110" height="110"
-                              draggable="false" oncontextmenu="return false;"
+                              class="product-thumb-img" draggable="false" oncontextmenu="return false;"
                               style="display: block; width: 110px; height: 110px; object-fit: cover; -webkit-user-drag: none; user-select: none;">
                           </a>
                         </td>
                         <!-- Details -->
-                        <td valign="top" class="mobile-stack" style="padding-top: 5px;">
-                          <span
+                        <td valign="top" class="mobile-stack product-details-td" style="padding-top: 5px;">
+                          <span class="pill-badge"
                             style="display: inline-block; background-color: #00EAFF; color: #000; font-size: 9px; font-weight: 900; padding: 2px 6px; text-transform: uppercase; letter-spacing: 1px; border: 1px solid #000; margin-bottom: 5px;">
                             250+ SAMPLES + MIDI + PROJECTS
                           </span>
-                          <h4
+                          <h4 class="product-title-h4"
                             style="margin: 4px 0; font-size: 15px; font-weight: 900; text-transform: uppercase; line-height: 1.3;">
-                            <a href="https://www.sampleswala.com/pack/sambalpur-rhythm" target="_blank"
+                            <a href="https://www.sampleswala.com/packs/sambalpur-rhythm" target="_blank"
                               rel="noopener noreferrer" style="color: #ffffff; text-decoration: none;">
                               Sambalpur Rhythm – Odisha Folk Sounds
                             </a>
                           </h4>
-                          <p style="margin: 0 0 10px 0; color: #888888; font-size: 11px; font-weight: 600;">
+                          <p class="product-desc-p" style="margin: 0 0 10px 0; color: #888888; font-size: 11px; font-weight: 600;">
                             Dhol, nishan, tasa, mohuri melodies & authentic tribal rhythms with project files.
                           </p>
-                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="product-action-table">
                             <tr>
-                              <td valign="middle">
+                              <td valign="middle" class="product-price-td">
                                 <span style="color: #00FF94; font-size: 18px; font-weight: 900;">₹1,999</span>
                                 <span
                                   style="color: #666666; font-size: 12px; font-weight: 700; text-decoration: line-through; margin-left: 6px;">₹4,999</span>
-                                <span style="color: #FFC800; font-size: 11px; font-weight: 900; margin-left: 6px;">60%
+                                <span class="discount-tag" style="color: #FFC800; font-size: 11px; font-weight: 900; margin-left: 6px;">60%
                                   OFF</span>
                               </td>
-                              <td align="right" valign="middle">
-                                <a href="https://www.sampleswala.com/pack/sambalpur-rhythm" target="_blank"
+                              <td align="right" valign="middle" class="product-btn-td">
+                                <a href="https://www.sampleswala.com/packs/sambalpur-rhythm" target="_blank"
                                   rel="noopener noreferrer" class="btn-secondary">
                                   LISTEN & GET &rarr;
                                 </a>
@@ -803,47 +969,47 @@
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="product-card"
                 style="margin-bottom: 22px; background-color: #111111; border: 3px solid #000000; box-shadow: 6px 6px 0px #000000;">
                 <tr>
-                  <td style="padding: 16px;">
+                  <td class="product-card-body" style="padding: 16px;">
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <!-- Cover Thumbnail -->
-                        <td width="110" valign="top" class="mobile-stack" style="padding-right: 15px;">
-                          <a href="https://www.sampleswala.com/pack/the-bollywood" target="_blank"
-                            rel="noopener noreferrer"
+                        <td width="110" valign="top" class="mobile-stack product-cover-td" style="padding-right: 15px;">
+                          <a href="https://www.sampleswala.com/packs/the-bollywood" target="_blank"
+                            rel="noopener noreferrer" class="product-cover-link"
                             style="text-decoration: none; display: block; border: 2px solid #000;">
                             <img src="https://imagizer.imageshack.com/img924/6673/1i7cNl.png"
                               alt="The Bollywood – Authentic Indian Sounds & Loops" width="110" height="110"
-                              draggable="false" oncontextmenu="return false;"
+                              class="product-thumb-img" draggable="false" oncontextmenu="return false;"
                               style="display: block; width: 110px; height: 110px; object-fit: cover; -webkit-user-drag: none; user-select: none;">
                           </a>
                         </td>
                         <!-- Details -->
-                        <td valign="top" class="mobile-stack" style="padding-top: 5px;">
-                          <span
+                        <td valign="top" class="mobile-stack product-details-td" style="padding-top: 5px;">
+                          <span class="pill-badge"
                             style="display: inline-block; background-color: #FFC800; color: #000; font-size: 9px; font-weight: 900; padding: 2px 6px; text-transform: uppercase; letter-spacing: 1px; border: 1px solid #000; margin-bottom: 5px;">
                             131+ HIGH QUALITY SAMPLES
                           </span>
-                          <h4
+                          <h4 class="product-title-h4"
                             style="margin: 4px 0; font-size: 15px; font-weight: 900; text-transform: uppercase; line-height: 1.3;">
-                            <a href="https://www.sampleswala.com/pack/the-bollywood" target="_blank"
+                            <a href="https://www.sampleswala.com/packs/the-bollywood" target="_blank"
                               rel="noopener noreferrer" style="color: #ffffff; text-decoration: none;">
                               The Bollywood – Authentic Loops & One Shots
                             </a>
                           </h4>
-                          <p style="margin: 0 0 10px 0; color: #888888; font-size: 11px; font-weight: 600;">
+                          <p class="product-desc-p" style="margin: 0 0 10px 0; color: #888888; font-size: 11px; font-weight: 600;">
                             Essential tabla, dholak, melodic phrases & signature Hindi cinema textures.
                           </p>
-                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="product-action-table">
                             <tr>
-                              <td valign="middle">
+                              <td valign="middle" class="product-price-td">
                                 <span style="color: #00FF94; font-size: 18px; font-weight: 900;">₹999</span>
                                 <span
                                   style="color: #666666; font-size: 12px; font-weight: 700; text-decoration: line-through; margin-left: 6px;">₹1,999</span>
-                                <span style="color: #FFC800; font-size: 11px; font-weight: 900; margin-left: 6px;">50%
+                                <span class="discount-tag" style="color: #FFC800; font-size: 11px; font-weight: 900; margin-left: 6px;">50%
                                   OFF</span>
                               </td>
-                              <td align="right" valign="middle">
-                                <a href="https://www.sampleswala.com/pack/the-bollywood" target="_blank"
+                              <td align="right" valign="middle" class="product-btn-td">
+                                <a href="https://www.sampleswala.com/packs/the-bollywood" target="_blank"
                                   rel="noopener noreferrer" class="btn-secondary">
                                   LISTEN & GET &rarr;
                                 </a>
@@ -861,47 +1027,48 @@
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="product-card"
                 style="margin-bottom: 10px; background-color: #111111; border: 3px solid #000000; box-shadow: 6px 6px 0px #000000;">
                 <tr>
-                  <td style="padding: 16px;">
+                  <td class="product-card-body" style="padding: 16px;">
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <!-- Cover Thumbnail -->
-                        <td width="110" valign="top" class="mobile-stack" style="padding-right: 15px;">
-                          <a href="https://www.sampleswala.com/pack/south-drums" target="_blank"
-                            rel="noopener noreferrer"
+                        <td width="110" valign="top" class="mobile-stack product-cover-td" style="padding-right: 15px;">
+                          <a href="https://www.sampleswala.com/packs/south-drums" target="_blank"
+                            rel="noopener noreferrer" class="product-cover-link"
                             style="text-decoration: none; display: block; border: 2px solid #000;">
                             <img src="https://imagizer.imageshack.com/img922/7492/HkEhZY.png"
                               alt="South Drums – 477 One-Shot Drums" width="110" height="110" draggable="false"
+                              class="product-thumb-img"
                               oncontextmenu="return false;"
                               style="display: block; width: 110px; height: 110px; object-fit: cover; -webkit-user-drag: none; user-select: none;">
                           </a>
                         </td>
                         <!-- Details -->
-                        <td valign="top" class="mobile-stack" style="padding-top: 5px;">
-                          <span
+                        <td valign="top" class="mobile-stack product-details-td" style="padding-top: 5px;">
+                          <span class="pill-badge"
                             style="display: inline-block; background-color: #00FF94; color: #000; font-size: 9px; font-weight: 900; padding: 2px 6px; text-transform: uppercase; letter-spacing: 1px; border: 1px solid #000; margin-bottom: 5px;">
                             477 ONE-SHOT SAMPLES
                           </span>
-                          <h4
+                          <h4 class="product-title-h4"
                             style="margin: 4px 0; font-size: 15px; font-weight: 900; text-transform: uppercase; line-height: 1.3;">
-                            <a href="https://www.sampleswala.com/pack/south-drums" target="_blank"
+                            <a href="https://www.sampleswala.com/packs/south-drums" target="_blank"
                               rel="noopener noreferrer" style="color: #ffffff; text-decoration: none;">
                               South Drums – Tapori & Folk One-Shots
                             </a>
                           </h4>
-                          <p style="margin: 0 0 10px 0; color: #888888; font-size: 11px; font-weight: 600;">
+                          <p class="product-desc-p" style="margin: 0 0 10px 0; color: #888888; font-size: 11px; font-weight: 600;">
                             Chenda, Thappu, Urmi, Mridangam, Kuthu, Claps & hard-hitting street snares.
                           </p>
-                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="product-action-table">
                             <tr>
-                              <td valign="middle">
+                              <td valign="middle" class="product-price-td">
                                 <span style="color: #00FF94; font-size: 18px; font-weight: 900;">₹799</span>
                                 <span
                                   style="color: #666666; font-size: 12px; font-weight: 700; text-decoration: line-through; margin-left: 6px;">₹1,499</span>
-                                <span style="color: #FFC800; font-size: 11px; font-weight: 900; margin-left: 6px;">SAVE
+                                <span class="discount-tag" style="color: #FFC800; font-size: 11px; font-weight: 900; margin-left: 6px;">SAVE
                                   47%</span>
                               </td>
-                              <td align="right" valign="middle">
-                                <a href="https://www.sampleswala.com/pack/south-drums" target="_blank"
+                              <td align="right" valign="middle" class="product-btn-td">
+                                <a href="https://www.sampleswala.com/packs/south-drums" target="_blank"
                                   rel="noopener noreferrer" class="btn-secondary">
                                   LISTEN & GET &rarr;
                                 </a>
@@ -920,7 +1087,7 @@
                 style="margin-top: 25px;">
                 <tr>
                   <td align="center">
-                    <a href="https://www.sampleswala.com" target="_blank" rel="noopener noreferrer"
+                    <a href="https://www.sampleswala.com/packs" target="_blank" rel="noopener noreferrer"
                       style="display: inline-block; color: #00EAFF; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-decoration: underline;">
                       VIEW ALL 15+ SAMPLE PACKS &rarr;
                     </a>
@@ -1013,9 +1180,9 @@
                 style="margin: 0; font-size: 10px; color: #444444; text-transform: uppercase; font-weight: 800; line-height: 1.6;">
                 &copy; 2026 SAMPLES WALA. ALL RIGHTS RESERVED.<br>
                 You received this email because you subscribed on sampleswala.com or downloaded our sound packs.<br>
-                <a href="https://www.sampleswala.com" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.sampleswala.com/unsubscribe?email={{contact.EMAIL}}" target="_blank" rel="noopener noreferrer"
                   style="color: #666666; text-decoration: underline;">Manage Preferences</a> &bull;
-                <a href="https://www.sampleswala.com" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.sampleswala.com/unsubscribe?email={{contact.EMAIL}}" target="_blank" rel="noopener noreferrer"
                   style="color: #666666; text-decoration: underline;">Unsubscribe</a>
               </p>
 
@@ -1029,7 +1196,7 @@
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="email-container"
           style="max-width: 600px; width: 100%;">
           <tr>
-            <td
+            <td class="rainbow-strip"
               style="height: 6px; background: linear-gradient(90deg, #FFC800, #00EAFF, #00FF94, #ff0080); border-bottom: 3px solid #000; border-left: 3px solid #000; border-right: 3px solid #000;">
             </td>
           </tr>
