@@ -1,6 +1,7 @@
 'use client'
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { trackCartSnapshot } from '@/lib/telemetryClient'
 
 export interface CartItem {
   id: string
@@ -74,9 +75,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Save cart to localStorage
+  // Save cart to localStorage and update telemetry
   useEffect(() => {
     localStorage.setItem('sampleswala_lite_cart', JSON.stringify(items))
+    try {
+      trackCartSnapshot(items)
+    } catch {}
   }, [items])
 
   // Prefetch checkout page on mount for instant zero-latency navigation

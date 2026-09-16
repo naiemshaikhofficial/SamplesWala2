@@ -13,6 +13,7 @@ import { getPackPriceDetails } from '@/lib/pricing'
 import { useAuth } from '@/context/AuthContext'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useCart } from '@/context/CartContext'
+import { trackPackView } from '@/lib/telemetryClient'
 
 
 function FormattedDescription({ text }: { text: string }) {
@@ -112,6 +113,11 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
   useEffect(() => {
     setMounted(true)
+    if (pack?.slug) {
+      try {
+        trackPackView(pack.slug)
+      } catch {}
+    }
     try {
       router.prefetch('/checkout')
     } catch (e) {}
@@ -119,7 +125,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
       setNow(Date.now())
     }, 1000)
     return () => clearInterval(timer)
-  }, [router])
+  }, [router, pack?.slug])
 
   useEffect(() => {
     const handleResize = () => {

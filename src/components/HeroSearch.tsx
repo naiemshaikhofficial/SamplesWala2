@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useCurrency } from '@/context/CurrencyContext'
+import { trackSearch } from '@/lib/telemetryClient'
 
 export function HeroSearch() {
   const [query, setQuery] = useState('')
@@ -49,6 +50,7 @@ export function HeroSearch() {
     if (query.trim()) {
       try {
         sessionStorage.setItem('last_search_query', query.trim())
+        trackSearch(query.trim())
       } catch (err) {}
       setIsOpen(false)
       router.push(`/browse?q=${encodeURIComponent(query.trim())}`)
@@ -142,7 +144,10 @@ export function HeroSearch() {
                 <Link
                   key={pack.id}
                   href={`/packs/${pack.slug}`}
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    setIsOpen(false)
+                    try { trackSearch(pack.name) } catch {}
+                  }}
                   className="flex items-center gap-4 p-3 hover:bg-white/5 transition-colors group"
                 >
                   <div className="w-12 h-12 relative flex-shrink-0 border-2 border-black">

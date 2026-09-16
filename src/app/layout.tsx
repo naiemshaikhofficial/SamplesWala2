@@ -47,6 +47,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "lenis/dist/lenis.css";
 import { LenisProvider } from "@/components/LenisProvider";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 
 export default async function RootLayout({
   children,
@@ -102,6 +103,7 @@ export default async function RootLayout({
                 <ContentProtection />
                 <ServiceWorkerRegistration />
                 <CartSidebar />
+                <CookieConsentBanner />
                 <LenisProvider>
                   <LayoutWrapper>
                     {children}
