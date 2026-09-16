@@ -5,50 +5,57 @@ import { headers } from 'next/headers'
 import { signDownloadToken, checkRateLimit } from '@/lib/security'
 
 export async function getSecureDownloadUrl(itemId: string, type: 'pack' | 'preset' = 'pack') {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const headerList = await headers()
-  const clientIp = headerList.get("x-forwarded-for")?.split(',')[0] || "unknown"
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const headerList = await headers()
+    const clientIp = headerList.get("x-forwarded-for")?.split(',')[0] || "unknown"
 
-  if (!user) throw new Error("Please login to download")
+    if (!user) {
+      return { success: false, error: "Please log in to download." }
+    }
 
-  // Rate Limiting Protection: Max 20 download link generations per 60s per user
-  const rateLimit = checkRateLimit(`download_token_${user.id}`, 20, 60)
-  if (!rateLimit.allowed) {
-    throw new Error("Too many download requests. Please wait a moment.")
-  }
+    // Rate Limiting Protection: Max 20 download link generations per 60s per user
+    const rateLimit = checkRateLimit(`download_token_${user.id}`, 20, 60)
+    if (!rateLimit.allowed) {
+      return { success: false, error: "Too many download requests. Please wait a moment." }
+    }
 
-  const admin = getAdminClient()
+    const admin = getAdminClient()
 
-  // 1. Strict Ownership Check in user_vault
-  const { data: vaultRecord } = await admin
-    .from('user_vault')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('item_id', itemId)
-    .eq('item_type', type)
-    .maybeSingle()
-
-  if (!vaultRecord) {
-    // Check if user is Admin
-    const { data: adminCheck } = await admin
-      .from('user_accounts')
-      .select('is_admin')
+    // 1. Strict Ownership Check in user_vault
+    const { data: vaultRecord } = await admin
+      .from('user_vault')
+      .select('id')
       .eq('user_id', user.id)
+      .eq('item_id', itemId)
+      .eq('item_type', type)
       .maybeSingle()
 
-    if (!adminCheck?.is_admin) {
-      throw new Error("Access Denied: Product Not Owned")
+    if (!vaultRecord) {
+      // Check if user is Admin
+      const { data: adminCheck } = await admin
+        .from('user_accounts')
+        .select('is_admin')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (!adminCheck?.is_admin) {
+        return { success: false, error: "You do not own this pack. Please purchase it first." }
+      }
     }
+
+    // 2. Generate signed token (Database-less, strictly bound to user.id and client IP)
+    const token = signDownloadToken({
+      uid: user.id,
+      pid: itemId,
+      type: type,
+      ip: clientIp
+    }, 300) // 5 minutes expiration for tighter security
+
+    return { success: true, url: `/api/download/${token}` }
+  } catch (err: any) {
+    console.error('[SECURE_DOWNLOAD_URL_ERROR]', err)
+    return { success: false, error: err?.message || "Failed to generate download link." }
   }
-
-  // 2. Generate signed token (Database-less, strictly bound to user.id and client IP)
-  const token = signDownloadToken({
-    uid: user.id,
-    pid: itemId,
-    type: type,
-    ip: clientIp
-  }, 300) // 5 minutes expiration for tighter security
-
-  return `/api/download/${token}`
 }

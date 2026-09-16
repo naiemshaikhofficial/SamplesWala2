@@ -8,7 +8,11 @@ export async function GET() {
   try {
     const { data: { user } } = await getUser()
     if (!user) {
-      return NextResponse.json({ ownedIds: [], isAdmin: false })
+      return NextResponse.json({ ownedIds: [], isAdmin: false, userId: null }, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+        }
+      })
     }
 
     const adminClient = getAdminClient()
@@ -33,13 +37,14 @@ export async function GET() {
     return NextResponse.json({
       ownedIds,
       isAdmin,
+      userId: user.id
     }, {
       headers: {
-        'Cache-Control': 'private, max-age=60, stale-while-revalidate=120'
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
       }
     })
   } catch (error) {
     console.error('[OWNERSHIP_ALL_ERROR]', error)
-    return NextResponse.json({ ownedIds: [], isAdmin: false }, { status: 500 })
+    return NextResponse.json({ ownedIds: [], isAdmin: false, userId: null }, { status: 500 })
   }
 }

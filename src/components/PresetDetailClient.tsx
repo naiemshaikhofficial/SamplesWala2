@@ -81,23 +81,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
   const { user } = useAuth()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const { addItem, items: cartItems, setSidebarOpen, isItemOwned, markAsOwned, buyNow } = useCart()
-  
-  // Synchronously initialize owned state from local cache for 0ms render without flicker
-  const [isOwned, setIsOwned] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        if (localStorage.getItem('sampleswala_is_admin') === 'true') return true
-        const cached = localStorage.getItem('sampleswala_owned_ids')
-        if (cached) {
-          const parsed = JSON.parse(cached)
-          if (Array.isArray(parsed) && (parsed.includes(preset.id) || (preset.slug && parsed.includes(preset.slug)))) {
-            return true
-          }
-        }
-      } catch (e) {}
-    }
-    return false
-  })
+  const isOwned = isItemOwned(preset.id, preset.slug)
 
   const { formatPrice, getAmount } = useCurrency()
 
@@ -128,19 +112,19 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
 
   useEffect(() => {
     if (user?.id) {
-      fetch(`/api/auth/ownership?itemId=${preset.id}`)
+      fetch(`/api/auth/ownership?itemId=${preset.id}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      })
         .then(res => res.ok ? res.json() : { owned: false })
         .then(data => {
-          if (data.owned) {
-            setIsOwned(true)
+          if (data && data.owned) {
             markAsOwned(preset.id)
-          } else if (!isItemOwned(preset.id, preset.slug)) {
-            setIsOwned(false)
           }
         })
         .catch(() => {})
     }
-  }, [user?.id, preset.id, markAsOwned, isItemOwned])
+  }, [user?.id, preset.id, markAsOwned])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -324,9 +308,8 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
             <div id="main-buy-button-container" className="flex flex-col gap-3">
               {isOwned ? (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 px-3.5 py-2.5 bg-[#18181b] border border-zinc-700 rounded-xl text-zinc-300 text-[11px] font-bold uppercase tracking-wider font-mono shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-                    <CheckCircle2 size={16} className="text-zinc-400" />
-                    <span>You own this preset</span>
+                  <div className="flex items-center justify-center px-3.5 py-2.5 bg-[#18181b] border border-zinc-700 rounded-xl text-zinc-300 text-[11px] font-bold uppercase tracking-wider font-mono shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+                    <span>OWNED</span>
                   </div>
                   <DownloadButton itemId={preset.id} type="preset" />
                 </div>
@@ -661,9 +644,8 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                   <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
                     {isOwned ? (
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-zinc-300 bg-[#18181b] px-3 py-1.5 rounded-full border border-zinc-700 shadow-[2px_2px_0px_black]">
-                          <Check size={12} strokeWidth={2.5} className="text-zinc-400" />
-                          <span>Owned</span>
+                        <span className="inline-flex items-center text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-zinc-300 bg-[#18181b] px-3 py-1.5 rounded-full border border-zinc-700 shadow-[2px_2px_0px_black]">
+                          <span>OWNED</span>
                         </span>
                         <button
                           onClick={() => {

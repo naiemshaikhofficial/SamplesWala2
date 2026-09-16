@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { Download, Loader2, AlertTriangle } from 'lucide-react'
 import { getSecureDownloadUrl } from '@/app/packs/actions'
+import { useCart } from '@/context/CartContext'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function DownloadButton({ 
@@ -13,6 +14,7 @@ export function DownloadButton({
   type?: 'pack' | 'preset',
   compact?: boolean
 }) {
+  const { syncOwnedIds } = useCart()
   const [status, setStatus] = useState<'idle' | 'processing' | 'success'>('idle')
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
@@ -44,26 +46,29 @@ export function DownloadButton({
       // Start fetching immediately
       const secureUrlPromise = getSecureDownloadUrl(itemId, type)
 
-      // Artificial wait only if server is too fast (for visual feedback)
-      const [secureUrl] = await Promise.all([
+      const [res] = await Promise.all([
         secureUrlPromise,
-        new Promise(resolve => setTimeout(resolve, 2500))
+        new Promise(resolve => setTimeout(resolve, 800))
       ])
 
-      if (secureUrl) {
-        // Instant trigger
-        window.location.href = secureUrl
+      if (res && res.success && res.url) {
+        window.location.href = res.url
         setStatus('success')
-
-        // Revert to idle after 5 seconds
         setTimeout(() => setStatus('idle'), 5000)
       } else {
-        throw new Error("No link generated")
+        const errorMsg = (res && res.error) || "Download failed. Please try again."
+        setError(errorMsg)
+        setStatus('idle')
+        if (errorMsg.toLowerCase().includes("own") || errorMsg.toLowerCase().includes("login")) {
+          // Immediately sync ownership so UI resets and restores buy button
+          syncOwnedIds()
+        }
       }
     } catch (err: any) {
       console.error("Download Failed:", err)
-      setError(err.message || "DOWNLOAD_FAILED")
+      setError(err?.message || "Failed to start download. Please refresh.")
       setStatus('idle')
+      syncOwnedIds()
     }
   }
 

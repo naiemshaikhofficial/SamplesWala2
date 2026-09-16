@@ -6,6 +6,14 @@ import { LogOut } from 'lucide-react'
 export function LogoutButton() {
   const handleLogout = async () => {
     try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('sampleswala_owned_ids')
+        localStorage.removeItem('sampleswala_owned_user_id')
+        localStorage.removeItem('sampleswala_is_admin')
+        sessionStorage.clear()
+        window.dispatchEvent(new CustomEvent('sw:auth-logout'))
+      }
+
       const supabase = createClient()
       await supabase.auth.signOut()
     } catch (err) {

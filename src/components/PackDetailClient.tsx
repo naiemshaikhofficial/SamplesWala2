@@ -80,23 +80,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const { user } = useAuth()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
   const { addItem, items: cartItems, setSidebarOpen, isItemOwned, markAsOwned } = useCart()
-  
-  // Synchronously initialize owned state from local cache for 0ms render without flicker
-  const [owned, setOwned] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        if (localStorage.getItem('sampleswala_is_admin') === 'true') return true
-        const cached = localStorage.getItem('sampleswala_owned_ids')
-        if (cached) {
-          const parsed = JSON.parse(cached)
-          if (Array.isArray(parsed) && (parsed.includes(pack.id) || (pack.slug && parsed.includes(pack.slug)))) {
-            return true
-          }
-        }
-      } catch (e) {}
-    }
-    return false
-  })
+  const owned = isItemOwned(pack.id, pack.slug)
 
   const [now, setNow] = useState(Date.now())
   const [mounted, setMounted] = useState(false)
@@ -220,19 +204,19 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
   useEffect(() => {
     if (user?.id) {
-      fetch(`/api/auth/ownership?itemId=${pack.id}`)
+      fetch(`/api/auth/ownership?itemId=${pack.id}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      })
         .then(res => res.ok ? res.json() : { owned: false })
         .then(data => {
-          if (data.owned) {
-            setOwned(true)
+          if (data && data.owned) {
             markAsOwned(pack.id)
-          } else if (!isItemOwned(pack.id, pack.slug)) {
-            setOwned(false)
           }
         })
         .catch(() => {})
     }
-  }, [user?.id, pack.id, markAsOwned, isItemOwned])
+  }, [user?.id, pack.id, markAsOwned])
 
   const priceDetails = React.useMemo(() => {
     return getPackPriceDetails(pack)
@@ -386,7 +370,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               <div className="space-y-1">
                 <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Price & Value</span>
                 <div className="flex items-baseline gap-2">
-                  <span className={`text-3xl font-black italic tracking-tight font-mono ${owned ? 'text-zinc-300' : isFree ? 'text-[#00FF94]' : 'text-white'}`}>{owned ? 'IN VAULT' : displayPrice}</span>
+                  <span className={`text-3xl font-black italic tracking-tight font-mono ${owned ? 'text-zinc-300' : isFree ? 'text-[#00FF94]' : 'text-white'}`}>{owned ? 'OWNED' : displayPrice}</span>
                   {!owned && displayMrp && (
                     <span className="text-xs text-white/35 line-through font-bold font-mono">{displayMrp}</span>
                   )}
@@ -410,13 +394,12 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               {owned ? (
                 pack.is_downloadable ? (
                   <div className="space-y-3">
-                    <div className={`flex items-center gap-2 px-3.5 py-2.5 ${
+                    <div className={`flex items-center justify-center px-3.5 py-2.5 ${
                       isIndia 
                         ? 'bg-[#128807]/20 border-2 border-[#128807] text-[#FF9933] shadow-[0_0_20px_rgba(18,136,7,0.25)]' 
                         : 'bg-[#141416] border border-white/20 text-white shadow-[0_4px_12px_rgba(0,0,0,0.5)]'
                     } rounded-xl text-[11px] font-black uppercase tracking-wider font-mono`}>
-                      <Check size={16} strokeWidth={3} className={isIndia ? 'text-[#128807] shrink-0' : 'text-white shrink-0'} />
-                      <span>You already own this pack</span>
+                      <span>OWNED</span>
                     </div>
                     <DownloadButton itemId={pack.id} />
                   </div>

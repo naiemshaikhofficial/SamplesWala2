@@ -14,13 +14,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const itemId = searchParams.get('itemId')
 
+    const noStoreHeaders = {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+    }
+
     if (!itemId) {
-      return NextResponse.json({ owned: false })
+      return NextResponse.json({ owned: false }, { headers: noStoreHeaders })
     }
 
     const { data: { user } } = await getUser()
     if (!user) {
-      return NextResponse.json({ owned: false })
+      return NextResponse.json({ owned: false }, { headers: noStoreHeaders })
     }
 
     const adminClient = getAdminClient()
@@ -34,7 +38,7 @@ export async function GET(request: Request) {
       .maybeSingle()
 
     if (vaultRecord) {
-      return NextResponse.json({ owned: true })
+      return NextResponse.json({ owned: true }, { headers: noStoreHeaders })
     }
 
     // 2. Check admin status in user_accounts
@@ -44,7 +48,7 @@ export async function GET(request: Request) {
       .eq('user_id', user.id)
       .maybeSingle()
 
-    return NextResponse.json({ owned: !!accountRecord?.is_admin })
+    return NextResponse.json({ owned: !!accountRecord?.is_admin }, { headers: noStoreHeaders })
   } catch (error) {
     console.error('[OWNERSHIP_CHECK_ERROR]', error)
     return NextResponse.json({ owned: false }, { status: 500 })

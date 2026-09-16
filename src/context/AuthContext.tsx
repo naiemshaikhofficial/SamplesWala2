@@ -91,13 +91,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initAuth()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
       setSession(currentSession)
       setUser(currentSession?.user || null)
       if (currentSession?.user) {
         await checkArtistStatus(currentSession.user.id)
       } else {
         setIsArtist(false)
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('sampleswala_owned_ids')
+          localStorage.removeItem('sampleswala_owned_user_id')
+          localStorage.removeItem('sampleswala_is_admin')
+          window.dispatchEvent(new CustomEvent('sw:auth-logout'))
+        }
       }
       setLoading(false)
     })

@@ -93,22 +93,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Sync owned IDs and admin status from server in background
   const syncOwnedIds = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/ownership/all')
+      const res = await fetch('/api/auth/ownership/all', {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      })
       if (res.ok) {
         const data = await res.json()
-        if (Array.isArray(data.ownedIds)) {
-          setOwnedIds(prev => {
-            const combined = Array.from(new Set([...prev, ...data.ownedIds]))
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('sampleswala_owned_ids', JSON.stringify(combined))
-            }
-            return combined
-          })
-        }
-        if (typeof data.isAdmin === 'boolean') {
-          setIsAdmin(data.isAdmin)
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('sampleswala_is_admin', String(data.isAdmin))
+        const incomingOwned: string[] = Array.isArray(data.ownedIds) ? data.ownedIds : []
+        const incomingIsAdmin: boolean = !!data.isAdmin
+        const currentUserId = data.userId || null
+
+        // Overwrite strictly with current server truth (do NOT merge previous users)
+        setOwnedIds(incomingOwned)
+        setIsAdmin(incomingIsAdmin)
+
+        if (typeof window !== 'undefined') {
+          if (currentUserId && (incomingOwned.length > 0 || incomingIsAdmin)) {
+            localStorage.setItem('sampleswala_owned_ids', JSON.stringify(incomingOwned))
+            localStorage.setItem('sampleswala_is_admin', String(incomingIsAdmin))
+            localStorage.setItem('sampleswala_owned_user_id', currentUserId)
+          } else {
+            // Guest or non-owning user: clear stale ownership flags
+            localStorage.removeItem('sampleswala_owned_ids')
+            localStorage.removeItem('sampleswala_is_admin')
+            localStorage.removeItem('sampleswala_owned_user_id')
           }
         }
       }
@@ -121,25 +129,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     syncOwnedIds()
   }, [syncOwnedIds])
 
+  // Handle immediate clean reset on logout event
+  useEffect(() => {
+    const handleLogout = () => {
+      setOwnedIds([])
+      setIsAdmin(false)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('sampleswala_owned_ids')
+        localStorage.removeItem('sampleswala_is_admin')
+        localStorage.removeItem('sampleswala_owned_user_id')
+      }
+    }
+    window.addEventListener('sw:auth-logout', handleLogout)
+    return () => window.removeEventListener('sw:auth-logout', handleLogout)
+  }, [])
+
   // Check if an item is already owned (either by ID or slug)
   const isItemOwned = useCallback((id: string, slug?: string): boolean => {
     if (!id) return false
     if (isAdmin) return true
     if (ownedIds.includes(id) || (slug && ownedIds.includes(slug))) return true
-
-    // Synchronous fallback direct check from localStorage
-    if (typeof window !== 'undefined') {
-      try {
-        if (localStorage.getItem('sampleswala_is_admin') === 'true') return true
-        const saved = localStorage.getItem('sampleswala_owned_ids')
-        if (saved) {
-          const parsed = JSON.parse(saved)
-          if (Array.isArray(parsed) && (parsed.includes(id) || (slug && parsed.includes(slug)))) {
-            return true
-          }
-        }
-      } catch (e) {}
-    }
     return false
   }, [ownedIds, isAdmin])
 
