@@ -6,6 +6,7 @@ import { sendInvoiceEmail } from '@/lib/emails'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { getCashfreeOrder, getCashfreeOrderPayments } from '@/lib/cashfree'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
+import { checkRateLimit } from '@/lib/security'
 
 export async function POST(request: Request) {
   try {
@@ -34,6 +35,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User authentication required' }, { status: 401 })
     }
     const targetUserId = sessionUser.id
+
+    // Rate Limiting Protection: Max 15 verification attempts per 60s per user
+    const rateLimit = checkRateLimit(`cf_verify_${targetUserId}`, 15, 60)
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many verification requests. Please wait a moment.' }, { status: 429 })
+    }
 
     const admin = getAdminClient()
 

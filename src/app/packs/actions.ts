@@ -2,7 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { headers } from 'next/headers'
-import { signDownloadToken } from '@/lib/security'
+import { signDownloadToken, checkRateLimit } from '@/lib/security'
 
 export async function getSecureDownloadUrl(itemId: string, type: 'pack' | 'preset' = 'pack') {
   const supabase = await createClient()
@@ -11,6 +11,12 @@ export async function getSecureDownloadUrl(itemId: string, type: 'pack' | 'prese
   const clientIp = headerList.get("x-forwarded-for")?.split(',')[0] || "unknown"
 
   if (!user) throw new Error("Please login to download")
+
+  // Rate Limiting Protection: Max 20 download link generations per 60s per user
+  const rateLimit = checkRateLimit(`download_token_${user.id}`, 20, 60)
+  if (!rateLimit.allowed) {
+    throw new Error("Too many download requests. Please wait a moment.")
+  }
 
   const admin = getAdminClient()
 

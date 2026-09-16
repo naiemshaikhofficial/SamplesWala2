@@ -6,6 +6,7 @@ import { validateCoupon } from '@/app/checkout/actions'
 import { getPackPriceDetails } from '../../../../lib/pricing'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
 import { getSiteSettings } from '@/lib/siteSettings'
+import { checkRateLimit } from '@/lib/security'
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -35,6 +36,12 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json({ error: 'Please login to purchase' }, { status: 401 })
+    }
+
+    // Rate Limiting Protection: Max 15 order creations per 60s per user
+    const rateLimit = checkRateLimit(`rzp_create_${user.id}`, 15, 60)
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many order attempts. Please wait a moment.' }, { status: 429 })
     }
 
     // Strict Billing Details Validation (No order can be paid without valid details)

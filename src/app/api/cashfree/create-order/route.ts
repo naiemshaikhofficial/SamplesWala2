@@ -5,6 +5,7 @@ import { validateCoupon } from '@/app/checkout/actions'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { createCashfreeOrder } from '@/lib/cashfree'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
+import { checkRateLimit } from '@/lib/security'
 
 export async function POST(request: Request) {
   try {
@@ -14,6 +15,12 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json({ error: 'Please login to purchase' }, { status: 401 })
+    }
+
+    // Rate Limiting Protection: Max 15 order creations per 60s per user
+    const rateLimit = checkRateLimit(`cf_create_${user.id}`, 15, 60)
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many order attempts. Please wait a moment.' }, { status: 429 })
     }
 
     if (!items || !Array.isArray(items) || items.length === 0) {

@@ -1,11 +1,13 @@
 import { NextResponse, after } from 'next/server'
 import crypto from 'crypto'
+import Razorpay from 'razorpay'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { generateInvoicePDF } from '@/lib/invoice'
 import { sendInvoiceEmail } from '@/lib/emails'
 import { getPackPriceDetails } from '../../../../lib/pricing'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
+import { checkRateLimit } from '@/lib/security'
 
 export async function POST(request: Request) {
   try {
@@ -34,6 +36,12 @@ export async function POST(request: Request) {
     }
     const targetUserId = sessionUser.id
 
+    // Rate Limiting Protection: Max 15 verification attempts per 60s per user
+    const rateLimit = checkRateLimit(`rzp_verify_${targetUserId}`, 15, 60)
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many verification requests. Please wait a moment.' }, { status: 429 })
+    }
+
     // Strict Billing Details Validation (Mandatory for all orders, including free orders)
     const billingCheck = validateBillingDetails(billingDetails)
     if (!billingCheck.isValid) {
@@ -48,14 +56,16 @@ export async function POST(request: Request) {
 
     const admin = getAdminClient()
 
-    // 1. SECURITY HARDENING: Cryptographic Signature & Replay Attack Defense
+    // 1. SECURITY HARDENING: Cryptographic Signature, Gateway Verification & Replay Attack Defense
+    let razorpayPaymentRecord: any = null
     if (!isFree) {
       if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return NextResponse.json({ error: 'Missing payment verification details' }, { status: 400 })
       }
 
       const keySecret = process.env.RAZORPAY_KEY_SECRET
-      if (!keySecret) {
+      const keyId = process.env.RAZORPAY_KEY_ID
+      if (!keySecret || !keyId) {
         return NextResponse.json({ error: 'Server payment configuration missing' }, { status: 500 })
       }
 
@@ -80,6 +90,41 @@ export async function POST(request: Request) {
           targetUserId,
         })
         return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
+      }
+
+      // Direct Razorpay Gateway Verification
+      const razorpay = new Razorpay({
+        key_id: keyId,
+        key_secret: keySecret,
+      })
+
+      try {
+        razorpayPaymentRecord = await razorpay.payments.fetch(razorpay_payment_id)
+      } catch (fetchErr: any) {
+        console.error('[RAZORPAY_FETCH_PAYMENT_ERROR]', fetchErr)
+        return NextResponse.json({ error: 'Unable to verify payment with payment gateway' }, { status: 400 })
+      }
+
+      if (!razorpayPaymentRecord) {
+        return NextResponse.json({ error: 'Payment record not found on Razorpay' }, { status: 404 })
+      }
+
+      if (razorpayPaymentRecord.status !== 'captured' && razorpayPaymentRecord.status !== 'authorized') {
+        console.error('[SECURITY_ALERT] Invalid payment status on Razorpay:', {
+          status: razorpayPaymentRecord.status,
+          razorpay_payment_id,
+          targetUserId
+        })
+        return NextResponse.json({ error: `Payment is not completed (Status: ${razorpayPaymentRecord.status})` }, { status: 400 })
+      }
+
+      if (razorpayPaymentRecord.order_id && razorpayPaymentRecord.order_id !== razorpay_order_id) {
+        console.error('[SECURITY_ALERT] Razorpay order_id mismatch:', {
+          expected: razorpay_order_id,
+          actual: razorpayPaymentRecord.order_id,
+          targetUserId
+        })
+        return NextResponse.json({ error: 'Order ID verification mismatch' }, { status: 400 })
       }
 
       // Replay Attack Protection: Check if razorpay_payment_id has already been processed
@@ -160,6 +205,34 @@ export async function POST(request: Request) {
     }
 
     const serverVerifiedTotal = Math.max(0, subtotalAfterBundle - couponDiscountAmount)
+
+    // SECURITY HARDENING: Zero-Trust Amount Matching Against Gateway Record
+    if (!isFree && razorpayPaymentRecord) {
+      const paidAmountInr = Number(razorpayPaymentRecord.amount) / 100
+      if (Math.abs(paidAmountInr - serverVerifiedTotal) > 1.0) {
+        console.error('[SECURITY_ALERT] Razorpay amount mismatch / price tampering detected:', {
+          paidAmountInr,
+          serverVerifiedTotal,
+          targetUserId,
+          razorpay_order_id,
+          razorpay_payment_id
+        })
+        return NextResponse.json({ error: 'Payment amount mismatch verification error' }, { status: 400 })
+      }
+
+      // If authorized, automatically capture payment
+      if (razorpayPaymentRecord.status === 'authorized') {
+        try {
+          const razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID!,
+            key_secret: process.env.RAZORPAY_KEY_SECRET!,
+          })
+          await razorpay.payments.capture(razorpay_payment_id, razorpayPaymentRecord.amount, razorpayPaymentRecord.currency || 'INR')
+        } catch (capErr) {
+          console.warn('[RAZORPAY_AUTO_CAPTURE_WARN]', capErr)
+        }
+      }
+    }
 
     // SECURITY HARDENING: Strict Anti-Free Order Spoofing
     if (isFree && serverVerifiedTotal > 0) {

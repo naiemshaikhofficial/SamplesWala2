@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { generateInvoicePDF } from '@/lib/invoice'
 import { sendInvoiceEmail } from '@/lib/emails'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
+import { checkRateLimit } from '@/lib/security'
 
 async function getPayPalAccessToken() {
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
@@ -41,6 +43,21 @@ export async function POST(request: Request) {
 
     if (!orderId) {
       return NextResponse.json({ error: 'Missing orderId' }, { status: 400 })
+    }
+
+    // 0. SECURITY HARDENING: Session Cookie User Authentication
+    const supabase = await createClient()
+    const { data: { user: sessionUser } } = await supabase.auth.getUser()
+
+    if (!sessionUser) {
+      return NextResponse.json({ error: 'User authentication required. Please sign in.' }, { status: 401 })
+    }
+    const targetUserId = sessionUser.id
+
+    // Rate Limiting Protection: Max 15 capture attempts per 60s per user
+    const rateLimit = checkRateLimit(`paypal_capture_${targetUserId}`, 15, 60)
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 })
     }
 
     // 1. Authenticate with PayPal and Capture Order
@@ -82,6 +99,16 @@ export async function POST(request: Request) {
     }
 
     const { userId, items, couponCode, discountPercent } = customData
+
+    // Cross-user capture protection
+    if (userId && userId !== targetUserId) {
+      console.error('[SECURITY_ALERT] PayPal capture userId mismatch:', {
+        sessionUserId: targetUserId,
+        orderUserId: userId,
+        orderId
+      })
+      return NextResponse.json({ error: 'User account mismatch for this order.' }, { status: 403 })
+    }
 
     // 2. Billing Country Check (Final Guard) - DISABLED to allow PayPal checkouts for all countries (including India)
     /*
@@ -167,6 +194,22 @@ export async function POST(request: Request) {
     const finalOrderId = orderId
     const finalPaymentId = capture?.id || `PAY_PP_${orderId}`
 
+    // 3.1 ZERO-TRUST PAYMENT AMOUNT VALIDATION
+    const capturedAmount = Number(capture?.amount?.value || 0)
+    const capturedCurrency = capture?.amount?.currency_code || 'USD'
+
+    if (capturedCurrency !== 'USD' || Math.abs(capturedAmount - serverVerifiedTotal) > 0.05) {
+      console.error('[SECURITY_ALERT] PayPal captured amount mismatch:', {
+        capturedAmount,
+        capturedCurrency,
+        serverVerifiedTotal,
+        userId: targetUserId,
+        orderId,
+        finalPaymentId
+      })
+      return NextResponse.json({ error: 'Payment amount verification failed' }, { status: 400 })
+    }
+
     // SECURITY HARDENING: Replay Attack Protection for PayPal
     const { data: existingPayPalEntry } = await admin
       .from('user_vault')
@@ -222,7 +265,7 @@ export async function POST(request: Request) {
       const convertedInr = Number((finalPrice * liveUsdRate).toFixed(2))
 
       return {
-        user_id: userId,
+        user_id: targetUserId,
         item_id: item.id,
         item_type: item.type,
         item_name: dbItem?.name || 'Unknown Item',
@@ -265,7 +308,7 @@ export async function POST(request: Request) {
           .from('coupon_usages')
           .insert({
             coupon_id: coupon.id,
-            user_id: userId,
+            user_id: targetUserId,
             order_id: finalOrderId
           })
       }
@@ -278,7 +321,7 @@ export async function POST(request: Request) {
       const { error: accountError } = await admin
         .from('user_accounts')
         .upsert({
-          user_id: userId,
+          user_id: targetUserId,
           full_name: cleanDetails.fullName,
           phone_number: cleanDetails.phone,
           address_line1: cleanDetails.address,
@@ -296,7 +339,7 @@ export async function POST(request: Request) {
 
     // 7. Send Invoice (Async)
     try {
-      const { data: { user }, error: userError } = await admin.auth.admin.getUserById(userId)
+      const { data: { user }, error: userError } = await admin.auth.admin.getUserById(targetUserId)
       
       if (user && user.email) {
         const invoiceItems = items.map((item: any) => {

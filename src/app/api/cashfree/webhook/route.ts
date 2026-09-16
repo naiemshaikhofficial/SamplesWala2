@@ -161,6 +161,18 @@ export async function POST(request: Request) {
 
       const serverVerifiedTotal = Math.max(0, subtotalAfterBundle - couponDiscountAmount)
 
+      // ZERO-TRUST WEBHOOK PAYMENT AMOUNT VALIDATION
+      const paidAmount = Number(paymentData.payment_amount || orderData.order_amount || 0)
+      if (serverVerifiedTotal > 0 && paidAmount > 0 && Math.abs(paidAmount - serverVerifiedTotal) > 1.5) {
+        console.error('[SECURITY_ALERT] Cashfree webhook payment amount mismatch:', {
+          paidAmount,
+          serverVerifiedTotal,
+          orderId,
+          targetUserId
+        })
+        return NextResponse.json({ status: 'ignored', message: 'Payment amount mismatch' }, { status: 400 })
+      }
+
       // Add to user vault with distributed item pricing
       let calculatedSum = 0
       const vaultEntries = items.map((item: any, index: number) => {

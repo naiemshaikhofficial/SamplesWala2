@@ -113,6 +113,13 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                 priority={packs.indexOf(pack) < 10}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+
+              {isOwned && (
+                <div className="absolute top-3 right-3 bg-[#00FF66] text-black px-2 py-0.5 border-2 border-black font-black text-[8px] sm:text-[9px] uppercase tracking-wider shadow-[2px_2px_0px_black] z-10 rotate-2 flex items-center gap-1">
+                  <Check size={11} strokeWidth={3} className="text-black" />
+                  <span>OWNED</span>
+                </div>
+              )}
               
               {!isFree && !pack.is_downloadable && (
                 <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 border border-black rounded-sm -rotate-3 z-10 ${
@@ -144,15 +151,15 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
-                      {displayMrp && (
+                      {!isOwned && displayMrp && (
                         <span className="text-[9px] text-white/50 line-through font-bold">
                           {displayMrp}
                         </span>
                       )}
                       <p className={`text-[14px] font-black italic leading-none ${
-                        isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
+                        isOwned ? 'text-[#00FF66]' : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
                       }`}>
-                        {displayPrice}
+                        {isOwned ? 'IN VAULT' : displayPrice}
                       </p>
                     </div>
                     

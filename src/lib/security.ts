@@ -68,3 +68,39 @@ export function verifyDownloadToken(token: string) {
     return null
   }
 }
+
+// In-memory sliding window rate limiter for security endpoints
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>()
+
+export function checkRateLimit(
+  key: string,
+  limit: number = 10,
+  windowSeconds: number = 60
+): { allowed: boolean; remaining: number; resetAt: number } {
+  const now = Date.now()
+  const windowMs = windowSeconds * 1000
+  const entry = rateLimitStore.get(key)
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + windowMs })
+    return { allowed: true, remaining: limit - 1, resetAt: now + windowMs }
+  }
+
+  if (entry.count >= limit) {
+    return { allowed: false, remaining: 0, resetAt: entry.resetAt }
+  }
+
+  entry.count++
+  return { allowed: true, remaining: limit - entry.count, resetAt: entry.resetAt }
+}
+
+// Garbage collect stale rate-limit keys every 5 minutes
+if (typeof setInterval !== 'undefined') {
+  const timer = setInterval(() => {
+    const now = Date.now()
+    for (const [k, v] of rateLimitStore.entries()) {
+      if (now > v.resetAt) rateLimitStore.delete(k)
+    }
+  }, 5 * 60 * 1000)
+  if (timer.unref) timer.unref()
+}
