@@ -114,29 +114,29 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
-              {isOwned && (
+              {isOwned ? (
                 <div className={`absolute top-3 right-3 ${
                   isIndia 
-                    ? 'bg-[#128807] text-white shadow-[2px_2px_0px_#FF9933] border-2 border-black' 
-                    : 'bg-[#18181b] text-zinc-300 shadow-[2px_2px_0px_black] border-2 border-zinc-700'
-                } px-2 py-0.5 font-black text-[8px] sm:text-[9px] uppercase tracking-wider z-10 rotate-2 flex items-center gap-1`}>
-                  <Check size={11} strokeWidth={3} className={isIndia ? 'text-white' : 'text-zinc-400'} />
+                    ? 'bg-[#128807] text-white shadow-[3px_3px_0px_#FF9933] border-2 border-black' 
+                    : 'bg-[#141416]/90 backdrop-blur-md text-white shadow-[3px_3px_0px_black] border-2 border-white/20'
+                } px-2.5 py-1 font-black text-[9px] uppercase tracking-wider z-10 rotate-2 flex items-center gap-1.5`}>
+                  <Check size={11} strokeWidth={3} className="text-white" />
                   <span>OWNED</span>
                 </div>
-              )}
-              
-              {!isFree && !pack.is_downloadable && (
-                <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 border border-black rounded-sm -rotate-3 z-10 ${
-                  isExpired
-                    ? 'bg-studio-red text-white shadow-[4px_4px_0px_black]'
-                    : (isIndia 
-                        ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807] font-black' 
-                        : 'bg-studio-neon/90 text-black shadow-[4px_4px_0px_black]')
-                }`}>
-                  <span className="text-[8px] font-black uppercase tracking-widest">
-                    {isExpired ? 'Regular Price' : 'Pre-order Offer'}
-                  </span>
-                </div>
+              ) : (
+                !isFree && !pack.is_downloadable && (
+                  <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 border border-black rounded-sm -rotate-3 z-10 ${
+                    isExpired
+                      ? 'bg-studio-red text-white shadow-[4px_4px_0px_black]'
+                      : (isIndia 
+                          ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807] font-black' 
+                          : 'bg-studio-neon/90 text-black shadow-[4px_4px_0px_black]')
+                  }`}>
+                    <span className="text-[8px] font-black uppercase tracking-widest">
+                      {isExpired ? 'Regular Price' : 'Pre-order Offer'}
+                    </span>
+                  </div>
+                )
               )}
             </Link>
 
@@ -162,38 +162,40 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                       )}
                       <p className={`text-[14px] font-black italic leading-none ${
                         isOwned 
-                          ? (isIndia ? 'text-[#FF9933]' : 'text-zinc-400') 
+                          ? (isIndia ? 'text-[#FF9933]' : 'text-white/80') 
                           : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
                       }`}>
                         {isOwned ? 'IN VAULT' : displayPrice}
                       </p>
                     </div>
                     
-                    <div className="flex flex-col gap-1">
-                      {!isFree && discountPercent > 0 ? (
-                        <div className={`px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] ${
-                          isIndia ? 'bg-[#128807]' : 'bg-studio-red'
-                        }`}>
-                          <span className="text-[9px] font-black text-white uppercase italic">
-                            {discountPercent}% OFF
+                    {!isOwned && (
+                      <div className="flex flex-col gap-1">
+                        {!isFree && discountPercent > 0 ? (
+                          <div className={`px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] ${
+                            isIndia ? 'bg-[#128807]' : 'bg-studio-red'
+                          }`}>
+                            <span className="text-[9px] font-black text-white uppercase italic">
+                              {discountPercent}% OFF
+                            </span>
+                          </div>
+                        ) : null}
+                        {!isFree && !pack.is_downloadable && (
+                          <span className={`text-[7px] font-black uppercase tracking-tighter px-1 rounded-sm text-center ${
+                            isExpired
+                              ? 'bg-studio-charcoal text-white/40 border border-black/20'
+                              : (isIndia ? 'bg-[#FF9933] text-white border border-black' : 'bg-studio-neon text-black')
+                          }`}>
+                            {isExpired ? 'Direct Purchase' : 'Pre-order Offer'}
                           </span>
-                        </div>
-                      ) : null}
-                      {!isFree && !pack.is_downloadable && (
-                        <span className={`text-[7px] font-black uppercase tracking-tighter px-1 rounded-sm text-center ${
-                          isExpired
-                            ? 'bg-studio-charcoal text-white/40 border border-black/20'
-                            : (isIndia ? 'bg-[#FF9933] text-white border border-black' : 'bg-studio-neon text-black')
-                        }`}>
-                          {isExpired ? 'Direct Purchase' : 'Pre-order Offer'}
-                        </span>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Limited Offer / Countdown Tag */}
-                {!isFree && (
+                {!isOwned && !isFree && (
                   !pack.is_downloadable && isPreorderActive ? (
                     <PackCountdown pack={pack} isIndia={isIndia} />
                   ) : (
@@ -218,12 +220,12 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                     prefetch={false}
                     className={`w-full h-10 ${
                       isIndia 
-                        ? 'bg-[#128807] hover:bg-[#FF9933] text-white shadow-[4px_4px_0px_#FF9933]' 
-                        : 'bg-[#18181b] hover:bg-[#222226] text-zinc-300 hover:text-white shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                    } text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-2 border-black flex items-center justify-center gap-1.5 active:translate-x-1 active:translate-y-1 active:shadow-none`}
+                        ? 'bg-[#128807] hover:bg-[#FF9933] text-white shadow-[4px_4px_0px_#FF9933] border-4 border-black' 
+                        : 'bg-[#141416] hover:bg-[#202024] text-white shadow-[4px_4px_0px_black] border-2 border-white/20 hover:border-white/40'
+                    } text-[10px] md:text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 active:translate-x-1 active:translate-y-1 active:shadow-none`}
                   >
-                    <Check size={14} strokeWidth={3} className={isIndia ? 'text-white' : 'text-zinc-400'} />
-                    <span>Owned</span>
+                    <Check size={14} strokeWidth={3} className="text-white" />
+                    <span>✓ OWNED</span>
                   </Link>
                 </div>
               ) : (

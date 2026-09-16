@@ -380,14 +380,14 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               <div className="space-y-1">
                 <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Price & Value</span>
                 <div className="flex items-baseline gap-2">
-                  <span className={`text-3xl font-black italic tracking-tight font-mono ${isFree ? 'text-[#00FF94]' : 'text-white'}`}>{displayPrice}</span>
-                  {displayMrp && (
+                  <span className={`text-3xl font-black italic tracking-tight font-mono ${owned ? 'text-zinc-300' : isFree ? 'text-[#00FF94]' : 'text-white'}`}>{owned ? 'IN VAULT' : displayPrice}</span>
+                  {!owned && displayMrp && (
                     <span className="text-xs text-white/35 line-through font-bold font-mono">{displayMrp}</span>
                   )}
                 </div>
               </div>
 
-              {!isFree && discountPercent > 0 ? (
+              {!owned && !isFree && discountPercent > 0 ? (
                 <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
                   <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
                   {!pack.is_downloadable && (
@@ -407,9 +407,9 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                     <div className={`flex items-center gap-2 px-3.5 py-2.5 ${
                       isIndia 
                         ? 'bg-[#128807]/20 border-2 border-[#128807] text-[#FF9933] shadow-[0_0_20px_rgba(18,136,7,0.25)]' 
-                        : 'bg-[#18181b] border border-zinc-700 text-zinc-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)]'
+                        : 'bg-[#141416] border border-white/20 text-white shadow-[0_4px_12px_rgba(0,0,0,0.5)]'
                     } rounded-xl text-[11px] font-black uppercase tracking-wider font-mono`}>
-                      <Check size={16} strokeWidth={3} className={isIndia ? 'text-[#128807] shrink-0' : 'text-zinc-400 shrink-0'} />
+                      <Check size={16} strokeWidth={3} className={isIndia ? 'text-[#128807] shrink-0' : 'text-white shrink-0'} />
                       <span>You already own this pack</span>
                     </div>
                     <DownloadButton itemId={pack.id} />
