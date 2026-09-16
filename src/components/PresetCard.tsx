@@ -4,7 +4,9 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { ShieldCheck } from 'lucide-react'
 import { useCurrency } from '@/context/CurrencyContext'
+import { useCart } from '@/context/CartContext'
 
 interface PresetCardProps {
   preset: {
@@ -26,7 +28,9 @@ interface PresetCardProps {
 
 export function PresetCard({ preset, priority = false }: PresetCardProps) {
   const { formatPrice, getAmount } = useCurrency()
+  const { isItemOwned } = useCart()
 
+  const isOwned = isItemOwned(preset.id, preset.slug)
   const isFree = Number(preset.price_inr) === 0
   const priceVal = preset.price_inr
   const rawMrp = preset.mrp_inr ? Number(preset.mrp_inr) : (isFree ? 0 : Number(preset.price_inr) * 3)
@@ -63,6 +67,14 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
         <div className="absolute top-2.5 left-2.5 bg-black/80 backdrop-blur-md px-2 py-0.5 border border-white/10 rounded text-[8px] font-mono font-bold uppercase tracking-wider text-studio-yellow">
           {preset.type || 'Preset'}
         </div>
+
+        {/* Owned badge top-right */}
+        {isOwned && (
+          <div className="absolute top-2.5 right-2.5 bg-[#00FF66] text-black px-2 py-0.5 border border-black rounded text-[9px] font-mono font-black uppercase tracking-wider shadow-sm flex items-center gap-1 z-10">
+            <ShieldCheck size={11} className="text-black" />
+            <span>Owned</span>
+          </div>
+        )}
       </div>
 
       {/* Content Details Below Card (Exact Producer Toy Layout) */}
@@ -86,7 +98,12 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
 
         {/* Price Row (Pinned to Consistent Horizontal Baseline) */}
         <div className="flex items-center gap-2 pt-1.5 border-t border-white/[0.04]">
-          {isFree ? (
+          {isOwned ? (
+            <span className="text-xs font-black text-[#00FF66] flex items-center gap-1">
+              <ShieldCheck size={13} className="text-[#00FF66]" />
+              <span>In Your Vault</span>
+            </span>
+          ) : isFree ? (
             <span className="text-sm font-bold text-[#00FF94]">Free</span>
           ) : (
             <>

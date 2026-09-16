@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ShieldCheck } from 'lucide-react'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { useCurrency } from '@/context/CurrencyContext'
 
@@ -21,10 +22,10 @@ function parseDbDate(dateStr: string | undefined | null) {
     formatted = formatted + 'Z'
   }
   
-  const secondTry = new Date(formatted)
-  if (!isNaN(secondTry.getTime())) return secondTry.getTime()
+  const parsed = new Date(formatted)
+  if (!isNaN(parsed.getTime())) return parsed.getTime()
   
-  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/)
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/)
   if (match) {
     return Date.UTC(
       parseInt(match[1], 10),
@@ -39,7 +40,7 @@ function parseDbDate(dateStr: string | undefined | null) {
 }
 
 export function HomePacks({ packs }: { packs: any[] }) {
-  const { addItem } = useCart()
+  const { addItem, buyNow, isItemOwned } = useCart()
   const router = useRouter()
   const [addedPackId, setAddedPackId] = React.useState<string | null>(null)
   const { formatPrice, getAmount } = useCurrency()
@@ -60,7 +61,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
   }
 
   const handleBuyNow = (pack: any, currentPrice: number) => {
-    addItem({
+    buyNow({
       id: pack.id,
       name: pack.name,
       price: currentPrice,
@@ -70,7 +71,6 @@ export function HomePacks({ packs }: { packs: any[] }) {
       type: 'pack',
       is_downloadable: pack.is_downloadable
     })
-    router.push('/checkout')
   }
 
   const container = {
@@ -98,6 +98,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
     >
       {packs.map((pack: any) => {
         const isIndia = pack.series === 'India Journey'
+        const isOwned = isItemOwned(pack.id, pack.slug)
         
         // Calculate dynamic pricing and pre-order state
         const priceDetails = getPackPriceDetails(pack)
@@ -139,6 +140,13 @@ export function HomePacks({ packs }: { packs: any[] }) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
+              {isOwned && (
+                <div className="absolute top-3 right-3 bg-[#00FF66] text-black px-2.5 py-1 border-2 border-black font-black text-[9px] uppercase tracking-wider shadow-[3px_3px_0px_black] z-10 rotate-2 flex items-center gap-1">
+                  <ShieldCheck size={12} className="text-black" />
+                  <span>OWNED</span>
+                </div>
+              )}
+
               {!isFree && !pack.is_downloadable && (
                 <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 border border-black rounded-sm -rotate-3 z-10 ${
                   isExpired
@@ -170,20 +178,20 @@ export function HomePacks({ packs }: { packs: any[] }) {
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
-                      {displayMrp && (
+                      {!isOwned && displayMrp && (
                         <span className="text-[10px] text-white/50 line-through font-bold">
                           {displayMrp}
                         </span>
                       )}
                       <p className={`text-[16px] font-black italic leading-none ${
-                        isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
+                        isOwned ? 'text-[#00FF66]' : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
                       }`}>
-                        {displayPrice}
+                        {isOwned ? 'IN VAULT' : displayPrice}
                       </p>
                     </div>
                     
                     <div className="flex flex-col gap-1">
-                      {!isFree && discountPercent > 0 ? (
+                      {!isOwned && !isFree && discountPercent > 0 ? (
                         <div className={`px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] ${
                           isIndia ? 'bg-[#128807] text-white font-black' : 'bg-studio-red text-white'
                         }`}>
@@ -224,48 +232,60 @@ export function HomePacks({ packs }: { packs: any[] }) {
               </div>
 
               <div className="flex flex-row gap-3 mt-auto pt-4 relative">
-                <AnimatePresence>
-                  {addedPackId === pack.id && (
-                    <motion.div
-                      initial={{ scale: 0, rotate: -20, opacity: 0 }}
-                      animate={{ scale: 1.1, rotate: 12, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -top-12 left-0 right-0 z-50 flex justify-center pointer-events-none"
-                    >
-                      <div className={`px-4 py-2 border-4 border-black font-black italic text-xs relative ${
-                        isIndia 
-                          ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807]' 
-                          : 'bg-studio-neon text-black shadow-[4px_4px_0px_black]'
-                      }`}>
-                        {isPreorderActive ? 'RESERVED!' : 'ADDED!'}
-                        <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 border-r-4 border-b-4 border-black rotate-45 ${
-                          isIndia ? 'bg-[#FF9933]' : 'bg-studio-neon'
-                        }`} />
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {isOwned ? (
+                  <Link
+                    href={`/packs/${pack.slug}`}
+                    className="w-full h-11 bg-[#00FF66] hover:bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  >
+                    <ShieldCheck size={16} className="text-black" />
+                    <span>✓ OWNED</span>
+                  </Link>
+                ) : (
+                  <>
+                    <AnimatePresence>
+                      {addedPackId === pack.id && (
+                        <motion.div
+                          initial={{ scale: 0, rotate: -20, opacity: 0 }}
+                          animate={{ scale: 1.1, rotate: 12, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          className="absolute -top-12 left-0 right-0 z-50 flex justify-center pointer-events-none"
+                        >
+                          <div className={`px-4 py-2 border-4 border-black font-black italic text-xs relative ${
+                            isIndia 
+                              ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807]' 
+                              : 'bg-studio-neon text-black shadow-[4px_4px_0px_black]'
+                          }`}>
+                            {isPreorderActive ? 'RESERVED!' : 'ADDED!'}
+                            <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 border-r-4 border-b-4 border-black rotate-45 ${
+                              isIndia ? 'bg-[#FF9933]' : 'bg-studio-neon'
+                            }`} />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                <button
-                  onClick={() => handleAddToCart(pack, currentPrice)}
-                  className={`flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                    isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon'
-                  }`}
-                  title={isPreorderActive ? "Pre-order" : "Add to Cart"}
-                >
-                  <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
-                  {isPreorderActive ? 'Pre' : 'Cart'}
-                </button>
-                <button
-                  onClick={() => handleBuyNow(pack, currentPrice)}
-                  className={`flex-1 h-11 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center hover:bg-white hover:text-black active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                    isIndia 
-                      ? (isPreorderActive ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
-                      : (isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white')
-                  }`}
-                >
-                  {isPreorderActive ? 'Pre' : 'Get'}
-                </button>
+                    <button
+                      onClick={() => handleAddToCart(pack, currentPrice)}
+                      className={`flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                        isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon'
+                      }`}
+                      title={isPreorderActive ? "Pre-order" : "Add to Cart"}
+                    >
+                      <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
+                      {isPreorderActive ? 'Pre' : 'Cart'}
+                    </button>
+                    <button
+                      onClick={() => handleBuyNow(pack, currentPrice)}
+                      className={`flex-1 h-11 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center hover:bg-white hover:text-black active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                        isIndia 
+                          ? (isPreorderActive ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
+                          : (isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white')
+                      }`}
+                    >
+                      {isPreorderActive ? 'Pre' : 'Get'}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
