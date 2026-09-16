@@ -80,14 +80,31 @@ function FormattedDescription({ text }: { text: string }) {
 export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientProps) {
   const { user } = useAuth()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
-  const [isOwned, setIsOwned] = useState(false)
+  const { addItem, items: cartItems, setSidebarOpen, isItemOwned, markAsOwned, buyNow } = useCart()
+  
+  // Synchronously initialize owned state from local cache for 0ms render without flicker
+  const [isOwned, setIsOwned] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (localStorage.getItem('sampleswala_is_admin') === 'true') return true
+        const cached = localStorage.getItem('sampleswala_owned_ids')
+        if (cached) {
+          const parsed = JSON.parse(cached)
+          if (Array.isArray(parsed) && (parsed.includes(preset.id) || (preset.slug && parsed.includes(preset.slug)))) {
+            return true
+          }
+        }
+      } catch (e) {}
+    }
+    return false
+  })
+
   const { formatPrice, getAmount } = useCurrency()
 
   const [showFloatingBar, setShowFloatingBar] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const faqRef = React.useRef<HTMLElement>(null)
   const router = useRouter()
-  const { addItem, items: cartItems, setSidebarOpen } = useCart()
   const isAlreadyInCart = cartItems.some(i => i.id === preset.id)
   const [added, setAdded] = useState(false)
   const [buyLoading, setBuyLoading] = useState(false)
@@ -95,7 +112,10 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    try {
+      router.prefetch('/checkout')
+    } catch (e) {}
+  }, [router])
 
   useEffect(() => {
     const handleResize = () => {
@@ -110,12 +130,17 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
     if (user?.id) {
       fetch(`/api/auth/ownership?itemId=${preset.id}`)
         .then(res => res.ok ? res.json() : { owned: false })
-        .then(data => setIsOwned(data.owned))
-        .catch(() => setIsOwned(false))
-    } else {
-      setIsOwned(false)
+        .then(data => {
+          if (data.owned) {
+            setIsOwned(true)
+            markAsOwned(preset.id)
+          } else if (!isItemOwned(preset.id, preset.slug)) {
+            setIsOwned(false)
+          }
+        })
+        .catch(() => {})
     }
-  }, [user?.id, preset.id])
+  }, [user?.id, preset.id, markAsOwned, isItemOwned])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -192,10 +217,14 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
         slug: preset.slug,
         cover_url: preset.cover_url || undefined,
         type: 'preset'
-      })
+      }, false) // Silent add without opening cart sidebar!
     }
     router.push('/checkout')
   }
+
+  const discountPercent = preset.mrp_inr && preset.price_inr > 0
+    ? Math.round((1 - (getAmount(preset.price_inr, preset.price_usd) / getAmount(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)
+    : 0
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
@@ -210,6 +239,11 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
         <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
           {preset.name}
         </h1>
+        {preset.tagline && (
+          <p className="text-white/40 text-xs font-bold uppercase tracking-widest font-mono">
+            {preset.tagline}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-8">
@@ -223,7 +257,9 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
           >
             <Image
               src={preset.cover_url || '/placeholder.jpg'}
-              alt={`${preset.name} - Premium Preset | SamplesWala`}
+              alt={`${preset.name} - Premium Sound Preset | SamplesWala`}
+              title={`${preset.name} Sound Preset`}
+              itemProp="image"
               fill
               priority
               sizes="(max-width: 768px) 100vw, 400px"
@@ -255,28 +291,30 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
           <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Price & Value</span>
+                <span className="text-[9px] font-black text-white/40 uppercase tracking-wider block font-mono">Price & Value</span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-white italic tracking-tight font-mono">
-                    {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
+                  <span className={`text-3xl font-black italic tracking-tight font-mono ${isFree ? 'text-[#00FF94]' : 'text-white'}`}>
+                    {isFree ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
                   </span>
                   {preset.mrp_inr && (
-                    <span className="text-xs text-white/35 line-through font-bold font-mono">
+                    <span className="text-xs text-white/30 line-through font-bold font-mono">
                       {formatPrice(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
                     </span>
                   )}
                 </div>
               </div>
 
-              {preset.mrp_inr && preset.price_inr > 0 && (
+              {discountPercent > 0 && !isFree && (
                 <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
-                  <span className="text-xs font-black text-white uppercase italic font-mono">
-                    {Math.round((1 - (getAmount(preset.price_inr, preset.price_usd) / getAmount(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)}% OFF
+                  <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
+                  <span className="text-[7px] font-black uppercase tracking-tighter bg-white text-studio-red px-1 rounded-sm mt-0.5">
+                    DEAL
                   </span>
                 </div>
               )}
-              {preset.price_inr === 0 && (
-                <div className="px-3 py-1 bg-studio-yellow text-black text-[10px] font-black uppercase tracking-widest jagged-border rotate-2">
+
+              {isFree && (
+                <div className="bg-[#00FF94] text-black px-3 py-1 rounded-lg text-xs font-black uppercase italic font-mono shadow-[0_4px_12px_rgba(0,255,148,0.25)]">
                   GIFT
                 </div>
               )}
@@ -286,7 +324,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
             <div id="main-buy-button-container" className="flex flex-col gap-3">
               {isOwned ? (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-studio-neon font-black uppercase tracking-widest text-[10px]">
+                  <div className="flex items-center gap-3 text-[#00FF94] font-black uppercase tracking-widest text-[10px]">
                     <CheckCircle2 size={16} />
                     You own this preset
                   </div>
@@ -305,13 +343,23 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                       type: 'preset'
                     }}
                   />
-                  <Link
-                    href={`/checkout?direct=${preset.id}&type=preset`}
-                    className="w-full h-14 md:h-16 bg-studio-neon text-black font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-white transition-all shadow-[4px_4px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] border-4 border-black"
+                  <button
+                    onClick={() => {
+                      buyNow({
+                        id: preset.id,
+                        name: preset.name,
+                        price: Number(preset.price_inr),
+                        price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+                        slug: preset.slug,
+                        cover_url: preset.cover_url || undefined,
+                        type: 'preset'
+                      })
+                    }}
+                    className="w-full h-14 md:h-16 bg-studio-neon text-black font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-white transition-all shadow-[4px_4px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] border-4 border-black cursor-pointer"
                   >
                     <Zap size={18} className="md:w-5 md:h-5" fill="currentColor" />
                     {isFree ? 'GET FOR FREE' : `BUY NOW — ${formatPrice(preset.price_inr, preset.price_usd)}`}
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
@@ -611,47 +659,68 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
 
                   {/* Action Buttons */}
                   <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
-                    {/* Add to Cart Button - Green Pill */}
-                    <button
-                      onClick={handleFloatingAddToCart}
-                      className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex-shrink-0 ${isAlreadyInCart
-                          ? 'bg-black/10 text-black border-black/20 shadow-none'
-                          : 'bg-[#00FF94] text-black hover:bg-white'
-                        }`}
-                    >
-                      {isAlreadyInCart ? (
-                        <>
-                          <Check size={12} />
-                          <span className="hidden sm:inline">In Cart</span>
-                        </>
-                      ) : added ? (
-                        <>
-                          <Check size={12} />
-                          <span className="hidden sm:inline">Added!</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag size={12} />
-                          <span className="hidden sm:inline">Add to cart</span>
-                        </>
-                      )}
-                    </button>
+                    {isOwned ? (
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-black bg-[#00FF94] px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black]">
+                          <Check size={12} strokeWidth={3} />
+                          <span>Owned</span>
+                        </span>
+                        <button
+                          onClick={() => {
+                            const el = document.getElementById('main-buy-button-container')
+                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          }}
+                          className="h-9 px-4 sm:px-5 bg-black text-[#00FF94] hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black] transition-all duration-300 active:scale-95 cursor-pointer"
+                        >
+                          <Download size={12} />
+                          <span>Download</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Add to Cart Button - Green Pill */}
+                        <button
+                          onClick={handleFloatingAddToCart}
+                          className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex-shrink-0 ${isAlreadyInCart
+                              ? 'bg-black/10 text-black border-black/20 shadow-none'
+                              : 'bg-[#00FF94] text-black hover:bg-white'
+                            }`}
+                        >
+                          {isAlreadyInCart ? (
+                            <>
+                              <Check size={12} />
+                              <span className="hidden sm:inline">In Cart</span>
+                            </>
+                          ) : added ? (
+                            <>
+                              <Check size={12} />
+                              <span className="hidden sm:inline">Added!</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag size={12} />
+                              <span className="hidden sm:inline">Add to cart</span>
+                            </>
+                          )}
+                        </button>
 
-                    {/* Buy Now Button - Black Pill with comic shadow */}
-                    <button
-                      disabled={buyLoading}
-                      onClick={handleFloatingBuyNow}
-                      className="h-9 px-6 sm:px-5 bg-black text-white hover:bg-white hover:text-black font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_black] transition-all duration-300 active:scale-95 disabled:opacity-50 flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
-                    >
-                      {buyLoading ? (
-                        <Loader2 className="animate-spin" size={12} />
-                      ) : (
-                        <>
-                          <CreditCard size={12} />
-                          <span>{isFree ? 'GET FREE' : 'Buy Now'}</span>
-                        </>
-                      )}
-                    </button>
+                        {/* Buy Now Button - Black Pill with comic shadow */}
+                        <button
+                          disabled={buyLoading}
+                          onClick={handleFloatingBuyNow}
+                          className="h-9 px-6 sm:px-5 bg-black text-white hover:bg-white hover:text-black font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_black] transition-all duration-300 active:scale-95 disabled:opacity-50 flex-1 sm:flex-initial max-w-[140px] sm:max-w-none cursor-pointer"
+                        >
+                          {buyLoading ? (
+                            <Loader2 className="animate-spin" size={12} />
+                          ) : (
+                            <>
+                              <CreditCard size={12} />
+                              <span>{isFree ? 'GET FREE' : 'Buy Now'}</span>
+                            </>
+                          )}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </motion.div>

@@ -78,7 +78,25 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const pack = initialPack
   const { user } = useAuth()
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
-  const [owned, setOwned] = useState(false)
+  const { addItem, items: cartItems, setSidebarOpen, isItemOwned, markAsOwned } = useCart()
+  
+  // Synchronously initialize owned state from local cache for 0ms render without flicker
+  const [owned, setOwned] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (localStorage.getItem('sampleswala_is_admin') === 'true') return true
+        const cached = localStorage.getItem('sampleswala_owned_ids')
+        if (cached) {
+          const parsed = JSON.parse(cached)
+          if (Array.isArray(parsed) && (parsed.includes(pack.id) || (pack.slug && parsed.includes(pack.slug)))) {
+            return true
+          }
+        }
+      } catch (e) {}
+    }
+    return false
+  })
+
   const [now, setNow] = useState(Date.now())
   const [mounted, setMounted] = useState(false)
   const { formatPrice, getAmount } = useCurrency()
@@ -87,18 +105,20 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const [isMobile, setIsMobile] = useState(false)
   const faqRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const { addItem, items: cartItems, setSidebarOpen } = useCart()
   const isAlreadyInCart = cartItems.some(i => i.id === pack.id)
   const [added, setAdded] = useState(false)
   const [buyLoading, setBuyLoading] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+    try {
+      router.prefetch('/checkout')
+    } catch (e) {}
     const timer = setInterval(() => {
       setNow(Date.now())
     }, 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [router])
 
   useEffect(() => {
     const handleResize = () => {
@@ -186,7 +206,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         cover_url: pack.cover_url || undefined,
         type: 'pack',
         is_downloadable: pack.is_downloadable
-      })
+      }, false) // Silent add without opening cart sidebar!
     }
     router.push('/checkout')
   }
@@ -195,12 +215,17 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
     if (user?.id) {
       fetch(`/api/auth/ownership?itemId=${pack.id}`)
         .then(res => res.ok ? res.json() : { owned: false })
-        .then(data => setOwned(data.owned))
-        .catch(() => setOwned(false))
-    } else {
-      setOwned(false)
+        .then(data => {
+          if (data.owned) {
+            setOwned(true)
+            markAsOwned(pack.id)
+          } else if (!isItemOwned(pack.id, pack.slug)) {
+            setOwned(false)
+          }
+        })
+        .catch(() => {})
     }
-  }, [user?.id, pack.id])
+  }, [user?.id, pack.id, markAsOwned, isItemOwned])
 
   const priceDetails = React.useMemo(() => {
     return getPackPriceDetails(pack)
@@ -377,7 +402,13 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
             <div id="main-buy-button-container" className="flex flex-col gap-3">
               {owned ? (
                 pack.is_downloadable ? (
-                  <DownloadButton itemId={pack.id} />
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-3.5 py-2.5 bg-[#00FF94]/10 border-2 border-[#00FF94]/40 rounded-xl text-[#00FF94] text-[11px] font-black uppercase tracking-wider font-mono shadow-[0_0_20px_rgba(0,255,148,0.15)]">
+                      <Check size={16} strokeWidth={3} className="text-[#00FF94] shrink-0" />
+                      <span>You already own this pack</span>
+                    </div>
+                    <DownloadButton itemId={pack.id} />
+                  </div>
                 ) : (
                   <div className="w-full p-6 bg-studio-neon/5 border border-studio-neon/20 border-dashed rounded-xl text-center space-y-2 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-2 opacity-10">
@@ -803,47 +834,74 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
                   {/* Action Buttons */}
                   <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
-                    {/* Add to Cart Button - Green Pill / Glass style */}
-                    <button
-                      onClick={handleFloatingAddToCart}
-                      className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 border-2 border-black shadow-[2px_2px_0px_black] ${isAlreadyInCart
-                        ? 'bg-black/10 text-black border-black/20 shadow-none'
-                        : 'bg-[#00FF94] text-black hover:bg-white'
-                        }`}
-                    >
-                      {isAlreadyInCart ? (
-                        <>
+                    {owned ? (
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-black bg-[#00FF94] px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black]">
                           <Check size={12} strokeWidth={3} />
-                          <span className="hidden sm:inline">In Cart</span>
-                        </>
-                      ) : added ? (
-                        <>
-                          <Check size={12} strokeWidth={3} />
-                          <span className="hidden sm:inline">Added!</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag size={12} />
-                          <span className="hidden sm:inline">Add to cart</span>
-                        </>
-                      )}
-                    </button>
+                          <span>Owned</span>
+                        </span>
+                        {pack.is_downloadable ? (
+                          <button
+                            onClick={() => {
+                              const el = document.getElementById('main-buy-button-container')
+                              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                            }}
+                            className="h-9 px-4 sm:px-5 bg-black text-[#00FF94] hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black] transition-all duration-300 active:scale-95 cursor-pointer"
+                          >
+                            <Download size={12} />
+                            <span>Download</span>
+                          </button>
+                        ) : (
+                          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-black bg-white px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black]">
+                            Pre-ordered
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        {/* Add to Cart Button - Green Pill / Glass style */}
+                        <button
+                          onClick={handleFloatingAddToCart}
+                          className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 border-2 border-black shadow-[2px_2px_0px_black] ${isAlreadyInCart
+                            ? 'bg-black/10 text-black border-black/20 shadow-none'
+                            : 'bg-[#00FF94] text-black hover:bg-white'
+                            }`}
+                        >
+                          {isAlreadyInCart ? (
+                            <>
+                              <Check size={12} strokeWidth={3} />
+                              <span className="hidden sm:inline">In Cart</span>
+                            </>
+                          ) : added ? (
+                            <>
+                              <Check size={12} strokeWidth={3} />
+                              <span className="hidden sm:inline">Added!</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag size={12} />
+                              <span className="hidden sm:inline">Add to cart</span>
+                            </>
+                          )}
+                        </button>
 
-                    {/* Buy Now Button - Black Pill with comic shadow */}
-                    <button
-                      disabled={buyLoading}
-                      onClick={handleFloatingBuyNow}
-                      className="h-9 px-6 sm:px-5 bg-black text-white hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_black] transition-all duration-300 active:scale-95 disabled:opacity-50 flex-1 sm:flex-initial max-w-[140px] sm:max-w-none"
-                    >
-                      {buyLoading ? (
-                        <Loader2 className="animate-spin" size={12} />
-                      ) : (
-                        <>
-                          <CreditCard size={12} />
-                          <span>{isFree ? 'Get Free' : 'Buy Now'}</span>
-                        </>
-                      )}
-                    </button>
+                        {/* Buy Now Button - Black Pill with comic shadow */}
+                        <button
+                          disabled={buyLoading}
+                          onClick={handleFloatingBuyNow}
+                          className="h-9 px-6 sm:px-5 bg-black text-white hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,0.2)] hover:shadow-[3px_3px_0px_black] transition-all duration-300 active:scale-95 disabled:opacity-50 flex-1 sm:flex-initial max-w-[140px] sm:max-w-none cursor-pointer"
+                        >
+                          {buyLoading ? (
+                            <Loader2 className="animate-spin" size={12} />
+                          ) : (
+                            <>
+                              <CreditCard size={12} />
+                              <span>{isFree ? 'Get Free' : 'Buy Now'}</span>
+                            </>
+                          )}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </motion.div>

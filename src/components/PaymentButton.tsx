@@ -1,7 +1,8 @@
 'use client'
-import { useState } from 'react'
-import { CreditCard, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { CreditCard, Loader2, Check } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 
 import { useCurrency } from '@/context/CurrencyContext'
@@ -22,29 +23,41 @@ interface PaymentButtonProps {
 export function PaymentButton({ packId, packName, price, price_usd, slug, cover_url, userId, type = 'pack', label, compact = false }: PaymentButtonProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { addItem, items, setSidebarOpen } = useCart()
+  const { buyNow, isItemOwned } = useCart()
   const { formatPrice } = useCurrency()
 
-  const handleBuyNow = async () => {
-    setLoading(true)
-    setSidebarOpen(false) // Close sidebar if it's open
-    
-    // 1. Add to cart if not already there
-    const isAlreadyInCart = items.some(i => i.id === packId)
-    if (!isAlreadyInCart) {
-      addItem({
-        id: packId,
-        name: packName,
-        price: price,
-        price_usd: price_usd,
-        slug: slug,
-        cover_url: cover_url,
-        type: type
-      })
-    }
+  useEffect(() => {
+    try {
+      router.prefetch('/checkout')
+    } catch (e) {}
+  }, [router])
 
-    // 2. Redirect directly to checkout
-    router.push('/checkout')
+  const owned = isItemOwned(packId, slug)
+
+  if (owned) {
+    const destination = type === 'preset' ? `/browse/presets/${slug}` : `/packs/${slug}`
+    return (
+      <Link
+        href={destination}
+        className={`w-full ${compact ? 'h-9 px-2 shadow-[2px_2px_0px_black] border-2 border-black' : 'h-14 shadow-[4px_4px_0px_black] border-2 border-[#00FF94]'} bg-[#00FF94]/15 text-[#00FF94] font-black uppercase ${compact ? 'tracking-[0.1em] text-[8px] md:text-[9px]' : 'tracking-[0.2em] text-[10px]'} flex items-center justify-center gap-1.5 hover:bg-[#00FF94]/25 transition-all rounded-sm`}
+      >
+        <Check size={compact ? 14 : 18} strokeWidth={3} />
+        <span>IN YOUR VAULT</span>
+      </Link>
+    )
+  }
+
+  const handleBuyNow = () => {
+    setLoading(true)
+    buyNow({
+      id: packId,
+      name: packName,
+      price: price,
+      price_usd: price_usd,
+      slug: slug,
+      cover_url: cover_url,
+      type: type
+    })
   }
 
   return (

@@ -5,15 +5,21 @@ import Link from 'next/link'
 import { clientCache } from '@/lib/clientCache'
 import { useCart } from '@/context/CartContext'
 import { useRouter } from 'next/navigation'
-import { ShoppingCart, Eye } from 'lucide-react'
+import { ShoppingCart, Eye, Check } from 'lucide-react'
 import { cleanSearchQuery } from '@/lib/search/queryHelper'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { useCurrency } from '@/context/CurrencyContext'
 
 export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { initialPacks: any[], searchQuery?: string, isIndiaJourney?: boolean }) {
-  const { addItem } = useCart()
+  const { addItem, isItemOwned } = useCart()
   const router = useRouter()
   const { formatPrice, getAmount } = useCurrency()
+
+  useEffect(() => {
+    try {
+      router.prefetch('/checkout')
+    } catch (e) {}
+  }, [router])
 
   const handleBuyNow = React.useCallback((pack: any, currentPrice: number) => {
     addItem({
@@ -25,7 +31,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
       cover_url: pack.cover_url || undefined,
       type: 'pack',
       is_downloadable: pack.is_downloadable
-    })
+    }, false) // Silent add without opening cart sidebar!
     router.push('/checkout')
   }, [addItem, router])
 
@@ -81,6 +87,8 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
         const displayPrice = isFree ? 'FREE' : formatPrice(currentPrice, pack.price_usd)
         const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null) : null
         const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
+
+        const isOwned = isItemOwned(pack.id, pack.slug)
 
         return (
           <div 
@@ -190,37 +198,50 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                 )}
               </div>
 
-              <div className="flex gap-2 mt-auto pt-4">
-                <button 
-                  onClick={() => addItem({
-                    id: pack.id,
-                    name: pack.name,
-                    price: Number(pack.price_inr),
-                    price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
-                    slug: pack.slug,
-                    cover_url: pack.cover_url || undefined,
-                    type: 'pack',
-                    is_downloadable: pack.is_downloadable
-                  })}
-                  className={`flex-1 h-10 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                    isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon'
-                  }`}
-                  title={isPreorderActive ? "Pre-order" : "Add to Cart"}
-                >
-                  <Image src="/cart-bag.png" alt="Cart" width={12} height={12} className="brightness-0" />
-                  {isPreorderActive ? 'Pre' : 'Cart'}
-                </button>
-                <button 
-                  onClick={() => handleBuyNow(pack, currentPrice)}
-                  className={`flex-1 h-10 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                    isIndia 
-                      ? (isPreorderActive ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
-                      : (isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white')
-                  } text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center`}
-                >
-                  {isPreorderActive ? 'Pre' : 'Buy'}
-                </button>
-              </div>
+              {isOwned ? (
+                <div className="mt-auto pt-4">
+                  <Link
+                    href={`/packs/${pack.slug}`}
+                    prefetch={false}
+                    className="w-full h-10 bg-[#00FF94] text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-1.5 hover:bg-white active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  >
+                    <Check size={14} strokeWidth={3} />
+                    <span>Owned</span>
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex gap-2 mt-auto pt-4">
+                  <button 
+                    onClick={() => addItem({
+                      id: pack.id,
+                      name: pack.name,
+                      price: Number(pack.price_inr),
+                      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+                      slug: pack.slug,
+                      cover_url: pack.cover_url || undefined,
+                      type: 'pack',
+                      is_downloadable: pack.is_downloadable
+                    })}
+                    className={`flex-1 h-10 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                      isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon'
+                    }`}
+                    title={isPreorderActive ? "Pre-order" : "Add to Cart"}
+                  >
+                    <Image src="/cart-bag.png" alt="Cart" width={12} height={12} className="brightness-0" />
+                    {isPreorderActive ? 'Pre' : 'Cart'}
+                  </button>
+                  <button 
+                    onClick={() => handleBuyNow(pack, currentPrice)}
+                    className={`flex-1 h-10 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                      isIndia 
+                        ? (isPreorderActive ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
+                        : (isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white')
+                    } text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center`}
+                  >
+                    {isPreorderActive ? 'Pre' : 'Buy'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )

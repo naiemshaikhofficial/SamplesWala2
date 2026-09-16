@@ -10,7 +10,7 @@ import { getPackPriceDetails } from '@/lib/pricing'
 import { useCurrency } from '@/context/CurrencyContext'
 
 export function HeroSlider({ packs }: { packs: any[] }) {
-  const { addItem } = useCart()
+  const { addItem, buyNow, isItemOwned } = useCart()
   const router = useRouter()
   const [activeIndex, setActiveIndex] = useState(0)
   const [addedId, setAddedId] = useState<string | null>(null)
@@ -74,6 +74,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
   // Active Pack Data
   const activePack = packs[activeIndex] || packs[0]
+  const isOwnedActive = activePack ? isItemOwned(activePack.id, activePack.slug) : false
 
   // Calculate dynamic pricing details
   const priceDetails = React.useMemo(() => {
@@ -154,7 +155,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
   const handleBuyNow = (e: React.MouseEvent, pack: any, price: number) => {
     e.preventDefault()
     e.stopPropagation()
-    addItem({
+    buyNow({
       id: pack.id,
       name: pack.name,
       price: Number(pack.price_inr),
@@ -164,7 +165,6 @@ export function HeroSlider({ packs }: { packs: any[] }) {
       type: 'pack',
       is_downloadable: pack.is_downloadable
     })
-    router.push('/checkout')
   }
 
   // Predefined custom comic tags for slides
@@ -226,8 +226,16 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                 {/* Top Row: Tags & Badges */}
                 <div className="flex items-center justify-between relative z-10">
-                  <div className={`px-4 py-1.5 ${activeTag.color} text-black font-black uppercase text-[10px] md:text-xs tracking-[0.2em] shadow-[3px_3px_0px_black] border-2 border-black rotate-[-2deg]`}>
-                    {activeTag.text}
+                  <div className="flex items-center gap-2">
+                    <div className={`px-4 py-1.5 ${activeTag.color} text-black font-black uppercase text-[10px] md:text-xs tracking-[0.2em] shadow-[3px_3px_0px_black] border-2 border-black rotate-[-2deg]`}>
+                      {activeTag.text}
+                    </div>
+                    {isOwnedActive && (
+                      <div className="flex items-center gap-1.5 bg-[#00FF66] text-black px-3 py-1 border-2 border-black font-black uppercase text-[9px] md:text-[11px] tracking-wider shadow-[3px_3px_0px_black] rotate-[1deg]">
+                        <ShieldCheck size={13} className="text-black" />
+                        <span>IN YOUR VAULT</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2 bg-black px-3 py-1 border-2 border-black shadow-[2px_2px_0px_white]">
@@ -256,32 +264,43 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                     {/* Pricing Block */}
                     <div className="flex items-center gap-4 pt-2">
-                      <div className="flex flex-col">
-                        {displayMrp && (
-                          <span className="text-[11px] text-white/40 line-through font-black">
-                            {displayMrp}
-                          </span>
-                        )}
-                        <span className={`text-3xl md:text-4xl font-black italic leading-none comic-text ${
-                          isFree ? 'text-[#00FF94]' : 'text-studio-yellow'
-                        }`}>
-                          {displayPrice}
-                        </span>
-                      </div>
-
-                      {!isFree && discountPercent > 0 ? (
-                        <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
-                          <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
-                            {discountPercent}% OFF
+                      {isOwnedActive ? (
+                        <div className="flex items-center gap-2 bg-[#00FF66]/10 border-2 border-[#00FF66] px-3.5 py-1.5 shadow-[3px_3px_0px_black]">
+                          <ShieldCheck size={18} className="text-[#00FF66]" />
+                          <span className="text-xs sm:text-sm font-black uppercase text-[#00FF66] tracking-wider">
+                            PURCHASED &amp; UNLOCKED
                           </span>
                         </div>
-                      ) : null}
+                      ) : (
+                        <>
+                          <div className="flex flex-col">
+                            {displayMrp && (
+                              <span className="text-[11px] text-white/40 line-through font-black">
+                                {displayMrp}
+                              </span>
+                            )}
+                            <span className={`text-3xl md:text-4xl font-black italic leading-none comic-text ${
+                              isFree ? 'text-[#00FF94]' : 'text-studio-yellow'
+                            }`}>
+                              {displayPrice}
+                            </span>
+                          </div>
 
-                      {!isFree && !activePack.is_downloadable && (
-                        <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${isExpired ? 'bg-studio-red text-white' : 'bg-studio-neon text-black'
-                          }`}>
-                          {isExpired ? 'Regular Price' : 'Pre-Order Offer'}
-                        </div>
+                          {!isFree && discountPercent > 0 ? (
+                            <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
+                              <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
+                                {discountPercent}% OFF
+                              </span>
+                            </div>
+                          ) : null}
+
+                          {!isFree && !activePack.is_downloadable && (
+                            <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${isExpired ? 'bg-studio-red text-white' : 'bg-studio-neon text-black'
+                              }`}>
+                              {isExpired ? 'Regular Price' : 'Pre-Order Offer'}
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -302,8 +321,8 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       />
 
                       {/* Corner badge on image */}
-                      <div className="absolute -top-3 -right-3 w-8 h-8 bg-studio-yellow text-black border-2 border-black rounded-full flex items-center justify-center shadow-[2px_2px_0px_black]">
-                        <Zap size={16} fill="black" />
+                      <div className={`absolute -top-3 -right-3 w-8 h-8 ${isOwnedActive ? 'bg-[#00FF66]' : 'bg-studio-yellow'} text-black border-2 border-black rounded-full flex items-center justify-center shadow-[2px_2px_0px_black]`}>
+                        {isOwnedActive ? <ShieldCheck size={16} className="text-black" /> : <Zap size={16} fill="black" />}
                       </div>
                     </div>
                   </div>
@@ -312,39 +331,50 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                 {/* Bottom Actions Row */}
                 <div className="flex flex-row flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 relative z-10 pt-4 border-t border-white/5">
-
-                  {/* Cart added animation popover */}
-                  <div className="relative flex-1 sm:flex-none">
-                    <AnimatePresence>
-                      {addedId === activePack.id && (
-                        <motion.div
-                          initial={{ scale: 0, y: 10, opacity: 0 }}
-                          animate={{ scale: 1, y: 0, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 z-50 bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-premium whitespace-nowrap"
-                        >
-                          {isPreorderActive ? 'RESERVED!' : 'ADDED TO CART!'}
-                          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    <button
-                      onClick={(e) => handleAddToCart(e, activePack, currentPriceInr)}
-                      className={`w-full sm:w-auto h-11 sm:h-14 px-3 sm:px-8 bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 sm:gap-3 hover:bg-studio-neon hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none`}
+                  {isOwnedActive ? (
+                    <Link
+                      href={`/packs/${activePack.slug}`}
+                      className="h-11 sm:h-14 px-6 sm:px-10 bg-[#00FF66] hover:bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[10px] sm:text-[12px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2.5 active:translate-x-[2px] active:translate-y-[2px]"
                     >
-                      <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
-                      {isPreorderActive ? 'PRE-ORDER' : 'ADD TO CART'}
-                    </button>
-                  </div>
+                      <ShieldCheck size={18} className="text-black" />
+                      <span>ALREADY IN YOUR VAULT — DOWNLOAD</span>
+                    </Link>
+                  ) : (
+                    <>
+                      {/* Cart added animation popover */}
+                      <div className="relative flex-1 sm:flex-none">
+                        <AnimatePresence>
+                          {addedId === activePack.id && (
+                            <motion.div
+                              initial={{ scale: 0, y: 10, opacity: 0 }}
+                              animate={{ scale: 1, y: 0, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 z-50 bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-premium whitespace-nowrap"
+                            >
+                              {isPreorderActive ? 'RESERVED!' : 'ADDED TO CART!'}
+                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
-                  <button
-                    onClick={(e) => handleBuyNow(e, activePack, currentPriceInr)}
-                    className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 hover:bg-white hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'
-                      } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
-                  >
-                    {isPreorderActive ? 'PRE-ORDER NOW' : 'BUY NOW'}
-                  </button>
+                        <button
+                          onClick={(e) => handleAddToCart(e, activePack, currentPriceInr)}
+                          className={`w-full sm:w-auto h-11 sm:h-14 px-3 sm:px-8 bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 sm:gap-3 hover:bg-studio-neon hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none`}
+                        >
+                          <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
+                          {isPreorderActive ? 'PRE-ORDER' : 'ADD TO CART'}
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={(e) => handleBuyNow(e, activePack, currentPriceInr)}
+                        className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 hover:bg-white hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'
+                          } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
+                      >
+                        {isPreorderActive ? 'PRE-ORDER NOW' : 'BUY NOW'}
+                      </button>
+                    </>
+                  )}
 
                   <Link
                     href={`/packs/${activePack.slug}`}
@@ -390,10 +420,17 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                 {/* Pack Metadata */}
                 <div className="flex-1 min-w-0 pr-2">
-                  <span className="text-[8px] font-black uppercase tracking-widest text-studio-blue block">
-                    {pack.categories?.name || 'LOOPS KIT'}
-                  </span>
-                  <h4 className="text-[12px] font-black uppercase truncate text-white tracking-tight leading-tight">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-studio-blue block truncate">
+                      {pack.categories?.name || 'LOOPS KIT'}
+                    </span>
+                    {isItemOwned(pack.id, pack.slug) && (
+                      <span className="text-[8px] font-black text-[#00FF66] bg-[#00FF66]/10 border border-[#00FF66]/30 px-1 py-0.2 rounded-xs uppercase shrink-0">
+                        ✓ Owned
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="text-[12px] font-black uppercase truncate text-white tracking-tight leading-tight mt-0.5">
                     {pack.name}
                   </h4>
 
@@ -405,6 +442,11 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         style={{ width: `${progress}%` }}
                       />
                     </div>
+                  ) : isItemOwned(pack.id, pack.slug) ? (
+                    <span className="text-[9px] font-black text-[#00FF66] uppercase tracking-wider flex items-center gap-1 mt-1">
+                      <ShieldCheck size={10} />
+                      <span>Owned</span>
+                    </span>
                   ) : (
                     <span className="text-[9px] font-bold text-studio-neon italic mt-1 block">
                       {formatPrice(pack.price_inr, pack.price_usd)}

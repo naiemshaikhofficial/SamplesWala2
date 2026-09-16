@@ -27,7 +27,7 @@ export function CrossSellRecommendations({
   category: explicitCategory,
   initialPacks
 }: CrossSellRecommendationsProps) {
-  const { items, addItem } = useCart()
+  const { items, addItem, isItemOwned, ownedIds } = useCart()
   const { formatPrice } = useCurrency()
   const [packs, setPacks] = useState<any[]>(initialPacks || [])
   const [loading, setLoading] = useState(false)
@@ -49,41 +49,53 @@ export function CrossSellRecommendations({
       return cartKeywords
     }
 
-    // Otherwise check session storage for recent search intent
+    // Otherwise check recent search in session
     if (typeof window !== 'undefined') {
-      const storedQuery = sessionStorage.getItem('last_search_query')
-      if (storedQuery) return storedQuery
+      try {
+        const lastSearch = sessionStorage.getItem('last_search_query')
+        if (lastSearch) return lastSearch
+      } catch (err) {}
     }
 
     return ''
   }, [explicitIntent, items])
 
-  // Exclude list (everything already in cart)
+  // Compute items to exclude: IDs already in cart or explicit prop or already owned by user
   const excludeIds = React.useMemo(() => {
-    return items.map((i) => i.id).join(',')
-  }, [items])
+    const idSet = new Set<string>()
+    items.forEach((i) => {
+      if (i.id) idSet.add(i.id.toLowerCase())
+      if (i.slug) idSet.add(i.slug.toLowerCase())
+    })
+    ownedIds.forEach((id) => {
+      if (id) idSet.add(id.toLowerCase())
+    })
+    return Array.from(idSet)
+  }, [items, ownedIds])
 
   useEffect(() => {
     let isMounted = true
 
-    const fetchDynamicRecommendations = async () => {
+    async function fetchDynamicRecommendations() {
+      setLoading(true)
       try {
-        setLoading(true)
         const params = new URLSearchParams()
         if (derivedIntent) params.set('intent', derivedIntent)
         if (explicitCategory) params.set('category', explicitCategory)
-        if (excludeIds) params.set('exclude', excludeIds)
-        params.set('limit', String(maxItems + 2))
+        if (excludeIds.length > 0) params.set('exclude', excludeIds.join(','))
+        params.set('limit', String(maxItems + 4))
 
         const res = await fetch(`/api/packs/recommendations?${params.toString()}`)
-        if (!res.ok) throw new Error('Failed to fetch dynamic recommendations')
-        const data = await res.json()
-
-        if (isMounted && Array.isArray(data)) {
-          setPacks(data)
+        if (res.ok) {
+          const data = await res.json()
+          const fetchedPacks = Array.isArray(data) ? data : (Array.isArray(data?.packs) ? data.packs : [])
+          if (isMounted && fetchedPacks.length > 0) {
+            setPacks(fetchedPacks)
+            return
+          }
         }
       } catch (err) {
-        console.warn('Could not load dynamic recommendations:', err)
+        console.warn('Cross-sell fetch failed, falling back to initial/curated', err)
       } finally {
         if (isMounted) setLoading(false)
       }
@@ -96,9 +108,9 @@ export function CrossSellRecommendations({
     }
   }, [derivedIntent, explicitCategory, excludeIds, maxItems])
 
-  // Strictly filter out any items already in cart
+  // Strictly filter out any items already in cart or already owned by user
   const availableRecommendations = packs
-    .filter((pack) => !items.some((cartItem) => cartItem.id === pack.id || cartItem.slug === pack.slug))
+    .filter((pack) => !items.some((cartItem) => cartItem.id === pack.id || cartItem.slug === pack.slug) && !isItemOwned(pack.id, pack.slug))
     .slice(0, maxItems)
 
   if (availableRecommendations.length === 0) {
@@ -117,7 +129,8 @@ export function CrossSellRecommendations({
       type: 'pack',
       is_downloadable: pack.is_downloadable ?? true
     }
-    addItem(cartItem)
+    // Silent add without popping open the cart drawer!
+    addItem(cartItem, false)
     setTimeout(() => {
       setAddingId(null)
     }, 600)

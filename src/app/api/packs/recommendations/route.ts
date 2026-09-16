@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPacks } from '@/app/browse/actions'
+import { getUser } from '@/lib/supabase/server'
+import { getAdminClient } from '@/lib/supabase/admin'
 
 const STOP_WORDS = new Set([
   'the', 'a', 'an', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
@@ -7,6 +9,8 @@ const STOP_WORDS = new Set([
   'sounds', 'sound', 'wala', 'royalty', 'one', 'shots', 'shot', 'all', 'new', 'best',
   'includes', 'collection', 'kit', 'kits'
 ])
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,6 +26,26 @@ export async function GET(request: NextRequest) {
         .map((s) => s.trim().toLowerCase())
         .filter(Boolean)
     )
+
+    // Exclude any sound packs already owned by the authenticated user in user_vault
+    try {
+      const { data: { user } } = await getUser()
+      if (user) {
+        const adminClient = getAdminClient()
+        const { data: vaultRecords } = await adminClient
+          .from('user_vault')
+          .select('item_id')
+          .eq('user_id', user.id)
+
+        if (vaultRecords && vaultRecords.length > 0) {
+          vaultRecords.forEach((r) => {
+            if (r.item_id) excludeIds.add(r.item_id.toLowerCase())
+          })
+        }
+      }
+    } catch (authErr) {
+      console.warn('[RECOMMENDATIONS_AUTH_CHECK]', authErr)
+    }
 
     // Tokenize search intent words and remove non-meaningful stop words
     const intentTokens = rawIntent
@@ -100,9 +124,9 @@ export async function GET(request: NextRequest) {
 
     const recommendations = scoredPacks.slice(0, limit).map((sp) => sp.pack)
 
-    return NextResponse.json(recommendations, {
+    return NextResponse.json({ packs: recommendations, count: recommendations.length }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=59',
+        'Cache-Control': 'private, no-cache, no-store, must-revalidate',
       },
     })
   } catch (error) {

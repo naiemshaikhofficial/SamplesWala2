@@ -363,7 +363,7 @@ const ConfettiEffect = () => {
 
 export default function CheckoutPage() {
   const countryOptions = React.useMemo(() => countryList().getData(), [])
-  const { items, removeItem, total, clearCart, itemCount, setSidebarOpen } = useCart()
+  const { items, removeItem, total, clearCart, itemCount, setSidebarOpen, markAsOwned, isItemOwned } = useCart()
   const cart = items
   const { currency, symbol, formatPrice } = useCurrency()
   const hasPreorder = items.some(item => item.type === 'pack' && item.is_downloadable === false)
@@ -385,6 +385,14 @@ export default function CheckoutPage() {
   useEffect(() => {
     setSidebarOpen(false)
   }, [setSidebarOpen])
+
+  // Prevent duplicate purchases if user already owns any item in cart
+  useEffect(() => {
+    const ownedInCart = items.filter(item => isItemOwned(item.id, item.slug))
+    if (ownedInCart.length > 0) {
+      ownedInCart.forEach(dup => removeItem(dup.id))
+    }
+  }, [items, isItemOwned, removeItem])
 
   const [coupon, setCoupon] = useState('')
   const [discount, setDiscount] = useState(0) // coupon discount percent
@@ -461,11 +469,18 @@ export default function CheckoutPage() {
     try {
       sessionStorage.removeItem('pending_cf_checkout')
     } catch (e) {}
+
+    const purchased = orderItems && orderItems.length > 0 ? orderItems : items
+    const purchasedIds = purchased.map(i => i.id || i.item_id).filter(Boolean)
+    if (purchasedIds.length > 0) {
+      markAsOwned(purchasedIds)
+    }
+
     clearCart()
     setCompletedOrder({
       orderId: targetOrderId,
       isFree,
-      items: orderItems && orderItems.length > 0 ? orderItems : items
+      items: purchased
     })
     setIsOrderComplete(true)
     setDispatchStage('dispatching')
