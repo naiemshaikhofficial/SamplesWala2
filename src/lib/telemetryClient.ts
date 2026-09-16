@@ -30,18 +30,57 @@ export interface ProducerTelemetryData {
     browser: string
     device_type: 'mobile' | 'tablet' | 'desktop'
     screen?: string
+    timezone?: string
+    language?: string
+    location?: {
+      city?: string
+      region?: string
+      country?: string
+      ip?: string
+    }
   }
   traffic_source: {
     referrer: string
+    channel?: string
     utm_source?: string
     utm_medium?: string
     utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+    gclid?: string
+    fbclid?: string
   }
 }
 
 const VISITOR_COOKIE_KEY = 'sw_visitor_id'
 const CONSENT_COOKIE_KEY = 'sw_cookie_consent'
 const LOCAL_PROFILE_KEY = 'sw_producer_profile'
+const GEO_STORAGE_KEY = 'sw_geo_location'
+
+export interface DetectedGeoLocation {
+  city?: string | null
+  region?: string | null
+  country?: string | null
+  timezone?: string | null
+  ip?: string | null
+}
+
+export function getDetectedLocation(): DetectedGeoLocation {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem(GEO_STORAGE_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return {}
+}
+
+export function setDetectedLocation(geo: DetectedGeoLocation) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(GEO_STORAGE_KEY, JSON.stringify(geo))
+    window.dispatchEvent(new CustomEvent('sw:geo-updated', { detail: geo }))
+  } catch {}
+}
 
 function generateUuid(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -141,28 +180,67 @@ function detectDeviceInfo() {
   const width = window.innerWidth
   const device_type: 'mobile' | 'tablet' | 'desktop' = width < 640 ? 'mobile' : width < 1024 ? 'tablet' : 'desktop'
 
+  const timezone = typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined
+  const language = typeof navigator !== 'undefined' ? navigator.language : undefined
+
   return {
     os,
     browser,
     device_type,
-    screen: `${window.screen?.width || width}x${window.screen?.height || window.innerHeight}`
+    screen: `${window.screen?.width || width}x${window.screen?.height || window.innerHeight}`,
+    timezone,
+    language
   }
 }
 
 function detectTrafficSource() {
   if (typeof window === 'undefined') {
-    return { referrer: 'Direct' }
+    return { referrer: 'Direct', channel: 'Direct' }
   }
 
   let referrer = document.referrer || 'Direct'
   if (referrer.includes(window.location.hostname)) referrer = 'Internal'
 
   const params = new URLSearchParams(window.location.search)
+  const utm_source = params.get('utm_source') || undefined
+  const utm_medium = params.get('utm_medium') || undefined
+  const utm_campaign = params.get('utm_campaign') || undefined
+  const utm_term = params.get('utm_term') || params.get('keyword') || undefined
+  const utm_content = params.get('utm_content') || undefined
+  const gclid = params.get('gclid') || undefined
+  const fbclid = params.get('fbclid') || undefined
+
+  // Categorize traffic source for clear marketing attribution
+  let channel = 'Direct'
+  const refLower = referrer.toLowerCase()
+  if (gclid || utm_source?.toLowerCase().includes('google') || (refLower.includes('google') && utm_medium === 'cpc')) {
+    channel = 'Google Ads (Search/PPC)'
+  } else if (refLower.includes('google')) {
+    channel = 'Google Search (Organic)'
+  } else if (fbclid || refLower.includes('instagram') || utm_source?.toLowerCase().includes('instagram')) {
+    channel = 'Instagram (Story/Ad/Bio)'
+  } else if (refLower.includes('youtube') || utm_source?.toLowerCase().includes('youtube')) {
+    channel = 'YouTube (Beat Tutorial/Desc)'
+  } else if (refLower.includes('facebook') || utm_source?.toLowerCase().includes('facebook')) {
+    channel = 'Facebook (Feed/Group)'
+  } else if (refLower.includes('reddit')) {
+    channel = 'Reddit (Producer Forum)'
+  } else if (refLower.includes('chatgpt') || refLower.includes('openai')) {
+    channel = 'AI / ChatGPT Recommendation'
+  } else if (referrer !== 'Direct' && referrer !== 'Internal') {
+    channel = 'External Referral'
+  }
+
   return {
     referrer,
-    utm_source: params.get('utm_source') || undefined,
-    utm_medium: params.get('utm_medium') || undefined,
-    utm_campaign: params.get('utm_campaign') || undefined
+    channel,
+    utm_source,
+    utm_medium,
+    utm_campaign,
+    utm_term,
+    utm_content,
+    gclid,
+    fbclid
   }
 }
 
@@ -210,7 +288,7 @@ function queueHeartbeat(diff: any) {
   }, 1200)
 }
 
-export function flushHeartbeat() {
+export function flushHeartbeat(useBeaconIfPossible = false) {
   if (typeof window === 'undefined') return
   if (Object.keys(pendingData).length === 0) return
 
@@ -227,8 +305,8 @@ export function flushHeartbeat() {
   pendingData = {}
 
   try {
-    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' })
-    if (navigator.sendBeacon) {
+    if (useBeaconIfPossible && navigator.sendBeacon) {
+      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' })
       navigator.sendBeacon('/api/telemetry/heartbeat', blob)
     } else {
       fetch('/api/telemetry/heartbeat', {
@@ -236,7 +314,14 @@ export function flushHeartbeat() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         keepalive: true
-      }).catch(() => {})
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.geo) {
+            setDetectedLocation(data.geo)
+          }
+        })
+        .catch(() => {})
     }
   } catch (e) {
     // Fail silently without disrupting user
@@ -349,4 +434,12 @@ export function trackDawPreference(daw: string) {
   if (!daw) return
   updateLocalProducerProfile((prev) => ({ ...prev, daw_preference: daw }))
   queueHeartbeat({ daw_preference: daw })
+}
+
+export function initTelemetrySession() {
+  if (typeof window === 'undefined') return
+  const cachedGeo = getDetectedLocation()
+  if (!cachedGeo.city && !cachedGeo.region) {
+    queueHeartbeat({})
+  }
 }

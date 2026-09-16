@@ -34,6 +34,39 @@ export async function POST(req: NextRequest) {
       }
     } catch {}
 
+    // Extract Edge / IP Location
+    const forwardedFor = req.headers.get('x-forwarded-for')
+    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : req.headers.get('x-real-ip') || '127.0.0.1'
+
+    // Vercel & Cloudflare Edge Geo headers
+    const rawCity = req.headers.get('x-vercel-ip-city') || req.headers.get('cf-ipcity') || null
+    let detectedCity: string | null = null
+    if (rawCity) {
+      try {
+        detectedCity = decodeURIComponent(rawCity)
+      } catch {
+        detectedCity = rawCity
+      }
+    }
+
+    const detectedRegion = req.headers.get('x-vercel-ip-country-region') || req.headers.get('cf-region') || null // e.g. "PB", "MH", "DL"
+    const detectedCountry = req.headers.get('x-vercel-ip-country') || req.headers.get('cf-ipcountry') || null // e.g. "IN", "US"
+    const detectedTimezone = req.headers.get('x-vercel-ip-timezone') || body.device_info?.timezone || null
+
+    const geoData = {
+      ip: clientIp,
+      city: detectedCity || body.device_info?.location?.city || null,
+      region: detectedRegion || body.device_info?.location?.region || null,
+      country: detectedCountry || body.device_info?.location?.country || null,
+      timezone: detectedTimezone || body.device_info?.timezone || 'Asia/Kolkata'
+    }
+
+    const enrichedDeviceInfo = {
+      ...(device_info || {}),
+      location: geoData,
+      timezone: geoData.timezone
+    }
+
     const adminClient = getAdminClient()
 
     // 1. Fetch existing telemetry record for this visitor_id
@@ -62,7 +95,7 @@ export async function POST(req: NextRequest) {
         previewed_audio: initialAudio,
         viewed_packs: initialPacks,
         cart_items: cart_items || [],
-        device_info: device_info || {},
+        device_info: enrichedDeviceInfo,
         traffic_source: traffic_source || {},
         session_count: 1,
         first_seen: now,
@@ -90,12 +123,20 @@ export async function POST(req: NextRequest) {
         updateData.daw_preference = daw_preference
       }
 
-      if (device_info && Object.keys(device_info).length > 0) {
-        updateData.device_info = device_info
+      updateData.device_info = {
+        ...(existing.device_info || {}),
+        ...enrichedDeviceInfo,
+        location: {
+          ...((existing.device_info && existing.device_info.location) || {}),
+          ...geoData
+        }
       }
 
       if (traffic_source && Object.keys(traffic_source).length > 0) {
-        updateData.traffic_source = traffic_source
+        updateData.traffic_source = {
+          ...(existing.traffic_source || {}),
+          ...traffic_source
+        }
       }
 
       if (cart_items !== undefined) {
@@ -150,7 +191,10 @@ export async function POST(req: NextRequest) {
         .eq('visitor_id', visitor_id)
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      geo: geoData
+    })
   } catch (err: any) {
     console.error('Telemetry heartbeat error:', err)
     return NextResponse.json({ error: 'Failed to process telemetry' }, { status: 500 })

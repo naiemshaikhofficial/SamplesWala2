@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sliders, Check, Lock, Music2, Sparkles, BarChart3, ChevronDown, ChevronUp } from 'lucide-react'
-import { getConsentPreferences, saveConsentPreferences } from '@/lib/telemetryClient'
+import { getConsentPreferences, saveConsentPreferences, initTelemetrySession } from '@/lib/telemetryClient'
 
 export function CookieConsentBanner() {
   const [mounted, setMounted] = useState(false)
@@ -17,6 +17,7 @@ export function CookieConsentBanner() {
 
   useEffect(() => {
     setMounted(true)
+    initTelemetrySession()
     const current = getConsentPreferences()
     if (!current.accepted) {
       // Smooth non-intrusive entrance after initial hydration

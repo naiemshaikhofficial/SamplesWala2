@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ShieldCheck, Check } from 'lucide-react'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { useCurrency } from '@/context/CurrencyContext'
+import { getDetectedLocation, getLocalProducerProfile } from '@/lib/telemetryClient'
 
 function parseDbDate(dateStr: string | undefined | null) {
   if (!dateStr) return 0
@@ -44,6 +45,117 @@ export function HomePacks({ packs }: { packs: any[] }) {
   const router = useRouter()
   const [addedPackId, setAddedPackId] = React.useState<string | null>(null)
   const { formatPrice, getAmount } = useCurrency()
+
+  // Location & Intent Personalization State
+  const [geoPreference, setGeoPreference] = React.useState<{
+    boostedSlug?: string
+    badgeText?: string
+  }>({})
+
+  React.useEffect(() => {
+    const resolvePriority = () => {
+      const geo = getDetectedLocation()
+      const profile = getLocalProducerProfile()
+
+      const region = (geo.region || '').toUpperCase()
+      const city = (geo.city || '').toLowerCase()
+      const country = (geo.country || 'IN').toUpperCase()
+      const searches = (profile.searched_keywords || []).map((s) => s.toLowerCase())
+      const previews = (profile.previewed_audio || []).map((p) => (p.pack_name || '').toLowerCase())
+
+      // 1. Punjab Region / Producer Intent
+      if (
+        region === 'PB' ||
+        region === 'CH' ||
+        ['ludhiana', 'amritsar', 'jalandhar', 'chandigarh', 'patiala', 'bathinda', 'mohali'].includes(city) ||
+        searches.some((s) => s.includes('punjab') || s.includes('dhol')) ||
+        previews.some((p) => p.includes('punjab') || p.includes('dhol'))
+      ) {
+        setGeoPreference({
+          boostedSlug: 'punjab-rhythm',
+          badgeText: '📍 TRENDING IN PUNJAB'
+        })
+        return
+      }
+
+      // 2. Maharashtra / Mumbai Gully Drill & Street Hip-Hop
+      if (
+        region === 'MH' ||
+        ['mumbai', 'pune', 'nagpur', 'thane', 'nashik'].includes(city) ||
+        searches.some((s) => s.includes('drill') || s.includes('gully') || s.includes('street')) ||
+        previews.some((p) => p.includes('drill') || p.includes('street'))
+      ) {
+        setGeoPreference({
+          boostedSlug: 'india-street',
+          badgeText: '📍 TRENDING IN MUMBAI'
+        })
+        return
+      }
+
+      // 3. South India (Tamil Nadu, Karnataka, Kerala, Andhra, Telangana)
+      if (
+        ['TN', 'KA', 'KL', 'AP', 'TS'].includes(region) ||
+        ['chennai', 'bangalore', 'bengaluru', 'hyderabad', 'kochi', 'coimbatore'].includes(city) ||
+        searches.some((s) => s.includes('south') || s.includes('tapori') || s.includes('kuthu'))
+      ) {
+        setGeoPreference({
+          boostedSlug: 'the-south',
+          badgeText: '📍 POPULAR IN SOUTH INDIA'
+        })
+        return
+      }
+
+      // 4. Odisha
+      if (
+        region === 'OR' ||
+        ['bhubaneswar', 'cuttack', 'sambalpur', 'puri'].includes(city) ||
+        searches.some((s) => s.includes('sambalpur') || s.includes('odia'))
+      ) {
+        setGeoPreference({
+          boostedSlug: 'sambalpur-rhythm',
+          badgeText: '📍 TRENDING IN ODISHA'
+        })
+        return
+      }
+
+      // 5. Delhi NCR
+      if (
+        region === 'DL' ||
+        ['delhi', 'new delhi', 'noida', 'gurugram', 'gurgaon'].includes(city)
+      ) {
+        setGeoPreference({
+          boostedSlug: 'punjab-rhythm',
+          badgeText: '📍 POPULAR IN DELHI NCR'
+        })
+        return
+      }
+
+      // 6. International Visitors
+      if (country !== 'IN') {
+        setGeoPreference({
+          boostedSlug: 'the-bollywood',
+          badgeText: '🌍 WORLDWIDE HIT'
+        })
+        return
+      }
+    }
+
+    resolvePriority()
+
+    const handleGeoUpdated = () => resolvePriority()
+    window.addEventListener('sw:geo-updated', handleGeoUpdated)
+    return () => window.removeEventListener('sw:geo-updated', handleGeoUpdated)
+  }, [])
+
+  // Sort packs to elevate boostedSlug to position 0 while preserving remaining relative order
+  const displayPacks = React.useMemo(() => {
+    if (!geoPreference.boostedSlug || !packs || packs.length === 0) return packs
+    const targetIdx = packs.findIndex((p) => p.slug === geoPreference.boostedSlug)
+    if (targetIdx <= 0) return packs
+    const targetPack = packs[targetIdx]
+    const remaining = packs.filter((_, idx) => idx !== targetIdx)
+    return [targetPack, ...remaining]
+  }, [packs, geoPreference.boostedSlug])
 
   const handleAddToCart = (pack: any, currentPrice: number) => {
     addItem({
@@ -96,7 +208,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
       viewport={{ once: true }}
       className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-10"
     >
-      {packs.map((pack: any) => {
+      {displayPacks.map((pack: any) => {
         const isIndia = pack.series === 'India Journey'
         const isOwned = isItemOwned(pack.id, pack.slug)
         
@@ -140,6 +252,13 @@ export function HomePacks({ packs }: { packs: any[] }) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
+              {/* Regional Recommendation Badge */}
+              {geoPreference.badgeText && pack.slug === geoPreference.boostedSlug && (
+                <div className="absolute top-2.5 left-2.5 bg-[#FFE600] text-black border-2 border-black font-black text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 shadow-[3px_3px_0px_black] -rotate-2 z-20 flex items-center gap-1">
+                  <span>{geoPreference.badgeText}</span>
+                </div>
+              )}
+
               {isOwned ? (
                 <div className={`absolute top-3 right-3 ${
                   isIndia 
@@ -151,7 +270,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 </div>
               ) : (
                 !isFree && !pack.is_downloadable && (
-                  <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 border border-black rounded-sm -rotate-3 z-10 ${
+                  <div className={`absolute ${geoPreference.badgeText && pack.slug === geoPreference.boostedSlug ? 'top-9' : 'top-3'} left-3 backdrop-blur-md px-2.5 py-0.5 border border-black rounded-sm -rotate-3 z-10 ${
                     isExpired
                       ? 'bg-studio-red text-white shadow-[4px_4px_0px_black]'
                       : (isIndia 
