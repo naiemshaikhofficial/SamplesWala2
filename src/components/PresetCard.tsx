@@ -70,8 +70,8 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
 
         {/* Owned badge top-right */}
         {isOwned && (
-          <div className="absolute top-2.5 right-2.5 bg-[#00FF66] text-black px-2 py-0.5 border border-black rounded text-[9px] font-mono font-black uppercase tracking-wider shadow-sm flex items-center gap-1 z-10">
-            <ShieldCheck size={11} className="text-black" />
+          <div className="absolute top-2.5 right-2.5 bg-[#18181b] text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider shadow-sm flex items-center gap-1 z-10">
+            <ShieldCheck size={11} className="text-zinc-400" />
             <span>Owned</span>
           </div>
         )}
@@ -99,8 +99,8 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
         {/* Price Row (Pinned to Consistent Horizontal Baseline) */}
         <div className="flex items-center gap-2 pt-1.5 border-t border-white/[0.04]">
           {isOwned ? (
-            <span className="text-xs font-black text-[#00FF66] flex items-center gap-1">
-              <ShieldCheck size={13} className="text-[#00FF66]" />
+            <span className="text-xs font-bold text-zinc-400 flex items-center gap-1">
+              <ShieldCheck size={13} className="text-zinc-400" />
               <span>In Your Vault</span>
             </span>
           ) : isFree ? (

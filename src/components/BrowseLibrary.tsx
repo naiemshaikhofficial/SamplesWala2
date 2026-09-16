@@ -115,8 +115,12 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
               {isOwned && (
-                <div className="absolute top-3 right-3 bg-[#00FF66] text-black px-2 py-0.5 border-2 border-black font-black text-[8px] sm:text-[9px] uppercase tracking-wider shadow-[2px_2px_0px_black] z-10 rotate-2 flex items-center gap-1">
-                  <Check size={11} strokeWidth={3} className="text-black" />
+                <div className={`absolute top-3 right-3 ${
+                  isIndia 
+                    ? 'bg-[#128807] text-white shadow-[2px_2px_0px_#FF9933] border-2 border-black' 
+                    : 'bg-[#18181b] text-zinc-300 shadow-[2px_2px_0px_black] border-2 border-zinc-700'
+                } px-2 py-0.5 font-black text-[8px] sm:text-[9px] uppercase tracking-wider z-10 rotate-2 flex items-center gap-1`}>
+                  <Check size={11} strokeWidth={3} className={isIndia ? 'text-white' : 'text-zinc-400'} />
                   <span>OWNED</span>
                 </div>
               )}
@@ -157,7 +161,9 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                         </span>
                       )}
                       <p className={`text-[14px] font-black italic leading-none ${
-                        isOwned ? 'text-[#00FF66]' : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
+                        isOwned 
+                          ? (isIndia ? 'text-[#FF9933]' : 'text-zinc-400') 
+                          : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
                       }`}>
                         {isOwned ? 'IN VAULT' : displayPrice}
                       </p>
@@ -210,9 +216,13 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                   <Link
                     href={`/packs/${pack.slug}`}
                     prefetch={false}
-                    className="w-full h-10 bg-[#00FF94] text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-1.5 hover:bg-white active:translate-x-1 active:translate-y-1 active:shadow-none"
+                    className={`w-full h-10 ${
+                      isIndia 
+                        ? 'bg-[#128807] hover:bg-[#FF9933] text-white shadow-[4px_4px_0px_#FF9933]' 
+                        : 'bg-[#18181b] hover:bg-[#222226] text-zinc-300 hover:text-white shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                    } text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-2 border-black flex items-center justify-center gap-1.5 active:translate-x-1 active:translate-y-1 active:shadow-none`}
                   >
-                    <Check size={14} strokeWidth={3} />
+                    <Check size={14} strokeWidth={3} className={isIndia ? 'text-white' : 'text-zinc-400'} />
                     <span>Owned</span>
                   </Link>
                 </div>

@@ -324,9 +324,9 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
             <div id="main-buy-button-container" className="flex flex-col gap-3">
               {isOwned ? (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-[#00FF94] font-black uppercase tracking-widest text-[10px]">
-                    <CheckCircle2 size={16} />
-                    You own this preset
+                  <div className="flex items-center gap-2 px-3.5 py-2.5 bg-[#18181b] border border-zinc-700 rounded-xl text-zinc-300 text-[11px] font-bold uppercase tracking-wider font-mono shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+                    <CheckCircle2 size={16} className="text-zinc-400" />
+                    <span>You own this preset</span>
                   </div>
                   <DownloadButton itemId={preset.id} type="preset" />
                 </div>
@@ -661,8 +661,8 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                   <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
                     {isOwned ? (
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-black bg-[#00FF94] px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black]">
-                          <Check size={12} strokeWidth={3} />
+                        <span className="inline-flex items-center gap-1.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-zinc-300 bg-[#18181b] px-3 py-1.5 rounded-full border border-zinc-700 shadow-[2px_2px_0px_black]">
+                          <Check size={12} strokeWidth={2.5} className="text-zinc-400" />
                           <span>Owned</span>
                         </span>
                         <button
@@ -670,7 +670,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                             const el = document.getElementById('main-buy-button-container')
                             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
                           }}
-                          className="h-9 px-4 sm:px-5 bg-black text-[#00FF94] hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black] transition-all duration-300 active:scale-95 cursor-pointer"
+                          className="h-9 px-4 sm:px-5 bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full border border-zinc-600 shadow-[2px_2px_0px_black] transition-all duration-300 active:scale-95 cursor-pointer"
                         >
                           <Download size={12} />
                           <span>Download</span>

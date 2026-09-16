@@ -75,6 +75,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
   // Active Pack Data
   const activePack = packs[activeIndex] || packs[0]
   const isOwnedActive = activePack ? isItemOwned(activePack.id, activePack.slug) : false
+  const isIndiaActive = activePack ? (activePack.series === 'India Journey' || activePack.series_name === 'India Journey') : false
 
   // Calculate dynamic pricing details
   const priceDetails = React.useMemo(() => {
@@ -231,8 +232,12 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       {activeTag.text}
                     </div>
                     {isOwnedActive && (
-                      <div className="flex items-center gap-1.5 bg-[#00FF66] text-black px-3 py-1 border-2 border-black font-black uppercase text-[9px] md:text-[11px] tracking-wider shadow-[3px_3px_0px_black] rotate-[1deg]">
-                        <ShieldCheck size={13} className="text-black" />
+                      <div className={`flex items-center gap-1.5 ${
+                        isIndiaActive 
+                          ? 'bg-[#128807] text-white shadow-[3px_3px_0px_#FF9933] border-2 border-black' 
+                          : 'bg-[#18181b] text-zinc-300 shadow-[3px_3px_0px_black] border-2 border-zinc-700'
+                      } px-3 py-1 font-black uppercase text-[9px] md:text-[11px] tracking-wider rotate-[1deg]`}>
+                        <ShieldCheck size={13} className={isIndiaActive ? 'text-white' : 'text-zinc-400'} />
                         <span>IN YOUR VAULT</span>
                       </div>
                     )}
@@ -248,10 +253,10 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center py-4 relative z-10 flex-1">
 
                   {/* Left Text Block (7 Columns) */}
-                  <div className="md:col-span-7 space-y-4 md:space-y-6 text-left">
-                    <div className="space-y-2">
-                      <span className="text-[10px] font-black uppercase text-studio-neon tracking-widest block">
-                        {activePack.categories?.name || 'SPECIAL PACK'}
+                  <div className="md:col-span-7 flex flex-col justify-center space-y-3 md:space-y-4">
+                    <div className="space-y-1">
+                      <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-studio-blue flex items-center gap-2">
+                        {activePack.categories?.name || "SOUND COLLECTION"}
                       </span>
                       <h2 className="text-2xl md:text-4xl lg:text-4xl font-black uppercase tracking-tighter italic text-white comic-text leading-none break-words line-clamp-2">
                         {activePack.name}
@@ -265,9 +270,15 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                     {/* Pricing Block */}
                     <div className="flex items-center gap-4 pt-2">
                       {isOwnedActive ? (
-                        <div className="flex items-center gap-2 bg-[#00FF66]/10 border-2 border-[#00FF66] px-3.5 py-1.5 shadow-[3px_3px_0px_black]">
-                          <ShieldCheck size={18} className="text-[#00FF66]" />
-                          <span className="text-xs sm:text-sm font-black uppercase text-[#00FF66] tracking-wider">
+                        <div className={`flex items-center gap-2 ${
+                          isIndiaActive 
+                            ? 'bg-[#128807]/20 border-2 border-[#128807] shadow-[3px_3px_0px_#FF9933]' 
+                            : 'bg-[#18181b] border-2 border-zinc-700 shadow-[3px_3px_0px_black]'
+                        } px-3.5 py-1.5`}>
+                          <ShieldCheck size={18} className={isIndiaActive ? 'text-[#128807]' : 'text-zinc-400'} />
+                          <span className={`text-xs sm:text-sm font-black uppercase tracking-wider ${
+                            isIndiaActive ? 'text-[#FF9933]' : 'text-zinc-300'
+                          }`}>
                             PURCHASED &amp; UNLOCKED
                           </span>
                         </div>
@@ -321,8 +332,12 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       />
 
                       {/* Corner badge on image */}
-                      <div className={`absolute -top-3 -right-3 w-8 h-8 ${isOwnedActive ? 'bg-[#00FF66]' : 'bg-studio-yellow'} text-black border-2 border-black rounded-full flex items-center justify-center shadow-[2px_2px_0px_black]`}>
-                        {isOwnedActive ? <ShieldCheck size={16} className="text-black" /> : <Zap size={16} fill="black" />}
+                      <div className={`absolute -top-3 -right-3 w-8 h-8 ${
+                        isOwnedActive 
+                          ? (isIndiaActive ? 'bg-[#128807] text-white shadow-[2px_2px_0px_#FF9933] border-2 border-black' : 'bg-[#18181b] text-zinc-300 shadow-[2px_2px_0px_black] border-2 border-zinc-700')
+                          : 'bg-studio-yellow text-black border-2 border-black shadow-[2px_2px_0px_black]'
+                      } rounded-full flex items-center justify-center`}>
+                        {isOwnedActive ? <ShieldCheck size={16} className={isIndiaActive ? 'text-white' : 'text-zinc-400'} /> : <Zap size={16} fill="black" />}
                       </div>
                     </div>
                   </div>
@@ -334,9 +349,13 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   {isOwnedActive ? (
                     <Link
                       href={`/packs/${activePack.slug}`}
-                      className="h-11 sm:h-14 px-6 sm:px-10 bg-[#00FF66] hover:bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[10px] sm:text-[12px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2.5 active:translate-x-[2px] active:translate-y-[2px]"
+                      className={`h-11 sm:h-14 px-6 sm:px-10 ${
+                        isIndiaActive 
+                          ? 'bg-[#128807] hover:bg-[#FF9933] text-white shadow-[3px_3px_0px_#FF9933] sm:shadow-[4px_4px_0px_#FF9933]' 
+                          : 'bg-[#18181b] hover:bg-[#27272c] text-zinc-200 hover:text-white shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black]'
+                      } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[10px] sm:text-[12px] transition-all border-2 sm:border-4 border-black flex items-center justify-center gap-2.5 active:translate-x-[2px] active:translate-y-[2px]`}
                     >
-                      <ShieldCheck size={18} className="text-black" />
+                      <ShieldCheck size={18} className={isIndiaActive ? 'text-white' : 'text-zinc-400'} />
                       <span>ALREADY IN YOUR VAULT — DOWNLOAD</span>
                     </Link>
                   ) : (
@@ -393,6 +412,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
         <div className="flex flex-row lg:flex-col gap-3 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-none justify-between">
           {packs.map((pack: any, index: number) => {
             const isActive = index === activeIndex
+            const isPackIndia = pack.series === 'India Journey' || pack.series_name === 'India Journey'
             return (
               <button
                 key={pack.id}
@@ -425,7 +445,11 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       {pack.categories?.name || 'LOOPS KIT'}
                     </span>
                     {isItemOwned(pack.id, pack.slug) && (
-                      <span className="text-[8px] font-black text-[#00FF66] bg-[#00FF66]/10 border border-[#00FF66]/30 px-1 py-0.2 rounded-xs uppercase shrink-0">
+                      <span className={`text-[8px] font-black ${
+                        isPackIndia 
+                          ? 'text-[#FF9933] bg-[#FF9933]/10 border border-[#FF9933]/30' 
+                          : 'text-zinc-300 bg-zinc-800/90 border border-zinc-700'
+                      } px-1 py-0.2 rounded-xs uppercase shrink-0`}>
                         ✓ Owned
                       </span>
                     )}
@@ -443,8 +467,10 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       />
                     </div>
                   ) : isItemOwned(pack.id, pack.slug) ? (
-                    <span className="text-[9px] font-black text-[#00FF66] uppercase tracking-wider flex items-center gap-1 mt-1">
-                      <ShieldCheck size={10} />
+                    <span className={`text-[9px] font-black ${
+                      isPackIndia ? 'text-[#FF9933]' : 'text-zinc-400'
+                    } uppercase tracking-wider flex items-center gap-1 mt-1`}>
+                      <ShieldCheck size={10} className={isPackIndia ? 'text-[#128807]' : 'text-zinc-400'} />
                       <span>Owned</span>
                     </span>
                   ) : (

@@ -141,8 +141,12 @@ export function HomePacks({ packs }: { packs: any[] }) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
               {isOwned && (
-                <div className="absolute top-3 right-3 bg-[#00FF66] text-black px-2.5 py-1 border-2 border-black font-black text-[9px] uppercase tracking-wider shadow-[3px_3px_0px_black] z-10 rotate-2 flex items-center gap-1">
-                  <ShieldCheck size={12} className="text-black" />
+                <div className={`absolute top-3 right-3 ${
+                  isIndia 
+                    ? 'bg-[#128807] text-white shadow-[3px_3px_0px_#FF9933] border-2 border-black' 
+                    : 'bg-[#18181b] text-zinc-300 shadow-[3px_3px_0px_black] border-2 border-zinc-700'
+                } px-2.5 py-1 font-black text-[9px] uppercase tracking-wider z-10 rotate-2 flex items-center gap-1`}>
+                  <ShieldCheck size={12} className={isIndia ? 'text-white' : 'text-zinc-400'} />
                   <span>OWNED</span>
                 </div>
               )}
@@ -184,7 +188,9 @@ export function HomePacks({ packs }: { packs: any[] }) {
                         </span>
                       )}
                       <p className={`text-[16px] font-black italic leading-none ${
-                        isOwned ? 'text-[#00FF66]' : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
+                        isOwned 
+                          ? (isIndia ? 'text-[#FF9933]' : 'text-zinc-400') 
+                          : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
                       }`}>
                         {isOwned ? 'IN VAULT' : displayPrice}
                       </p>
@@ -235,9 +241,13 @@ export function HomePacks({ packs }: { packs: any[] }) {
                 {isOwned ? (
                   <Link
                     href={`/packs/${pack.slug}`}
-                    className="w-full h-11 bg-[#00FF66] hover:bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none"
+                    className={`w-full h-11 ${
+                      isIndia 
+                        ? 'bg-[#128807] hover:bg-[#FF9933] text-white shadow-[4px_4px_0px_#FF9933]' 
+                        : 'bg-[#18181b] hover:bg-[#222226] text-zinc-300 hover:text-white shadow-[4px_4px_0px_black]'
+                    } text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none`}
                   >
-                    <ShieldCheck size={16} className="text-black" />
+                    <ShieldCheck size={16} className={isIndia ? 'text-white' : 'text-zinc-400'} />
                     <span>✓ OWNED</span>
                   </Link>
                 ) : (

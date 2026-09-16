@@ -9,13 +9,18 @@ export function AddToCartButton({ item, compact = false, label }: { item: CartIt
   
   const isOwned = isItemOwned(item.id, item.slug)
   const isAlreadyInCart = items.some(i => i.id === item.id)
+  const isIndia = (item as any)?.series === 'India Journey' || (item as any)?.series_name === 'India Journey'
 
   if (isOwned) {
     return (
       <div 
-        className={`w-full ${compact ? 'h-9' : 'h-14'} bg-[#00FF94]/10 border-2 border-[#00FF94] text-[#00FF94] font-black uppercase tracking-widest ${compact ? 'text-[9px]' : 'text-xs'} flex items-center justify-center gap-2 rounded-sm shadow-[4px_4px_0px_black] select-none`}
+        className={`w-full ${compact ? 'h-9' : 'h-14'} ${
+          isIndia 
+            ? 'bg-[#128807] text-white border-2 border-black shadow-[4px_4px_0px_#FF9933]' 
+            : 'bg-[#18181b] text-zinc-300 border-2 border-zinc-700 shadow-[4px_4px_0px_black]'
+        } font-black uppercase tracking-widest ${compact ? 'text-[9px]' : 'text-xs'} flex items-center justify-center gap-2 rounded-sm select-none`}
       >
-        <Check size={compact ? 14 : 18} strokeWidth={3} />
+        <Check size={compact ? 14 : 18} strokeWidth={3} className={isIndia ? 'text-white' : 'text-zinc-400'} />
         <span>Owned</span>
       </div>
     )

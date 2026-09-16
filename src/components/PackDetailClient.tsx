@@ -108,6 +108,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const isAlreadyInCart = cartItems.some(i => i.id === pack.id)
   const [added, setAdded] = useState(false)
   const [buyLoading, setBuyLoading] = useState(false)
+  const isIndia = pack.series === 'India Journey' || pack.series_name === 'India Journey'
 
   useEffect(() => {
     setMounted(true)
@@ -403,8 +404,12 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               {owned ? (
                 pack.is_downloadable ? (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 px-3.5 py-2.5 bg-[#00FF94]/10 border-2 border-[#00FF94]/40 rounded-xl text-[#00FF94] text-[11px] font-black uppercase tracking-wider font-mono shadow-[0_0_20px_rgba(0,255,148,0.15)]">
-                      <Check size={16} strokeWidth={3} className="text-[#00FF94] shrink-0" />
+                    <div className={`flex items-center gap-2 px-3.5 py-2.5 ${
+                      isIndia 
+                        ? 'bg-[#128807]/20 border-2 border-[#128807] text-[#FF9933] shadow-[0_0_20px_rgba(18,136,7,0.25)]' 
+                        : 'bg-[#18181b] border border-zinc-700 text-zinc-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)]'
+                    } rounded-xl text-[11px] font-black uppercase tracking-wider font-mono`}>
+                      <Check size={16} strokeWidth={3} className={isIndia ? 'text-[#128807] shrink-0' : 'text-zinc-400 shrink-0'} />
                       <span>You already own this pack</span>
                     </div>
                     <DownloadButton itemId={pack.id} />
@@ -836,8 +841,12 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                   <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
                     {owned ? (
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-black bg-[#00FF94] px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black]">
-                          <Check size={12} strokeWidth={3} />
+                        <span className={`inline-flex items-center gap-1.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider ${
+                          isIndia 
+                            ? 'text-white bg-[#128807] shadow-[2px_2px_0px_#FF9933] border-2 border-black' 
+                            : 'text-zinc-300 bg-[#18181b] shadow-[2px_2px_0px_black] border border-zinc-700'
+                        } px-3 py-1.5 rounded-full`}>
+                          <Check size={12} strokeWidth={3} className={isIndia ? 'text-white' : 'text-zinc-400'} />
                           <span>Owned</span>
                         </span>
                         {pack.is_downloadable ? (
@@ -846,13 +855,19 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                               const el = document.getElementById('main-buy-button-container')
                               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
                             }}
-                            className="h-9 px-4 sm:px-5 bg-black text-[#00FF94] hover:bg-white hover:text-black font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black] transition-all duration-300 active:scale-95 cursor-pointer"
+                            className={`h-9 px-4 sm:px-5 ${
+                              isIndia 
+                                ? 'bg-black text-[#FF9933] hover:bg-[#128807] hover:text-white border-2 border-black shadow-[2px_2px_0px_#FF9933]' 
+                                : 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white border border-zinc-600 shadow-[2px_2px_0px_black]'
+                            } font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center gap-1.5 rounded-full transition-all duration-300 active:scale-95 cursor-pointer`}
                           >
                             <Download size={12} />
                             <span>Download</span>
                           </button>
                         ) : (
-                          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-black bg-white px-3 py-1.5 rounded-full border-2 border-black shadow-[2px_2px_0px_black]">
+                          <span className={`text-[8px] sm:text-[9px] font-black uppercase tracking-wider ${
+                            isIndia ? 'text-white bg-[#FF9933]' : 'text-zinc-300 bg-zinc-800'
+                          } px-3 py-1.5 rounded-full border border-black shadow-[2px_2px_0px_black]`}>
                             Pre-ordered
                           </span>
                         )}
