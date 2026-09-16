@@ -47,6 +47,9 @@ export function HeroSearch() {
   const handleSearch = React.useCallback((e?: React.FormEvent) => {
     e?.preventDefault()
     if (query.trim()) {
+      try {
+        sessionStorage.setItem('last_search_query', query.trim())
+      } catch (err) {}
       setIsOpen(false)
       router.push(`/browse?q=${encodeURIComponent(query.trim())}`)
     }

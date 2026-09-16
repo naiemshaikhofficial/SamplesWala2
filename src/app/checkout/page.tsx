@@ -21,6 +21,7 @@ import { validateBillingDetails } from '@/lib/checkoutValidation'
 import { DeliveryCarAnimation } from '@/components/DeliveryCarAnimation'
 import { ThankYouClient } from '@/app/thank-you/ThankYouClient'
 import { getSecureDownloadUrl } from '@/app/packs/actions'
+import { CrossSellRecommendations } from '@/components/CrossSellRecommendations'
 
 // Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
 const CustomCountrySelect = ({ value, onChange, options, iconComponent: Icon }: any) => {
@@ -2026,6 +2027,13 @@ export default function CheckoutPage() {
               </div>
               <PaymentAccepted variant="compact" className="opacity-70 hover:opacity-100 transition-opacity duration-300 justify-center" />
             </div>
+
+            {/* Dynamic Cross-Sell Recommendations / Recommended Add-Ons */}
+            <CrossSellRecommendations
+              mode="checkout"
+              title="Frequently Paired With Your Sounds"
+              maxItems={3}
+            />
           </div>
         </div>
       </div>

@@ -29,6 +29,14 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
     router.push('/checkout')
   }, [addItem, router])
 
+  useEffect(() => {
+    if (searchQuery && typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('last_search_query', searchQuery.trim())
+      } catch (err) {}
+    }
+  }, [searchQuery])
+
   const packs = React.useMemo(() => {
     let currentPacks = initialPacks || []
 

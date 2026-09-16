@@ -7,6 +7,7 @@ import { Music, Sparkles } from 'lucide-react'
 import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { PresetCard } from '@/components/PresetCard'
 import { FlashSalePromo } from '@/components/FlashSalePromo'
+import { ProducerToyBanner } from '@/components/ProducerToyBanner'
 
 interface BrowseClientViewProps {
   initialPacks: any[]
@@ -48,6 +49,9 @@ export function BrowseClientView({
           <span className="ml-1 md:ml-2 text-[8px] md:text-xs bg-black text-studio-pink px-1 md:px-2 py-0.5 border-2 border-black rotate-12">HOT</span>
         </Link>
       </div>
+
+      {/* --- PRODUCERTOY INTERNATIONAL BANNER --- */}
+      <ProducerToyBanner variant="compact" className="mb-10" />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* --- SIDEBAR --- */}

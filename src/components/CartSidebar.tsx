@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useCurrency } from '@/context/CurrencyContext'
+import { CrossSellRecommendations } from '@/components/CrossSellRecommendations'
 
 export function CartSidebar({ initialUser }: { initialUser?: any }) {
   const { items, removeItem, subtotal, discount, total, itemCount, isSidebarOpen, setSidebarOpen } = useCart()
@@ -197,6 +198,9 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                 </div>
               ))}
             </div>
+
+            {/* Dynamic Cross-Sell Recommendations */}
+            <CrossSellRecommendations mode="cart" maxItems={2} />
           </div>
         )}
       </div>

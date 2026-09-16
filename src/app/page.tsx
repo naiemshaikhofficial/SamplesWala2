@@ -13,6 +13,7 @@ import { PresetCard } from '@/components/PresetCard'
 import { HeroSlider } from '@/components/HeroSlider'
 import { AnimatedLogo } from '@/components/AnimatedLogo'
 import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
+import { ProducerToyBanner } from '@/components/ProducerToyBanner'
 
 
 import { generatePageMetadata } from '@/lib/seo/metadata'
@@ -168,6 +169,11 @@ export default async function HomePage() {
               </p>
             </div>
             <PaymentAccepted variant="full" className="lg:justify-end" />
+          </div>
+
+          {/* ProducerToy International Samples Promotion Bar */}
+          <div className="pt-2 relative z-30">
+            <ProducerToyBanner />
           </div>
 
         </div>
