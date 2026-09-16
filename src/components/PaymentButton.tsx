@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { CreditCard, Loader2, Check } from 'lucide-react'
+import { CreditCard, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
@@ -45,10 +45,9 @@ export function PaymentButton({ packId, packName, price, price_usd, slug, cover_
           isIndia 
             ? 'bg-[#128807] hover:bg-[#FF9933] text-white border-2 border-black shadow-[4px_4px_0px_#FF9933]' 
             : 'bg-[#141416] hover:bg-[#202024] text-white border-2 border-white/20 hover:border-white/40 shadow-[4px_4px_0px_black]'
-        } font-black uppercase ${compact ? 'tracking-[0.1em] text-[8px] md:text-[9px]' : 'tracking-[0.2em] text-[10px]'} flex items-center justify-center gap-1.5 transition-all rounded-sm`}
+        } font-black uppercase ${compact ? 'tracking-[0.1em] text-[8px] md:text-[9px]' : 'tracking-[0.2em] text-[10px]'} flex items-center justify-center transition-all rounded-sm`}
       >
-        <Check size={compact ? 14 : 18} strokeWidth={3} className="text-white" />
-        <span>IN YOUR VAULT</span>
+        <span>OWNED</span>
       </Link>
     )
   }

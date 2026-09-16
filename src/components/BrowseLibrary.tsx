@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { clientCache } from '@/lib/clientCache'
 import { useCart } from '@/context/CartContext'
 import { useRouter } from 'next/navigation'
-import { ShoppingCart, Eye, Check } from 'lucide-react'
-import { cleanSearchQuery } from '@/lib/search/queryHelper'
+import { ShoppingCart, Eye } from 'lucide-react'
 import { getPackPriceDetails } from '@/lib/pricing'
 import { useCurrency } from '@/context/CurrencyContext'
+import { cleanSearchQuery } from '@/lib/search/queryHelper'
 
 export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { initialPacks: any[], searchQuery?: string, isIndiaJourney?: boolean }) {
   const { addItem, isItemOwned } = useCart()
@@ -119,8 +119,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                   isIndia 
                     ? 'bg-[#128807] text-white shadow-[3px_3px_0px_#FF9933] border-2 border-black' 
                     : 'bg-[#141416]/90 backdrop-blur-md text-white shadow-[3px_3px_0px_black] border-2 border-white/20'
-                } px-2.5 py-1 font-black text-[9px] uppercase tracking-wider z-10 rotate-2 flex items-center gap-1.5`}>
-                  <Check size={11} strokeWidth={3} className="text-white" />
+                } px-2.5 py-1 font-black text-[9px] uppercase tracking-wider z-10 rotate-2 flex items-center justify-center`}>
                   <span>OWNED</span>
                 </div>
               ) : (
@@ -165,7 +164,7 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                           ? (isIndia ? 'text-[#FF9933]' : 'text-white/80') 
                           : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
                       }`}>
-                        {isOwned ? 'IN VAULT' : displayPrice}
+                        {isOwned ? 'OWNED' : displayPrice}
                       </p>
                     </div>
                     
@@ -222,10 +221,9 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                       isIndia 
                         ? 'bg-[#128807] hover:bg-[#FF9933] text-white shadow-[4px_4px_0px_#FF9933] border-4 border-black' 
                         : 'bg-[#141416] hover:bg-[#202024] text-white shadow-[4px_4px_0px_black] border-2 border-white/20 hover:border-white/40'
-                    } text-[10px] md:text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 active:translate-x-1 active:translate-y-1 active:shadow-none`}
+                    } text-[10px] md:text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center active:translate-x-1 active:translate-y-1 active:shadow-none`}
                   >
-                    <Check size={14} strokeWidth={3} className="text-white" />
-                    <span>✓ OWNED</span>
+                    <span>OWNED</span>
                   </Link>
                 </div>
               ) : (

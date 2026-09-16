@@ -830,13 +830,12 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                   <div className="flex items-center gap-1.5 md:gap-2 flex-1 sm:flex-initial justify-end">
                     {owned ? (
                       <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center gap-1.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider ${
+                        <span className={`inline-flex items-center text-[8px] sm:text-[9px] font-black uppercase tracking-wider ${
                           isIndia 
                             ? 'text-white bg-[#128807] shadow-[2px_2px_0px_#FF9933] border-2 border-black' 
                             : 'text-zinc-300 bg-[#18181b] shadow-[2px_2px_0px_black] border border-zinc-700'
                         } px-3 py-1.5 rounded-full`}>
-                          <Check size={12} strokeWidth={3} className={isIndia ? 'text-white' : 'text-zinc-400'} />
-                          <span>Owned</span>
+                          <span>OWNED</span>
                         </span>
                         {pack.is_downloadable ? (
                           <button

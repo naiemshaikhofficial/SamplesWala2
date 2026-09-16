@@ -129,7 +129,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     syncOwnedIds()
   }, [syncOwnedIds])
 
-  // Handle immediate clean reset on logout event
+  // Handle immediate clean reset on logout event and fresh sync on login
   useEffect(() => {
     const handleLogout = () => {
       setOwnedIds([])
@@ -140,9 +140,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('sampleswala_owned_user_id')
       }
     }
+
+    const handleLogin = () => {
+      syncOwnedIds()
+    }
+
     window.addEventListener('sw:auth-logout', handleLogout)
-    return () => window.removeEventListener('sw:auth-logout', handleLogout)
-  }, [])
+    window.addEventListener('sw:auth-login', handleLogin)
+    return () => {
+      window.removeEventListener('sw:auth-logout', handleLogout)
+      window.removeEventListener('sw:auth-login', handleLogin)
+    }
+  }, [syncOwnedIds])
 
   // Check if an item is already owned (either by ID or slug)
   const isItemOwned = useCallback((id: string, slug?: string): boolean => {

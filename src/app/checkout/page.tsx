@@ -538,17 +538,17 @@ export default function CheckoutPage() {
         targetType = 'pack'
       }
 
-      const secureUrl = await getSecureDownloadUrl(targetId, targetType)
-      if (secureUrl) {
+      const res = await getSecureDownloadUrl(targetId, targetType)
+      if (res && res.success && res.url) {
         const link = document.createElement('a')
-        link.href = secureUrl
+        link.href = res.url
         link.setAttribute('download', '')
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
         setDownloadSuccess(true)
       } else {
-        throw new Error('Could not generate secure download link')
+        throw new Error(res?.error || 'Could not generate secure download link')
       }
     } catch (e: any) {
       console.error('Failed to auto-download unboxed parcel:', e)

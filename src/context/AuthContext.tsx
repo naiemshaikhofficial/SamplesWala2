@@ -81,6 +81,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user || null)
         if (session?.user) {
           await checkArtistStatus(session.user.id)
+        } else {
+          setIsArtist(false)
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('sampleswala_owned_ids')
+            localStorage.removeItem('sampleswala_owned_user_id')
+            localStorage.removeItem('sampleswala_is_admin')
+            window.dispatchEvent(new CustomEvent('sw:auth-logout'))
+          }
         }
       } catch (err) {
         console.error('[AUTH_INIT_ERROR]', err)
@@ -96,6 +104,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(currentSession?.user || null)
       if (currentSession?.user) {
         await checkArtistStatus(currentSession.user.id)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('sw:auth-login', { detail: { userId: currentSession.user.id } }))
+        }
       } else {
         setIsArtist(false)
         if (typeof window !== 'undefined') {

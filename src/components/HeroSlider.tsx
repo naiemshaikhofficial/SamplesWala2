@@ -232,13 +232,12 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       {activeTag.text}
                     </div>
                     {isOwnedActive && (
-                      <div className={`flex items-center gap-1.5 ${
+                      <div className={`flex items-center ${
                         isIndiaActive 
                           ? 'bg-[#128807] text-white shadow-[3px_3px_0px_#FF9933] border-2 border-black' 
                           : 'bg-[#18181b] text-zinc-300 shadow-[3px_3px_0px_black] border-2 border-zinc-700'
                       } px-3 py-1 font-black uppercase text-[9px] md:text-[11px] tracking-wider rotate-[1deg]`}>
-                        <ShieldCheck size={13} className={isIndiaActive ? 'text-white' : 'text-zinc-400'} />
-                        <span>IN YOUR VAULT</span>
+                        <span>OWNED</span>
                       </div>
                     )}
                   </div>
@@ -353,10 +352,9 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         isIndiaActive 
                           ? 'bg-[#128807] hover:bg-[#FF9933] text-white shadow-[3px_3px_0px_#FF9933] sm:shadow-[4px_4px_0px_#FF9933]' 
                           : 'bg-[#18181b] hover:bg-[#27272c] text-zinc-200 hover:text-white shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black]'
-                      } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[10px] sm:text-[12px] transition-all border-2 sm:border-4 border-black flex items-center justify-center gap-2.5 active:translate-x-[2px] active:translate-y-[2px]`}
+                      } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[10px] sm:text-[12px] transition-all border-2 sm:border-4 border-black flex items-center justify-center active:translate-x-[2px] active:translate-y-[2px]`}
                     >
-                      <ShieldCheck size={18} className={isIndiaActive ? 'text-white' : 'text-zinc-400'} />
-                      <span>ALREADY IN YOUR VAULT — DOWNLOAD</span>
+                      <span>OWNED — DOWNLOAD</span>
                     </Link>
                   ) : (
                     <>
@@ -449,8 +447,8 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         isPackIndia 
                           ? 'text-[#FF9933] bg-[#FF9933]/10 border border-[#FF9933]/30' 
                           : 'text-zinc-300 bg-zinc-800/90 border border-zinc-700'
-                      } px-1 py-0.2 rounded-xs uppercase shrink-0`}>
-                        ✓ Owned
+                      } px-1.5 py-0.5 rounded-xs uppercase shrink-0`}>
+                        OWNED
                       </span>
                     )}
                   </div>
@@ -469,9 +467,8 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   ) : isItemOwned(pack.id, pack.slug) ? (
                     <span className={`text-[9px] font-black ${
                       isPackIndia ? 'text-[#FF9933]' : 'text-zinc-400'
-                    } uppercase tracking-wider flex items-center gap-1 mt-1`}>
-                      <ShieldCheck size={10} className={isPackIndia ? 'text-[#128807]' : 'text-zinc-400'} />
-                      <span>Owned</span>
+                    } uppercase tracking-wider block mt-1`}>
+                      <span>OWNED</span>
                     </span>
                   ) : (
                     <span className="text-[9px] font-bold text-studio-neon italic mt-1 block">

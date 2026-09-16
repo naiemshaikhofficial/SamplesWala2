@@ -4,7 +4,6 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ShieldCheck } from 'lucide-react'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useCart } from '@/context/CartContext'
 
@@ -70,9 +69,8 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
 
         {/* Owned badge top-right */}
         {isOwned && (
-          <div className="absolute top-2.5 right-2.5 bg-[#18181b] text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider shadow-sm flex items-center gap-1 z-10">
-            <ShieldCheck size={11} className="text-zinc-400" />
-            <span>Owned</span>
+          <div className="absolute top-2.5 right-2.5 bg-[#18181b] text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider shadow-sm flex items-center justify-center z-10">
+            <span>OWNED</span>
           </div>
         )}
       </div>
@@ -99,9 +97,8 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
         {/* Price Row (Pinned to Consistent Horizontal Baseline) */}
         <div className="flex items-center gap-2 pt-1.5 border-t border-white/[0.04]">
           {isOwned ? (
-            <span className="text-xs font-bold text-zinc-400 flex items-center gap-1">
-              <ShieldCheck size={13} className="text-zinc-400" />
-              <span>In Your Vault</span>
+            <span className="text-xs font-bold text-zinc-400 flex items-center">
+              <span>OWNED</span>
             </span>
           ) : isFree ? (
             <span className="text-sm font-bold text-[#00FF94]">Free</span>
