@@ -10,6 +10,7 @@ import {
 import { UserTicketsList } from './UserTicketsList'
 import { CreateTicketForm } from './CreateTicketForm'
 import { SupportQuickFaq } from './SupportQuickFaq'
+import { createClient } from '@/lib/supabase/client'
 
 export function SupportDeskClient() {
   const [activeTab, setActiveTab] = useState<'tickets' | 'create'>('tickets')
@@ -94,6 +95,35 @@ export function SupportDeskClient() {
     fetchTickets()
   }, [fetchTickets])
 
+  // Global Realtime listener for support tickets status changes
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel('support-desk-global-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'support_tickets',
+        },
+        () => {
+          fetchTickets()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [fetchTickets])
+
+  const handleTicketUpdated = (updatedTicket: SupportTicket) => {
+    setTickets((prev) =>
+      prev.map((t) => (t.id === updatedTicket.id ? { ...t, ...updatedTicket } : t))
+    )
+  }
+
   const handleTicketCreated = (newTicket: SupportTicket) => {
     setTickets((prev) => [newTicket, ...prev.filter((t) => t.ticket_number !== newTicket.ticket_number)])
     // Switch to tickets list to show the newly created ticket in-situ
@@ -150,6 +180,7 @@ export function SupportDeskClient() {
             isLoading={isLoading}
             onOpenNewTicket={() => setActiveTab('create')}
             onRefresh={fetchTickets}
+            onTicketUpdated={handleTicketUpdated}
           />
         </div>
       )}

@@ -18,9 +18,21 @@ export interface SupportTicket {
   subject: string
   message: string
   admin_reply: string | null
+  assigned_agent?: string | null
+  last_reply_by?: 'customer' | 'admin' | string | null
   replied_at: string | null
   created_at: string
   updated_at: string
+}
+
+export interface SupportTicketMessage {
+  id: string
+  ticket_id: string
+  sender_type: 'customer' | 'admin' | 'system'
+  sender_name: string
+  sender_email: string | null
+  message: string
+  created_at: string
 }
 
 export interface TicketSubmissionData {
@@ -220,6 +232,17 @@ export async function createSupportTicketAction(data: TicketSubmissionData): Pro
       return { success: false, error: 'Failed to create ticket. Please try again or email us directly.' }
     }
 
+    // Insert initial customer message into support_ticket_messages
+    if (ticket?.id) {
+      await admin.from('support_ticket_messages').insert({
+        ticket_id: ticket.id,
+        sender_type: 'customer',
+        sender_name: name.trim(),
+        sender_email: email.trim().toLowerCase(),
+        message: description.trim(),
+      })
+    }
+
     return {
       success: true,
       ticketNumber,
@@ -267,5 +290,157 @@ export async function getTicketStatusAction(ticketNumber: string, email: string)
   } catch (err: any) {
     console.error('[GET_TICKET_STATUS_ERROR]', err)
     return { success: false, error: 'Failed to retrieve ticket status.' }
+  }
+}
+
+/**
+ * Fetch all conversation messages for a ticket
+ */
+export async function getTicketMessagesAction(ticketId: string): Promise<{
+  success: boolean
+  messages: SupportTicketMessage[]
+  error?: string
+}> {
+  if (!ticketId) {
+    return { success: false, messages: [], error: 'Ticket ID is required' }
+  }
+
+  try {
+    const admin = getAdminClient()
+    const { data: messages, error } = await admin
+      .from('support_ticket_messages')
+      .select('*')
+      .eq('ticket_id', ticketId)
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      console.error('[GET_TICKET_MESSAGES_ERROR]', error)
+      return { success: false, messages: [], error: 'Failed to fetch messages' }
+    }
+
+    return {
+      success: true,
+      messages: (messages as SupportTicketMessage[]) || [],
+    }
+  } catch (err: any) {
+    console.error('[GET_TICKET_MESSAGES_EXCEPTION]', err)
+    return { success: false, messages: [], error: err.message || 'Server error' }
+  }
+}
+
+/**
+ * Send customer follow-up reply to an open or resolved ticket
+ */
+export async function replyToTicketCustomerAction(params: {
+  ticketId: string
+  message: string
+  customerName?: string
+  customerEmail?: string
+}): Promise<{
+  success: boolean
+  messageRecord?: SupportTicketMessage
+  error?: string
+}> {
+  const { ticketId, message, customerName, customerEmail } = params
+
+  if (!ticketId || !message?.trim()) {
+    return { success: false, error: 'Message content is required.' }
+  }
+
+  try {
+    const admin = getAdminClient()
+    const nowIso = new Date().toISOString()
+
+    // 1. Fetch ticket to verify
+    const { data: ticket, error: fetchErr } = await admin
+      .from('support_tickets')
+      .select('*')
+      .eq('id', ticketId)
+      .maybeSingle()
+
+    if (fetchErr || !ticket) {
+      return { success: false, error: 'Ticket not found.' }
+    }
+
+    const senderName = customerName?.trim() || ticket.name || 'Customer'
+    const senderEmail = customerEmail?.trim() || ticket.email || null
+
+    // 2. Insert into support_ticket_messages
+    const { data: msgData, error: msgErr } = await admin
+      .from('support_ticket_messages')
+      .insert({
+        ticket_id: ticketId,
+        sender_type: 'customer',
+        sender_name: senderName,
+        sender_email: senderEmail,
+        message: message.trim(),
+        created_at: nowIso,
+      })
+      .select()
+      .single()
+
+    if (msgErr) {
+      console.error('[CUSTOMER_REPLY_INSERT_ERROR]', msgErr)
+      return { success: false, error: 'Failed to record message.' }
+    }
+
+    // 3. Update support_tickets (status reopened to open if it was resolved/closed)
+    const newStatus = ticket.status === 'resolved' || ticket.status === 'closed' ? 'open' : ticket.status
+
+    await admin
+      .from('support_tickets')
+      .update({
+        status: newStatus,
+        last_reply_by: 'customer',
+        updated_at: nowIso,
+      })
+      .eq('id', ticketId)
+
+    return {
+      success: true,
+      messageRecord: msgData as SupportTicketMessage,
+    }
+  } catch (err: any) {
+    console.error('[REPLY_TICKET_CUSTOMER_EXCEPTION]', err)
+    return { success: false, error: err.message || 'Server error submitting reply.' }
+  }
+}
+
+/**
+ * Reopen a resolved or closed ticket
+ */
+export async function reopenTicketAction(ticketId: string): Promise<{
+  success: boolean
+  error?: string
+}> {
+  if (!ticketId) return { success: false, error: 'Ticket ID is required' }
+
+  try {
+    const admin = getAdminClient()
+    const nowIso = new Date().toISOString()
+
+    const { error } = await admin
+      .from('support_tickets')
+      .update({
+        status: 'open',
+        updated_at: nowIso,
+        last_reply_by: 'customer',
+      })
+      .eq('id', ticketId)
+
+    if (error) throw error
+
+    await admin.from('support_ticket_messages').insert({
+      ticket_id: ticketId,
+      sender_type: 'system',
+      sender_name: 'System',
+      message: 'Ticket reopened by customer',
+      created_at: nowIso,
+    })
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('[REOPEN_TICKET_ERROR]', err)
+    return { success: false, error: err.message || 'Failed to reopen ticket' }
   }
 }

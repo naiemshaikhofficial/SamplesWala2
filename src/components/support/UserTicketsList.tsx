@@ -18,15 +18,23 @@ import {
   FileText,
 } from 'lucide-react'
 import { SupportTicket } from '@/actions/supportActions'
+import { TicketThread } from './TicketThread'
 
 interface UserTicketsListProps {
   tickets: SupportTicket[]
   isLoading: boolean
   onOpenNewTicket?: () => void
   onRefresh?: () => void
+  onTicketUpdated?: (updatedTicket: SupportTicket) => void
 }
 
-export function UserTicketsList({ tickets, isLoading, onOpenNewTicket, onRefresh }: UserTicketsListProps) {
+export function UserTicketsList({
+  tickets,
+  isLoading,
+  onOpenNewTicket,
+  onRefresh,
+  onTicketUpdated,
+}: UserTicketsListProps) {
   const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('all')
@@ -309,81 +317,8 @@ export function UserTicketsList({ tickets, isLoading, onOpenNewTicket, onRefresh
 
                 {/* Expanded Thread Drawer */}
                 {isExpanded && (
-                  <div className="border-t border-white/10 p-5 md:p-6 bg-black/60 space-y-6 animate-fadeIn">
-                    {/* Customer Message Box */}
-                    <div className="space-y-2 p-4 bg-white/[0.02] border border-white/10 rounded-sm">
-                      <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-white/40">
-                        <span className="flex items-center gap-1.5">
-                          <FileText size={12} />
-                          <span>Submitted Details</span>
-                        </span>
-                        {t.name && <span>By: {t.name}</span>}
-                      </div>
-
-                      <p className="text-xs text-white/80 leading-relaxed uppercase whitespace-pre-wrap font-mono">
-                        {t.message}
-                      </p>
-
-                      {/* DAW & Order ID metadata */}
-                      {(t.order_id || t.daw || t.os_platform) && (
-                        <div className="pt-3 border-t border-white/5 flex flex-wrap gap-4 text-[9px] font-mono text-white/40 uppercase">
-                          {t.order_id && <span>Order Ref: {t.order_id}</span>}
-                          {t.daw && <span>DAW: {t.daw}</span>}
-                          {t.os_platform && <span>OS: {t.os_platform}</span>}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Official Audio Engineer Response Box */}
-                    {t.admin_reply ? (
-                      <div className="p-5 bg-studio-blue/10 border border-studio-blue/40 rounded-sm space-y-3 shadow-[0_0_20px_rgba(0,116,228,0.15)]">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-studio-blue">
-                            <Headphones size={15} />
-                            <span className="text-[10px] font-black uppercase tracking-widest">
-                              SamplesWala Audio Engineer Reply
-                            </span>
-                          </div>
-                          {t.replied_at && (
-                            <span className="text-[9px] text-white/30 font-mono">
-                              {new Date(t.replied_at).toLocaleDateString('en-IN', {
-                                day: 'numeric',
-                                month: 'short',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="text-xs text-white leading-relaxed uppercase whitespace-pre-wrap font-mono font-medium">
-                          {t.admin_reply}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="p-4 bg-white/[0.01] border border-white/5 rounded-sm flex items-center justify-between gap-4 text-xs">
-                        <div className="flex items-center gap-2 text-white/50">
-                          <Clock size={14} className="text-studio-yellow animate-spin" />
-                          <span className="text-[10px] font-bold uppercase tracking-wider">
-                            Under Review by Sound Engineers • Expected reply &lt; 4 hours
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Follow-up Quick Actions */}
-                    <div className="pt-2 flex flex-wrap items-center justify-between gap-3 text-[10px]">
-                      <span className="text-white/30 uppercase font-mono">
-                        Need to add extra files or screenshots?
-                      </span>
-                      <a
-                        href={`mailto:support@sampleswala.com?subject=Re: Ticket ${t.ticket_number} - ${t.subject}`}
-                        className="px-4 py-2 bg-white/10 hover:bg-studio-yellow hover:text-black text-white font-black uppercase tracking-widest rounded-sm transition-colors flex items-center gap-2"
-                      >
-                        <Mail size={12} />
-                        <span>Email Direct Reply</span>
-                      </a>
-                    </div>
+                  <div className="border-t border-white/10 p-5 md:p-6 bg-black/80 space-y-6 animate-fadeIn">
+                    <TicketThread ticket={t} onTicketUpdated={onTicketUpdated} />
                   </div>
                 )}
               </div>
