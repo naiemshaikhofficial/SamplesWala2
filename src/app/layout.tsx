@@ -1,4 +1,4 @@
-import { Permanent_Marker, Luckiest_Guy, Kalam, Noto_Music } from 'next/font/google'
+import { Permanent_Marker, Luckiest_Guy, Kalam } from 'next/font/google'
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -6,24 +6,21 @@ const permanentMarker = Permanent_Marker({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-permanent-marker',
+  display: 'swap',
 })
 
 const luckiestGuy = Luckiest_Guy({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-luckiest-guy',
+  display: 'swap',
 })
 
 const kalam = Kalam({
-  weight: ['300', '400', '700'],
-  subsets: ['devanagari', 'latin'],
+  weight: ['700'],
+  subsets: ['devanagari'],
   variable: '--font-kalam',
-})
-
-const notoMusic = Noto_Music({
-  weight: '400',
-  subsets: ['latin'],
-  variable: '--font-noto-music',
+  display: 'swap',
 })
 import { generatePageMetadata } from "@/lib/seo/metadata";
 
@@ -91,10 +88,10 @@ export default async function RootLayout({
 
         <Script 
           src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" 
-          strategy="afterInteractive" 
+          strategy="lazyOnload" 
         />
       </head>
-      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} ${notoMusic.variable} antialiased min-h-screen flex flex-col text-white`}>
+      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} antialiased min-h-screen flex flex-col text-white`}>
         <AuthProvider>
           <CurrencyProvider>
             <CartProvider>

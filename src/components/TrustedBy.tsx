@@ -67,7 +67,6 @@ export default function TrustedBy() {
                   fill
                   sizes="(max-width: 768px) 128px, 176px"
                   className={`object-contain ${label.scale || ''}`}
-                  priority={index < 10} // Preload the first set of logos to prevent layout jumps
                 />
               </div>
             </div>

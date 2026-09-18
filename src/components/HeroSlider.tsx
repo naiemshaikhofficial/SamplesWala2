@@ -15,9 +15,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [addedId, setAddedId] = useState<string | null>(null)
   const { formatPrice, getAmount } = useCurrency()
-  const [progress, setProgress] = useState(0)
   const autoPlayTimer = useRef<NodeJS.Timeout | null>(null)
-  const progressTimer = useRef<NodeJS.Timeout | null>(null)
   const isHovered = useRef(false)
 
   // Touch gesture refs for mobile swiping
@@ -58,11 +56,9 @@ export function HeroSlider({ packs }: { packs: any[] }) {
       if (diffX > swipeThreshold) {
         // Swipe left -> Next slide
         setActiveIndex((prev) => (prev + 1) % packs.length)
-        setProgress(0)
       } else if (diffX < -swipeThreshold) {
         // Swipe right -> Prev slide
         setActiveIndex((prev) => (prev - 1 + packs.length) % packs.length)
-        setProgress(0)
       }
     }
 
@@ -100,32 +96,18 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
     // Setup auto-play interval
     const startAutoPlay = () => {
-      setProgress(0)
-
       // Timer for slide transition
       autoPlayTimer.current = setInterval(() => {
         if (!isHovered.current) {
           setActiveIndex((prev) => (prev + 1) % packs.length)
         }
       }, slideDuration)
-
-      // Timer for high-precision progress bar updates
-      const tick = 100
-      progressTimer.current = setInterval(() => {
-        if (!isHovered.current) {
-          setProgress((prev) => {
-            if (prev >= 100) return 0
-            return prev + (tick / slideDuration) * 100
-          })
-        }
-      }, tick)
     }
 
     startAutoPlay()
 
     return () => {
       if (autoPlayTimer.current) clearInterval(autoPlayTimer.current)
-      if (progressTimer.current) clearInterval(progressTimer.current)
     }
   }, [packs, activeIndex])
 
@@ -133,7 +115,6 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
   const handleSelectSlide = (index: number) => {
     setActiveIndex(index)
-    setProgress(0)
   }
 
   const handleAddToCart = (e: React.MouseEvent, pack: any, price: number) => {
@@ -460,8 +441,11 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   {isActive ? (
                     <div className="w-full h-1 bg-white/10 mt-2 relative overflow-hidden rounded-full">
                       <div
-                        className="h-full bg-studio-pink transition-all duration-100 ease-linear"
-                        style={{ width: `${progress}%` }}
+                        key={`progress-${activeIndex}`}
+                        className="h-full bg-studio-pink origin-left"
+                        style={{
+                          animation: `heroProgress ${slideDuration}ms linear forwards`
+                        }}
                       />
                     </div>
                   ) : isItemOwned(pack.id, pack.slug) ? (

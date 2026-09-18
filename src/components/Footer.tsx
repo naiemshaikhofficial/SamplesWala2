@@ -31,7 +31,6 @@ export function Footer() {
                 alt="SamplesWala Logo"
                 width={130}
                 height={32}
-                priority
                 className="object-contain"
               />
             </Link>

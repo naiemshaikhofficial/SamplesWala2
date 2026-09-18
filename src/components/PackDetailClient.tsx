@@ -75,6 +75,52 @@ function FormattedDescription({ text }: { text: string }) {
   return <div className="space-y-1">{elements}</div>;
 }
 
+function PreorderCountdown({ pack, mounted }: { pack: any, mounted: boolean }) {
+  const [details, setDetails] = useState(() => getPackPriceDetails(pack))
+
+  useEffect(() => {
+    if (pack.is_downloadable) return
+    const timer = setInterval(() => {
+      setDetails(getPackPriceDetails(pack))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [pack])
+
+  if (!details.isPreorderActive) return null
+
+  const days = details.daysLeft
+  const hours = details.hoursLeft
+  const minutes = details.minutesLeft
+  const seconds = details.secondsLeft
+
+  return (
+    <div className="pt-4 border-t border-white/5 space-y-3">
+      <div className="flex items-center gap-1.5 text-white/50 justify-center">
+        <Clock size={12} />
+        <span className="text-[9px] font-black uppercase tracking-widest font-mono">Ends In:</span>
+      </div>
+      <div className="grid grid-cols-4 gap-2 text-center font-mono text-white">
+        <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
+          <span className="text-lg font-black block leading-none">{mounted ? String(days).padStart(2, '0') : '00'}</span>
+          <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Days</span>
+        </div>
+        <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
+          <span className="text-lg font-black block leading-none">{mounted ? String(hours).padStart(2, '0') : '00'}</span>
+          <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Hrs</span>
+        </div>
+        <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
+          <span className="text-lg font-black block leading-none">{mounted ? String(minutes).padStart(2, '0') : '00'}</span>
+          <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Mins</span>
+        </div>
+        <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
+          <span className="text-lg font-black block leading-none">{mounted ? String(seconds).padStart(2, '0') : '00'}</span>
+          <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Secs</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const pack = initialPack
   const { user } = useAuth()
@@ -82,7 +128,6 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const { addItem, items: cartItems, setSidebarOpen, isItemOwned, markAsOwned } = useCart()
   const owned = isItemOwned(pack.id, pack.slug)
 
-  const [now, setNow] = useState(Date.now())
   const [mounted, setMounted] = useState(false)
   const { formatPrice, getAmount } = useCurrency()
 
@@ -105,10 +150,6 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
     try {
       router.prefetch('/checkout')
     } catch (e) {}
-    const timer = setInterval(() => {
-      setNow(Date.now())
-    }, 1000)
-    return () => clearInterval(timer)
   }, [router, pack?.slug])
 
   useEffect(() => {
@@ -223,7 +264,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
   const priceDetails = React.useMemo(() => {
     return getPackPriceDetails(pack)
-  }, [pack, now])
+  }, [pack])
 
   const faqs = React.useMemo(() => {
     const list: Array<{ q: string, a: React.ReactNode }> = [
@@ -282,11 +323,6 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const displayPrice = isFree ? 'FREE' : formatPrice(currentPriceInr, pack.price_usd)
   const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null) : null
   const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
-
-  const days = priceDetails.daysLeft
-  const hours = priceDetails.hoursLeft
-  const minutes = priceDetails.minutesLeft
-  const seconds = priceDetails.secondsLeft
 
   const videoIds = React.useMemo(() => {
     if (!pack.video_url) return [];
@@ -458,30 +494,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
 
             {/* Countdown timer */}
             {!owned && !pack.is_downloadable && isPreorderActive && (
-              <div className="pt-4 border-t border-white/5 space-y-3">
-                <div className="flex items-center gap-1.5 text-white/50 justify-center">
-                  <Clock size={12} />
-                  <span className="text-[9px] font-black uppercase tracking-widest font-mono">Ends In:</span>
-                </div>
-                <div className="grid grid-cols-4 gap-2 text-center font-mono text-white">
-                  <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
-                    <span className="text-lg font-black block leading-none">{mounted ? String(days).padStart(2, '0') : '00'}</span>
-                    <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Days</span>
-                  </div>
-                  <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
-                    <span className="text-lg font-black block leading-none">{mounted ? String(hours).padStart(2, '0') : '00'}</span>
-                    <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Hrs</span>
-                  </div>
-                  <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
-                    <span className="text-lg font-black block leading-none">{mounted ? String(minutes).padStart(2, '0') : '00'}</span>
-                    <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Mins</span>
-                  </div>
-                  <div className="bg-white/5 p-2 border border-white/5 rounded-lg">
-                    <span className="text-lg font-black block leading-none">{mounted ? String(seconds).padStart(2, '0') : '00'}</span>
-                    <span className="text-[7px] font-bold text-white/40 uppercase tracking-wider">Secs</span>
-                  </div>
-                </div>
-              </div>
+              <PreorderCountdown pack={pack} mounted={mounted} />
             )}
           </div>
 

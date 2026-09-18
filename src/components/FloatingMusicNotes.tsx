@@ -57,7 +57,7 @@ export function FloatingMusicNotes() {
       {notes.map((note) => (
         <span
           key={note.id}
-          className={`absolute bottom-[-60px] font-noto-music font-normal ${note.color} ${note.size} animate-float-note`}
+          className={`absolute bottom-[-60px] font-sans font-normal ${note.color} ${note.size} animate-float-note`}
           style={{
             left: note.left,
             animationDelay: note.delay,
