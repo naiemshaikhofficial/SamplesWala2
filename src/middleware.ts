@@ -135,12 +135,12 @@ async function getSiteStatus(): Promise<CachedSiteStatus> {
         maintenance: isMaintenance,
         readOnly: isReadOnly,
         storeEnabled: isStoreEnabled,
-        expires: now + 60000
+        expires: now + 300000 // 5 minutes edge cache
       };
       return siteStatusCache;
     }
   } catch {
-    siteStatusCache.expires = now + 60000;
+    siteStatusCache.expires = now + 300000;
   }
   return siteStatusCache;
 }

@@ -27,24 +27,27 @@ export async function GET(request: NextRequest) {
         .filter(Boolean)
     )
 
-    // Exclude any sound packs already owned by the authenticated user in user_vault
-    try {
-      const { data: { user } } = await getUser()
-      if (user) {
-        const adminClient = getAdminClient()
-        const { data: vaultRecords } = await adminClient
-          .from('user_vault')
-          .select('item_id')
-          .eq('user_id', user.id)
+    // Exclude any sound packs already owned by the authenticated user in user_vault (only if auth cookie exists)
+    const cookieHeader = request.headers.get('cookie') || ''
+    if (cookieHeader.includes('-auth-token')) {
+      try {
+        const { data: { user } } = await getUser()
+        if (user) {
+          const adminClient = getAdminClient()
+          const { data: vaultRecords } = await adminClient
+            .from('user_vault')
+            .select('item_id')
+            .eq('user_id', user.id)
 
-        if (vaultRecords && vaultRecords.length > 0) {
-          vaultRecords.forEach((r) => {
-            if (r.item_id) excludeIds.add(r.item_id.toLowerCase())
-          })
+          if (vaultRecords && vaultRecords.length > 0) {
+            vaultRecords.forEach((r) => {
+              if (r.item_id) excludeIds.add(r.item_id.toLowerCase())
+            })
+          }
         }
+      } catch (authErr) {
+        console.warn('[RECOMMENDATIONS_AUTH_CHECK]', authErr)
       }
-    } catch (authErr) {
-      console.warn('[RECOMMENDATIONS_AUTH_CHECK]', authErr)
     }
 
     // Tokenize search intent words and remove non-meaningful stop words
@@ -124,9 +127,15 @@ export async function GET(request: NextRequest) {
 
     const recommendations = scoredPacks.slice(0, limit).map((sp) => sp.pack)
 
+    const cacheHeader = cookieHeader.includes('-auth-token')
+      ? 'private, no-cache, no-store, must-revalidate'
+      : 'public, s-maxage=300, stale-while-revalidate=600'
+
     return NextResponse.json({ packs: recommendations, count: recommendations.length }, {
       headers: {
-        'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+        'Cache-Control': cacheHeader,
+        'CDN-Cache-Control': cacheHeader,
+        'Vercel-CDN-Cache-Control': cacheHeader,
       },
     })
   } catch (error) {

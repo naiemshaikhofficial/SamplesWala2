@@ -33,7 +33,7 @@ export async function signIn(formData: FormData) {
 
   if (error) return { error: error.message }
   
-  revalidatePath('/', 'layout')
+  revalidatePath('/library')
   const next = formData.get('next') as string || '/browse'
   return { success: "Logged in successfully.", redirect: next }
 }
@@ -75,7 +75,7 @@ export async function signUp(formData: FormData) {
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
-  revalidatePath('/', 'layout')
+  revalidatePath('/library')
   redirect('/auth')
 }
 

@@ -110,7 +110,7 @@ export default async function RootLayout({
                   </LayoutWrapper>
                 </LenisProvider>
                 <Analytics />
-                <SpeedInsights />
+                <SpeedInsights sampleRate={0.1} />
               </ArtistStatusProvider>
             </CartProvider>
           </CurrencyProvider>
