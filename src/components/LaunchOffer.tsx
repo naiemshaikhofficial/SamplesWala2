@@ -19,6 +19,8 @@ export function LaunchOffer() {
     const cached = sessionStorage.getItem('show_launch_offer')
     if (cached !== null) {
       setIsVisible(cached !== 'false')
+      setMounted(true)
+      return () => window.removeEventListener('resize', checkMobile)
     }
 
     setMounted(true)

@@ -203,7 +203,10 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   }
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && !isItemOwned(pack.id, pack.slug)) {
+      const hasAuthCookie = typeof document !== 'undefined' && document.cookie.includes('-auth-token')
+      if (!hasAuthCookie) return
+
       fetch(`/api/auth/ownership?itemId=${pack.id}`, {
         cache: 'no-store',
         headers: { 'Cache-Control': 'no-cache' }
@@ -216,7 +219,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
         })
         .catch(() => {})
     }
-  }, [user?.id, pack.id, markAsOwned])
+  }, [user?.id, pack.id, pack.slug, isItemOwned, markAsOwned])
 
   const priceDetails = React.useMemo(() => {
     return getPackPriceDetails(pack)

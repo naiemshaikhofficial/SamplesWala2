@@ -111,7 +111,10 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
   }, [])
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && !isItemOwned(preset.id, preset.slug)) {
+      const hasAuthCookie = typeof document !== 'undefined' && document.cookie.includes('-auth-token')
+      if (!hasAuthCookie) return
+
       fetch(`/api/auth/ownership?itemId=${preset.id}`, {
         cache: 'no-store',
         headers: { 'Cache-Control': 'no-cache' }
@@ -124,7 +127,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
         })
         .catch(() => {})
     }
-  }, [user?.id, preset.id, markAsOwned])
+  }, [user?.id, preset.id, preset.slug, isItemOwned, markAsOwned])
 
   useEffect(() => {
     const handleScroll = () => {

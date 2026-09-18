@@ -1,5 +1,5 @@
 'use client'
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { trackCartSnapshot } from '@/lib/telemetryClient'
 
@@ -75,12 +75,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Save cart to localStorage and update telemetry
+  // Save cart to localStorage and update telemetry only when changed
+  const lastCartJsonRef = useRef<string | null>(null)
   useEffect(() => {
-    localStorage.setItem('sampleswala_lite_cart', JSON.stringify(items))
-    try {
-      trackCartSnapshot(items)
-    } catch {}
+    const serialized = JSON.stringify(items)
+    localStorage.setItem('sampleswala_lite_cart', serialized)
+    
+    // Only dispatch telemetry snapshot if items actually changed after hydration
+    if (lastCartJsonRef.current !== null && lastCartJsonRef.current !== serialized) {
+      try {
+        trackCartSnapshot(items)
+      } catch {}
+    }
+    lastCartJsonRef.current = serialized
   }, [items])
 
   // Prefetch checkout page on mount for instant zero-latency navigation
@@ -90,9 +97,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {}
   }, [router])
 
-  // Sync owned IDs and admin status from server in background
-  const syncOwnedIds = useCallback(async () => {
+  // Sync owned IDs and admin status from server with intelligent caching
+  const syncOwnedIds = useCallback(async (force = false) => {
     try {
+      if (typeof window !== 'undefined') {
+        const hasAuthCookie = document.cookie.includes('-auth-token')
+        const savedUserId = localStorage.getItem('sampleswala_owned_user_id')
+
+        // Fast bypass for unauthenticated guests - 0 network calls
+        if (!hasAuthCookie && !savedUserId) {
+          setOwnedIds([])
+          setIsAdmin(false)
+          return
+        }
+
+        // Cache freshness check (5-minute TTL) to eliminate repeated page-load hits
+        if (!force) {
+          const lastSync = sessionStorage.getItem('sampleswala_owned_last_sync')
+          if (lastSync && Date.now() - Number(lastSync) < 5 * 60 * 1000) {
+            return
+          }
+        }
+      }
+
       const res = await fetch('/api/auth/ownership/all', {
         cache: 'no-store',
         headers: { 'Cache-Control': 'no-cache' }
@@ -108,6 +135,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsAdmin(incomingIsAdmin)
 
         if (typeof window !== 'undefined') {
+          sessionStorage.setItem('sampleswala_owned_last_sync', String(Date.now()))
           if (currentUserId && (incomingOwned.length > 0 || incomingIsAdmin)) {
             localStorage.setItem('sampleswala_owned_ids', JSON.stringify(incomingOwned))
             localStorage.setItem('sampleswala_is_admin', String(incomingIsAdmin))
@@ -129,27 +157,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     syncOwnedIds()
   }, [syncOwnedIds])
 
-  // Handle immediate clean reset on logout event and fresh sync on login
+  // Handle immediate clean reset on logout event and fresh sync on login or vault update
   useEffect(() => {
     const handleLogout = () => {
       setOwnedIds([])
       setIsAdmin(false)
       if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('sampleswala_owned_last_sync')
         localStorage.removeItem('sampleswala_owned_ids')
         localStorage.removeItem('sampleswala_is_admin')
         localStorage.removeItem('sampleswala_owned_user_id')
       }
     }
 
-    const handleLogin = () => {
-      syncOwnedIds()
+    const handleFreshSync = () => {
+      syncOwnedIds(true)
     }
 
     window.addEventListener('sw:auth-logout', handleLogout)
-    window.addEventListener('sw:auth-login', handleLogin)
+    window.addEventListener('sw:auth-login', handleFreshSync)
+    window.addEventListener('sw:vault-updated', handleFreshSync)
     return () => {
       window.removeEventListener('sw:auth-logout', handleLogout)
-      window.removeEventListener('sw:auth-login', handleLogin)
+      window.removeEventListener('sw:auth-login', handleFreshSync)
+      window.removeEventListener('sw:vault-updated', handleFreshSync)
     }
   }, [syncOwnedIds])
 

@@ -1,11 +1,20 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getUser } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const cookieHeader = req.headers.get('cookie') || ''
+    if (!cookieHeader.includes('-auth-token')) {
+      return NextResponse.json({ ownedIds: [], isAdmin: false, userId: null }, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+        }
+      })
+    }
+
     const { data: { user } } = await getUser()
     if (!user) {
       return NextResponse.json({ ownedIds: [], isAdmin: false, userId: null }, {

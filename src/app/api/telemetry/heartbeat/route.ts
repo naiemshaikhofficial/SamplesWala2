@@ -23,16 +23,19 @@ export async function POST(req: NextRequest) {
       traffic_source
     } = body
 
-    // Check if user is logged in
+    // Check if user is logged in only if auth token is present
     let userId: string | null = null
     let userEmail: string | null = null
-    try {
-      const { data: { user } } = await getUser()
-      if (user) {
-        userId = user.id
-        userEmail = user.email || null
-      }
-    } catch {}
+    const cookieHeader = req.headers.get('cookie') || ''
+    if (cookieHeader.includes('-auth-token')) {
+      try {
+        const { data: { user } } = await getUser()
+        if (user) {
+          userId = user.id
+          userEmail = user.email || null
+        }
+      } catch {}
+    }
 
     // Extract Edge / IP Location
     const forwardedFor = req.headers.get('x-forwarded-for')
@@ -61,6 +64,24 @@ export async function POST(req: NextRequest) {
       timezone: detectedTimezone || body.device_info?.timezone || 'Asia/Kolkata'
     }
 
+    // Fast return if this is purely a geo-detection handshake with no actual telemetry events
+    const hasTelemetryPayload = !!(
+      searched_keyword ||
+      audio_preview ||
+      viewed_pack ||
+      (cart_items && cart_items.length > 0) ||
+      daw_preference ||
+      (traffic_source && Object.keys(traffic_source).length > 0) ||
+      (cookie_consent && cookie_consent.accepted)
+    )
+
+    if (!hasTelemetryPayload) {
+      return NextResponse.json({
+        success: true,
+        geo: geoData
+      })
+    }
+
     const enrichedDeviceInfo = {
       ...(device_info || {}),
       location: geoData,
@@ -69,10 +90,10 @@ export async function POST(req: NextRequest) {
 
     const adminClient = getAdminClient()
 
-    // 1. Fetch existing telemetry record for this visitor_id
+    // 1. Fetch existing telemetry record for this visitor_id (lean column projection)
     const { data: existing } = await adminClient
       .from('user_telemetry')
-      .select('*')
+      .select('id, user_id, searched_keywords, previewed_audio, viewed_packs, session_count, last_seen, device_info, traffic_source')
       .eq('visitor_id', visitor_id)
       .maybeSingle()
 

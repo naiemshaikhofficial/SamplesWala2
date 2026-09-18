@@ -272,28 +272,48 @@ function updateLocalProducerProfile(updater: (prev: Partial<ProducerTelemetryDat
   }
 }
 
-// Debounced Heartbeat Dispatcher
+// Throttled Heartbeat Dispatcher (0 DB spam, batching changes)
 let pendingData: any = {}
 let heartbeatTimer: any = null
+const HEARTBEAT_THROTTLE_MS = 5 * 60 * 1000 // 5 minutes minimum between background heartbeats
 
 function queueHeartbeat(diff: any) {
   if (typeof window === 'undefined') return
 
   pendingData = { ...pendingData, ...diff }
 
-  if (heartbeatTimer) clearTimeout(heartbeatTimer)
+  // If already scheduled, wait for the batch window
+  if (heartbeatTimer) return
 
   heartbeatTimer = setTimeout(() => {
-    flushHeartbeat()
-  }, 1200)
+    heartbeatTimer = null
+    const lastFlush = Number(sessionStorage.getItem('sw_last_heartbeat_time') || 0)
+    if (Date.now() - lastFlush >= HEARTBEAT_THROTTLE_MS) {
+      flushHeartbeat(false)
+    }
+  }, 15000) // 15s gentle debounce
+}
+
+// Flush telemetry on page exit / tab hide without blocking user
+if (typeof window !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      flushHeartbeat(true)
+    }
+  })
 }
 
 export function flushHeartbeat(useBeaconIfPossible = false) {
   if (typeof window === 'undefined') return
   if (Object.keys(pendingData).length === 0) return
 
-  const visitor_id = getVisitorId()
   const consent = getConsentPreferences()
+  if (consent.accepted && !consent.analytics) {
+    pendingData = {}
+    return
+  }
+
+  const visitor_id = getVisitorId()
   const payload = {
     visitor_id,
     cookie_consent: consent,
@@ -303,6 +323,7 @@ export function flushHeartbeat(useBeaconIfPossible = false) {
   }
 
   pendingData = {}
+  sessionStorage.setItem('sw_last_heartbeat_time', String(Date.now()))
 
   try {
     if (useBeaconIfPossible && navigator.sendBeacon) {
@@ -439,7 +460,10 @@ export function trackDawPreference(daw: string) {
 export function initTelemetrySession() {
   if (typeof window === 'undefined') return
   const cachedGeo = getDetectedLocation()
-  if (!cachedGeo.city && !cachedGeo.region) {
-    queueHeartbeat({})
+  const alreadySynced = sessionStorage.getItem('sw_geo_synced')
+  if (alreadySynced || cachedGeo.city || cachedGeo.country) {
+    return
   }
+  sessionStorage.setItem('sw_geo_synced', 'true')
+  queueHeartbeat({})
 }

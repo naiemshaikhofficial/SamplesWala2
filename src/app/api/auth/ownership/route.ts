@@ -22,6 +22,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ owned: false }, { headers: noStoreHeaders })
     }
 
+    const cookieHeader = request.headers.get('cookie') || ''
+    if (!cookieHeader.includes('-auth-token')) {
+      return NextResponse.json({ owned: false }, { headers: noStoreHeaders })
+    }
+
     const { data: { user } } = await getUser()
     if (!user) {
       return NextResponse.json({ owned: false }, { headers: noStoreHeaders })
