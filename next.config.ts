@@ -59,6 +59,8 @@ const nextConfig: NextConfig = {
       { key: 'X-XSS-Protection', value: '1; mode=block' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+      { key: 'Link', value: '<https://sampleswala.com/llms.txt>; rel="alternate"; type="text/markdown"' },
+      { key: 'Content-Signal', value: 'search=yes, ai-train=yes' },
       ...(isDev ? [] : [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' }]),
       { key: 'Content-Security-Policy', value: csp },
     ];

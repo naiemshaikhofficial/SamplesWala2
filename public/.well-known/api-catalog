@@ -1,0 +1,31 @@
+{
+  "name": "Samples Wala API Catalog",
+  "description": "Public endpoints and discovery catalog for Samples Wala music sample library",
+  "version": "1.0.0",
+  "provider": {
+    "name": "Samples Wala",
+    "url": "https://sampleswala.com"
+  },
+  "endpoints": [
+    {
+      "path": "/browse",
+      "method": "GET",
+      "description": "Search and filter royalty-free loops, one-shots, and Indian music samples."
+    },
+    {
+      "path": "/browse/packs",
+      "method": "GET",
+      "description": "Browse curated sound packs, Bollywood beats, and percussion libraries."
+    },
+    {
+      "path": "/llms.txt",
+      "method": "GET",
+      "description": "Machine-readable context and product specifications for AI agents."
+    },
+    {
+      "path": "/sitemap.xml",
+      "method": "GET",
+      "description": "Comprehensive XML sitemap of all public pack and library URLs."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "SamplesWala Assistant",
+  "description": "Autonomous sound curation and music production agent for Samples Wala",
+  "version": "1.0.0",
+  "url": "https://sampleswala.com",
+  "capabilities": [
+    "sound_discovery",
+    "sample_recommendation",
+    "bpm_key_matching",
+    "genre_curation"
+  ],
+  "skills": [
+    {
+      "name": "Find Indian Percussions",
+      "description": "Find authentic Indian rhythm loops including Dholak, Tabla, Dhol, and Kanjira"
+    },
+    {
+      "name": "Find Bollywood Vocals",
+      "description": "Discover royalty-free Bollywood vocals, Sufi chants, and alaap hooks"
+    },
+    {
+      "name": "License Verification",
+      "description": "Verify commercial royalty-free clearance for music tracks and sync licensing"
+    }
+  ],
+  "endpoints": {
+    "llms": "https://sampleswala.com/llms.txt",
+    "catalog": "https://sampleswala.com/.well-known/api-catalog",
+    "auth": "https://sampleswala.com/auth.md"
+  }
+}
