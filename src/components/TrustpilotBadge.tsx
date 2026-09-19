@@ -164,7 +164,7 @@ export function TrustpilotBadge() {
             <div className="h-8 w-[1px] bg-black/15" />
             <div className="flex flex-col items-center justify-center">
               <span className="text-[7px] font-black uppercase tracking-wider text-black/60 leading-none">TRUST SCORE</span>
-              <span className="text-[20px] font-black text-[#128807] leading-none mt-1 font-mono drop-shadow-[1px_1px_0px_rgba(255,255,255,0.6)]">82/100</span>
+              <span className="text-[20px] font-black text-[#128807] leading-none mt-1 font-mono drop-shadow-[1px_1px_0px_rgba(255,255,255,0.6)]">92/100</span>
             </div>
           </div>
         </motion.a>
