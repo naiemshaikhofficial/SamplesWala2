@@ -1,0 +1,32 @@
+# Samples Wala — Complete Sound Catalog & Documentation
+
+## Overview
+Samples Wala (https://sampleswala.com) is the premier digital marketplace for authentic, royalty-free Indian music sample packs, loops, and one-shots. Trusted by producers, composers, and recording artists working in Bollywood, Punjabi music, South Indian cinema, and global fusion.
+
+## Sound Categories
+1. **The South & Street Rhythms:**
+   - Authentic South Indian percussion: Thavil, Mridangam, Urumi, Chenda, Kanjira, and Parai.
+   - Fast-paced Koothu, Tapori, and Mumbai street rhythm grooves.
+2. **Bollywood & Commercial Cinema:**
+   - Cinematic strings, lush harmonium progressions, sitar riffs, and bamboo flute (bansuri) leads.
+   - Modern Bollywood pop, romantic ballad melodies, and Lo-Fi Indian beats.
+3. **Punjabi & Folk:**
+   - High-energy Bhangra Dhol grooves, Tumbi riffs, Algoza phrases, and Punjabi folk vocal shots.
+4. **Desi Hip Hop & Drill:**
+   - Heavy 808s combined with traditional Indian rhythms, trap percussion, and ethnic chops.
+
+## Technical Specifications
+- Audio Format: 24-bit Lossless WAV
+- Sample Rates: 44.1 kHz / 48 kHz
+- Compatibility: Compatible with all major Digital Audio Workstations (DAWs) including FL Studio, Ableton Live, Logic Pro, Cubase, Pro Tools, Studio One, and Bitwig.
+- Hardware: Compatible with MPC, Roland SP-404, Elektron, and all hardware samplers that accept WAV files.
+
+## Licensing Terms
+- **Royalty-Free Guarantee:** Every sound purchased on Samples Wala is 100% royalty-free.
+- **Permitted Uses:** Commercial music releases on Spotify, Apple Music, YouTube, TV broadcasts, film scores, advertising, video games, and social media.
+- **Restrictions:** Users may not resell, relicense, or distribute the raw sample files as standalone sound packs or competitor sample libraries.
+
+## Support & Inquiries
+- Official Website: https://sampleswala.com
+- Support Email: support@sampleswala.com
+- Trust & Safety: ScamAdviser Trust Score 92/100, Trustpilot Verified.

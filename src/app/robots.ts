@@ -13,6 +13,27 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
       },
       {
+        userAgent: [
+          'GPTBot',
+          'ChatGPT-User',
+          'Claude-SearchBot',
+          'ClaudeBot',
+          'PerplexityBot',
+          'Applebot-Extended',
+          'Google-Extended',
+        ],
+        allow: '/',
+        disallow: [
+          '/api/',
+          '/_next/',
+          '/checkout/',
+          '/library/',
+          '/auth/',
+          '/account/',
+          '/admin/',
+        ],
+      },
+      {
         userAgent: '*',
         allow: '/',
         disallow: [
