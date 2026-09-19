@@ -1,4 +1,4 @@
-# auth.md
+# Auth.md
 
 ## Agent Audience
 This document provides agent registration and authentication instructions for autonomous AI agents, crawlers, and LLM systems accessing Samples Wala (https://sampleswala.com).
