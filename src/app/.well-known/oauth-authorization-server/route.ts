@@ -1,0 +1,73 @@
+import { NextResponse } from 'next/server'
+
+export const dynamic = 'force-static'
+
+export async function GET() {
+  const oauthServer = {
+    issuer: "https://sampleswala.com",
+    authorization_endpoint: "https://sampleswala.com/auth",
+    token_endpoint: "https://sampleswala.com/api/auth/token",
+    jwks_uri: "https://sampleswala.com/.well-known/jwks.json",
+    revocation_endpoint: "https://sampleswala.com/api/auth/revoke",
+    response_types_supported: [
+      "code",
+      "token"
+    ],
+    grant_types_supported: [
+      "authorization_code",
+      "refresh_token",
+      "urn:ietf:params:oauth:grant-type:token-exchange"
+    ],
+    scopes_supported: [
+      "openid",
+      "profile",
+      "email",
+      "samples:read"
+    ],
+    token_endpoint_auth_methods_supported: [
+      "client_secret_post",
+      "client_secret_basic",
+      "none"
+    ],
+    agent_auth: {
+      skill: "https://sampleswala.com/.well-known/agent-skills/sample-search/SKILL.md",
+      register_uri: "https://sampleswala.com/auth",
+      revocation_uri: "https://sampleswala.com/api/auth/revoke",
+      events_supported: [
+        "revocation"
+      ],
+      identity_types_supported: [
+        "anonymous",
+        "identity_assertion"
+      ],
+      anonymous: {
+        credential_types_supported: [
+          "none"
+        ],
+        claim_uri: "https://sampleswala.com/browse"
+      },
+      identity_assertion: {
+        assertion_types_supported: [
+          "urn:ietf:params:oauth:token-type:id-jag",
+          "verified_email"
+        ],
+        credential_types_supported: [
+          "token"
+        ],
+        claim_uri: "https://sampleswala.com/auth",
+        revocation_uri: "https://sampleswala.com/api/auth/revoke",
+        events_supported: [
+          "revocation"
+        ]
+      }
+    }
+  }
+
+  return new NextResponse(JSON.stringify(oauthServer, null, 2), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'public, max-age=86400',
+    },
+  })
+}

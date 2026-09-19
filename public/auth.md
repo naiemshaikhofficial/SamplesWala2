@@ -1,4 +1,4 @@
-# Auth.md
+# auth.md
 
 ## Agent Audience
 This document provides agent registration and authentication instructions for autonomous AI agents, crawlers, and LLM systems accessing Samples Wala (https://sampleswala.com).
@@ -20,6 +20,7 @@ This document provides agent registration and authentication instructions for au
 - **Verified Email:**
   - `identity_types_supported`: `["identity_assertion"]`
   - `identity_assertion.assertion_types_supported`: `["verified_email"]`
+  - `credential_types_supported`: `["token"]`
   - `claim_uri`: `https://sampleswala.com/auth`
 
 - **Identity Assertion (ID-JAG):**
@@ -27,6 +28,11 @@ This document provides agent registration and authentication instructions for au
   - `identity_assertion.assertion_types_supported`: `["urn:ietf:params:oauth:token-type:id-jag"]`
   - `credential_types_supported`: `["token"]`
   - `claim_uri`: `https://sampleswala.com/api/auth/token`
+  - `revocation_uri`: `https://sampleswala.com/api/auth/revoke`
+  - `events_supported`: `["revocation"]`
+
+## Credential Use
+AI agents obtain bearer tokens via `/api/auth/token` using an authorization code or identity assertion (ID-JAG). Pass the token in the HTTP `Authorization: Bearer <token>` header on subsequent requests to protected endpoints.
 
 ## Agent Auth Block
 ```json
@@ -34,6 +40,10 @@ This document provides agent registration and authentication instructions for au
   "agent_auth": {
     "skill": "https://sampleswala.com/.well-known/agent-skills/sample-search/SKILL.md",
     "register_uri": "https://sampleswala.com/auth",
+    "revocation_uri": "https://sampleswala.com/api/auth/revoke",
+    "events_supported": [
+      "revocation"
+    ],
     "supported_methods": [
       "anonymous",
       "verified_email",
