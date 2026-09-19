@@ -201,6 +201,36 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // 🟢 COMMERCE: x402 Payment Protocol for autonomous agents
+  if (pathname === '/api/agent/pay' || pathname === '/api/x402' || pathname === '/.well-known/x402') {
+    return new NextResponse(
+      JSON.stringify({
+        status: 402,
+        error: 'Payment Required',
+        message: 'This endpoint supports agent-native HTTP payments via the x402 protocol.',
+        x402: {
+          version: '1.0',
+          price: '9.99',
+          currency: 'USD',
+          recipient: '0x0000000000000000000000000000000000000000',
+          facilitator: 'https://x402.org/facilitator',
+          network: 'base'
+        }
+      }, null, 2),
+      {
+        status: 402,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Payment-Required': 'true',
+          'X-Payment-Price': '9.99',
+          'X-Payment-Currency': 'USD',
+          'X-Payment-Facilitator': 'https://x402.org/facilitator',
+          'WWW-Authenticate': 'x402 realm="SamplesWala", price="9.99", currency="USD"'
+        }
+      }
+    )
+  }
+
   // 1. IP & API/Action Rate Limiting
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||

@@ -1,17 +1,17 @@
 {
-  "protocol_version": "1.0",
+  "protocol_version": "2026.1",
+  "spec_url": "https://ucp.dev/specification/overview/",
   "services": [
-    "commerce",
-    "digital-goods",
-    "audio-samples"
+    "dev.ucp.shopping"
   ],
   "capabilities": [
-    "instant-download",
-    "multi-currency",
-    "commercial-license"
+    "dev.ucp.shopping.catalog",
+    "dev.ucp.shopping.cart",
+    "dev.ucp.shopping.checkout"
   ],
   "endpoints": {
     "catalog": "https://sampleswala.com/browse/packs",
+    "cart": "https://sampleswala.com/cart",
     "checkout": "https://sampleswala.com/checkout",
     "terms": "https://sampleswala.com/terms"
   }
