@@ -22,5 +22,29 @@
     "client_secret_post",
     "client_secret_basic",
     "none"
-  ]
+  ],
+  "agent_auth": {
+    "skill": "https://sampleswala.com/.well-known/agent-skills/sample-search/SKILL.md",
+    "register_uri": "https://sampleswala.com/auth",
+    "identity_types_supported": [
+      "anonymous",
+      "identity_assertion"
+    ],
+    "anonymous": {
+      "credential_types_supported": [
+        "none"
+      ],
+      "claim_uri": "https://sampleswala.com/browse"
+    },
+    "identity_assertion": {
+      "assertion_types_supported": [
+        "urn:ietf:params:oauth:token-type:id-jag",
+        "verified_email"
+      ],
+      "credential_types_supported": [
+        "token"
+      ],
+      "claim_uri": "https://sampleswala.com/auth"
+    }
+  }
 }
