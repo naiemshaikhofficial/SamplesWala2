@@ -276,11 +276,29 @@ export async function middleware(request: NextRequest) {
   const contentSignal = 'ai-train=yes, search=yes, ai-input=yes'
 
   if (request.headers.get('accept')?.includes('text/markdown')) {
-    const markdownResponse = NextResponse.rewrite(new URL('/llms.txt', request.url))
-    markdownResponse.headers.set('Content-Type', 'text/markdown; charset=utf-8')
-    markdownResponse.headers.set('Content-Signal', contentSignal)
-    markdownResponse.headers.set('Link', linkHeader)
-    return markdownResponse
+    const markdownContent = `# Samples Wala
+
+> Samples Wala (https://sampleswala.com) is the premier royalty-free Indian music sample library and digital sound marketplace. Access authentic Indian percussions, Bollywood loops, Sufi vocals, and sound packs.
+
+## Key Features
+- **100% Royalty-Free:** Cleared for commercial streaming (Spotify, Apple Music, YouTube), film, TV, and OTT.
+- **Studio-Grade Quality:** 24-bit Lossless WAV format, 44.1kHz / 48kHz with accurate BPM and key labels.
+- **Categories:** Dholak, Tabla, Dhol, South Indian percussions, Bollywood vocal hooks, Punjabi folk, and Indian Lo-Fi.
+- **Catalog:** https://sampleswala.com/browse
+- **Sound Packs:** https://sampleswala.com/browse/packs
+- **Terms & License:** https://sampleswala.com/terms
+- **Support:** support@sampleswala.com
+`
+    return new NextResponse(markdownContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/markdown; charset=utf-8',
+        'Content-Signal': contentSignal,
+        'Link': linkHeader,
+        'x-markdown-tokens': '280',
+        'Cache-Control': 'public, max-age=86400',
+      },
+    })
   }
 
   supabaseResponse.headers.set('Content-Signal', contentSignal)

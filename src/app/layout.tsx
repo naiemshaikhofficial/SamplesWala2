@@ -45,6 +45,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "lenis/dist/lenis.css";
 import { LenisProvider } from "@/components/LenisProvider";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { WebMCP } from "@/components/WebMCP";
 
 export default async function RootLayout({
   children,
@@ -98,6 +99,7 @@ export default async function RootLayout({
               <ArtistStatusProvider>
                 <BackgroundMural />
                 <ContentProtection />
+                <WebMCP />
                 <ServiceWorkerRegistration />
                 <CartSidebar />
                 <CookieConsentBanner />
