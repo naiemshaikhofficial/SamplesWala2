@@ -1,0 +1,12 @@
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "kid": "sampleswala-agent-key-1",
+      "use": "sig",
+      "alg": "RS256",
+      "n": "u1w5W2sK8Q8y6L2J9v3X1p0q7R4s8T5u2V1w0x9y8z7A6b5C4d3E2f1G0h9I8j7K6l5M4n3O2p1Q0r9S8t7U6v5W4x3Y2z1A0b9C8d7E6f5G4h3I2j1K0l9M8n7O6p5Q4r3S2t1U0v9W8x7Y6z5A4b3C2d1E0f9G8h7I6j5K4l3M2n1O0p9Q8r7S6t5U4v3W2x1Y0z9A8b7C6d5E4f3G2h1",
+      "e": "AQAB"
+    }
+  ]
+}

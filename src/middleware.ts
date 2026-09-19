@@ -271,7 +271,22 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 5. Return response
+  // 5. AI Agent Readiness: Markdown Negotiation & Discovery Headers
+  const linkHeader = '</.well-known/api-catalog>; rel="api-catalog", </llms.txt>; rel="describedby"; type="text/markdown", </openapi.json>; rel="service-desc"'
+  const contentSignal = 'ai-train=yes, search=yes, ai-input=yes'
+
+  if (request.headers.get('accept')?.includes('text/markdown')) {
+    const markdownResponse = NextResponse.rewrite(new URL('/llms.txt', request.url))
+    markdownResponse.headers.set('Content-Type', 'text/markdown; charset=utf-8')
+    markdownResponse.headers.set('Content-Signal', contentSignal)
+    markdownResponse.headers.set('Link', linkHeader)
+    return markdownResponse
+  }
+
+  supabaseResponse.headers.set('Content-Signal', contentSignal)
+  supabaseResponse.headers.set('Link', linkHeader)
+
+  // 6. Return response
   // 🟢 CPU OPTIMIZATION: Security headers & CSP are now handled by next.config.ts headers()
   // instead of being computed here on every request. This saves ~10-30ms per request.
   return supabaseResponse;

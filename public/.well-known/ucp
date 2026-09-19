@@ -1,0 +1,18 @@
+{
+  "protocol_version": "1.0",
+  "services": [
+    "commerce",
+    "digital-goods",
+    "audio-samples"
+  ],
+  "capabilities": [
+    "instant-download",
+    "multi-currency",
+    "commercial-license"
+  ],
+  "endpoints": {
+    "catalog": "https://sampleswala.com/browse/packs",
+    "checkout": "https://sampleswala.com/checkout",
+    "terms": "https://sampleswala.com/terms"
+  }
+}

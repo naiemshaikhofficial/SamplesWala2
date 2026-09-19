@@ -1,0 +1,16 @@
+{
+  "resource": "https://sampleswala.com",
+  "authorization_servers": [
+    "https://sampleswala.com"
+  ],
+  "scopes_supported": [
+    "openid",
+    "profile",
+    "email",
+    "samples:read",
+    "packs:download"
+  ],
+  "bearer_methods_supported": [
+    "header"
+  ]
+}

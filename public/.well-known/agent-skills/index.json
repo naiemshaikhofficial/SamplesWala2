@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "sample-search",
+      "type": "skill-md",
+      "description": "Search and browse authentic Indian music sample packs, loops, and vocals on Samples Wala",
+      "url": "https://sampleswala.com/.well-known/agent-skills/sample-search/SKILL.md",
+      "digest": "sha256:d4847e38258e77a1660d1656ae38bce674483a31c5567b5b6028a6411d7e2a9e"
+    }
+  ]
+}

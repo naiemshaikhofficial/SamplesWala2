@@ -1,0 +1,37 @@
+User-Agent: Googlebot-Image
+Allow: /
+
+User-Agent: GPTBot
+User-Agent: ChatGPT-User
+User-Agent: Claude-SearchBot
+User-Agent: ClaudeBot
+User-Agent: PerplexityBot
+User-Agent: Applebot-Extended
+User-Agent: Google-Extended
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /checkout/
+Disallow: /library/
+Disallow: /auth/
+Disallow: /account/
+Disallow: /admin/
+
+User-Agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /checkout/
+Disallow: /library/
+Disallow: /auth/
+Disallow: /account/
+Disallow: /admin/
+Disallow: /*?key=*
+Disallow: /*?genre=*
+Disallow: /*?mode=*
+Disallow: /*?sort=*
+Disallow: /*?type=*
+
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
+
+Sitemap: https://sampleswala.com/sitemap.xml

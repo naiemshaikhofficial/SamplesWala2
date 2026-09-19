@@ -1,0 +1,17 @@
+{
+  "protocol": {
+    "name": "acp",
+    "version": "1.0.0"
+  },
+  "api_base_url": "https://sampleswala.com/api",
+  "transports": [
+    "http"
+  ],
+  "capabilities": {
+    "services": [
+      "catalog",
+      "checkout",
+      "digital-delivery"
+    ]
+  }
+}

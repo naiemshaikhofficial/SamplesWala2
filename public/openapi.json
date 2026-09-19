@@ -1,0 +1,47 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Samples Wala API",
+    "version": "1.0.0",
+    "description": "API for discovering and downloading royalty-free Indian music samples and packs",
+    "x-service-info": {
+      "categories": ["music", "audio", "samples", "digital-goods"]
+    }
+  },
+  "servers": [
+    {
+      "url": "https://sampleswala.com"
+    }
+  ],
+  "paths": {
+    "/api/packs": {
+      "get": {
+        "summary": "List available sound packs",
+        "operationId": "listPacks",
+        "responses": {
+          "200": {
+            "description": "Successful list of sound packs"
+          }
+        }
+      }
+    },
+    "/checkout": {
+      "post": {
+        "summary": "Initiate sample pack purchase",
+        "operationId": "checkoutPack",
+        "x-payment-info": {
+          "intent": "charge",
+          "method": "card",
+          "amount": "9.99",
+          "currency": "USD",
+          "description": "Royalty-free sample pack commercial license"
+        },
+        "responses": {
+          "200": {
+            "description": "Payment session or order created"
+          }
+        }
+      }
+    }
+  }
+}

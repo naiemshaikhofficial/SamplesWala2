@@ -1,26 +1,47 @@
 {
   "name": "SamplesWala Assistant",
-  "description": "Autonomous sound curation and music production agent for Samples Wala",
   "version": "1.0.0",
+  "description": "Autonomous sound curation and royalty-free Indian music sample marketplace assistant for Samples Wala",
   "url": "https://sampleswala.com",
+  "supportedInterfaces": [
+    {
+      "url": "https://sampleswala.com",
+      "protocol": "http"
+    }
+  ],
   "capabilities": [
     "sound_discovery",
     "sample_recommendation",
     "bpm_key_matching",
-    "genre_curation"
+    "genre_curation",
+    "instant_checkout"
   ],
   "skills": [
     {
+      "id": "indian-percussion",
       "name": "Find Indian Percussions",
       "description": "Find authentic Indian rhythm loops including Dholak, Tabla, Dhol, and Kanjira"
     },
     {
+      "id": "bollywood-vocals",
       "name": "Find Bollywood Vocals",
       "description": "Discover royalty-free Bollywood vocals, Sufi chants, and alaap hooks"
     },
     {
+      "id": "license-verification",
       "name": "License Verification",
       "description": "Verify commercial royalty-free clearance for music tracks and sync licensing"
+    }
+  ],
+  "extensions": [
+    {
+      "uri": "https://github.com/google-agentic-commerce/AP2/tree/v0.1.0",
+      "required": true,
+      "params": {
+        "roles": [
+          "merchant"
+        ]
+      }
     }
   ],
   "endpoints": {
