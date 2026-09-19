@@ -253,7 +253,25 @@ export async function middleware(request: NextRequest) {
   // 3. Supabase Session Sync
   const { supabaseResponse, user } = await updateSession(request)
 
-  // 4. Return response
+  // 4. Cloudflare / Edge Geo Currency Detection
+  // If currency cookie is not yet set, detect country from Cloudflare/Vercel header
+  if (!request.cookies.has('currency')) {
+    const country = (
+      request.headers.get('cf-ipcountry') ||
+      request.headers.get('x-vercel-ip-country') ||
+      ''
+    ).toUpperCase()
+    if (country) {
+      const autoCurrency = country === 'IN' ? 'INR' : 'USD'
+      supabaseResponse.cookies.set('currency', autoCurrency, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: 'lax',
+      })
+    }
+  }
+
+  // 5. Return response
   // 🟢 CPU OPTIMIZATION: Security headers & CSP are now handled by next.config.ts headers()
   // instead of being computed here on every request. This saves ~10-30ms per request.
   return supabaseResponse;

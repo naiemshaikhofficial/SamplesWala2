@@ -35,22 +35,50 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Detect and lock currency based on timezone/locale dynamically on mount
-    try {
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-      const isIndianTimeZone = timeZone === 'Asia/Kolkata' || timeZone === 'Asia/Calcutta'
-      const isIndianLocale = navigator.languages?.some(l => l.includes('-IN') || l.startsWith('hi'))
-
-      if (isIndianTimeZone || isIndianLocale) {
-        setCurrencyState('INR')
-      } else {
-        // Default to USD for global users
-        setCurrencyState('USD')
-      }
-    } catch (e) {
-      setCurrencyState('INR') // Safe default
+    // 1. Check if user already has a saved currency cookie (from user preference or middleware)
+    const savedCookie = getCookie('currency') as Currency | null
+    if (savedCookie === 'INR' || savedCookie === 'USD') {
+      setCurrencyState(savedCookie)
+      setIsLoading(false)
+      return
     }
-    setIsLoading(false)
+
+    // 2. Fetch country detection from Cloudflare / Edge API
+    let isMounted = true
+    fetch('/api/geo')
+      .then(res => res.json())
+      .then(data => {
+        if (!isMounted) return
+        if (data?.currency === 'USD' || data?.currency === 'INR') {
+          setCurrencyState(data.currency)
+          setCookie('currency', data.currency)
+        }
+      })
+      .catch(() => {
+        // 3. Fallback: timezone/locale if fetch fails or offline
+        try {
+          const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+          const isIndianTimeZone = timeZone === 'Asia/Kolkata' || timeZone === 'Asia/Calcutta'
+          const isIndianLocale = navigator.languages?.some(l => l.includes('-IN') || l.startsWith('hi'))
+
+          if (isIndianTimeZone || isIndianLocale) {
+            setCurrencyState('INR')
+          } else {
+            setCurrencyState('USD')
+          }
+        } catch {
+          setCurrencyState('INR')
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const setCurrency = (cur: Currency) => {
