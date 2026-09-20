@@ -109,7 +109,7 @@ export default async function RootLayout({
                   </LayoutWrapper>
                 </LenisProvider>
                 <Analytics />
-                <SpeedInsights sampleRate={0.1} />
+                <SpeedInsights sampleRate={0.03} />
               </ArtistStatusProvider>
             </CartProvider>
           </CurrencyProvider>

@@ -99,14 +99,7 @@ async function handleRevalidation(req: NextRequest) {
 
       if (table === 'sample_packs') {
         safeRevalidateTag('packs')
-        revalidatePath('/')
-        revalidatePath('/free')
-        revalidatePath('/browse')
-        revalidatePath('/browse/packs')
-        revalidatePath('/sitemap.xml')
-        revalidatePath('/packs/[slug]', 'page')
-
-        revalidatedItems.push('tag:packs', 'path:/', 'path:/free', 'path:/browse/packs', 'path:/sitemap.xml')
+        revalidatedItems.push('tag:packs')
 
         if (currentSlug) {
           revalidatePath(`/packs/${currentSlug}`)
@@ -118,31 +111,16 @@ async function handleRevalidation(req: NextRequest) {
         }
       } else if (table === 'presets') {
         safeRevalidateTag('presets')
-        revalidatePath('/')
-        revalidatePath('/free')
-        revalidatePath('/browse')
-        revalidatePath('/browse/presets')
-        revalidatePath('/sitemap.xml')
-        revalidatePath('/browse/presets/[slug]', 'page')
-
-        revalidatedItems.push('tag:presets', 'path:/', 'path:/free', 'path:/browse/presets')
+        revalidatedItems.push('tag:presets')
 
         if (currentSlug) {
           revalidatePath(`/browse/presets/${currentSlug}`)
           revalidatedItems.push(`path:/browse/presets/${currentSlug}`)
         }
       } else if (table === 'samples') {
+        // Tag-based revalidation clears the cached pack/sample queries without rewriting every page HTML to disk
         safeRevalidateTag('packs')
-        revalidatePath('/')
-        revalidatePath('/free')
-        revalidatePath('/browse')
-        revalidatePath('/library')
-
-        revalidatedItems.push('tag:packs', 'path:/', 'path:/free', 'path:/browse', 'path:/library')
-
-        if (webhookBody.record?.pack_id) {
-          revalidatePath('/packs/[slug]', 'page')
-        }
+        revalidatedItems.push('tag:packs')
       } else if (table === 'categories') {
         safeRevalidateTag('categories')
         revalidatePath('/')
