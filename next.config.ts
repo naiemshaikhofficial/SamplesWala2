@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
   // SECURITY: Hide X-Powered-By header
   poweredByHeader: false,
 
+  // BUNDLE OPTIMIZATION: Tree-shake heavy libraries to reduce JS chunk sizes
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'react-select'],
+  },
+
   images: {
     qualities: [75, 85],
     loader: 'custom',

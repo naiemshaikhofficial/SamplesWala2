@@ -35,17 +35,26 @@ import { AuthProvider } from "@/context/AuthContext";
 import { BackgroundMural } from "@/components/BackgroundMural";
 import { LayoutWrapper } from "@/components/LayoutWrapper";
 import { ContentProtection } from "@/components/ContentProtection";
-import { CartSidebar } from "@/components/CartSidebar";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { ArtistStatusProvider } from "@/components/ArtistStatusProvider";
 import { StorefrontJsonLd } from "@/components/JsonLd";
 import Script from "next/script";
+import dynamic from "next/dynamic";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "lenis/dist/lenis.css";
 import { LenisProvider } from "@/components/LenisProvider";
-import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { WebMCP } from "@/components/WebMCP";
+
+// 🟢 BUNDLE OPTIMIZATION: Dynamically import client-only overlays to keep the critical initial JS bundle light
+const CartSidebar = dynamic(
+  () => import("@/components/CartSidebar").then((m) => m.CartSidebar),
+  { ssr: false }
+);
+const CookieConsentBanner = dynamic(
+  () => import("@/components/CookieConsentBanner").then((m) => m.CookieConsentBanner),
+  { ssr: false }
+);
 
 export default async function RootLayout({
   children,

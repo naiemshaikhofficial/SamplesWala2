@@ -18,10 +18,15 @@ import dynamic from 'next/dynamic'
 import Script from 'next/script'
 import { loadCashfreeSDK } from '@/lib/cashfreeClient'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
-import { DeliveryCarAnimation } from '@/components/DeliveryCarAnimation'
 import { ThankYouClient } from '@/app/thank-you/ThankYouClient'
 import { getSecureDownloadUrl } from '@/app/packs/actions'
 import { CrossSellRecommendations } from '@/components/CrossSellRecommendations'
+
+// 🟢 BUNDLE OPTIMIZATION: Dynamically import the heavy delivery animation (110KB) so the checkout form loads instantly
+const DeliveryCarAnimation = dynamic(
+  () => import('@/components/DeliveryCarAnimation').then((m) => m.DeliveryCarAnimation),
+  { ssr: false }
+)
 
 // Custom Country Select using react-select to provide a searchable dropdown for the phone country flag selector
 const CustomCountrySelect = ({ value, onChange, options, iconComponent: Icon }: any) => {
