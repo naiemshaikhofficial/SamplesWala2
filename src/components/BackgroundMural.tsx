@@ -56,7 +56,7 @@ export function BackgroundMural() {
       >
         {/* Base Mural Image */}
         <Image
-          src="/mural-bg.png"
+          src="/mural-bg.webp"
           alt="Graffiti Background"
           fill
           quality={75}

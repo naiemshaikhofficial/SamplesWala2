@@ -19,7 +19,7 @@ export default function AboutPage() {
       <section className="relative h-[50vh] flex items-center justify-center overflow-hidden border-b-4 border-black">
         <div className="absolute inset-0 z-0">
           <Image 
-            src="/graffiti-bg.png"
+            src="/graffiti-bg.webp"
             alt="Graffiti Background"
             fill
             sizes="100vw"

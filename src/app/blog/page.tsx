@@ -18,7 +18,7 @@ const blogPosts = [
     date: "May 12, 2026",
     author: "Samples Wala Team",
     category: "Guides",
-    image: "/graffiti-bg.png"
+    image: "/graffiti-bg.webp"
   },
   {
     slug: "how-to-make-bollywood-drill-the-ultimate-guide",
@@ -27,7 +27,7 @@ const blogPosts = [
     date: "May 13, 2026",
     author: "Samples Wala Team",
     category: "Tutorials",
-    image: "/mural-bg.png"
+    image: "/mural-bg.webp"
   },
   {
     slug: "how-to-produce-bollywood-style-beats-complete-guide",
@@ -36,7 +36,7 @@ const blogPosts = [
     date: "May 10, 2026",
     author: "Pro Producer",
     category: "Tutorials",
-    image: "/about-hero.png"
+    image: "/about-hero.webp"
   },
   {
     slug: "the-future-of-indian-hip-hop-production",
@@ -45,7 +45,7 @@ const blogPosts = [
     date: "May 08, 2026",
     author: "Artist Spotlight",
     category: "Industry",
-    image: "/mural-bg.png"
+    image: "/mural-bg.webp"
   }
 ]
 

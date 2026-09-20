@@ -14,7 +14,7 @@ const blogPosts: Record<string, any> = {
     date: "May 12, 2026",
     author: "Samples Wala Team",
     category: "Guides",
-    image: "/graffiti-bg.png",
+    image: "/graffiti-bg.webp",
     content: `
       <p>The landscape of Indian music production has evolved rapidly. In 2026, authenticity is no longer a luxury—it's a requirement. Whether you're producing a chart-topping Bollywood track or an underground Hip-Hop anthem, the quality of your percussion can make or break your sound.</p>
       
@@ -46,7 +46,7 @@ const blogPosts: Record<string, any> = {
     date: "May 13, 2026",
     author: "Samples Wala Team",
     category: "Tutorials",
-    image: "/mural-bg.png",
+    image: "/mural-bg.webp",
     content: `
       <p>The sound of "Drill" has gone global, but nothing sounds quite like its Indian counterpart. Bollywood Drill is a genre-defying fusion that combines the aggressive energy of UK/NY Drill with the rich, melodic heritage of India.</p>
       
@@ -72,7 +72,7 @@ const blogPosts: Record<string, any> = {
     date: "May 10, 2026",
     author: "Pro Producer",
     category: "Tutorials",
-    image: "/about-hero.png",
+    image: "/about-hero.webp",
     content: `
       <p>Bollywood music is a unique blend of traditional Indian folk, classical elements, and global pop trends. To produce a "Bollywood Style" beat, you need to understand more than just the notes—you need to understand the vibe.</p>
       
