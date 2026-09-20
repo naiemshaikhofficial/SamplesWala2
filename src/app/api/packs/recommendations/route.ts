@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
 
     const cacheHeader = cookieHeader.includes('-auth-token')
       ? 'private, no-cache, no-store, must-revalidate'
-      : 'public, s-maxage=300, stale-while-revalidate=600'
+      : 'public, s-maxage=3600, stale-while-revalidate=86400'
 
     return NextResponse.json({ packs: recommendations, count: recommendations.length }, {
       headers: {

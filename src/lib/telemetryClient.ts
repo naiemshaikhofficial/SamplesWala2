@@ -291,7 +291,7 @@ function queueHeartbeat(diff: any) {
     if (Date.now() - lastFlush >= HEARTBEAT_THROTTLE_MS) {
       flushHeartbeat(false)
     }
-  }, 15000) // 15s gentle debounce
+  }, 30000) // 30s gentle debounce (batches clicks & actions efficiently)
 }
 
 // Flush telemetry on page exit / tab hide without blocking user
