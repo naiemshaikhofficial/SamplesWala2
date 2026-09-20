@@ -1,22 +1,40 @@
 'use client'
 import React, { useState } from 'react'
-import { Shield, Loader2, ArrowRight, Mail, Lock, Chrome, User, Eye, EyeOff } from 'lucide-react'
+import { Shield, Loader2, ArrowRight, Mail, Lock, Chrome, User, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { signIn, signUp, signInWithGoogle, forgotPassword } from '@/app/auth/actions'
+import { useAuth } from '@/context/AuthContext'
 
 type AuthMode = 'login' | 'signup' | 'forgot'
 
 export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignup?: boolean, next?: string }) {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { user: authUser } = useAuth()
   const next = defaultNext || searchParams.get('next') || '/browse'
   
-  const [mode, setMode] = useState<AuthMode>('login')
+  const isConfirmed = searchParams.get('confirmed') === 'true' || searchParams.get('verified') === 'true'
+  const emailParam = searchParams.get('email') || ''
+  const errorParam = searchParams.get('error')
+
+  const [mode, setMode] = useState<AuthMode>(() => {
+    if (isConfirmed) return 'login'
+    const m = searchParams.get('mode')
+    if (m === 'signup' || m === 'forgot') return m
+    return 'login'
+  })
+  const [email, setEmail] = useState(emailParam)
   const [loading, setLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(() => {
+    if (!errorParam) return null
+    if (errorParam === 'auth-callback-failed') {
+      return 'The confirmation link is invalid or has expired. Please try signing in or request a new link.'
+    }
+    return decodeURIComponent(errorParam)
+  })
   const [message, setMessage] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
   const [password, setPassword] = useState('')
@@ -119,10 +137,39 @@ export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignu
             {error}
           </div>
         )}
+
+        {isConfirmed && !error && (
+          <div className="p-4 bg-studio-neon/10 border border-studio-neon/30 rounded-xl flex items-start gap-3 shadow-[0_0_25px_rgba(0,255,136,0.15)] animate-in fade-in duration-300">
+            <div className="p-1 bg-studio-neon/20 rounded-lg text-studio-neon shrink-0 mt-0.5">
+              <CheckCircle2 size={18} />
+            </div>
+            <div className="text-xs space-y-1 text-left">
+              <p className="font-bold text-white text-sm tracking-wide">Account Confirmed!</p>
+              <p className="text-studio-neon/90 leading-relaxed">
+                Your email has been verified successfully. Please enter your password to sign in.
+              </p>
+            </div>
+          </div>
+        )}
         
         {message && (
-          <div className="p-4 bg-studio-neon/10 border border-studio-neon/20 text-studio-neon text-xs rounded-xl text-center">
-            {message}
+          <div className="p-4 bg-studio-neon/10 border border-studio-neon/20 text-studio-neon text-xs rounded-xl flex items-center justify-center gap-2 text-center">
+            <Mail size={16} className="shrink-0 text-studio-neon" />
+            <span>{message}</span>
+          </div>
+        )}
+
+        {isConfirmed && authUser && (
+          <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between gap-3 text-xs">
+            <span className="text-white/60 truncate">
+              Signed in as <strong className="text-white">{authUser.email}</strong>
+            </span>
+            <Link
+              href={next}
+              className="shrink-0 px-3 py-1.5 bg-studio-neon text-black font-bold rounded-lg text-xs hover:bg-white transition-all flex items-center gap-1"
+            >
+              Continue <ArrowRight size={12} />
+            </Link>
           </div>
         )}
 
@@ -151,6 +198,8 @@ export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignu
                 name="email"
                 type="email" 
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 text-sm focus:border-studio-neon outline-none transition-all"
                 placeholder="example@mail.com"
               />

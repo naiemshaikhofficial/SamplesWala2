@@ -13,6 +13,7 @@ import { AuthForm } from '@/components/auth/AuthForm'
 function AuthPageContent() {
   const searchParams = useSearchParams()
   const mode = searchParams.get('mode') as 'login' | 'signup' | 'forgot' || 'login'
+  const isConfirmed = searchParams.get('confirmed') === 'true' || searchParams.get('verified') === 'true'
   
   return (
     <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center space-y-8">
@@ -22,10 +23,12 @@ function AuthPageContent() {
       
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
-            Account Access
+          {isConfirmed ? 'Account Confirmed' : 'Account Access'}
         </h1>
         <p className="text-sm text-white/50">
-            Sign in to your Samples Wala account to continue.
+          {isConfirmed 
+            ? 'Your email has been verified. Please sign in to continue.' 
+            : 'Sign in to your Samples Wala account to continue.'}
         </p>
       </div>
       

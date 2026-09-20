@@ -56,11 +56,14 @@ export async function signUp(formData: FormData) {
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
   const currentOrigin = `${protocol}://${host}`;
 
+  const confirmNextUrl = `/auth?confirmed=true&email=${encodeURIComponent(email)}`
+  const redirectTo = `${currentOrigin}/auth/callback?next=${encodeURIComponent(confirmNextUrl)}`
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${currentOrigin}/auth/callback`,
+      emailRedirectTo: redirectTo,
       data: {
         full_name: fullName,
         newsletter: newsletterChecked
