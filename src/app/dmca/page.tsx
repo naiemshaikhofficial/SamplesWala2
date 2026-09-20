@@ -9,6 +9,8 @@ export const metadata = generatePageMetadata({
   path: '/dmca'
 })
 
+export const revalidate = false
+
 export default function DMCAPage() {
   return (
     <div className="min-h-screen bg-black selection:bg-studio-yellow selection:text-black">

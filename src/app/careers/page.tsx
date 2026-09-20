@@ -11,6 +11,8 @@ export const metadata = generatePageMetadata({
   path: '/careers'
 })
 
+export const revalidate = false
+
 export default function CareersPage() {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden pb-20">

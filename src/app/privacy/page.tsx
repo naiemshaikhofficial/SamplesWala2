@@ -9,6 +9,8 @@ export const metadata = generatePageMetadata({
   path: '/privacy'
 })
 
+export const revalidate = false
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-black selection:bg-studio-yellow selection:text-black">

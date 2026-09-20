@@ -10,6 +10,8 @@ export const metadata = generatePageMetadata({
   path: '/about'
 })
 
+export const revalidate = false
+
 export default function AboutPage() {
   const founderImage = "https://imagizer.imageshack.com/img922/310/c8UQzL.jpg"
 

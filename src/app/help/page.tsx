@@ -10,6 +10,8 @@ export const metadata = generatePageMetadata({
   path: '/help'
 })
 
+export const revalidate = false
+
 const HELP_FAQS = [
   {
     question: 'How do I access my downloads after purchase?',

@@ -9,6 +9,8 @@ export const metadata = generatePageMetadata({
   path: '/faq'
 })
 
+export const revalidate = false
+
 import { generateBreadcrumbData } from '@/lib/seo/structuredData'
 
 const faqData = [

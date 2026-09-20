@@ -91,6 +91,8 @@ const blogPosts: Record<string, any> = {
 }
 
 // 🟢 CDN CACHING: Pre-render all blog pages as static HTML at build time
+export const revalidate = false
+
 export async function generateStaticParams() {
   return Object.keys(blogPosts).map((slug) => ({ slug }))
 }

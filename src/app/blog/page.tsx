@@ -10,6 +10,8 @@ export const metadata = generatePageMetadata({
   path: '/blog'
 })
 
+export const revalidate = false
+
 const blogPosts = [
   {
     slug: "top-5-indian-percussion-sample-packs-2026",

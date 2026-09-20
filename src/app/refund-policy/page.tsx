@@ -9,6 +9,8 @@ export const metadata = generatePageMetadata({
   path: '/refund-policy'
 })
 
+export const revalidate = false
+
 export default function RefundPage() {
   return (
     <div className="min-h-screen bg-black selection:bg-studio-yellow selection:text-black">
