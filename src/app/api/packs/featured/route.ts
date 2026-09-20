@@ -6,9 +6,12 @@ export async function GET() {
     const packs = await getPacks()
     // Return a random selection of 4 packs as featured
     const featured = packs.sort(() => 0.5 - Math.random()).slice(0, 4)
+    const cacheHeader = 'public, s-maxage=3600, stale-while-revalidate=86400'
     return NextResponse.json(featured, {
       headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59',
+        'Cache-Control': cacheHeader,
+        'CDN-Cache-Control': cacheHeader,
+        'Vercel-CDN-Cache-Control': cacheHeader,
       },
     })
   } catch (error) {

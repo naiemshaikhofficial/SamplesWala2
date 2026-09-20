@@ -217,10 +217,7 @@ export async function getRelatedPacks(category: string, excludeId: string) {
   )()
 }
 
-export async function getSearchSuggestions(query: string) {
-  if (!query || query.length < 2) return []
-
-  const cleaned = cleanSearchQuery(query)
+async function fetchSearchSuggestions(cleaned: string) {
   const supabase = getAdminClient()
 
   let queryBuilder = supabase
@@ -241,6 +238,19 @@ export async function getSearchSuggestions(query: string) {
     return []
   }
   return data
+}
+
+export async function getSearchSuggestions(query: string) {
+  if (!query || query.length < 2) return []
+
+  const cleaned = cleanSearchQuery(query)
+  const cacheKey = cleaned ? `search-suggest-${cleaned.toLowerCase().replace(/\s+/g, '-')}` : 'search-suggest-generic'
+
+  return unstable_cache(
+    async () => fetchSearchSuggestions(cleaned),
+    [cacheKey],
+    { revalidate: 3600, tags: ['packs'] }
+  )()
 }
 
 export async function getCategoryBySlug(slug: string) {

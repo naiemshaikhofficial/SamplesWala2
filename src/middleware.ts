@@ -107,7 +107,7 @@ async function getSiteStatus(): Promise<CachedSiteStatus> {
           Authorization: `Bearer ${anonKey}`,
         },
         signal: controller.signal,
-        cache: 'no-store'
+        next: { revalidate: 300 }
       }
     );
     clearTimeout(timeout);
