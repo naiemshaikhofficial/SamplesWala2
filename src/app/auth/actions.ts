@@ -26,7 +26,7 @@ export async function signIn(formData: FormData) {
   const password = formData.get('password') as string
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
@@ -35,7 +35,14 @@ export async function signIn(formData: FormData) {
   
   revalidatePath('/library')
   const next = formData.get('next') as string || '/browse'
-  return { success: "Logged in successfully.", redirect: next }
+  return { 
+    success: "Logged in successfully.", 
+    redirect: next,
+    session: data.session ? {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    } : null
+  }
 }
 
 

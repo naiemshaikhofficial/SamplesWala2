@@ -8,6 +8,7 @@ interface AuthContextType {
   session: any | null
   isArtist: boolean
   loading: boolean
+  refreshAuth: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   isArtist: false,
   loading: true,
+  refreshAuth: async () => {},
 })
 const pendingFetches = new Map<string, Promise<boolean>>()
 
@@ -66,6 +68,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isArtist, setIsArtist] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
 
+  const refreshAuth = React.useCallback(async () => {
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
+      setUser(session?.user || null)
+      if (session?.user) {
+        const isArtistStatus = await fetchArtistStatus(session.user.id)
+        setIsArtist(isArtistStatus)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('sw:auth-login', { detail: { userId: session.user.id } }))
+        }
+      } else {
+        setIsArtist(false)
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('sampleswala_owned_ids')
+          localStorage.removeItem('sampleswala_owned_user_id')
+          localStorage.removeItem('sampleswala_is_admin')
+          window.dispatchEvent(new CustomEvent('sw:auth-logout'))
+        }
+      }
+    } catch (err) {
+      console.error('[AUTH_REFRESH_ERROR]', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     const supabase = createClient()
 
@@ -99,6 +129,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initAuth()
 
+    const handleAuthRefresh = () => {
+      refreshAuth()
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('sw:auth-refresh', handleAuthRefresh)
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
       setSession(currentSession)
       setUser(currentSession?.user || null)
@@ -119,11 +156,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => {
+      subscription.unsubscribe()
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('sw:auth-refresh', handleAuthRefresh)
+      }
+    }
+  }, [refreshAuth])
 
   return (
-    <AuthContext.Provider value={{ user, session, isArtist, loading }}>
+    <AuthContext.Provider value={{ user, session, isArtist, loading, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   )

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { signIn, signUp, signInWithGoogle, forgotPassword } from '@/app/auth/actions'
 import { useAuth } from '@/context/AuthContext'
+import { createClient } from '@/lib/supabase/client'
 
 type AuthMode = 'login' | 'signup' | 'forgot'
 
@@ -78,9 +79,32 @@ export function AuthForm({ allowSignup = true, next: defaultNext }: { allowSignu
       setLoading(false)
     } else if (result && 'success' in result) {
       setMessage((result as any).success)
-      if ((result as any).redirect) {
-        router.refresh()
-        router.push((result as any).redirect)
+      
+      const session = (result as any).session
+      if (session?.access_token && session?.refresh_token) {
+        try {
+          const supabase = createClient()
+          await supabase.auth.setSession({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+          })
+        } catch (syncErr) {
+          console.error('[AUTH_CLIENT_SYNC_ERROR]', syncErr)
+        }
+      }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('sw:auth-refresh'))
+      }
+
+      const redirectUrl = (result as any).redirect
+      if (redirectUrl) {
+        if (typeof window !== 'undefined') {
+          window.location.href = redirectUrl
+        } else {
+          router.refresh()
+          router.push(redirectUrl)
+        }
       } else {
         setLoading(false)
       }
