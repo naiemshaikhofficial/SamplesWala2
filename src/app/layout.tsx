@@ -46,14 +46,12 @@ import "lenis/dist/lenis.css";
 import { LenisProvider } from "@/components/LenisProvider";
 import { WebMCP } from "@/components/WebMCP";
 
-// 🟢 BUNDLE OPTIMIZATION: Dynamically import client-only overlays to keep the critical initial JS bundle light
+// 🟢 BUNDLE OPTIMIZATION: Dynamically import client overlays to keep the critical initial JS bundle light
 const CartSidebar = dynamic(
-  () => import("@/components/CartSidebar").then((m) => m.CartSidebar),
-  { ssr: false }
+  () => import("@/components/CartSidebar").then((m) => m.CartSidebar)
 );
 const CookieConsentBanner = dynamic(
-  () => import("@/components/CookieConsentBanner").then((m) => m.CookieConsentBanner),
-  { ssr: false }
+  () => import("@/components/CookieConsentBanner").then((m) => m.CookieConsentBanner)
 );
 
 export default async function RootLayout({

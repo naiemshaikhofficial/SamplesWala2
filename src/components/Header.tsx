@@ -11,6 +11,7 @@ import { AnimatedLogo } from './AnimatedLogo'
 import { useAuth } from '@/context/AuthContext'
 import { getSearchSuggestions } from '@/app/browse/actions'
 import { useCurrency } from '@/context/CurrencyContext'
+import { ProducerToyStrip } from './ProducerToyStrip'
 
 function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
   const [query, setQuery] = useState('')
@@ -266,8 +267,12 @@ export function Header() {
   )
 
   return (
-    <header className={`${isMenuOpen ? 'fixed top-0' : 'sticky top-0'} z-[100] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-all flex items-center shadow-[0_4px_0_rgba(0,0,0,1)] w-full`}>
-      <div className="container mx-auto px-4 flex items-center justify-between w-full h-full relative z-[110]">
+    <>
+      {/* ProducerToy Top Strip directly above Header */}
+      {!isMenuOpen && <ProducerToyStrip />}
+
+      <header className={`${isMenuOpen ? 'fixed top-0' : 'sticky top-0'} z-[100] h-20 border-b-4 border-black ${isMenuOpen ? 'bg-black' : 'bg-studio-charcoal/80 backdrop-blur-md'} transition-colors flex items-center shadow-[0_4px_0_rgba(0,0,0,1)] w-full`}>
+        <div className="container mx-auto px-4 flex items-center justify-between w-full h-full relative z-[110]">
         <Link
           href="/"
           prefetch={false}
@@ -428,5 +433,6 @@ export function Header() {
         )}
       </AnimatePresence>
     </header>
-  )
+  </>
+)
 }
