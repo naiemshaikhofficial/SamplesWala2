@@ -145,9 +145,8 @@ export default async function HomePage() {
 
       {/* Epic Hero Section */}
       <section className="relative min-h-[90dvh] flex flex-col justify-center overflow-hidden border-b border-white/5 bg-black pt-10 pb-16">
-        {/* Background Gradients */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-studio-yellow/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 z-0" />
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-studio-neon/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4 z-0" />
+        {/* Background Gradients (Zero-Raster Radial Gradients) */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_0%,rgba(255,230,0,0.05)_0%,transparent_60%),radial-gradient(circle_at_10%_100%,rgba(0,255,148,0.04)_0%,transparent_50%)] pointer-events-none z-0" />
 
         <div className="container mx-auto px-4 relative z-30 space-y-10">
 
@@ -182,7 +181,7 @@ export default async function HomePage() {
       {/* The India Journey Series Showcase */}
       <div className="relative">
         {/* Top Separator: tricolor + scrolling Indian scenery + railroad + forward-moving steam train */}
-        <div className="w-full relative overflow-hidden">
+        <div className="w-full relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: '1px 86px' }}>
           {/* Train Animation CSS */}
           <style dangerouslySetInnerHTML={{
             __html: `
@@ -801,18 +800,13 @@ export default async function HomePage() {
         {/* Comic Halftone & Graffiti Backdrop */}
         <div className="absolute inset-0 z-0 opacity-40 bg-[radial-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:20px_20px]" />
 
-        {/* Splashes of India Flag Colors (Graffiti style) */}
-        {/* Saffron Splat */}
-        <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[60%] bg-[#FF9933]/15 blur-[80px] rounded-[30%_70%_70%_30%] rotate-[15deg] pointer-events-none" />
-        <div className="absolute top-10 left-10 w-24 h-24 bg-[#FF9933]/10 rounded-full blur-[20px] -rotate-12 pointer-events-none" />
-        {/* White Center Glow */}
-        <div className="absolute top-[20%] left-[30%] w-[35%] h-[50%] bg-white/5 blur-[100px] rounded-full pointer-events-none" />
-        {/* Green Splat */}
-        <div className="absolute bottom-[-10%] right-[-5%] w-[45%] h-[60%] bg-[#128807]/15 blur-[80px] rounded-[70%_30%_50%_50%] -rotate-[12deg] pointer-events-none" />
-        <div className="absolute bottom-16 right-20 w-32 h-32 bg-[#128807]/10 rounded-full blur-[30px] rotate-45 pointer-events-none" />
-
-        {/* Ashoka Blue / Indigo Accents */}
-        <div className="absolute top-[40%] left-[45%] w-48 h-48 bg-[#000080]/15 blur-[60px] rounded-full pointer-events-none animate-pulse" />
+        {/* Splashes of India Flag Colors (Optimized Multi-Radial Gradient - 0ms Blur Raster Cost) */}
+        <div 
+          className="absolute inset-0 pointer-events-none z-0"
+          style={{
+            background: 'radial-gradient(circle at 15% 15%, rgba(255, 153, 51, 0.12) 0%, transparent 45%), radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 40%), radial-gradient(circle at 85% 85%, rgba(18, 136, 7, 0.12) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(0, 0, 128, 0.08) 0%, transparent 35%)'
+          }}
+        />
 
         {/* Background Image (User Map) mixed in */}
         <div className="absolute inset-0 z-0">
@@ -915,7 +909,7 @@ export default async function HomePage() {
 
       {/* Trust Section */}
       <section className="pt-24 pb-24 bg-black/40 border-y border-white/5 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-neon/[0.02] blur-[120px] -z-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,255,148,0.03)_0%,transparent_70%)] pointer-events-none -z-10" />
 
         <div className="container mx-auto px-4 space-y-16">
           <div className="text-center space-y-4 relative">

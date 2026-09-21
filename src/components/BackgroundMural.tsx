@@ -1,18 +1,12 @@
 'use client'
 import Image from 'next/image'
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 
 export function BackgroundMural() {
   const containerRef = useRef<HTMLDivElement>(null)
   
   const { scrollY } = useScroll()
-  
-  const smoothY = useSpring(scrollY, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 1.0 // 🟢 CPU OPTIMIZATION: Relax physics computations much faster as scroll settles
-  })
 
   const [isMobile, setIsMobile] = useState(false)
   const [isClient, setIsClient] = useState(false)
@@ -25,24 +19,21 @@ export function BackgroundMural() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
   
-  // Multiple parallax layers with different speeds
-  // On mobile, we set the multiplier to 0 to prevent glitching
-  const muralY = useTransform(smoothY, (v) => isMobile ? 0 : v * 0.05)
-  const dotsY = useTransform(smoothY, (v) => isMobile ? 0 : v * 0.15)
-  const speedLinesY = useTransform(smoothY, (v) => isMobile ? 0 : v * 0.4)
-  const assetsY = useTransform(smoothY, (v) => isMobile ? 0 : v * -0.2)
-  const tagsY = useTransform(smoothY, (v) => isMobile ? 0 : v * 0.1)
+  // 🟢 GPU OPTIMIZATION: Direct linear transform without physics solver overhead.
+  // Zero scroll lag, perfectly in sync with 60Hz/120Hz/144Hz displays.
+  const muralY = useTransform(scrollY, (v) => isMobile ? 0 : v * 0.04)
+  const assetsY = useTransform(scrollY, (v) => isMobile ? 0 : v * -0.12)
 
   return (
     <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-black">
-      {/* LAYER -1: Dynamic Color Splatters (Black & White Theme - Deepest Color Wash) */}
+      {/* LAYER -1: Dynamic Ambient Glow (Zero-Raster Radial Gradient - 0ms GPU Blur Overhead) */}
       {!isMobile && (
-        <div className="absolute inset-0 opacity-20 blur-[120px] pointer-events-none">
-          {/* White glow at the top left */}
-          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-white/40 rounded-full animate-pulse" />
-          {/* White glow at the top right */}
-          <div className="absolute top-[10%] right-[10%] w-[50%] h-[50%] bg-white/20 rounded-full" />
-        </div>
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-25"
+          style={{
+            background: 'radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.08) 0%, transparent 45%)'
+          }}
+        />
       )}
 
       {/* LAYER 0: The Base Mural & Background Elements (Grouped for High Performance) */}
@@ -50,7 +41,7 @@ export function BackgroundMural() {
         style={{ 
           y: muralY,
           willChange: 'transform',
-          translateZ: 0 
+          transform: 'translateZ(0)'
         }}
         className="absolute inset-0 w-full h-[140%] -top-[20%]"
       >
@@ -131,7 +122,7 @@ export function BackgroundMural() {
           style={{ 
             y: assetsY,
             willChange: 'transform',
-            translateZ: 0
+            transform: 'translateZ(0)'
           }}
           className="absolute inset-0 w-full h-[120%] -top-[10%] pointer-events-none"
         >
@@ -175,7 +166,7 @@ export function BackgroundMural() {
       )}
 
       {/* LAYER 6: Dynamic Overlays & Vignettes */}
-      <div className="absolute inset-0 bg-black/40 mix-blend-multiply" />
+      <div className="absolute inset-0 bg-black/40 pointer-events-none" />
       {/* Black gradient overlay: fades to black at bottom (niche black), transparent at top (thoda white) */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black pointer-events-none" />
       

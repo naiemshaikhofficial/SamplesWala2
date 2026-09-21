@@ -79,6 +79,14 @@ a[data-social]:hover {
   --foreground: 0 0% 100%;
 }
 
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
 html,
 body {
   overflow-x: clip !important;
