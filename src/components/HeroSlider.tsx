@@ -151,10 +151,10 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
   // Predefined custom comic tags for slides
   const tags = [
-    { text: 'NEW ARRIVAL', color: 'bg-studio-red' },
-    { text: 'BEST SELLER', color: 'bg-studio-pink' },
-    { text: 'TRENDING PACK', color: 'bg-studio-yellow' },
-    { text: 'EPIC DEAL', color: 'bg-studio-neon' },
+    { text: 'NEW ARRIVAL', color: 'bg-studio-red text-white' },
+    { text: 'BEST SELLER', color: 'bg-[#18181b] text-zinc-200 border-zinc-700' },
+    { text: 'TRENDING PACK', color: 'bg-studio-yellow text-black' },
+    { text: 'EPIC DEAL', color: 'bg-studio-neon text-black' },
   ]
 
   const activeTag = tags[activeIndex % tags.length]
@@ -209,7 +209,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                 {/* Top Row: Tags & Badges */}
                 <div className="flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-2">
-                    <div className={`px-4 py-1.5 ${activeTag.color} text-black font-black uppercase text-[10px] md:text-xs tracking-[0.2em] shadow-[3px_3px_0px_black] border-2 border-black rotate-[-2deg]`}>
+                    <div className={`px-4 py-1.5 ${activeTag.color} ${activeTag.color.includes('text-') ? '' : 'text-black'} font-black uppercase text-[10px] md:text-xs tracking-[0.2em] shadow-[3px_3px_0px_black] border-2 border-black rotate-[-2deg]`}>
                       {activeTag.text}
                     </div>
                     {isOwnedActive && (
@@ -235,7 +235,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   {/* Left Text Block (7 Columns) */}
                   <div className="md:col-span-7 flex flex-col justify-center space-y-3 md:space-y-4">
                     <div className="space-y-1">
-                      <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-studio-blue flex items-center gap-2">
+                      <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-zinc-400 flex items-center gap-2">
                         {activePack.categories?.name || "SOUND COLLECTION"}
                       </span>
                       <h2 className="text-2xl md:text-4xl lg:text-4xl font-black uppercase tracking-tighter italic text-white comic-text leading-none break-words line-clamp-2">
@@ -243,7 +243,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       </h2>
                     </div>
 
-                    <p className="text-xs md:text-sm text-white/60 font-medium leading-relaxed max-w-lg border-l-4 border-studio-blue pl-4 line-clamp-2">
+                    <p className="text-xs md:text-sm text-white/60 font-medium leading-relaxed max-w-lg border-l-4 border-zinc-700 pl-4 line-clamp-2">
                       {activePack.description || "Unleash authentic Indian vibes in your DAW. This premium kit delivers pristine royalty-free recordings, rhythms, and modern fusion sounds ready to supercharge your beatmaking production."}
                     </p>
 
@@ -299,7 +299,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                   {/* Right Visual Image Block (5 Columns) */}
                   <div className="md:col-span-5 flex justify-center md:justify-end relative">
                     {/* Decorative Comic Splash behind the cover */}
-                    <div className="absolute w-60 h-60 bg-studio-pink/10 blur-2xl rounded-full -z-10 animate-pulse" />
+                    <div className="absolute w-60 h-60 bg-white/5 blur-2xl rounded-full -z-10 animate-pulse" />
 
                     <div className="w-56 md:w-64 aspect-square relative border-4 border-black shadow-premium transform hover:rotate-0 transition-transform duration-500 -rotate-3 group-hover:scale-105">
                       <Image
@@ -366,8 +366,11 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                       <button
                         onClick={(e) => handleBuyNow(e, activePack, currentPriceInr)}
-                        className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 hover:bg-white hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white'
-                          } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
+                        className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+                          isPreorderActive 
+                            ? 'bg-studio-neon text-black hover:bg-white hover:text-black' 
+                            : 'bg-[#18181b] hover:bg-[#27272c] text-zinc-100 hover:text-white border-2 sm:border-4 border-black'
+                        } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
                       >
                         {isPreorderActive ? 'PRE-ORDER NOW' : 'BUY NOW'}
                       </button>
@@ -376,7 +379,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
                   <Link
                     href={`/packs/${activePack.slug}`}
-                    className="w-full sm:w-auto h-11 sm:h-14 px-4 sm:px-6 border-2 border-white/10 hover:border-studio-blue hover:text-studio-blue text-[9px] sm:text-[10px] font-black uppercase tracking-widest flex items-center justify-center transition-all"
+                    className="w-full sm:w-auto h-11 sm:h-14 px-4 sm:px-6 border-2 border-white/10 hover:border-white/40 hover:text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest flex items-center justify-center transition-all"
                   >
                     View Details
                   </Link>
@@ -396,14 +399,14 @@ export function HeroSlider({ packs }: { packs: any[] }) {
               <button
                 key={pack.id}
                 onClick={() => handleSelectSlide(index)}
-                className={`flex-1 min-w-[200px] lg:w-full text-left p-3.5 border-4 border-black transition-all duration-300 relative flex items-center gap-3.5 select-none ${isActive
-                    ? 'bg-white/10 border-studio-pink shadow-[4px_4px_0px_black] translate-x-1'
+                className={`flex-1 min-w-[200px] lg:w-full text-left p-3.5 border-4 transition-all duration-300 relative flex items-center gap-3.5 select-none ${isActive
+                    ? 'bg-[#18181b] border-zinc-600 shadow-[4px_4px_0px_black] translate-x-1'
                     : 'bg-studio-charcoal border-black hover:bg-white/[0.03] hover:translate-x-0.5'
                   }`}
               >
                 {/* Active slider background slide-in indicator */}
                 {isActive && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-studio-pink" />
+                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-zinc-300" />
                 )}
 
                 {/* Pack Tiny Cover Thumbnail */}
@@ -420,7 +423,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                 {/* Pack Metadata */}
                 <div className="flex-1 min-w-0 pr-2">
                   <div className="flex items-center justify-between gap-1">
-                    <span className="text-[8px] font-black uppercase tracking-widest text-studio-blue block truncate">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 block truncate">
                       {pack.categories?.name || 'LOOPS KIT'}
                     </span>
                     {isItemOwned(pack.id, pack.slug) && (
@@ -442,7 +445,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                     <div className="w-full h-1 bg-white/10 mt-2 relative overflow-hidden rounded-full">
                       <div
                         key={`progress-${activeIndex}`}
-                        className="h-full bg-studio-pink origin-left"
+                        className="h-full bg-zinc-300 origin-left"
                         style={{
                           animation: `heroProgress ${slideDuration}ms linear forwards`
                         }}
