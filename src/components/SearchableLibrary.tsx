@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { DownloadButton } from '@/components/DownloadButton'
 import { BillingHistory } from '@/components/BillingHistory'
+import { ProducerOriginAnimation } from '@/components/ProducerOriginAnimation'
 
 interface LibraryItem {
   id: string
@@ -103,7 +104,11 @@ export function SearchableLibrary({
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-10 w-full max-w-6xl mx-auto px-2">
+    <div className="w-full max-w-6xl mx-auto px-2 space-y-6">
+      {/* 🚀 Origin Story: The Young Beatmaker Animation */}
+      <ProducerOriginAnimation />
+
+      <div className="flex flex-col md:flex-row gap-10 w-full">
       {/* 1. Left Sidebar Navigation (Comic Brutalist Style) */}
       <div className="hidden md:flex flex-col w-60 border-r-4 border-black pr-8 space-y-8 flex-shrink-0">
         <div className="space-y-4">
@@ -335,5 +340,6 @@ export function SearchableLibrary({
 
       </div>
     </div>
+  </div>
   )
 }
