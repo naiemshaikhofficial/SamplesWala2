@@ -48,9 +48,9 @@ class SamplesWalaBeatEngine {
     osc.connect(gain)
     gain.connect(this.ctx.destination)
 
-    osc.frequency.setValueAtTime(135, time)
-    osc.frequency.exponentialRampToValueAtTime(36, time + 0.35)
-    gain.gain.setValueAtTime(0.8, time)
+    osc.frequency.setValueAtTime(140, time)
+    osc.frequency.exponentialRampToValueAtTime(38, time + 0.35)
+    gain.gain.setValueAtTime(0.85, time)
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.35)
 
     osc.start(time)
@@ -63,18 +63,18 @@ class SamplesWalaBeatEngine {
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate)
     const data = buffer.getChannelData(0)
     for (let i = 0; i < bufferSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * 0.4
+      data[i] = (Math.random() * 2 - 1) * 0.45
     }
     const noise = this.ctx.createBufferSource()
     noise.buffer = buffer
 
     const filter = this.ctx.createBiquadFilter()
     filter.type = 'bandpass'
-    filter.frequency.setValueAtTime(1800, time)
-    filter.Q.setValueAtTime(3.0, time)
+    filter.frequency.setValueAtTime(1900, time)
+    filter.Q.setValueAtTime(3.2, time)
 
     const gain = this.ctx.createGain()
-    gain.gain.setValueAtTime(0.4, time)
+    gain.gain.setValueAtTime(0.45, time)
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.12)
 
     noise.connect(filter)
@@ -90,8 +90,8 @@ class SamplesWalaBeatEngine {
     const osc = this.ctx.createOscillator()
     const gain = this.ctx.createGain()
     osc.type = 'triangle'
-    osc.frequency.setValueAtTime(9000, time)
-    gain.gain.setValueAtTime(0.08, time)
+    osc.frequency.setValueAtTime(9500, time)
+    gain.gain.setValueAtTime(0.09, time)
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.035)
 
     osc.connect(gain)
@@ -109,14 +109,14 @@ class SamplesWalaBeatEngine {
 
     const filter = this.ctx.createBiquadFilter()
     filter.type = 'lowpass'
-    filter.frequency.setValueAtTime(900, time)
-    filter.frequency.exponentialRampToValueAtTime(2600, time + 0.15)
+    filter.frequency.setValueAtTime(950, time)
+    filter.frequency.exponentialRampToValueAtTime(2800, time + 0.15)
 
     osc.connect(filter)
     filter.connect(gain)
     gain.connect(this.ctx.destination)
 
-    gain.gain.setValueAtTime(0.18, time)
+    gain.gain.setValueAtTime(0.2, time)
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25)
 
     osc.start(time)
@@ -170,7 +170,7 @@ export function ProducerOriginAnimation() {
     }
   }, [scene, isSoundOn, isPaused])
 
-  // Continuous, smooth transition without awkward dead pauses
+  // Continuous, smooth story progression
   const transitionTo = (nextScene: StoryScene, durationMs: number) => {
     if (timerRef.current) clearTimeout(timerRef.current)
     if (isPaused) return
@@ -188,13 +188,13 @@ export function ProducerOriginAnimation() {
 
     switch (scene) {
       case 'GIFT_DOLL':
-        transitionTo('YEET_DOLL', 3800)
+        transitionTo('YEET_DOLL', 4000)
         break
       case 'YEET_DOLL':
-        transitionTo('REVEAL_PACK', 4200)
+        transitionTo('REVEAL_PACK', 4400)
         break
       case 'REVEAL_PACK':
-        transitionTo('DANCE_PARTY', 3800)
+        transitionTo('DANCE_PARTY', 4200)
         break
       case 'DANCE_PARTY':
         break
@@ -225,14 +225,30 @@ export function ProducerOriginAnimation() {
     <div className="w-full relative select-none rounded-sm border-4 border-black bg-zinc-950 shadow-[8px_8px_0px_black] overflow-hidden mb-8">
       {/* Top Header Controls Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-black border-b-4 border-black">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <div className="w-3 h-3 bg-studio-yellow rounded-full animate-ping border border-black" />
           <h3 className="text-xs md:text-sm font-black uppercase tracking-widest text-white italic flex items-center gap-2">
             Producer Origin: <span className="text-studio-neon">"Born for SamplesWala"</span>
             <span className="hidden sm:inline-block px-2 py-0.5 bg-studio-yellow text-black text-[9px] font-black uppercase not-italic rounded-xs">
-              COMIC ORIGIN
+              ORIGINAL STORY
             </span>
           </h3>
+        </div>
+
+        {/* Minimal Progress Bar (Replaces clumsy buttons) */}
+        <div className="hidden lg:flex items-center gap-1.5">
+          {(['GIFT_DOLL', 'YEET_DOLL', 'REVEAL_PACK', 'DANCE_PARTY'] as StoryScene[]).map((s, idx) => (
+            <div
+              key={s}
+              className={`h-1.5 rounded-full transition-all duration-500 ${
+                scene === s 
+                  ? 'w-10 bg-studio-yellow' 
+                  : idx < ['GIFT_DOLL', 'YEET_DOLL', 'REVEAL_PACK', 'DANCE_PARTY'].indexOf(scene)
+                    ? 'w-4 bg-[#00FF94]'
+                    : 'w-4 bg-zinc-800'
+              }`}
+            />
+          ))}
         </div>
 
         <div className="flex items-center gap-2">
@@ -278,20 +294,29 @@ export function ProducerOriginAnimation() {
         </div>
       </div>
 
-      {/* Main Animated Stage */}
+      {/* Main Animated Stage - Clean, Tall, Highly Detailed */}
       {!isCollapsed && (
-        <div className="relative w-full h-[360px] sm:h-[410px] md:h-[450px] bg-gradient-to-b from-[#14141c] via-[#0c0c12] to-[#040406] flex flex-col justify-between overflow-hidden">
+        <div className="relative w-full h-[380px] sm:h-[440px] md:h-[480px] bg-gradient-to-b from-[#161622] via-[#0d0d14] to-[#040407] flex flex-col justify-between overflow-hidden">
           
           {/* Halftone Comic Ambient Grid */}
-          <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#FFE600_1px,transparent_1px)] [background-size:22px_22px]" />
+          <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#FFE600_1px,transparent_1px)] [background-size:24px_24px]" />
 
-          {/* English Narrative Dialogue Bubble */}
+          {/* Dynamic Disco Laser Beams (Dance Party only) */}
+          {scene === 'DANCE_PARTY' && (
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+              <div className="absolute -top-20 left-1/4 w-32 h-[550px] bg-gradient-to-b from-[#00FF94] to-transparent rotate-25 blur-sm animate-pulse" />
+              <div className="absolute -top-20 right-1/4 w-32 h-[550px] bg-gradient-to-b from-[#FFE600] to-transparent -rotate-25 blur-sm animate-pulse delay-300" />
+              <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-48 h-[600px] bg-gradient-to-b from-[#FF0080] to-transparent blur-md animate-pulse delay-500" />
+            </div>
+          )}
+
+          {/* High-End Comic Narrative Speech Banner */}
           <div className="relative z-30 pt-3 flex justify-center px-4 pointer-events-none">
-            <div className="max-w-3xl px-5 py-2 bg-black border-3 border-black rounded-sm shadow-[5px_5px_0px_#FFE600] flex items-center gap-2.5 transition-all duration-300">
+            <div className="max-w-3xl px-6 py-2 bg-black border-3 border-black rounded-sm shadow-[6px_6px_0px_#FFE600] flex items-center gap-3 transition-all duration-300">
               <Sparkles size={16} className="text-studio-yellow animate-spin flex-shrink-0" />
-              <p className="text-xs sm:text-sm font-black uppercase tracking-wider text-white italic text-center">
+              <p className="text-xs sm:text-sm font-black uppercase tracking-wider text-white italic text-center leading-relaxed">
                 {scene === 'GIFT_DOLL' && "Parents: 'Surprise Beta! Here is a lovely cute doll for you! 🧸✨' | Kid: 'Wait... what is this?! 🤨'"}
-                {scene === 'YEET_DOLL' && "Kid: 'A DOLL?! NO WAY! I'M A PRODUCER, I WANT BEATS!' *YEET!* 💥 | Doll: 'MUJHE KYU TODA?! 😭💔'"}
+                {scene === 'YEET_DOLL' && "Kid: 'A DOLL?! NO WAY! I'M A PRODUCER, I NEED BEATS!' *YEET!* 💥 | Doll: 'MUJHE KYU TODA?! 😭💔'"}
                 {scene === 'REVEAL_PACK' && "Parents: 'Wait... He doesn't want toys! He was born for music! SAMPLESWALA SAMPLES ARE HERE!' ✨🎧"}
                 {scene === 'DANCE_PARTY' && "All: 'BOOM!! SAMPLESWALA SAMPLES CHANGED THE GAME! EVEN THE DOLL IS GROOVING!!' 🕺💃🔥🎧"}
               </p>
@@ -299,21 +324,21 @@ export function ProducerOriginAnimation() {
           </div>
 
           {/* ========================================================================= */}
-          {/* DETAILED SVG ANIMATION VIEWPORT (1000 x 380) - ROCK-SOLID STAGE COORDINATES */}
+          {/* DETAILED SVG ANIMATION VIEWPORT (1000 x 400) - ROCK-SOLID COMPOSITION */}
           {/* ========================================================================= */}
           <div className="relative flex-1 w-full flex items-center justify-center">
             <svg
-              viewBox="0 0 1000 380"
+              viewBox="0 0 1000 400"
               className="w-full h-full max-w-5xl mx-auto overflow-visible"
               preserveAspectRatio="xMidYMid meet"
             >
               <defs>
-                <filter id="comicShadowBold" x="-25%" y="-25%" width="150%" height="150%">
+                <filter id="comicShadowBold" x="-30%" y="-30%" width="160%" height="160%">
                   <feDropShadow dx="4" dy="4" stdDeviation="0" floodColor="#000000" floodOpacity="1" />
                 </filter>
                 <linearGradient id="goldPackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#FFF275" />
-                  <stop offset="45%" stopColor="#FFE600" />
+                  <stop offset="40%" stopColor="#FFE600" />
                   <stop offset="100%" stopColor="#FF9F1C" />
                 </linearGradient>
                 <linearGradient id="dollGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -328,19 +353,19 @@ export function ProducerOriginAnimation() {
 
               {/* STAGE FLOOR */}
               <g className="stage-floor">
-                <line x1="30" y1="330" x2="970" y2="330" stroke="#000000" strokeWidth="8" strokeLinecap="round" />
-                <line x1="60" y1="338" x2="940" y2="338" stroke="#FFE600" strokeWidth="2.5" strokeDasharray="16 8" />
-                <ellipse cx="500" cy="332" rx="430" ry="12" fill="#000000" opacity="0.45" />
+                <line x1="20" y1="350" x2="980" y2="350" stroke="#000000" strokeWidth="8" strokeLinecap="round" />
+                <line x1="50" y1="358" x2="950" y2="358" stroke="#FFE600" strokeWidth="3" strokeDasharray="16 8" />
+                <ellipse cx="500" cy="353" rx="440" ry="14" fill="#000000" opacity="0.45" />
               </g>
 
               {/* ===================================================================== */}
-              {/* DAD: POSITIONED ACCORDING TO SCENE */}
+              {/* DAD: BALANCED STAGE POSITIONS */}
               {/* ===================================================================== */}
               <g transform={
-                scene === 'GIFT_DOLL' ? 'translate(180, 115)' :
-                scene === 'YEET_DOLL' ? 'translate(95, 115)' :
-                scene === 'REVEAL_PACK' ? 'translate(160, 115)' :
-                'translate(200, 115)'
+                scene === 'GIFT_DOLL' ? 'translate(170, 135)' :
+                scene === 'YEET_DOLL' ? 'translate(90, 135)' :
+                scene === 'REVEAL_PACK' ? 'translate(150, 135)' :
+                'translate(190, 135)'
               }>
                 <g 
                   filter="url(#comicShadowBold)" 
@@ -374,11 +399,9 @@ export function ProducerOriginAnimation() {
                   {/* Dad Facial Expression */}
                   {scene === 'YEET_DOLL' ? (
                     <g>
-                      {/* Shocked Open Mouth & Blue Sweat Drop */}
                       <ellipse cx="0" cy="35" rx="7" ry="9" fill="#000" stroke="#000" strokeWidth="2" />
                       <line x1="-16" y1="6" x2="-4" y2="12" stroke="#000" strokeWidth="3.5" strokeLinecap="round" />
                       <line x1="4" y1="12" x2="16" y2="6" stroke="#000" strokeWidth="3.5" strokeLinecap="round" />
-                      {/* Big Sweat Drop */}
                       <path d="M22,10 C22,7 28,2 28,2 C28,2 34,7 34,10 C34,14 29,17 25,15 Z" fill="#38BDF8" stroke="#000" strokeWidth="1.5" />
                       <text x="0" y="-12" textAnchor="middle" fontSize="12" fontWeight="900" fill="#FFE600">"BETA NOOO!!"</text>
                     </g>
@@ -399,7 +422,6 @@ export function ProducerOriginAnimation() {
                   )}
                   {scene === 'YEET_DOLL' && (
                     <g>
-                      {/* Hands clutching head in comic shock */}
                       <path d="M-26,70 Q-40,25 -22,12" stroke="#2563EB" strokeWidth="14" strokeLinecap="round" />
                       <circle cx="-20" cy="12" r="8" fill="#F8CBA6" stroke="#000" strokeWidth="3" />
                       <path d="M26,70 Q40,25 22,12" stroke="#2563EB" strokeWidth="14" strokeLinecap="round" />
@@ -424,13 +446,13 @@ export function ProducerOriginAnimation() {
               </g>
 
               {/* ===================================================================== */}
-              {/* MOM: POSITIONED ACCORDING TO SCENE */}
+              {/* MOM: BALANCED STAGE POSITIONS */}
               {/* ===================================================================== */}
               <g transform={
-                scene === 'GIFT_DOLL' ? 'translate(290, 125)' :
-                scene === 'YEET_DOLL' ? 'translate(790, 125)' :
-                scene === 'REVEAL_PACK' ? 'translate(270, 125)' :
-                'translate(810, 125)'
+                scene === 'GIFT_DOLL' ? 'translate(280, 145)' :
+                scene === 'YEET_DOLL' ? 'translate(790, 145)' :
+                scene === 'REVEAL_PACK' ? 'translate(260, 145)' :
+                'translate(810, 145)'
               }>
                 <g 
                   filter="url(#comicShadowBold)" 
@@ -474,7 +496,6 @@ export function ProducerOriginAnimation() {
                   )}
                   {scene === 'YEET_DOLL' && (
                     <g>
-                      {/* Hands covering mouth in dramatic motherly gasp */}
                       <path d="M-22,70 Q-15,38 -4,29" stroke="#E11D48" strokeWidth="12" strokeLinecap="round" />
                       <circle cx="-3" cy="29" r="7" fill="#F8CBA6" stroke="#000" strokeWidth="2.5" />
                       <path d="M22,70 Q15,38 4,29" stroke="#E11D48" strokeWidth="12" strokeLinecap="round" />
@@ -501,7 +522,7 @@ export function ProducerOriginAnimation() {
               {/* THE DOLL: PRESENTED, CRASHED & CRYING WATERFALLS, OR DANCING */}
               {/* ===================================================================== */}
               {scene === 'GIFT_DOLL' && (
-                <g transform="translate(415, 195)" filter="url(#comicShadowBold)">
+                <g transform="translate(405, 215)" filter="url(#comicShadowBold)">
                   <g className="character-breathe">
                     <path d="M-18,25 L18,25 L26,75 L-26,75 Z" fill="url(#dollGrad)" stroke="#000" strokeWidth="3.5" />
                     <ellipse cx="0" cy="45" rx="16" ry="5" fill="#FFFFFF" opacity="0.5" />
@@ -522,18 +543,18 @@ export function ProducerOriginAnimation() {
                 <g>
                   {/* Dynamic Yeet Streaks Across Air */}
                   <g stroke="#FFE600" strokeWidth="4" strokeLinecap="round" opacity="0.9">
-                    <line x1="500" y1="165" x2="350" y2="235" strokeDasharray="16 8" />
-                    <line x1="470" y1="130" x2="280" y2="210" strokeDasharray="18 9" />
+                    <line x1="500" y1="185" x2="350" y2="255" strokeDasharray="16 8" />
+                    <line x1="470" y1="150" x2="280" y2="230" strokeDasharray="18 9" />
                   </g>
 
                   {/* Mid-Air YEET Comic Burst */}
-                  <g transform="translate(360, 180) rotate(-15)" filter="url(#comicShadowBold)">
+                  <g transform="translate(360, 200) rotate(-15)" filter="url(#comicShadowBold)">
                     <polygon points="0,-24 28,-10 52,-28 38,10 70,24 35,28 24,52 0,28 -28,44 -20,16 -52,-10 -20,-16" fill="#FF3131" stroke="#000" strokeWidth="4" />
                     <text x="0" y="10" textAnchor="middle" fill="#FFFFFF" fontWeight="900" fontSize="19" fontStyle="italic">YEET!!</text>
                   </g>
 
-                  {/* CRASHED & CRYING DOLL ON FLOOR AT (235, 275) */}
-                  <g transform="translate(235, 275)">
+                  {/* CRASHED & CRYING DOLL ON FLOOR AT (235, 295) */}
+                  <g transform="translate(235, 295)">
                     {/* Ripple Puddle of Tears on Floor */}
                     <ellipse cx="0" cy="38" rx="55" ry="12" fill="#38BDF8" opacity="0.6" className="tear-puddle-glow" />
                     <ellipse cx="0" cy="38" rx="35" ry="7" fill="#0284C7" opacity="0.4" />
@@ -596,7 +617,7 @@ export function ProducerOriginAnimation() {
 
               {/* SCENE 3: SITTING IN CORNER WITH BANDAGE SNIFFLING */}
               {scene === 'REVEAL_PACK' && (
-                <g transform="translate(90, 275)" filter="url(#comicShadowBold)">
+                <g transform="translate(90, 295)" filter="url(#comicShadowBold)">
                   <ellipse cx="0" cy="35" rx="25" ry="6" fill="#000" opacity="0.4" />
                   <path d="M-16,10 L16,10 L22,48 L-22,48 Z" fill="url(#dollGrad)" stroke="#000" strokeWidth="3" />
                   <circle cx="0" cy="-6" r="20" fill="#FFE4D6" stroke="#000" strokeWidth="3" />
@@ -616,7 +637,7 @@ export function ProducerOriginAnimation() {
 
               {/* SCENE 4: HEALED DOLL WEARING SUNGLASSES GROOVING TO THE BEAT! */}
               {scene === 'DANCE_PARTY' && (
-                <g transform="translate(340, 275)" filter="url(#comicShadowBold)">
+                <g transform="translate(340, 295)" filter="url(#comicShadowBold)">
                   <ellipse cx="0" cy="35" rx="25" ry="6" fill="#000" opacity="0.4" />
                   <g className="doll-bop-groove">
                     <path d="M-16,10 L16,10 L22,48 L-22,48 Z" fill="url(#dollGrad)" stroke="#000" strokeWidth="3" />
@@ -645,7 +666,7 @@ export function ProducerOriginAnimation() {
               {/* SAMPLESWALA SAMPLES SOUND VAULT PACK (OFFICIAL PRODUCT REVEAL) */}
               {/* ===================================================================== */}
               {(scene === 'REVEAL_PACK' || scene === 'DANCE_PARTY') && (
-                <g transform={scene === 'DANCE_PARTY' ? 'translate(435, 140)' : 'translate(410, 145)'} className="animate-packPopIn">
+                <g transform={scene === 'DANCE_PARTY' ? 'translate(435, 160)' : 'translate(410, 165)'} className="animate-packPopIn">
                   {/* Golden Radiating Sunburst Glow */}
                   <circle cx="75" cy="110" r="140" fill="#FFE600" opacity={scene === 'DANCE_PARTY' ? '0.2' : '0.45'} className="animate-pulse" />
 
@@ -732,10 +753,10 @@ export function ProducerOriginAnimation() {
               {/* THE KID: PROTAGONIST - ROCK-SOLID ANCHORED IN STAGE CENTER! */}
               {/* ===================================================================== */}
               <g transform={
-                scene === 'GIFT_DOLL' ? 'translate(540, 120)' :
-                scene === 'YEET_DOLL' ? 'translate(510, 120)' :
-                scene === 'REVEAL_PACK' ? 'translate(670, 120)' :
-                'translate(510, 120)'
+                scene === 'GIFT_DOLL' ? 'translate(540, 140)' :
+                scene === 'YEET_DOLL' ? 'translate(510, 140)' :
+                scene === 'REVEAL_PACK' ? 'translate(670, 140)' :
+                'translate(510, 140)'
               }>
                 <g 
                   filter="url(#comicShadowBold)" 
@@ -764,7 +785,6 @@ export function ProducerOriginAnimation() {
                   {/* Kid Arms per scene */}
                   {scene === 'GIFT_DOLL' && (
                     <g>
-                      {/* Pushing doll away skeptically */}
                       <path d="M-28,75 L-68,75" stroke="#FF3131" strokeWidth="14" strokeLinecap="round" />
                       <circle cx="-70" cy="75" r="8.5" fill="#F8CBA6" stroke="#000" strokeWidth="3" />
                       <path d="M28,75 L40,105" stroke="#FF3131" strokeWidth="14" strokeLinecap="round" />
@@ -772,17 +792,14 @@ export function ProducerOriginAnimation() {
                   )}
                   {scene === 'YEET_DOLL' && (
                     <g>
-                      {/* Full Force Throwing Pitch Arm Follow-through */}
                       <path d="M-28,75 L-88,95" stroke="#FF3131" strokeWidth="14" strokeLinecap="round" />
                       <circle cx="-92" cy="97" r="9" fill="#F8CBA6" stroke="#000" strokeWidth="3" />
                       <path d="M28,75 L38,95" stroke="#FF3131" strokeWidth="14" strokeLinecap="round" />
-                      {/* Angry Rage Mark */}
                       <text x="-40" y="10" fontSize="18" fill="#FF0000" fontWeight="900">💢</text>
                     </g>
                   )}
                   {scene === 'REVEAL_PACK' && (
                     <g>
-                      {/* Star eyes hands on cheeks */}
                       <path d="M-30,75 Q-44,38 -28,24" stroke="#FF3131" strokeWidth="13" strokeLinecap="round" />
                       <circle cx="-28" cy="24" r="8" fill="#F8CBA6" stroke="#000" strokeWidth="3" />
                       <path d="M30,75 Q44,38 28,24" stroke="#FF3131" strokeWidth="13" strokeLinecap="round" />
@@ -791,13 +808,11 @@ export function ProducerOriginAnimation() {
                   )}
                   {scene === 'DANCE_PARTY' && (
                     <g>
-                      {/* Left arm waving up high in the beat */}
                       <g className="kid-arm-wave-inner">
                         <path d="M-30,75 Q-65,45 -55,8" stroke="#FF3131" strokeWidth="14" strokeLinecap="round" />
                         <circle cx="-53" cy="6" r="8.5" fill="#F8CBA6" stroke="#000" strokeWidth="3" />
                         <text x="-55" y="-5" fontSize="18">🔥</text>
                       </g>
-                      {/* Right arm grooving / finger drumming on the beat */}
                       <g className="kid-arm-drum-inner">
                         <path d="M30,75 Q-15,95 -60,115" stroke="#FF3131" strokeWidth="14" strokeLinecap="round" />
                         <circle cx="-63" cy="118" r="8.5" fill="#F8CBA6" stroke="#000" strokeWidth="3" />
@@ -815,7 +830,6 @@ export function ProducerOriginAnimation() {
                     {/* Face Expressions */}
                     {scene === 'GIFT_DOLL' && (
                       <g>
-                        {/* Skeptical Side Eye & Raised Eyebrow */}
                         <line x1="-16" y1="14" x2="-4" y2="20" stroke="#000" strokeWidth="3.5" strokeLinecap="round" />
                         <line x1="4" y1="18" x2="16" y2="18" stroke="#000" strokeWidth="3.5" strokeLinecap="round" />
                         <circle cx="-10" cy="24" r="3" fill="#000" />
@@ -825,7 +839,6 @@ export function ProducerOriginAnimation() {
                     )}
                     {scene === 'YEET_DOLL' && (
                       <g>
-                        {/* Angry Shouting Producer Face */}
                         <line x1="-17" y1="12" x2="-4" y2="22" stroke="#000" strokeWidth="4" strokeLinecap="round" />
                         <line x1="4" y1="22" x2="17" y2="12" stroke="#000" strokeWidth="4" strokeLinecap="round" />
                         <path d="M-15,24 L-5,24" stroke="#000" strokeWidth="4" strokeLinecap="round" />
@@ -836,7 +849,6 @@ export function ProducerOriginAnimation() {
                     )}
                     {scene === 'REVEAL_PACK' && (
                       <g>
-                        {/* Glowing Star Eyes 🤩 */}
                         <g transform="translate(-10, 22) scale(0.9)">
                           <polygon points="0,-14 4,-4 14,0 4,4 0,14 -4,4 -14,0 -4,-4" fill="#FFE600" stroke="#000" strokeWidth="2" />
                         </g>
@@ -848,7 +860,6 @@ export function ProducerOriginAnimation() {
                     )}
                     {scene === 'DANCE_PARTY' && (
                       <g>
-                        {/* Neon Pixel Shades with White Streak */}
                         <polygon points="-26,16 -4,16 -7,32 -23,32" fill="#000" stroke="#00FF94" strokeWidth="2.5" />
                         <polygon points="4,16 26,16 23,32 7,32" fill="#000" stroke="#00FF94" strokeWidth="2.5" />
                         <line x1="-4" y1="20" x2="4" y2="20" stroke="#00FF94" strokeWidth="3" />
@@ -874,55 +885,16 @@ export function ProducerOriginAnimation() {
               {/* FLOATING MUSIC BEAT NOTES (DANCE PARTY) */}
               {scene === 'DANCE_PARTY' && (
                 <g fontWeight="900" fontSize="30" filter="url(#comicShadowBold)">
-                  <text x="460" y="60" fill="#00FF94" className="note-float-1">♪</text>
-                  <text x="560" y="45" fill="#FFE600" className="note-float-2">♫</text>
-                  <text x="410" y="115" fill="#FF0080" className="note-float-3">♬</text>
-                  <text x="620" y="90" fill="#00FF94" className="note-float-4">♩</text>
-                  <text x="505" y="25" fill="#FFE600" className="note-float-5">⚡</text>
-                  <text x="310" y="55" fill="#FFE600" className="note-float-1">♪</text>
-                  <text x="730" y="40" fill="#00FF94" className="note-float-3">♫</text>
+                  <text x="460" y="70" fill="#00FF94" className="note-float-1">♪</text>
+                  <text x="560" y="55" fill="#FFE600" className="note-float-2">♫</text>
+                  <text x="410" y="125" fill="#FF0080" className="note-float-3">♬</text>
+                  <text x="620" y="100" fill="#00FF94" className="note-float-4">♩</text>
+                  <text x="505" y="35" fill="#FFE600" className="note-float-5">⚡</text>
+                  <text x="310" y="65" fill="#FFE600" className="note-float-1">♪</text>
+                  <text x="730" y="50" fill="#00FF94" className="note-float-3">♫</text>
                 </g>
               )}
             </svg>
-          </div>
-
-          {/* Bottom Interactive Scene Navigator Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 p-2.5 bg-black/95 border-t-4 border-black z-30">
-            <span className="text-[10px] font-black uppercase tracking-wider text-white/40 mr-1 hidden md:inline">
-              Story Chapter:
-            </span>
-            <button
-              onClick={() => { setScene('GIFT_DOLL'); setIsPaused(false); }}
-              className={`px-3 py-1 text-[9px] font-black uppercase tracking-wider rounded-xs border-2 border-black transition-all cursor-pointer ${
-                scene === 'GIFT_DOLL' ? 'bg-[#FFE600] text-black shadow-[2px_2px_0px_white]' : 'bg-zinc-900 text-white/60 hover:text-white'
-              }`}
-            >
-              1. The Doll 🧸
-            </button>
-            <button
-              onClick={() => { setScene('YEET_DOLL'); setIsPaused(false); }}
-              className={`px-3 py-1 text-[9px] font-black uppercase tracking-wider rounded-xs border-2 border-black transition-all cursor-pointer ${
-                scene === 'YEET_DOLL' ? 'bg-[#FF3131] text-white shadow-[2px_2px_0px_white]' : 'bg-zinc-900 text-white/60 hover:text-white'
-              }`}
-            >
-              2. Mujhe Kyu Toda?! 😭💔
-            </button>
-            <button
-              onClick={() => { setScene('REVEAL_PACK'); setIsPaused(false); }}
-              className={`px-3 py-1 text-[9px] font-black uppercase tracking-wider rounded-xs border-2 border-black transition-all cursor-pointer ${
-                scene === 'REVEAL_PACK' ? 'bg-[#FFE600] text-black shadow-[2px_2px_0px_white]' : 'bg-zinc-900 text-white/60 hover:text-white'
-              }`}
-            >
-              3. SamplesWala Reveal ✨
-            </button>
-            <button
-              onClick={() => { setScene('DANCE_PARTY'); setIsPaused(false); }}
-              className={`px-3.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-xs border-2 border-black transition-all cursor-pointer ${
-                scene === 'DANCE_PARTY' ? 'bg-[#00FF94] text-black shadow-[2px_2px_0px_white]' : 'bg-zinc-900 text-white/60 hover:text-white'
-              }`}
-            >
-              4. Family Dance Party! 🕺💃🔥
-            </button>
           </div>
         </div>
       )}
