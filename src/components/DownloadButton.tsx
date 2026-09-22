@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Download, Loader2, AlertTriangle } from 'lucide-react'
+import { Download, Loader2, AlertTriangle, Check } from 'lucide-react'
 import { getSecureDownloadUrl } from '@/app/packs/actions'
 import { useCart } from '@/context/CartContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -24,10 +24,11 @@ export function DownloadButton({
     if (status === 'processing') {
       interval = setInterval(() => {
         setProgress(prev => {
-          if (prev >= 98) return prev
-          return prev + 10 // Rapid increment
+          if (prev >= 95) return prev
+          const increment = prev < 50 ? 12 : prev < 80 ? 6 : 2
+          return Math.min(prev + increment, 95)
         })
-      }, 50)
+      }, 70)
     } else if (status === 'success') {
       setProgress(100)
     } else {
@@ -38,12 +39,13 @@ export function DownloadButton({
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation() // Prevent card click trigger
+    if (status !== 'idle') return
+
     setStatus('processing')
     setError(null)
-    setProgress(0)
+    setProgress(15)
 
     try {
-      // Start fetching immediately
       const secureUrlPromise = getSecureDownloadUrl(itemId, type)
 
       const [res] = await Promise.all([
@@ -52,15 +54,19 @@ export function DownloadButton({
       ])
 
       if (res && res.success && res.url) {
+        setProgress(100)
         window.location.href = res.url
         setStatus('success')
-        setTimeout(() => setStatus('idle'), 5000)
+        setTimeout(() => {
+          setStatus('idle')
+          setProgress(0)
+        }, 5000)
       } else {
         const errorMsg = (res && res.error) || "Download failed. Please try again."
         setError(errorMsg)
         setStatus('idle')
+        setProgress(0)
         if (errorMsg.toLowerCase().includes("own") || errorMsg.toLowerCase().includes("login")) {
-          // Immediately sync ownership so UI resets and restores buy button
           syncOwnedIds()
         }
       }
@@ -68,40 +74,63 @@ export function DownloadButton({
       console.error("Download Failed:", err)
       setError(err?.message || "Failed to start download. Please refresh.")
       setStatus('idle')
+      setProgress(0)
       syncOwnedIds()
     }
   }
 
+  // Sizing tokens
+  const containerHeight = compact ? 'h-10' : 'h-14 sm:h-16'
+  const containerWidth = compact ? 'w-full' : 'w-full md:w-auto md:min-w-[280px]'
+  const fontSize = compact ? 'text-[10px]' : 'text-sm sm:text-base'
+  const paddingX = compact ? 'px-3' : 'px-6 sm:px-8'
+  const iconSize = compact ? 14 : 20
+
+  // Brutalist shadow states
+  const borderShadowClass = status === 'idle'
+    ? (compact 
+        ? 'border-2 border-black shadow-[3px_3px_0px_black] hover:shadow-[4px_4px_0px_black] hover:-translate-x-0.5 hover:-translate-y-0.5' 
+        : 'border-4 border-black shadow-[6px_6px_0px_black] hover:shadow-[8px_8px_0px_black] hover:-translate-x-1 hover:-translate-y-1')
+    : status === 'processing'
+      ? (compact 
+          ? 'border-2 border-black shadow-[3px_3px_0px_#FFE600]' 
+          : 'border-4 border-black shadow-[6px_6px_0px_#FFE600]')
+      : (compact 
+          ? 'border-2 border-black shadow-[3px_3px_0px_#00FF94]' 
+          : 'border-4 border-black shadow-[6px_6px_0px_#00FF94]')
+
   const btnBg = status === 'idle'
-    ? 'bg-[#FF3131] text-white hover:bg-[#ff4b4b]'
+    ? 'bg-[#FF3131] text-white hover:bg-[#ff1f1f]'
     : status === 'processing'
       ? 'bg-[#FFE600] text-black'
       : 'bg-[#00FF94] text-black'
 
-  const borderShadowClass = status === 'idle'
-    ? (compact ? 'border-2 border-black shadow-[2px_2px_0px_black]' : 'border-4 border-black shadow-[4px_4px_0px_black]')
-    : status === 'processing'
-      ? (compact ? 'border-2 border-black shadow-[2px_2px_0px_#FFE600]' : 'border-4 border-black shadow-[4px_4px_0px_#FFE600]')
-      : (compact ? 'border-2 border-black shadow-[2px_2px_0px_#00FF94]' : 'border-4 border-black shadow-[4px_4px_0px_#00FF94]')
-
-  const containerHeight = compact ? 'h-8' : 'h-11'
-  const fontSize = compact ? 'text-[9px]' : 'text-[11px]'
-
   return (
-    <div className={`space-y-1.5 w-full mx-auto`} onClick={(e) => e.stopPropagation()}>
-      <div className={`relative overflow-hidden rounded-sm transition-all duration-300 ${borderShadowClass} ${containerHeight} w-full`}>
+    <div className={`space-y-2 ${containerWidth}`} onClick={(e) => e.stopPropagation()}>
+      <div 
+        className={`group relative overflow-hidden rounded-sm select-none transition-all duration-200 ${containerHeight} ${borderShadowClass} active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_black]`}
+      >
         {/* Progress Bar overlay */}
-        <motion.div
-          className="absolute inset-0 z-0 origin-left bg-[#00FF94]/25"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: progress / 100 }}
-          transition={{ duration: 0.1 }}
-        />
+        {status === 'processing' && (
+          <motion.div
+            className="absolute inset-0 z-0 origin-left bg-[#00FF94]/30"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: progress / 100 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+          />
+        )}
+
+        {/* Shimmer / Light sweep effect on idle */}
+        {status === 'idle' && (
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-10" />
+        )}
 
         <button
+          type="button"
           disabled={status !== 'idle'}
           onClick={handleDownload}
-          className={`relative z-10 w-full h-full font-black uppercase tracking-wider ${fontSize} flex items-center justify-center gap-2 transition-all cursor-pointer
+          aria-label={status === 'processing' ? 'Downloading...' : 'Download sample pack'}
+          className={`relative z-10 w-full h-full font-black uppercase tracking-wider ${fontSize} ${paddingX} flex items-center justify-center gap-2.5 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-white
             ${btnBg}
             ${status === 'processing' ? 'cursor-wait' : ''}
           `}
@@ -110,48 +139,42 @@ export function DownloadButton({
             {status === 'idle' && (
               <motion.div
                 key="idle"
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, y: -20, transition: { type: "spring", stiffness: 300, damping: 15 } }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 font-black uppercase tracking-widest italic"
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center justify-center gap-2.5 font-black uppercase tracking-widest italic w-full"
               >
                 <motion.div
                   animate={{ y: [0, -3, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                  className="flex items-center"
+                  transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+                  className="flex items-center justify-center shrink-0"
                 >
-                  <Download size={compact ? 12 : 16} />
+                  <Download size={iconSize} strokeWidth={2.8} className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
                 </motion.div>
-                <span>{compact ? 'Download' : 'DOWNLOAD'}</span>
+                
+                <span className="truncate">{compact ? 'Download' : 'DOWNLOAD PACK'}</span>
+
+                {!compact && (
+                  <span className="hidden sm:inline-block bg-black text-white text-[9px] font-mono px-2 py-0.5 rounded-xs border border-white/20 tracking-widest uppercase ml-1">
+                    ZIP
+                  </span>
+                )}
               </motion.div>
             )}
 
             {status === 'processing' && (
               <motion.div
-                key="loading"
-                initial={{ opacity: 0, y: 20 }}
+                key="processing"
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="flex items-center gap-2 font-black uppercase tracking-widest italic"
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center justify-center gap-2.5 font-black uppercase tracking-widest italic w-full text-black"
               >
-                <Loader2 className="animate-spin text-black shrink-0" size={compact ? 12 : 16} />
-                <span className="flex">
-                  {(compact ? 'Downloading...' : 'DOWNLOADING...').split('').map((char, index) => (
-                    <motion.span
-                      key={index}
-                      animate={{ y: [0, -4, 0] }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 0.6,
-                        delay: index * 0.05,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      {char === ' ' ? '\u00A0' : char}
-                    </motion.span>
-                  ))}
+                <Loader2 className="animate-spin shrink-0 text-black" size={iconSize} strokeWidth={2.8} />
+                <span className="truncate">
+                  {compact ? 'PREPARING...' : `PREPARING ZIP (${progress}%)`}
                 </span>
               </motion.div>
             )}
@@ -159,22 +182,17 @@ export function DownloadButton({
             {status === 'success' && (
               <motion.div
                 key="success"
-                initial={{ scale: 0.2, rotate: -15, opacity: 0 }}
-                animate={{ 
-                  scale: 1, 
-                  rotate: -3, 
-                  opacity: 1 
-                }}
-                transition={{ 
-                  type: "spring", 
-                  stiffness: 400, 
-                  damping: 10,
-                  mass: 0.7
-                }}
-                className="flex items-center justify-center gap-2 font-black uppercase tracking-widest italic text-black"
+                initial={{ scale: 0.7, opacity: 0, rotate: -4 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ type: "spring", stiffness: 450, damping: 15 }}
+                className="flex items-center justify-center gap-2 font-black uppercase tracking-widest italic w-full text-black"
               >
-                <span className="bg-black text-[#00FF94] px-3 py-1 border-2 border-[#00FF94] shadow-[3px_3px_0px_#00FF94] text-[10px] md:text-[11px] scale-105 font-black tracking-widest italic">
-                  {compact ? 'STARTED!' : 'BOOM! STARTED.'}
+                <div className="bg-black text-[#00FF94] p-1 rounded-full">
+                  <Check size={compact ? 10 : 14} strokeWidth={3.5} />
+                </div>
+                <span className="truncate">
+                  {compact ? 'STARTED!' : 'DOWNLOAD STARTED!'}
                 </span>
               </motion.div>
             )}
@@ -183,10 +201,14 @@ export function DownloadButton({
       </div>
 
       {error && (
-        <div className="flex items-center justify-center gap-1 text-red-500">
-          <AlertTriangle size={10} />
-          <p className="text-[8px] font-bold uppercase tracking-widest italic">{error}</p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-center gap-1.5 text-red-400 bg-red-950/40 border border-red-500/30 px-3 py-1.5 rounded-sm"
+        >
+          <AlertTriangle size={12} className="shrink-0" />
+          <p className="text-[9px] font-bold uppercase tracking-wider italic text-center">{error}</p>
+        </motion.div>
       )}
     </div>
   )

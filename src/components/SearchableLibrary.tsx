@@ -1,11 +1,10 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react'
-import { Search, Music, ArrowRight, X, ShieldCheck, ArrowLeft, Play, Pause, Download, Loader2, Sparkles, FolderHeart, Volume2, Receipt } from 'lucide-react'
+import React, { useState } from 'react'
+import { Search, Music, ArrowRight, X, ShieldCheck, ArrowLeft, Sparkles, FolderHeart, Receipt } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { DownloadButton } from '@/components/DownloadButton'
 import { BillingHistory } from '@/components/BillingHistory'
-import { getPackSamples } from '@/app/library/actions'
 
 interface LibraryItem {
   id: string
@@ -15,32 +14,6 @@ interface LibraryItem {
   type: 'pack' | 'preset'
   is_downloadable: boolean
   created_at?: string
-}
-
-function getWaveformPoints(id: string): number[] {
-  const points = 32
-  const signal: number[] = []
-  let seed = 0
-  for (let i = 0; i < id.length; i++) {
-    seed += id.charCodeAt(i)
-  }
-  for (let i = 0; i < points; i++) {
-    const val = Math.abs(
-      Math.sin(i * 0.75 + seed) * 35 + 
-      Math.sin(i * 0.25) * 20 + 
-      Math.cos(i * 0.4 + seed) * 15 +
-      10
-    )
-    signal.push(Math.floor(val))
-  }
-  return signal
-}
-
-function formatTime(secs: number) {
-  if (isNaN(secs)) return '0:00'
-  const m = Math.floor(secs / 60)
-  const s = Math.floor(secs % 60)
-  return `${m}:${s < 10 ? '0' : ''}${s}`
 }
 
 export function SearchableLibrary({ 
@@ -60,153 +33,12 @@ export function SearchableLibrary({
 
   // Pack Explorer states
   const [activePack, setActivePack] = useState<LibraryItem | null>(null)
-  const [samples, setSamples] = useState<any[]>([])
-  const [loadingSamples, setLoadingSamples] = useState(false)
-  const [samplesError, setSamplesError] = useState<string | null>(null)
-  const [searchPackText, setSearchPackText] = useState('')
-  const [typeFilter, setTypeFilter] = useState<'all' | 'loop' | 'one_shot'>('all')
-
-  // Audio Player states
-  const [currentSampleId, setCurrentSampleId] = useState<string | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-
-  // Initialize global audio element
-  useEffect(() => {
-    audioRef.current = new Audio()
-
-    const handleTimeUpdate = () => {
-      if (audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime)
-      }
-    }
-
-    const handleDurationChange = () => {
-      if (audioRef.current) {
-        setDuration(audioRef.current.duration)
-      }
-    }
-
-    const handleEnded = () => {
-      setIsPlaying(false)
-      setCurrentTime(0)
-    }
-
-    audioRef.current.addEventListener('timeupdate', handleTimeUpdate)
-    audioRef.current.addEventListener('durationchange', handleDurationChange)
-    audioRef.current.addEventListener('ended', handleEnded)
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.removeEventListener('timeupdate', handleTimeUpdate)
-        audioRef.current.removeEventListener('durationchange', handleDurationChange)
-        audioRef.current.removeEventListener('ended', handleEnded)
-        audioRef.current = null
-      }
-    }
-  }, [])
-
-  // Load samples when a pack is selected in the explorer
-  const packSamplesCacheRef = useRef<Record<string, any[]>>({})
-
-  // Load samples when a pack is selected in the explorer
-  useEffect(() => {
-    if (!activePack) {
-      setSamples([])
-      setSamplesError(null)
-      return
-    }
-
-    // Check client-side cache first to avoid Vercel API / Serverless execution
-    if (packSamplesCacheRef.current[activePack.id]) {
-      setSamples(packSamplesCacheRef.current[activePack.id])
-      setSamplesError(null)
-      return
-    }
-
-    let isMounted = true
-    const loadSamples = async () => {
-      setLoadingSamples(true)
-      setSamplesError(null)
-      try {
-        const data = await getPackSamples(activePack.id)
-        if (!isMounted) return
-        setSamples(data)
-        packSamplesCacheRef.current[activePack.id] = data
-      } catch (err: any) {
-        if (!isMounted) return
-        console.error('Error fetching samples:', err)
-        setSamplesError(err.message || 'Failed to retrieve cloud samples.')
-      } finally {
-        if (isMounted) {
-          setLoadingSamples(false)
-        }
-      }
-    }
-
-    loadSamples()
-    return () => {
-      isMounted = false
-    }
-  }, [activePack])
-
-  // Playback handlers
-  const togglePlay = async (sample: any) => {
-    if (!audioRef.current || !sample.stream_url) return
-
-    if (currentSampleId === sample.id) {
-      if (isPlaying) {
-        audioRef.current.pause()
-        setIsPlaying(false)
-      } else {
-        try {
-          await audioRef.current.play()
-          setIsPlaying(true)
-        } catch (err) {
-          console.error('Playback error:', err)
-          setIsPlaying(false)
-        }
-      }
-    } else {
-      audioRef.current.pause()
-      audioRef.current.src = sample.stream_url
-      audioRef.current.load()
-      setCurrentSampleId(sample.id)
-      setCurrentTime(0)
-      setDuration(0)
-      try {
-        await audioRef.current.play()
-        setIsPlaying(true)
-      } catch (err) {
-        console.error('Playback error:', err)
-        setIsPlaying(false)
-      }
-    }
-  }
-
-  const handleSeek = (sample: any, e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioRef.current || currentSampleId !== sample.id || !duration) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const clickX = e.clientX - rect.left
-    const clickPct = clickX / rect.width
-    audioRef.current.currentTime = clickPct * duration
-  }
 
   // Filter calculations
   const filteredItems = items.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
     const matchesTab = (activeTab === 'packs' && p.type === 'pack') || (activeTab === 'presets' && p.type === 'preset')
     return matchesSearch && matchesTab
-  })
-
-  const filteredSamples = samples.filter(s => {
-    const matchesSearch = s.name.toLowerCase().includes(searchPackText.toLowerCase()) ||
-                          s.tags.some((t: string) => t.toLowerCase().includes(searchPackText.toLowerCase()))
-    const matchesType = typeFilter === 'all' || s.type === typeFilter
-    return matchesSearch && matchesType
   })
 
   // Dynamic counts for tabs
@@ -219,14 +51,7 @@ export function SearchableLibrary({
       <div className="space-y-8 animate-fadeIn max-w-6xl mx-auto">
         {/* Back breadcrumb */}
         <button 
-          onClick={() => {
-            setActivePack(null)
-            if (audioRef.current) {
-              audioRef.current.pause()
-              setIsPlaying(false)
-              setCurrentSampleId(null)
-            }
-          }}
+          onClick={() => setActivePack(null)}
           className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-white/40 hover:text-white transition-colors group cursor-pointer"
         >
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -255,10 +80,14 @@ export function SearchableLibrary({
                 {activePack.name}
               </h2>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-[10px] font-black text-white/40 uppercase tracking-widest">
-                <span>{loadingSamples ? '...' : samples.length} Cloud Sounds Loaded</span>
+                <span className="text-studio-neon">100% Royalty-Free</span>
                 <span className="text-white/10">•</span>
+                <span>24-bit Lossless WAV</span>
                 {activePack.created_at && (
-                  <span>Unlocked on {new Date(activePack.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                  <>
+                    <span className="text-white/10">•</span>
+                    <span>Unlocked on {new Date(activePack.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                  </>
                 )}
               </div>
             </div>
@@ -269,220 +98,6 @@ export function SearchableLibrary({
           </div>
         </div>
 
-        {/* Inside Pack Audio Stream Explorer */}
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b-4 border-black pb-6">
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="bg-[#00FF94] text-black border-2 border-black p-2 shadow-[2px_2px_0px_black] rotate-2">
-                <Volume2 size={16} />
-              </div>
-              <h3 className="text-sm md:text-base font-black uppercase tracking-wider text-white italic">Cloud Preview & STEM Downloads</h3>
-            </div>
-
-            {/* In-pack search and tag switcher */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-              {/* Type Switcher */}
-              <div className="flex rounded-sm bg-black border-2 border-black p-0.5 w-full sm:w-auto">
-                <button
-                  onClick={() => setTypeFilter('all')}
-                  className={`flex-1 sm:flex-none px-5 py-2 text-[9px] font-black uppercase tracking-wider transition-all rounded-xs cursor-pointer ${
-                    typeFilter === 'all' ? 'bg-[#FFE600] text-black border border-black shadow-[1px_1px_0px_black]' : 'text-white/40 hover:text-white'
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setTypeFilter('loop')}
-                  className={`flex-1 sm:flex-none px-5 py-2 text-[9px] font-black uppercase tracking-wider transition-all rounded-xs cursor-pointer ${
-                    typeFilter === 'loop' ? 'bg-studio-yellow text-black border border-black shadow-[1px_1px_0px_black]' : 'text-white/40 hover:text-white'
-                  }`}
-                >
-                  Loops
-                </button>
-                <button
-                  onClick={() => setTypeFilter('one_shot')}
-                  className={`flex-1 sm:flex-none px-5 py-2 text-[9px] font-black uppercase tracking-wider transition-all rounded-xs cursor-pointer ${
-                    typeFilter === 'one_shot' ? 'bg-studio-yellow text-black border border-black shadow-[1px_1px_0px_black]' : 'text-white/40 hover:text-white'
-                  }`}
-                >
-                  One-shots
-                </button>
-              </div>
-
-              {/* Sub-search input */}
-              <div className="relative w-full sm:w-60">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={14} />
-                <input 
-                  type="text"
-                  placeholder="Search pack sounds..."
-                  value={searchPackText}
-                  onChange={(e) => setSearchPackText(e.target.value)}
-                  className="w-full bg-black border-2 border-black rounded-sm py-2 pl-9 pr-8 text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:border-studio-neon transition-all placeholder:text-white/20"
-                />
-                {searchPackText && (
-                  <button 
-                    onClick={() => setSearchPackText('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white"
-                  >
-                    <X size={12} />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Sound list container */}
-          {loadingSamples ? (
-            <div className="w-full text-center py-24 bg-white/[0.01] border border-white/5 rounded-lg flex flex-col items-center justify-center gap-4">
-              <Loader2 className="animate-spin text-studio-neon" size={32} />
-              <p className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">Retrieving secure audio signals...</p>
-            </div>
-          ) : samplesError ? (
-            <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-red-500/10 rounded-lg text-red-500">
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-2">{samplesError}</p>
-              <button 
-                onClick={() => {
-                  setSamplesError(null);
-                  setActivePack(activePack); // re-trigger fetch
-                }}
-                className="text-[10px] font-bold uppercase tracking-wider underline hover:text-white"
-              >
-                Retry Request
-              </button>
-            </div>
-          ) : filteredSamples.length === 0 ? (
-            <div className="w-full text-center py-20 bg-white/[0.01] border border-dashed border-white/5 rounded-lg">
-              <p className="text-[11px] font-bold text-white/20 uppercase tracking-[0.2em]">
-                {searchPackText || typeFilter !== 'all' ? 'No matches found in this pack' : 'No individual tracks found for this pre-ordered collection'}
-              </p>
-              {(searchPackText || typeFilter !== 'all') && (
-                <button 
-                  onClick={() => {
-                    setSearchPackText('');
-                    setTypeFilter('all');
-                  }}
-                  className="mt-4 text-[10px] font-bold uppercase tracking-wider text-studio-neon hover:underline"
-                >
-                  Clear Filters
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredSamples.map((sample) => {
-                const progressPct = currentSampleId === sample.id && duration > 0
-                  ? (currentTime / duration) * 100
-                  : 0
-                const points = getWaveformPoints(sample.id)
-
-                return (
-                  <div 
-                    key={sample.id} 
-                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-2 rounded-sm transition-all duration-300 ${
-                      currentSampleId === sample.id 
-                        ? 'bg-zinc-900 border-studio-neon shadow-[3px_3px_0px_black]' 
-                        : 'bg-[#18181c]/50 border-black shadow-[2px_2px_0px_rgba(255,255,255,0.05)] hover:border-white/20 hover:shadow-[3px_3px_0px_black]'
-                    }`}
-                  >
-                    {/* Left: Play and Info */}
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
-                      <button
-                        onClick={() => togglePlay(sample)}
-                        className={`h-10 w-10 rounded-sm flex items-center justify-center border-2 border-black transition-all flex-shrink-0 cursor-pointer shadow-[2px_2px_0px_black] active:translate-y-0.5 active:shadow-none
-                          ${currentSampleId === sample.id && isPlaying
-                            ? 'bg-white text-black'
-                            : 'bg-studio-neon hover:bg-white text-black'
-                          }
-                        `}
-                      >
-                        {currentSampleId === sample.id && isPlaying ? (
-                          <Pause size={16} fill="currentColor" />
-                        ) : (
-                          <Play size={16} fill="currentColor" className="ml-0.5" />
-                        )}
-                      </button>
-
-                      <div className="min-w-0 space-y-1">
-                        <h4 className="text-[12px] md:text-[13px] font-black uppercase tracking-wider text-white truncate italic">
-                          {sample.name}
-                        </h4>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-sm border-2 border-black shadow-[1px_1px_0px_black] ${
-                            sample.type === 'loop' 
-                              ? 'bg-studio-yellow text-black' 
-                              : 'bg-studio-pink text-white'
-                          }`}>
-                            {sample.type === 'loop' ? 'Loop' : 'One-shot'}
-                          </span>
-                          {sample.bpm && (
-                            <span className="text-[9px] font-mono font-black text-white/40 uppercase">
-                              {sample.bpm} BPM
-                            </span>
-                          )}
-                          {sample.key && (
-                            <span className="text-[9px] font-mono font-black text-studio-neon uppercase">
-                              {sample.key}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Middle: Waveform Visualizer */}
-                    <div className="hidden sm:flex flex-1 justify-center max-w-xs px-4">
-                      <div 
-                        onClick={(e) => handleSeek(sample, e)}
-                        className="flex items-end gap-[3px] h-9 w-full cursor-pointer group/waveform relative py-1"
-                      >
-                        {points.map((pt, idx) => {
-                          const barPct = (idx / points.length) * 100
-                          const isPlayed = barPct <= progressPct
-                          return (
-                            <div
-                              key={idx}
-                              style={{ height: `${pt}%` }}
-                              className={`w-[2.5px] rounded-xs transition-colors duration-150 ${
-                                currentSampleId === sample.id
-                                  ? isPlayed
-                                    ? 'bg-[#00FF94]'
-                                    : 'bg-white/10 group-hover/waveform:bg-white/30'
-                                  : 'bg-white/20 group-hover/waveform:bg-white/45'
-                              }`}
-                            />
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Right: Actions */}
-                    <div className="flex items-center gap-3 self-end sm:self-center">
-                      {currentSampleId === sample.id && duration > 0 && (
-                        <span className="text-[10px] font-mono text-white/40 hidden md:inline">
-                          {formatTime(currentTime)} / {formatTime(duration)}
-                        </span>
-                      )}
-                      {sample.download_url ? (
-                        <a
-                          href={sample.download_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="h-9 px-4 bg-white hover:bg-studio-neon hover:text-black border-2 border-black shadow-[2px_2px_0px_black] text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 transition-all rounded-sm cursor-pointer text-black"
-                        >
-                          <Download size={12} />
-                          Download WAV
-                        </a>
-                      ) : (
-                        <span className="text-[9px] font-black text-white/20 uppercase tracking-wider">
-                          Unavailable
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
       </div>
     )
   }
