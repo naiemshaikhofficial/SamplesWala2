@@ -636,9 +636,10 @@ export default function CheckoutPage() {
     }
   }, [user])
 
-  // Preload secure payment SDK on mount when currency is INR
+  // Preload secure payment SDKs on mount when currency is INR
   useEffect(() => {
     if (currency === 'INR') {
+      loadRazorpay().catch(() => {})
       loadCashfreeSDK().catch(err => {
         console.warn('Preloading payment gateway:', err)
       })
@@ -1084,6 +1085,9 @@ export default function CheckoutPage() {
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
+      if (typeof window !== 'undefined' && (window as any).Razorpay) {
+        return resolve(true)
+      }
       const script = document.createElement('script')
       script.src = 'https://checkout.razorpay.com/v1/checkout.js'
       script.onload = () => resolve(true)
@@ -1092,6 +1096,7 @@ export default function CheckoutPage() {
     })
   }
 
+  // --- FALLBACK PAYMENT GATEWAY: CASHFREE ---
   const handleCashfreeCheckout = async () => {
     if (!user) {
       router.push('/auth?next=/checkout')
@@ -1142,24 +1147,26 @@ export default function CheckoutPage() {
 
       const orderData = await res.json()
       if (!res.ok || orderData.error) {
-        if (res.status === 400) {
+        if (res.status === 400 && orderData.fieldErrors) {
           setError(orderData.error || 'Please enter valid billing details.')
-          if (orderData.fieldErrors) {
-            setFormErrors(orderData.fieldErrors)
-            scrollToFirstError(orderData.fieldErrors)
-          }
+          setFormErrors(orderData.fieldErrors)
+          scrollToFirstError(orderData.fieldErrors)
           setLoading(false)
           return
         }
-        console.warn('[CASHFREE_ORDER_FAILED_AUTO_FALLBACK]', orderData?.error)
-        return handleCheckout()
+        console.error('[CASHFREE_FALLBACK_ORDER_FAILED]', orderData?.error)
+        setError(orderData?.error || 'Payment gateway initialization failed. Please try again.')
+        setLoading(false)
+        return
       }
 
       // 2. Load official Cashfree SDK v3
       const CashfreeSDK = await loadCashfreeSDK()
       if (!CashfreeSDK) {
-        console.warn('[CASHFREE_SDK_UNAVAILABLE_AUTO_FALLBACK]')
-        return handleCheckout()
+        console.error('[CASHFREE_FALLBACK_SDK_UNAVAILABLE]')
+        setError('Payment gateway SDK failed to load. Please refresh.')
+        setLoading(false)
+        return
       }
 
       const cashfree = CashfreeSDK({
@@ -1231,12 +1238,14 @@ export default function CheckoutPage() {
         setLoading(false)
       }
     } catch (err: any) {
-      console.warn('[CASHFREE_ERROR_AUTO_FALLBACK_TO_RAZORPAY]', err)
-      // Automatic silent fallback without user noticing
-      return handleCheckout()
+      console.error('[CASHFREE_FALLBACK_ERROR]', err)
+      setError(err?.message || 'Payment initiation failed. Please try again.')
+      setPaymentStatus('idle')
+      setLoading(false)
     }
   }
 
+  // --- PRIMARY PAYMENT GATEWAY: RAZORPAY (WITH SEAMLESS CASHFREE AUTO-FALLBACK) ---
   const handleCheckout = async () => {
     if (!user) {
       router.push('/auth?next=/checkout')
@@ -1248,7 +1257,7 @@ export default function CheckoutPage() {
     }
 
     setLoading(true)
-    // --- 1. HANDLE FREE CHECKOUT (BYPASS RAZORPAY) ---
+    // --- 1. HANDLE FREE CHECKOUT (BYPASS PAYMENT GATEWAYS) ---
     if (activeTotal === 0) {
       const validation = validateBillingDetails(billingDetails)
       if (!validation.isValid) {
@@ -1303,12 +1312,11 @@ export default function CheckoutPage() {
 
     }
 
-    // --- 2. REGULAR PAID CHECKOUT ---
+    // --- 2. REGULAR PAID CHECKOUT (PRIMARY: RAZORPAY) ---
     const sdkLoaded = await loadRazorpay()
     if (!sdkLoaded) {
-      setError('Razorpay SDK failed to load')
-      setLoading(false)
-      return
+      console.warn('[RAZORPAY_SDK_UNAVAILABLE_AUTO_FALLBACK_TO_CASHFREE]')
+      return handleCashfreeCheckout()
     }
 
     try {
@@ -1327,12 +1335,19 @@ export default function CheckoutPage() {
         if (order.fieldErrors) {
           setFormErrors(order.fieldErrors)
           scrollToFirstError(order.fieldErrors)
+          setError(order.error || 'Please enter valid billing details.')
+          setLoading(false)
+          return
         }
-        throw new Error(order.error || 'Failed to initialize payment')
+        console.warn('[RAZORPAY_ORDER_FAILED_AUTO_FALLBACK_TO_CASHFREE]', order?.error)
+        return handleCashfreeCheckout()
       }
 
       const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
-      if (!keyId) throw new Error('Razorpay Key ID is missing')
+      if (!keyId) {
+        console.warn('[RAZORPAY_KEY_MISSING_AUTO_FALLBACK_TO_CASHFREE]')
+        return handleCashfreeCheckout()
+      }
 
       const options = {
         key: keyId,
@@ -1408,8 +1423,8 @@ export default function CheckoutPage() {
       const rzp = new (window as any).Razorpay(options)
       rzp.open()
     } catch (e: any) {
-      setError(e.message || 'Payment initiation failed')
-      setLoading(false)
+      console.warn('[RAZORPAY_ERROR_AUTO_FALLBACK_TO_CASHFREE]', e)
+      return handleCashfreeCheckout()
     }
   }
 
@@ -1595,6 +1610,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-black text-white relative">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
       <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" strategy="afterInteractive" />
       <div className="container mx-auto max-w-5xl px-4 pt-8 pb-24 relative z-10">
         {/* Graffiti Branded Header with Back To Store in marked location */}
@@ -1923,7 +1939,7 @@ export default function CheckoutPage() {
                       </div>
                     ) : (
                       <button
-                        onClick={handleCashfreeCheckout}
+                        onClick={handleCheckout}
                         disabled={loading}
                         className="w-full h-12 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
                       >
@@ -2111,7 +2127,7 @@ export default function CheckoutPage() {
               </div>
             ) : (
               <button
-                onClick={handleCashfreeCheckout}
+                onClick={handleCheckout}
                 disabled={loading}
                 className="w-full h-11 bg-studio-yellow hover:bg-studio-yellow-hover text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 transition-all duration-150 rounded-sm cursor-pointer border-2 border-black shadow-[4px_4px_0px_#FF0080] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#FF0080] active:translate-x-[4px] active:translate-y-[4px] active:shadow-[0px_0px_0px_black] relative overflow-hidden group animate-neo-glow"
               >
