@@ -151,9 +151,9 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
   // Predefined custom comic tags for slides
   const tags = [
-    { text: 'NEW ARRIVAL', color: 'bg-studio-red text-white' },
+    { text: 'NEW ARRIVAL', color: 'bg-[#18181b] text-zinc-100 border-zinc-700' },
     { text: 'BEST SELLER', color: 'bg-[#18181b] text-zinc-200 border-zinc-700' },
-    { text: 'TRENDING PACK', color: 'bg-studio-yellow text-black' },
+    { text: 'TRENDING PACK', color: 'bg-[#18181b] text-zinc-100 border-zinc-700' },
     { text: 'EPIC DEAL', color: 'bg-[#18181b] text-zinc-200 border-zinc-700' },
   ]
 
@@ -223,9 +223,9 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 bg-black px-3 py-1 border-2 border-black shadow-[2px_2px_0px_white]">
-                    <ShieldCheck size={12} className="text-studio-neon" />
-                    <span className="text-[8px] font-black uppercase tracking-wider text-white">100% Royalty Free</span>
+                  <div className="flex items-center gap-2 bg-[#18181b] px-3 py-1 border-2 border-zinc-700 shadow-[2px_2px_0px_black]">
+                    <ShieldCheck size={12} className="text-zinc-300" />
+                    <span className="text-[8px] font-black uppercase tracking-wider text-zinc-200">100% Royalty Free</span>
                   </div>
                 </div>
 
@@ -271,23 +271,22 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                               </span>
                             )}
                             <span className={`text-3xl md:text-4xl font-black italic leading-none comic-text ${
-                              isFree ? 'text-[#00FF94]' : 'text-studio-yellow'
+                              isFree ? 'text-zinc-100' : 'text-studio-yellow'
                             }`}>
                               {displayPrice}
                             </span>
                           </div>
 
                           {!isFree && discountPercent > 0 ? (
-                            <div className="bg-studio-red px-3 py-1 border-2 border-black shadow-[3px_3px_0px_black] rotate-3">
-                              <span className="text-[10px] md:text-xs font-black text-white uppercase italic">
+                            <div className="bg-[#18181b] px-3 py-1 border-2 border-zinc-700 shadow-[3px_3px_0px_black] rotate-3">
+                              <span className="text-[10px] md:text-xs font-black text-zinc-100 uppercase italic">
                                 {discountPercent}% OFF
                               </span>
                             </div>
                           ) : null}
 
                           {!isFree && !activePack.is_downloadable && (
-                            <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${isExpired ? 'bg-studio-red text-white' : 'bg-[#18181b] text-white border-zinc-700'
-                              }`}>
+                            <div className="px-2.5 py-0.5 border border-zinc-700 bg-[#18181b] text-white shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2">
                               {isExpired ? 'Regular Price' : 'Pre-Order Offer'}
                             </div>
                           )}
@@ -315,9 +314,9 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       <div className={`absolute -top-3 -right-3 w-8 h-8 ${
                         isOwnedActive 
                           ? (isIndiaActive ? 'bg-[#128807] text-white shadow-[2px_2px_0px_#FF9933] border-2 border-black' : 'bg-[#18181b] text-zinc-300 shadow-[2px_2px_0px_black] border-2 border-zinc-700')
-                          : 'bg-studio-yellow text-black border-2 border-black shadow-[2px_2px_0px_black]'
+                          : 'bg-[#18181b] text-zinc-300 border-2 border-zinc-700 shadow-[2px_2px_0px_black]'
                       } rounded-full flex items-center justify-center`}>
-                        {isOwnedActive ? <ShieldCheck size={16} className={isIndiaActive ? 'text-white' : 'text-zinc-400'} /> : <Zap size={16} fill="black" />}
+                        {isOwnedActive ? <ShieldCheck size={16} className={isIndiaActive ? 'text-white' : 'text-zinc-400'} /> : <Zap size={16} fill="white" className="text-white" />}
                       </div>
                     </div>
                   </div>
