@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 interface AuthContextType {
@@ -67,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any | null>(null)
   const [isArtist, setIsArtist] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
+  const lastDispatchedUserIdRef = useRef<string | null>(null)
 
   const refreshAuth = React.useCallback(async () => {
     try {
@@ -75,12 +76,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session)
       setUser(session?.user || null)
       if (session?.user) {
+        lastDispatchedUserIdRef.current = session.user.id
         const isArtistStatus = await fetchArtistStatus(session.user.id)
         setIsArtist(isArtistStatus)
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('sw:auth-login', { detail: { userId: session.user.id } }))
         }
       } else {
+        lastDispatchedUserIdRef.current = null
         setIsArtist(false)
         if (typeof window !== 'undefined') {
           localStorage.removeItem('sampleswala_owned_ids')
@@ -110,8 +113,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session)
         setUser(session?.user || null)
         if (session?.user) {
+          lastDispatchedUserIdRef.current = session.user.id
           await checkArtistStatus(session.user.id)
         } else {
+          lastDispatchedUserIdRef.current = null
           setIsArtist(false)
           if (typeof window !== 'undefined') {
             localStorage.removeItem('sampleswala_owned_ids')
@@ -140,13 +145,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(currentSession)
       setUser(currentSession?.user || null)
       if (currentSession?.user) {
-        await checkArtistStatus(currentSession.user.id)
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('sw:auth-login', { detail: { userId: currentSession.user.id } }))
+        const userId = currentSession.user.id
+        await checkArtistStatus(userId)
+
+        // Only dispatch sw:auth-login if this is an explicit SIGNED_IN event or if the user actually changed
+        const isNewLoginOrUserChange = event === 'SIGNED_IN' || lastDispatchedUserIdRef.current !== userId
+        if (isNewLoginOrUserChange && typeof window !== 'undefined') {
+          lastDispatchedUserIdRef.current = userId
+          window.dispatchEvent(new CustomEvent('sw:auth-login', { detail: { userId } }))
         }
       } else {
+        const wasLoggedIn = lastDispatchedUserIdRef.current !== null
+        lastDispatchedUserIdRef.current = null
         setIsArtist(false)
-        if (typeof window !== 'undefined') {
+        if (wasLoggedIn && typeof window !== 'undefined') {
           localStorage.removeItem('sampleswala_owned_ids')
           localStorage.removeItem('sampleswala_owned_user_id')
           localStorage.removeItem('sampleswala_is_admin')

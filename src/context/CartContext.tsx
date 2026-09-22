@@ -35,6 +35,9 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
+// Global in-flight ownership sync promise for concurrent request deduplication
+let inFlightOwnershipSyncPromise: Promise<void> | null = null
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [items, setItems] = useState<CartItem[]>([])
@@ -97,8 +100,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {}
   }, [router])
 
-  // Sync owned IDs and admin status from server with intelligent caching
+  // Sync owned IDs and admin status from server with intelligent caching and in-flight deduplication
   const syncOwnedIds = useCallback(async (force = false) => {
+    // Return existing in-flight request if one is already pending
+    if (inFlightOwnershipSyncPromise) {
+      return inFlightOwnershipSyncPromise
+    }
+
     try {
       if (typeof window !== 'undefined') {
         const hasAuthCookie = document.cookie.includes('-auth-token')
@@ -120,34 +128,45 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      const res = await fetch('/api/auth/ownership/all', {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache' }
-      })
-      if (res.ok) {
-        const data = await res.json()
-        const incomingOwned: string[] = Array.isArray(data.ownedIds) ? data.ownedIds : []
-        const incomingIsAdmin: boolean = !!data.isAdmin
-        const currentUserId = data.userId || null
+      const syncPromise = (async () => {
+        try {
+          const res = await fetch('/api/auth/ownership/all', {
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache' }
+          })
+          if (res.ok) {
+            const data = await res.json()
+            const incomingOwned: string[] = Array.isArray(data.ownedIds) ? data.ownedIds : []
+            const incomingIsAdmin: boolean = !!data.isAdmin
+            const currentUserId = data.userId || null
 
-        // Overwrite strictly with current server truth (do NOT merge previous users)
-        setOwnedIds(incomingOwned)
-        setIsAdmin(incomingIsAdmin)
+            // Overwrite strictly with current server truth (do NOT merge previous users)
+            setOwnedIds(incomingOwned)
+            setIsAdmin(incomingIsAdmin)
 
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('sampleswala_owned_last_sync', String(Date.now()))
-          if (currentUserId && (incomingOwned.length > 0 || incomingIsAdmin)) {
-            localStorage.setItem('sampleswala_owned_ids', JSON.stringify(incomingOwned))
-            localStorage.setItem('sampleswala_is_admin', String(incomingIsAdmin))
-            localStorage.setItem('sampleswala_owned_user_id', currentUserId)
-          } else {
-            // Guest or non-owning user: clear stale ownership flags
-            localStorage.removeItem('sampleswala_owned_ids')
-            localStorage.removeItem('sampleswala_is_admin')
-            localStorage.removeItem('sampleswala_owned_user_id')
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('sampleswala_owned_last_sync', String(Date.now()))
+              if (currentUserId && (incomingOwned.length > 0 || incomingIsAdmin)) {
+                localStorage.setItem('sampleswala_owned_ids', JSON.stringify(incomingOwned))
+                localStorage.setItem('sampleswala_is_admin', String(incomingIsAdmin))
+                localStorage.setItem('sampleswala_owned_user_id', currentUserId)
+              } else {
+                // Guest or non-owning user: clear stale ownership flags
+                localStorage.removeItem('sampleswala_owned_ids')
+                localStorage.removeItem('sampleswala_is_admin')
+                localStorage.removeItem('sampleswala_owned_user_id')
+              }
+            }
           }
+        } catch (e) {
+          console.warn('Background ownership sync error:', e)
+        } finally {
+          inFlightOwnershipSyncPromise = null
         }
-      }
+      })()
+
+      inFlightOwnershipSyncPromise = syncPromise
+      await syncPromise
     } catch (e) {
       console.warn('Background ownership sync error:', e)
     }
@@ -160,6 +179,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Handle immediate clean reset on logout event and fresh sync on login or vault update
   useEffect(() => {
     const handleLogout = () => {
+      inFlightOwnershipSyncPromise = null
       setOwnedIds([])
       setIsAdmin(false)
       if (typeof window !== 'undefined') {
