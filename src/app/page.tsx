@@ -11,6 +11,7 @@ import { ArtistTestimonials } from '@/components/ArtistTestimonials'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
 import { PresetCard } from '@/components/PresetCard'
 import { HeroSlider } from '@/components/HeroSlider'
+import { FestiveCountdownBanner } from '@/components/FestiveCountdownBanner'
 import { AnimatedLogo } from '@/components/AnimatedLogo'
 import { PaymentAccepted } from '@/components/ui/PaymentAccepted'
 import { ProducerToyBanner } from '@/components/ProducerToyBanner'
@@ -143,8 +144,11 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
 
+      {/* 🪔 Full-Width Samplistic Festival Banner */}
+      <FestiveCountdownBanner />
+
       {/* Epic Hero Section */}
-      <section className="relative min-h-[90dvh] flex flex-col justify-center overflow-hidden border-b border-white/5 bg-black pt-10 pb-16">
+      <section className="relative flex flex-col overflow-hidden border-b border-white/5 bg-black pt-10 sm:pt-14 pb-16">
         {/* Background Gradients (Zero-Raster Radial Gradients) */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_0%,rgba(255,230,0,0.05)_0%,transparent_60%),radial-gradient(circle_at_10%_100%,rgba(0,255,148,0.04)_0%,transparent_50%)] pointer-events-none z-0" />
 
