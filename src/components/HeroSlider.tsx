@@ -154,7 +154,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
     { text: 'NEW ARRIVAL', color: 'bg-studio-red text-white' },
     { text: 'BEST SELLER', color: 'bg-[#18181b] text-zinc-200 border-zinc-700' },
     { text: 'TRENDING PACK', color: 'bg-studio-yellow text-black' },
-    { text: 'EPIC DEAL', color: 'bg-studio-neon text-black' },
+    { text: 'EPIC DEAL', color: 'bg-[#18181b] text-zinc-200 border-zinc-700' },
   ]
 
   const activeTag = tags[activeIndex % tags.length]
@@ -286,7 +286,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                           ) : null}
 
                           {!isFree && !activePack.is_downloadable && (
-                            <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${isExpired ? 'bg-studio-red text-white' : 'bg-studio-neon text-black'
+                            <div className={`px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_black] text-[8px] font-black uppercase -rotate-2 ${isExpired ? 'bg-studio-red text-white' : 'bg-[#18181b] text-white border-zinc-700'
                               }`}>
                               {isExpired ? 'Regular Price' : 'Pre-Order Offer'}
                             </div>
@@ -347,20 +347,32 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                               initial={{ scale: 0, y: 10, opacity: 0 }}
                               animate={{ scale: 1, y: 0, opacity: 1 }}
                               exit={{ scale: 0, opacity: 0 }}
-                              className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 z-50 bg-studio-neon text-black px-4 py-2 border-4 border-black font-black italic text-xs shadow-premium whitespace-nowrap"
+                              className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 z-50 bg-[#18181b] text-white px-4 py-2 border-2 sm:border-4 border-black font-black italic text-xs shadow-premium whitespace-nowrap"
                             >
                               {isPreorderActive ? 'RESERVED!' : 'ADDED TO CART!'}
-                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-studio-neon border-r-4 border-b-4 border-black rotate-45" />
+                              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#18181b] border-r-2 sm:border-r-4 border-b-2 sm:border-b-4 border-black rotate-45" />
                             </motion.div>
                           )}
                         </AnimatePresence>
 
                         <button
                           onClick={(e) => handleAddToCart(e, activePack, currentPriceInr)}
-                          className={`w-full sm:w-auto h-11 sm:h-14 px-3 sm:px-8 bg-white text-black font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 sm:gap-3 hover:bg-studio-neon hover:text-black active:translate-x-[2px] active:translate-y-[2px] active:shadow-none`}
+                          className={`w-full sm:w-auto h-11 sm:h-14 px-3 sm:px-8 ${
+                            addedId === activePack.id
+                              ? 'bg-[#18181b] text-white border-zinc-700'
+                              : 'bg-white text-black hover:bg-[#18181b] hover:text-white border-black'
+                          } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all border-2 sm:border-4 shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 sm:gap-3 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none group`}
                         >
-                          <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
-                          {isPreorderActive ? 'PRE-ORDER' : 'ADD TO CART'}
+                          <Image 
+                            src="/cart-bag.png" 
+                            alt="Cart" 
+                            width={14} 
+                            height={14} 
+                            className={`brightness-0 transition-all ${
+                              addedId === activePack.id ? 'invert' : 'group-hover:invert'
+                            }`} 
+                          />
+                          {addedId === activePack.id ? 'ADDED!' : isPreorderActive ? 'PRE-ORDER' : 'ADD TO CART'}
                         </button>
                       </div>
 
@@ -368,7 +380,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         onClick={(e) => handleBuyNow(e, activePack, currentPriceInr)}
                         className={`flex-1 sm:flex-none h-11 sm:h-14 px-3 sm:px-10 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
                           isPreorderActive 
-                            ? 'bg-studio-neon text-black hover:bg-white hover:text-black' 
+                            ? 'bg-[#18181b] hover:bg-[#27272c] text-zinc-100 hover:text-white border-2 sm:border-4 border-black' 
                             : 'bg-[#18181b] hover:bg-[#27272c] text-zinc-100 hover:text-white border-2 sm:border-4 border-black'
                         } font-black uppercase tracking-wider sm:tracking-[0.2em] text-[9px] sm:text-[11px] transition-all shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] flex items-center justify-center`}
                       >
@@ -458,7 +470,7 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                       <span>OWNED</span>
                     </span>
                   ) : (
-                    <span className="text-[9px] font-bold text-studio-neon italic mt-1 block">
+                    <span className="text-[9px] font-bold text-zinc-300 italic mt-1 block">
                       {formatPrice(pack.price_inr, pack.price_usd)}
                     </span>
                   )}

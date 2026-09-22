@@ -878,12 +878,14 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       </div>
                     ) : (
                       <>
-                        {/* Add to Cart Button - Green Pill / Glass style */}
+                        {/* Add to Cart Button */}
                         <button
                           onClick={handleFloatingAddToCart}
                           className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer duration-300 active:scale-95 flex-shrink-0 border-2 border-black shadow-[2px_2px_0px_black] ${isAlreadyInCart
                             ? 'bg-black/10 text-black border-black/20 shadow-none'
-                            : 'bg-[#00FF94] text-black hover:bg-white'
+                            : added
+                              ? 'bg-[#18181b] text-white border-black'
+                              : 'bg-white text-black hover:bg-[#18181b] hover:text-white'
                             }`}
                         >
                           {isAlreadyInCart ? (
@@ -893,7 +895,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                             </>
                           ) : added ? (
                             <>
-                              <Check size={12} strokeWidth={3} />
+                              <Check size={12} strokeWidth={3} className="text-white" />
                               <span className="hidden sm:inline">Added!</span>
                             </>
                           ) : (

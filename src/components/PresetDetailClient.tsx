@@ -663,12 +663,14 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                       </div>
                     ) : (
                       <>
-                        {/* Add to Cart Button - Green Pill */}
+                        {/* Add to Cart Button */}
                         <button
                           onClick={handleFloatingAddToCart}
                           className={`h-9 w-9 sm:w-auto sm:px-5 font-black uppercase tracking-wider text-[8px] md:text-[10px] flex items-center justify-center sm:gap-1.5 rounded-full transition-all cursor-pointer border-2 border-black shadow-[2px_2px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex-shrink-0 ${isAlreadyInCart
                               ? 'bg-black/10 text-black border-black/20 shadow-none'
-                              : 'bg-[#00FF94] text-black hover:bg-white'
+                              : added
+                                ? 'bg-[#18181b] text-white border-black'
+                                : 'bg-white text-black hover:bg-[#18181b] hover:text-white'
                             }`}
                         >
                           {isAlreadyInCart ? (
@@ -678,7 +680,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                             </>
                           ) : added ? (
                             <>
-                              <Check size={12} />
+                              <Check size={12} className="text-white" />
                               <span className="hidden sm:inline">Added!</span>
                             </>
                           ) : (

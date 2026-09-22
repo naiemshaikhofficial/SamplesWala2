@@ -48,11 +48,15 @@ export function AddToCartButton({ item, compact = false, label }: { item: CartIt
   return (
     <button 
       onClick={handleAdd}
-      className={`w-full ${compact ? 'h-9' : 'h-14'} bg-white text-black font-black uppercase tracking-widest ${compact ? 'text-[9px]' : 'text-xs'} flex items-center justify-center gap-2 hover:bg-studio-yellow transition-all rounded-sm border-2 border-black shadow-[4px_4px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]`}
+      className={`w-full ${compact ? 'h-9' : 'h-14'} ${
+        added
+          ? 'bg-[#18181b] text-white border-zinc-700'
+          : 'bg-white text-black hover:bg-[#18181b] hover:text-white border-black'
+      } font-black uppercase tracking-widest ${compact ? 'text-[9px]' : 'text-xs'} flex items-center justify-center gap-2 transition-all rounded-sm border-2 shadow-[4px_4px_0px_black] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]`}
     >
       {added ? (
         <>
-          <Check size={compact ? 14 : 20} />
+          <Check size={compact ? 14 : 20} className="text-white" />
           <span>Added!</span>
         </>
       ) : (

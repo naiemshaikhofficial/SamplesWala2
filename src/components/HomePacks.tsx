@@ -273,7 +273,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                       ? 'bg-studio-red text-white shadow-[4px_4px_0px_black]'
                       : (isIndia 
                           ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807] border-2 font-black' 
-                          : 'bg-studio-neon/90 text-black shadow-[4px_4px_0px_black]')
+                          : 'bg-[#18181b] text-white border-zinc-700 shadow-[4px_4px_0px_black]')
                   }`}>
                     <span className="text-[8px] font-black uppercase tracking-widest">
                       {isExpired ? 'Regular Price' : 'Pre-order Offer'}
@@ -336,7 +336,7 @@ export function HomePacks({ packs }: { packs: any[] }) {
                           <span className={`text-[7px] font-black uppercase tracking-tighter px-1 rounded-sm text-center ${
                             isExpired
                               ? 'bg-studio-charcoal text-white/40 border border-black/20'
-                              : (isIndia ? 'bg-[#FF9933] text-white border border-black' : 'bg-studio-neon text-black')
+                              : (isIndia ? 'bg-[#FF9933] text-white border border-black' : 'bg-[#18181b] text-white border border-zinc-700')
                           }`}>
                             {isExpired ? 'Direct Purchase' : 'Pre-order Offer'}
                           </span>
@@ -389,11 +389,11 @@ export function HomePacks({ packs }: { packs: any[] }) {
                           <div className={`px-4 py-2 border-4 border-black font-black italic text-xs relative ${
                             isIndia 
                               ? 'bg-[#FF9933] text-white shadow-[4px_4px_0px_#128807]' 
-                              : 'bg-studio-neon text-black shadow-[4px_4px_0px_black]'
+                              : 'bg-[#18181b] text-white shadow-[4px_4px_0px_black]'
                           }`}>
                             {isPreorderActive ? 'RESERVED!' : 'ADDED!'}
                             <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 border-r-4 border-b-4 border-black rotate-45 ${
-                              isIndia ? 'bg-[#FF9933]' : 'bg-studio-neon'
+                              isIndia ? 'bg-[#FF9933]' : 'bg-[#18181b]'
                             }`} />
                           </div>
                         </motion.div>
@@ -402,20 +402,32 @@ export function HomePacks({ packs }: { packs: any[] }) {
 
                     <button
                       onClick={() => handleAddToCart(pack, currentPrice)}
-                      className={`flex-1 h-11 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                        isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-studio-neon'
-                      }`}
+                      className={`flex-1 h-11 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                        addedPackId === pack.id
+                          ? 'bg-[#18181b] text-white'
+                          : isIndia 
+                            ? 'bg-white text-black hover:bg-[#FF9933] hover:text-white' 
+                            : 'bg-white text-black hover:bg-[#18181b] hover:text-white'
+                      } group`}
                       title={isPreorderActive ? "Pre-order" : "Add to Cart"}
                     >
-                      <Image src="/cart-bag.png" alt="Cart" width={14} height={14} className="brightness-0" />
-                      {isPreorderActive ? 'Pre' : 'Cart'}
+                      <Image 
+                        src="/cart-bag.png" 
+                        alt="Cart" 
+                        width={14} 
+                        height={14} 
+                        className={`brightness-0 transition-all ${
+                          addedPackId === pack.id ? 'invert' : (isIndia ? '' : 'group-hover:invert')
+                        }`} 
+                      />
+                      {addedPackId === pack.id ? 'Added!' : isPreorderActive ? 'Pre' : 'Cart'}
                     </button>
                     <button
                       onClick={() => handleBuyNow(pack, currentPrice)}
                       className={`flex-1 h-11 text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-4 border-black shadow-[4px_4px_0px_black] flex items-center justify-center hover:bg-white hover:text-black active:translate-x-1 active:translate-y-1 active:shadow-none ${
                         isIndia 
                           ? (isPreorderActive ? 'bg-[#FF9933] text-white' : 'bg-[#128807] text-white')
-                          : (isPreorderActive ? 'bg-studio-neon text-black' : 'bg-studio-pink text-white')
+                          : (isPreorderActive ? 'bg-[#18181b] text-white' : 'bg-studio-pink text-white')
                       }`}
                     >
                       {isPreorderActive ? 'Pre' : 'Get'}
