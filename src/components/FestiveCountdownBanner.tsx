@@ -1,9 +1,8 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Sparkles, Calendar, ArrowRight, Flame } from 'lucide-react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 export function FestiveCountdownBanner() {
   const bannerRef = useRef<HTMLDivElement>(null)
@@ -16,15 +15,6 @@ export function FestiveCountdownBanner() {
     seconds: 0,
     isEnded: false
   })
-
-  // Cinematic Parallax Scroll Tracking
-  const { scrollYProgress } = useScroll({
-    target: bannerRef,
-    offset: ['start start', 'end start']
-  })
-
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '15%'])
-  const scale = useTransform(scrollYProgress, [0, 1], [1.05, 1.15])
 
   useEffect(() => {
     setMounted(true)
@@ -68,17 +58,25 @@ export function FestiveCountdownBanner() {
           className="block w-full cursor-pointer relative group/img select-none"
           title="Samplistic Festival — Get 20% Off on Every Sample Pack (Starts 8 October)"
         >
-          {/* Pristine Full-Resolution 100% Uncropped Poster */}
-          <Image
-            src="/Fanst.png"
-            alt="Samplistic Festival - Festive Sale is Here - Get 20% Off on Every Sample Pack - Starts from 8 October"
-            width={1672}
-            height={941}
-            priority
-            unoptimized
-            sizes="100vw"
-            className="w-full h-auto block select-none group-hover/img:brightness-[1.02] transition-all duration-300"
-          />
+          {/* Pristine Full-Resolution 100% Uncropped Poster with 2x Retina & Ultra-HD WebP/PNG */}
+          <picture className="block w-full">
+            <source srcSet="/Fanst.webp" type="image/webp" />
+            <img
+              src="/Fanst.png"
+              alt="Samplistic Festival - Festive Sale is Here - Get 20% Off on Every Sample Pack - Starts from 8 October"
+              width={3344}
+              height={1882}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              style={{
+                imageRendering: '-webkit-optimize-contrast',
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden',
+              }}
+              className="w-full h-auto block select-none group-hover/img:brightness-[1.02] transition-all duration-300"
+            />
+          </picture>
         </Link>
       </div>
 
