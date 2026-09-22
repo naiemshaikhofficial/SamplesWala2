@@ -305,15 +305,15 @@ export function SearchableLibrary({
                       {item.name}
                     </h3>
                     
-                    <div className="flex items-center justify-between gap-2 mt-1.5 w-full min-w-0">
-                      <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-white/40 group-hover:text-white/60 transition-colors min-w-0 flex-shrink-0">
+                    <div className="flex items-center justify-between gap-2 mt-2 w-full min-w-0">
+                      <div className="flex items-center gap-1.5 text-white/40 group-hover:text-white/60 transition-colors min-w-0">
                         {item.is_downloadable ? (
-                          <div className="flex items-center gap-1 text-[#128807] font-semibold">
-                            <ShieldCheck size={12} className="flex-shrink-0" />
+                          <div className="flex items-center gap-1 text-[#00FF94] font-bold text-[10px] uppercase tracking-wider">
+                            <ShieldCheck size={12} className="flex-shrink-0 text-[#00FF94]" />
                             <span className="truncate">Purchased</span>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-studio-neon/80 font-semibold">
+                          <div className="flex items-center gap-1 text-studio-neon/80 font-bold text-[10px] uppercase tracking-wider">
                             <Sparkles size={12} className="flex-shrink-0" />
                             <span className="truncate">Pre-ordered</span>
                           </div>
@@ -321,7 +321,7 @@ export function SearchableLibrary({
                       </div>
                       
                       {item.is_downloadable && (
-                        <div onClick={(e) => e.stopPropagation()} className="w-28 flex-shrink-0">
+                        <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
                           <DownloadButton itemId={item.id} type={item.type} compact />
                         </div>
                       )}
