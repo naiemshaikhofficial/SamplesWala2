@@ -7,11 +7,11 @@ import { motion } from 'framer-motion'
 export function FestiveCountdownBanner() {
   const bannerRef = useRef<HTMLDivElement>(null)
   const posterRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const sheenRef = useRef<HTMLDivElement>(null)
   const bgGlowRef = useRef<HTMLDivElement>(null)
   const particlesRef1 = useRef<HTMLDivElement>(null)
   const particlesRef2 = useRef<HTMLDivElement>(null)
-  const particlesRef3 = useRef<HTMLDivElement>(null)
 
   const [mounted, setMounted] = useState(false)
   const [timeLeft, setTimeLeft] = useState({
@@ -133,6 +133,409 @@ export function FestiveCountdownBanner() {
     window.addEventListener('scroll', onScroll, { passive: true })
     updateParallax()
 
+    // =========================================================================
+    // DIWALI FESTIVE FIREWORK ROCKET ENGINE (CANVAS 60FPS)
+    // - Rockets shoot UP with blazing sparkler tails
+    // - Reach the sky and BURST (Fatan!) into radiant cascading colorful sparks
+    // =========================================================================
+    // HEAVY DIWALI FESTIVE FIREWORK ROCKET ENGINE (CANVAS 60FPS)
+    // - Rapid multi-rocket volleys with thick blazing sparkler tails
+    // - Massive explosions ("Fatan!") with shockwave rings & cascading willow trails
+    // - Ambient sky flash on burst & ground sparkler fountains
+    // - Pure GPU 2D Canvas with zero-lag bounds
+    // =========================================================================
+    const canvas = canvasRef.current
+    let canvasRafId: number
+    let rocketInterval: NodeJS.Timeout
+    let volleyCounter = 0
+
+    if (canvas) {
+      const ctx = canvas.getContext('2d')
+
+      const festiveColors = [
+        '#FFE600', // Electric Gold
+        '#FF7700', // Fiery Orange
+        '#FF007A', // Neon Magenta
+        '#00FF94', // Neon Lime
+        '#00E5FF', // Electric Cyan
+        '#FFFFFF', // White Flash
+        '#FF2A54', // Coral Red
+        '#A800FF', // Purple
+      ]
+
+      interface Rocket {
+        x: number
+        y: number
+        targetY: number
+        speed: number
+        color: string
+        type: 'peony' | 'ring' | 'willow'
+        tailSparks: { x: number; y: number; vx: number; vy: number; alpha: number; size: number }[]
+      }
+
+      interface Spark {
+        x: number
+        y: number
+        vx: number
+        vy: number
+        color: string
+        alpha: number
+        decay: number
+        size: number
+        trail: { x: number; y: number }[]
+      }
+
+      interface Shockwave {
+        x: number
+        y: number
+        radius: number
+        maxRadius: number
+        alpha: number
+        color: string
+      }
+
+      interface Flash {
+        x: number
+        y: number
+        alpha: number
+        color: string
+      }
+
+      let rockets: Rocket[] = []
+      let sparks: Spark[] = []
+      let shockwaves: Shockwave[] = []
+      let flashes: Flash[] = []
+
+      const resizeCanvas = () => {
+        if (!canvas || !canvas.parentElement) return
+        canvas.width = canvas.parentElement.clientWidth
+        canvas.height = canvas.parentElement.clientHeight
+      }
+
+      resizeCanvas()
+      window.addEventListener('resize', resizeCanvas)
+
+      const spawnSingleRocket = (xPos?: number, targetRatio?: number) => {
+        if (!canvas || canvas.width === 0 || canvas.height === 0) return
+        const w = canvas.width
+        const h = canvas.height
+
+        const x = xPos !== undefined ? xPos : w * 0.12 + Math.random() * (w * 0.76)
+        const targetY = h * (targetRatio !== undefined ? targetRatio : 0.10 + Math.random() * 0.28)
+        const color = festiveColors[Math.floor(Math.random() * festiveColors.length)]
+        const types: ('peony' | 'ring' | 'willow')[] = ['peony', 'ring', 'willow']
+        const type = types[Math.floor(Math.random() * types.length)]
+
+        rockets.push({
+          x,
+          y: h,
+          targetY,
+          speed: Math.max(10, h * 0.025),
+          color,
+          type,
+          tailSparks: []
+        })
+      }
+
+      const launchRocketWave = () => {
+        if (!isVisible || !canvas) return
+        const w = canvas.width
+        volleyCounter++
+
+        // Every 5th wave: Grand Diwali Triple Dhamaka!
+        if (volleyCounter % 5 === 0) {
+          spawnSingleRocket(w * 0.22, 0.14)
+          setTimeout(() => spawnSingleRocket(w * 0.50, 0.09), 160)
+          setTimeout(() => spawnSingleRocket(w * 0.78, 0.16), 320)
+        } else if (Math.random() < 0.45) {
+          // Double rocket volley
+          spawnSingleRocket(w * 0.25 + Math.random() * (w * 0.2))
+          setTimeout(() => {
+            if (!isVisible || !canvas) return
+            spawnSingleRocket(w * 0.55 + Math.random() * (w * 0.25))
+          }, 180)
+        } else {
+          // Single rocket
+          spawnSingleRocket()
+        }
+      }
+
+      // Initial fast rocket launch
+      const initTimer = setTimeout(() => {
+        launchRocketWave()
+      }, 200)
+
+      // High-energy fast launch interval (every 750ms - 900ms)
+      rocketInterval = setInterval(() => {
+        launchRocketWave()
+      }, 820)
+
+      const render = () => {
+        if (!ctx || !canvas) return
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+        if (isVisible) {
+          // ===================================================================
+          // 1. AMBIENT SKY FLASHES (Night sky lighting up on burst)
+          // ===================================================================
+          for (let f = flashes.length - 1; f >= 0; f--) {
+            const fl = flashes[f]
+            fl.alpha -= 0.04
+            if (fl.alpha <= 0) {
+              flashes.splice(f, 1)
+            } else {
+              ctx.save()
+              ctx.globalAlpha = Math.max(0, fl.alpha)
+              const grad = ctx.createRadialGradient(fl.x, fl.y, 10, fl.x, fl.y, 160)
+              grad.addColorStop(0, fl.color)
+              grad.addColorStop(1, 'transparent')
+              ctx.fillStyle = grad
+              ctx.beginPath()
+              ctx.arc(fl.x, fl.y, 160, 0, Math.PI * 2)
+              ctx.fill()
+              ctx.restore()
+            }
+          }
+
+          // ===================================================================
+          // 2. SHOCKWAVE EXPANDING RINGS
+          // ===================================================================
+          for (let sw = shockwaves.length - 1; sw >= 0; sw--) {
+            const wave = shockwaves[sw]
+            wave.radius += 3.8
+            wave.alpha -= 0.045
+            if (wave.alpha <= 0 || wave.radius >= wave.maxRadius) {
+              shockwaves.splice(sw, 1)
+            } else {
+              ctx.save()
+              ctx.globalAlpha = Math.max(0, wave.alpha)
+              ctx.strokeStyle = wave.color
+              ctx.lineWidth = 2.5
+              ctx.shadowColor = wave.color
+              ctx.shadowBlur = 10
+              ctx.beginPath()
+              ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2)
+              ctx.stroke()
+              ctx.restore()
+            }
+          }
+
+          // ===================================================================
+          // 3. ROCKETS RISING WITH THICK BLAZING SPARKLER TAIL
+          // ===================================================================
+          for (let i = rockets.length - 1; i >= 0; i--) {
+            const r = rockets[i]
+            r.y -= r.speed
+
+            // Emit dense sparkling tail particles (3 per frame for heavy trail)
+            for (let t = 0; t < 3; t++) {
+              r.tailSparks.push({
+                x: r.x + (Math.random() - 0.5) * 6,
+                y: r.y + Math.random() * 8,
+                vx: (Math.random() - 0.5) * 1.8,
+                vy: Math.random() * 3 + 1.5,
+                alpha: 1,
+                size: Math.random() * 2.8 + 1.2
+              })
+            }
+
+            // Draw rocket tail sparks
+            for (let j = r.tailSparks.length - 1; j >= 0; j--) {
+              const ts = r.tailSparks[j]
+              ts.x += ts.vx
+              ts.y += ts.vy
+              ts.alpha -= 0.05
+
+              if (ts.alpha <= 0) {
+                r.tailSparks.splice(j, 1)
+              } else {
+                ctx.save()
+                ctx.globalAlpha = ts.alpha
+                ctx.fillStyle = '#FFE600'
+                ctx.shadowColor = '#FF7700'
+                ctx.shadowBlur = 8
+                ctx.beginPath()
+                ctx.arc(ts.x, ts.y, ts.size, 0, Math.PI * 2)
+                ctx.fill()
+                ctx.restore()
+              }
+            }
+
+            // Draw rocket glowing head (white core + colored halo)
+            ctx.save()
+            ctx.fillStyle = '#FFFFFF'
+            ctx.shadowColor = r.color
+            ctx.shadowBlur = 18
+            ctx.beginPath()
+            ctx.arc(r.x, r.y, 3.8, 0, Math.PI * 2)
+            ctx.fill()
+            ctx.restore()
+
+            // 🎆 THE BURST / FATAN: Rocket reaches target in sky!
+            if (r.y <= r.targetY) {
+              // 1. Sky Flash
+              flashes.push({
+                x: r.x,
+                y: r.y,
+                alpha: 0.38,
+                color: r.color
+              })
+
+              // 2. Expanding Shockwave Ring
+              shockwaves.push({
+                x: r.x,
+                y: r.y,
+                radius: 6,
+                maxRadius: 65,
+                alpha: 0.9,
+                color: r.color
+              })
+
+              // 3. Spawning 60 to 85 radiant explosion sparks
+              const burstCount = Math.floor(Math.random() * 25 + 62)
+              for (let k = 0; k < burstCount; k++) {
+                const angle = (Math.PI * 2 * k) / burstCount + (Math.random() - 0.5) * 0.25
+                const velocity = Math.random() * 6.8 + 1.8
+                const sparkColor = Math.random() < 0.45 
+                  ? r.color 
+                  : festiveColors[Math.floor(Math.random() * festiveColors.length)]
+
+                sparks.push({
+                  x: r.x,
+                  y: r.y,
+                  vx: Math.cos(angle) * velocity,
+                  vy: Math.sin(angle) * velocity,
+                  color: sparkColor,
+                  alpha: 1,
+                  decay: Math.random() * 0.016 + 0.011,
+                  size: Math.random() * 2.8 + 1.8,
+                  trail: []
+                })
+              }
+
+              // Bright central flare
+              sparks.push({
+                x: r.x,
+                y: r.y,
+                vx: 0,
+                vy: 0,
+                color: '#FFFFFF',
+                alpha: 1,
+                decay: 0.15,
+                size: 10,
+                trail: []
+              })
+
+              rockets.splice(i, 1)
+            }
+          }
+
+          // ===================================================================
+          // 4. UPDATE & DRAW BURST SPARKS (EXPANDING WITH WILLOW TRAILS & GRAVITY)
+          // ===================================================================
+          if (sparks.length > 280) {
+            sparks.splice(0, sparks.length - 280)
+          }
+
+          for (let s = sparks.length - 1; s >= 0; s--) {
+            const p = sparks[s]
+
+            // Save spark trailing point
+            if (Math.random() > 0.3) {
+              p.trail.push({ x: p.x, y: p.y })
+              if (p.trail.length > 3) p.trail.shift()
+            }
+
+            p.x += p.vx
+            p.y += p.vy
+            p.vy += 0.075 // Realistic gravity
+            p.vx *= 0.965 // Air resistance
+            p.vy *= 0.965
+            p.alpha -= p.decay
+
+            if (p.alpha <= 0) {
+              sparks.splice(s, 1)
+            } else {
+              // Draw mini-trailing spark tail
+              if (p.trail.length > 1) {
+                ctx.save()
+                ctx.globalAlpha = Math.max(0, p.alpha * 0.6)
+                ctx.strokeStyle = p.color
+                ctx.lineWidth = p.size * 0.7
+                ctx.beginPath()
+                ctx.moveTo(p.trail[0].x, p.trail[0].y)
+                for (let t = 1; t < p.trail.length; t++) {
+                  ctx.lineTo(p.trail[t].x, p.trail[t].y)
+                }
+                ctx.stroke()
+                ctx.restore()
+              }
+
+              // Draw spark head
+              ctx.save()
+              ctx.globalAlpha = Math.max(0, p.alpha)
+              ctx.fillStyle = p.color
+              ctx.shadowColor = p.color
+              ctx.shadowBlur = 10
+              ctx.beginPath()
+              ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+              ctx.fill()
+              ctx.restore()
+            }
+          }
+
+          // ===================================================================
+          // 5. CONTINUOUS GROUND FOUNTAINS (DIWALI ANAR NEAR DIYAS)
+          // ===================================================================
+          const w = canvas.width
+          const h = canvas.height
+          // Left Anar (near laptop / speakers)
+          if (Math.random() > 0.35) {
+            sparks.push({
+              x: w * 0.08 + (Math.random() - 0.5) * 16,
+              y: h * 0.88,
+              vx: (Math.random() - 0.5) * 2.2,
+              vy: -Math.random() * 4.2 - 2,
+              color: Math.random() > 0.5 ? '#FFE600' : '#FF7700',
+              alpha: 1,
+              decay: 0.035,
+              size: Math.random() * 2 + 1,
+              trail: []
+            })
+          }
+          // Right Anar (near diyas / crates)
+          if (Math.random() > 0.35) {
+            sparks.push({
+              x: w * 0.92 + (Math.random() - 0.5) * 16,
+              y: h * 0.88,
+              vx: (Math.random() - 0.5) * 2.2,
+              vy: -Math.random() * 4.2 - 2,
+              color: Math.random() > 0.5 ? '#FFE600' : '#FF007A',
+              alpha: 1,
+              decay: 0.035,
+              size: Math.random() * 2 + 1,
+              trail: []
+            })
+          }
+        }
+
+        canvasRafId = window.requestAnimationFrame(render)
+      }
+
+      canvasRafId = window.requestAnimationFrame(render)
+
+      return () => {
+        clearInterval(interval)
+        clearInterval(rocketInterval)
+        clearTimeout(initTimer)
+        window.removeEventListener('scroll', onScroll)
+        window.removeEventListener('resize', resizeCanvas)
+        window.cancelAnimationFrame(canvasRafId)
+        observer.disconnect()
+      }
+    }
+
     return () => {
       clearInterval(interval)
       window.removeEventListener('scroll', onScroll)
@@ -207,41 +610,145 @@ export function FestiveCountdownBanner() {
           />
         </Link>
 
-        {/* Floating Notes & Particles Attached to Poster Background Layer */}
+        {/* Real-time Diwali Firework Rockets Launching and Bursting (Fatan) */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none z-25"
+          style={{ mixBlendMode: 'screen' }}
+        />
+
+        {/* ========================================================================= */}
+        {/* FESTIVE FIRECRACKERS, SPARKLERS & SALE DHAMAKA OVERLAYS                   */}
+        {/* ========================================================================= */}
         <div 
           ref={particlesRef1}
-          className="absolute inset-0 pointer-events-none z-20 overflow-hidden will-change-transform transform-gpu"
+          className="absolute inset-0 pointer-events-none z-20 overflow-hidden will-change-transform transform-gpu select-none"
         >
-          {/* Neon Lime Music Note */}
-          <div className="absolute top-[18%] left-[7%] hidden sm:flex items-center justify-center filter drop-shadow-[0_0_12px_#00FF94] animate-bounce" style={{ animationDuration: '3.2s' }}>
-            <Music size={28} className="text-[#00FF94] rotate-[-12deg]" />
+          {/* Custom GPU-accelerated Keyframes for Firecrackers & Sparklers */}
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes fireworkBurst {
+              0% { transform: scale(0.1) rotate(0deg); opacity: 0; }
+              15% { opacity: 1; filter: drop-shadow(0 0 16px #FFE600); }
+              75% { opacity: 0.9; }
+              100% { transform: scale(1.35) rotate(35deg); opacity: 0; }
+            }
+            @keyframes sparklerPop {
+              0%, 100% { opacity: 0.15; transform: scale(0.7) rotate(0deg); }
+              50% { opacity: 1; transform: scale(1.2) rotate(18deg); filter: drop-shadow(0 0 14px #FF7700); }
+            }
+            @keyframes emberRise {
+              0% { transform: translate3d(0, 0, 0) scale(0.5); opacity: 0; }
+              20% { opacity: 1; }
+              80% { opacity: 0.85; }
+              100% { transform: translate3d(12px, -65px, 0) scale(1.15); opacity: 0; }
+            }
+            @keyframes rocketTrail {
+              0% { transform: scale(0.2); opacity: 0; }
+              30% { opacity: 1; filter: drop-shadow(0 0 20px #00E5FF); }
+              100% { transform: scale(1.4); opacity: 0; }
+            }
+          `}} />
+
+          {/* 🎆 Firecracker Burst 1: Top-Right Multi-Color Diwali Rocket Explosion */}
+          <div 
+            className="absolute top-[10%] right-[10%] w-28 h-28 sm:w-40 sm:h-40 flex items-center justify-center pointer-events-none"
+            style={{ animation: 'fireworkBurst 3.4s infinite ease-out' }}
+          >
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              {/* Central spark flare */}
+              <circle cx="50" cy="50" r="4" fill="#FFFFFF" filter="drop-shadow(0 0 8px #FFE600)" />
+              {/* Radiating firecracker sparks */}
+              <line x1="50" y1="50" x2="50" y2="10" stroke="#FFE600" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="50" y2="90" stroke="#FFE600" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="10" y2="50" stroke="#FF007A" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="90" y2="50" stroke="#FF007A" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="22" y2="22" stroke="#00E5FF" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="78" y2="22" stroke="#00FF94" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="22" y2="78" stroke="#FF7700" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="78" y2="78" stroke="#FFE600" strokeWidth="2" strokeDasharray="3 3" strokeLinecap="round" />
+              {/* Outer spark dots */}
+              <circle cx="50" cy="8" r="2.5" fill="#FFE600" />
+              <circle cx="92" cy="50" r="2.5" fill="#FF007A" />
+              <circle cx="20" cy="20" r="2" fill="#00E5FF" />
+              <circle cx="80" cy="20" r="2.5" fill="#00FF94" />
+              <circle cx="80" cy="80" r="2" fill="#FFE600" />
+            </svg>
           </div>
 
-          {/* Neon Magenta Music Note */}
-          <div className="absolute top-[28%] right-[9%] hidden sm:flex items-center justify-center filter drop-shadow-[0_0_14px_#FF007A] animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.8s' }}>
+          {/* 🎇 Firecracker Burst 2: Top-Left Golden Sparkler / Phooljhadi */}
+          <div 
+            className="absolute top-[16%] left-[8%] w-24 h-24 sm:w-36 sm:h-36 flex items-center justify-center pointer-events-none"
+            style={{ animation: 'fireworkBurst 4.1s infinite ease-out', animationDelay: '1.4s' }}
+          >
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              <circle cx="50" cy="50" r="3.5" fill="#FFE600" />
+              <line x1="50" y1="50" x2="50" y2="15" stroke="#FFE600" strokeWidth="2" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="85" y2="50" stroke="#FF7700" strokeWidth="2" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="25" y2="25" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="75" y2="25" stroke="#FFE600" strokeWidth="2" strokeLinecap="round" />
+              <line x1="50" y1="50" x2="25" y2="75" stroke="#FF0055" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="50" cy="12" r="3" fill="#FFE600" filter="drop-shadow(0 0 6px #FFE600)" />
+              <circle cx="88" cy="50" r="2.5" fill="#FF7700" />
+              <circle cx="78" cy="22" r="2" fill="#FFD700" />
+            </svg>
+          </div>
+
+          {/* 💥 Firecracker Burst 3: Center Sky Sparkler */}
+          <div 
+            className="absolute top-[6%] left-[48%] -translate-x-1/2 w-20 h-20 sm:w-32 sm:h-32 flex items-center justify-center pointer-events-none opacity-90"
+            style={{ animation: 'fireworkBurst 3.8s infinite ease-out', animationDelay: '2.2s' }}
+          >
+            <svg viewBox="0 0 80 80" className="w-full h-full">
+              <circle cx="40" cy="40" r="3" fill="#FFF" />
+              <line x1="40" y1="40" x2="40" y2="10" stroke="#00E5FF" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="40" y1="40" x2="70" y2="40" stroke="#00FF94" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="40" y1="40" x2="10" y2="40" stroke="#FFE600" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="40" y1="40" x2="62" y2="18" stroke="#FF007A" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="40" y1="40" x2="18" y2="18" stroke="#FF7700" strokeWidth="1.5" strokeDasharray="2 2" />
+            </svg>
+          </div>
+
+          {/* Neon Graffiti Music Notes */}
+          <div className="absolute top-[20%] left-[6%] hidden sm:flex items-center justify-center filter drop-shadow-[0_0_14px_#00FF94] animate-bounce" style={{ animationDuration: '3.2s' }}>
+            <Music size={28} className="text-[#00FF94] rotate-[-12deg]" />
+          </div>
+          <div className="absolute top-[26%] right-[8%] hidden sm:flex items-center justify-center filter drop-shadow-[0_0_16px_#FF007A] animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.8s' }}>
             <Music size={32} className="text-[#FF007A] rotate-[15deg]" />
           </div>
 
-          {/* Golden Sparkles on mobile & desktop */}
-          <div className="absolute top-[12%] right-[16%] flex items-center justify-center filter drop-shadow-[0_0_10px_#FFE600] animate-pulse" style={{ animationDuration: '2.5s' }}>
-            <Sparkles size={20} className="text-[#FFE600]" />
+          {/* Crackling Diamond Stars */}
+          <div className="absolute top-[14%] right-[22%] flex items-center justify-center pointer-events-none" style={{ animation: 'sparklerPop 2.2s infinite ease-in-out' }}>
+            <Sparkles size={22} className="text-[#FFE600]" />
           </div>
-          <div className="absolute bottom-[22%] left-[12%] flex items-center justify-center filter drop-shadow-[0_0_10px_#00E5FF] animate-pulse" style={{ animationDuration: '3s' }}>
+          <div className="absolute top-[32%] left-[18%] flex items-center justify-center pointer-events-none" style={{ animation: 'sparklerPop 2.6s infinite ease-in-out', animationDelay: '1s' }}>
             <Sparkle size={18} className="text-[#00E5FF]" />
+          </div>
+          <div className="absolute bottom-[24%] right-[12%] flex items-center justify-center pointer-events-none" style={{ animation: 'sparklerPop 3s infinite ease-in-out', animationDelay: '0.5s' }}>
+            <Sparkles size={20} className="text-[#FF7700]" />
           </div>
         </div>
 
+        {/* Layer 2: Rising Golden Embers & Crackling Sparks (Anar / Diya Sparks) */}
         <div 
           ref={particlesRef2}
-          className="absolute inset-0 pointer-events-none z-20 overflow-hidden will-change-transform transform-gpu"
+          className="absolute inset-0 pointer-events-none z-20 overflow-hidden will-change-transform transform-gpu select-none"
         >
-          <div className="absolute top-[35%] left-[22%] w-2 h-2 rounded-full bg-[#FFE600] shadow-[0_0_10px_#FFE600] animate-ping" style={{ animationDuration: '3.5s' }} />
-          <div className="absolute top-[65%] right-[28%] w-2.5 h-2.5 rounded-full bg-[#FF7700] shadow-[0_0_12px_#FF7700] animate-ping" style={{ animationDuration: '4.2s', animationDelay: '1.2s' }} />
-          <div className="absolute top-[48%] right-[14%] w-2 h-2 rounded-full bg-[#00FF94] shadow-[0_0_10px_#00FF94] animate-pulse" style={{ animationDuration: '2.8s' }} />
+          {/* Golden rising spark 1 */}
+          <div className="absolute bottom-[25%] left-[20%] w-2 h-2 rounded-full bg-[#FFE600] shadow-[0_0_12px_#FFE600]" style={{ animation: 'emberRise 2.8s infinite linear', animationDelay: '0s' }} />
+          {/* Fire orange rising spark 2 */}
+          <div className="absolute bottom-[20%] left-[32%] w-2.5 h-2.5 rounded-full bg-[#FF7700] shadow-[0_0_14px_#FF7700]" style={{ animation: 'emberRise 3.2s infinite linear', animationDelay: '0.9s' }} />
+          {/* Lime green spark 3 */}
+          <div className="absolute bottom-[30%] left-[45%] w-1.5 h-1.5 rounded-full bg-[#00FF94] shadow-[0_0_10px_#00FF94]" style={{ animation: 'emberRise 2.5s infinite linear', animationDelay: '1.6s' }} />
+          {/* Electric cyan spark 4 */}
+          <div className="absolute bottom-[22%] right-[28%] w-2 h-2 rounded-full bg-[#00E5FF] shadow-[0_0_12px_#00E5FF]" style={{ animation: 'emberRise 3.5s infinite linear', animationDelay: '0.4s' }} />
+          {/* Magenta rocket spark 5 */}
+          <div className="absolute bottom-[18%] right-[16%] w-2.5 h-2.5 rounded-full bg-[#FF007A] shadow-[0_0_14px_#FF007A]" style={{ animation: 'emberRise 2.9s infinite linear', animationDelay: '1.3s' }} />
+          {/* Gold spark 6 */}
+          <div className="absolute bottom-[28%] right-[38%] w-2 h-2 rounded-full bg-[#FFE600] shadow-[0_0_10px_#FFE600]" style={{ animation: 'emberRise 3.1s infinite linear', animationDelay: '2.1s' }} />
 
           {/* Neon Cyan Music Note for Mobile */}
-          <div className="absolute top-[40%] left-[8%] flex sm:hidden items-center justify-center filter drop-shadow-[0_0_12px_#00E5FF]">
-            <Music size={22} className="text-[#00E5FF] rotate-[-18deg]" />
+          <div className="absolute top-[38%] left-[7%] flex sm:hidden items-center justify-center filter drop-shadow-[0_0_12px_#00E5FF]">
+            <Music size={20} className="text-[#00E5FF] rotate-[-18deg]" />
           </div>
         </div>
       </div>
