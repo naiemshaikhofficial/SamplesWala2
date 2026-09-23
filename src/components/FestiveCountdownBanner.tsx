@@ -237,8 +237,52 @@ export function FestiveCountdownBanner() {
         resizeObs.observe(posterRef.current)
       }
 
+      // Tab Visibility & Focus Lifecycle Management:
+      // Prevents background rocket accumulation when user switches tabs or minimizes browser.
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          // Tab switched away: clear active backlogs immediately so nothing stacks up
+          rockets = []
+          sparks = []
+          shockwaves = []
+          flashes = []
+          if (ctx && canvas) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+          }
+        } else {
+          // Tab returned: clean canvas, ensure proper dimension, and launch 1 single rocket gently after 500ms
+          resizeCanvas()
+          rockets = []
+          sparks = []
+          shockwaves = []
+          flashes = []
+          if (ctx && canvas) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+          }
+          setTimeout(() => {
+            if (!document.hidden && isVisible && rockets.length === 0) {
+              spawnSingleRocket()
+            }
+          }, 500)
+        }
+      }
+
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+      window.addEventListener('blur', () => {
+        if (document.hidden) handleVisibilityChange()
+      })
+      window.addEventListener('focus', () => {
+        if (!document.hidden) handleVisibilityChange()
+      })
+
       const spawnSingleRocket = (xPos?: number, targetRatio?: number) => {
-        if (!canvas) return
+        // Never spawn if tab is in background, banner is offscreen, or canvas is not ready
+        if (document.hidden || !isVisible || !canvas) return
+
+        // HARD SAFETY CEILING: Never allow more than 2 rockets in flight simultaneously!
+        // This physically prevents any rocket pileup, glitch, or tab lag from ever happening.
+        if (rockets.length >= 2) return
+
         if (canvas.width === 0 || canvas.height === 0) {
           resizeCanvas()
         }
@@ -255,7 +299,7 @@ export function FestiveCountdownBanner() {
           x,
           y: h,
           targetY,
-          speed: Math.max(10, h * 0.025),
+          speed: Math.max(9, h * 0.024),
           color,
           type,
           tailSparks: []
@@ -263,44 +307,44 @@ export function FestiveCountdownBanner() {
       }
 
       const launchRocketWave = () => {
-        if (!isVisible || !canvas) return
+        if (document.hidden || !isVisible || !canvas) return
+        if (rockets.length >= 2) return
+
         const w = canvas.width
         volleyCounter++
 
-        // Every 5th wave: Grand Diwali Triple Dhamaka!
-        if (volleyCounter % 5 === 0) {
-          spawnSingleRocket(w * 0.22, 0.14)
-          setTimeout(() => spawnSingleRocket(w * 0.50, 0.09), 160)
-          setTimeout(() => spawnSingleRocket(w * 0.78, 0.16), 320)
-        } else if (Math.random() < 0.45) {
-          // Double rocket volley
-          spawnSingleRocket(w * 0.25 + Math.random() * (w * 0.2))
+        // Every 6th wave: Double staggered rocket volley
+        if (volleyCounter % 6 === 0) {
+          spawnSingleRocket(w * 0.28, 0.15)
           setTimeout(() => {
-            if (!isVisible || !canvas) return
-            spawnSingleRocket(w * 0.55 + Math.random() * (w * 0.25))
-          }, 180)
+            if (!document.hidden && isVisible && rockets.length < 2) {
+              spawnSingleRocket(w * 0.72, 0.12)
+            }
+          }, 280)
         } else {
-          // Single rocket
+          // Single elegant rocket launch
           spawnSingleRocket()
         }
       }
 
-      // Initial fast rocket launch
+      // Initial calm, elegant rocket launch after page layout stabilizes (prevents instant swarm)
       const initTimer = setTimeout(() => {
-        launchRocketWave()
-      }, 200)
+        if (!document.hidden && isVisible && rockets.length === 0) {
+          spawnSingleRocket()
+        }
+      }, 700)
 
-      // High-energy fast launch interval (every 750ms - 900ms)
+      // Well-paced launch interval (every 1400ms for majestic, lag-free celebration)
       rocketInterval = setInterval(() => {
         launchRocketWave()
-      }, 820)
+      }, 1400)
 
       const render = () => {
         if (!ctx || !canvas) return
 
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        if (isVisible) {
+        if (isVisible && !document.hidden) {
           // ===================================================================
           // 1. AMBIENT SKY FLASHES (Night sky lighting up on burst)
           // ===================================================================
@@ -337,8 +381,6 @@ export function FestiveCountdownBanner() {
               ctx.globalAlpha = Math.max(0, wave.alpha)
               ctx.strokeStyle = wave.color
               ctx.lineWidth = 2.5
-              ctx.shadowColor = wave.color
-              ctx.shadowBlur = 10
               ctx.beginPath()
               ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2)
               ctx.stroke()
@@ -346,26 +388,30 @@ export function FestiveCountdownBanner() {
             }
           }
 
+          // Enable additive lighter blend for blazing fireworks luminescence (0 CPU cost)
+          ctx.globalCompositeOperation = 'lighter'
+
           // ===================================================================
-          // 3. ROCKETS RISING WITH THICK BLAZING SPARKLER TAIL
+          // 3. ROCKETS RISING WITH THICK SPARKLER TAIL
           // ===================================================================
           for (let i = rockets.length - 1; i >= 0; i--) {
             const r = rockets[i]
             r.y -= r.speed
 
-            // Emit dense sparkling tail particles (3 per frame for heavy trail)
-            for (let t = 0; t < 3; t++) {
+            // Emit sparkling tail particles (2 per frame for optimal balance of density & performance)
+            for (let t = 0; t < 2; t++) {
               r.tailSparks.push({
-                x: r.x + (Math.random() - 0.5) * 6,
+                x: r.x + (Math.random() - 0.5) * 5,
                 y: r.y + Math.random() * 8,
-                vx: (Math.random() - 0.5) * 1.8,
-                vy: Math.random() * 3 + 1.5,
+                vx: (Math.random() - 0.5) * 1.5,
+                vy: Math.random() * 2.5 + 1.2,
                 alpha: 1,
-                size: Math.random() * 2.8 + 1.2
+                size: Math.random() * 2.4 + 1.2
               })
             }
 
-            // Draw rocket tail sparks
+            // Draw rocket tail sparks without expensive shadowBlur
+            ctx.fillStyle = '#FFE600'
             for (let j = r.tailSparks.length - 1; j >= 0; j--) {
               const ts = r.tailSparks[j]
               ts.x += ts.vx
@@ -375,27 +421,25 @@ export function FestiveCountdownBanner() {
               if (ts.alpha <= 0) {
                 r.tailSparks.splice(j, 1)
               } else {
-                ctx.save()
-                ctx.globalAlpha = ts.alpha
-                ctx.fillStyle = '#FFE600'
-                ctx.shadowColor = '#FF7700'
-                ctx.shadowBlur = 8
+                ctx.globalAlpha = Math.max(0, ts.alpha)
                 ctx.beginPath()
                 ctx.arc(ts.x, ts.y, ts.size, 0, Math.PI * 2)
                 ctx.fill()
-                ctx.restore()
               }
             }
 
-            // Draw rocket glowing head (white core + colored halo)
-            ctx.save()
-            ctx.fillStyle = '#FFFFFF'
-            ctx.shadowColor = r.color
-            ctx.shadowBlur = 18
+            // Draw rocket glowing head (outer halo + brilliant core)
+            ctx.globalAlpha = 0.35
+            ctx.fillStyle = r.color
             ctx.beginPath()
-            ctx.arc(r.x, r.y, 3.8, 0, Math.PI * 2)
+            ctx.arc(r.x, r.y, 8, 0, Math.PI * 2)
             ctx.fill()
-            ctx.restore()
+
+            ctx.globalAlpha = 1
+            ctx.fillStyle = '#FFFFFF'
+            ctx.beginPath()
+            ctx.arc(r.x, r.y, 3.4, 0, Math.PI * 2)
+            ctx.fill()
 
             // 🎆 THE BURST / FATAN: Rocket reaches target in sky!
             if (r.y <= r.targetY) {
@@ -417,11 +461,15 @@ export function FestiveCountdownBanner() {
                 color: r.color
               })
 
-              // 3. Spawning 60 to 85 radiant explosion sparks
-              const burstCount = Math.floor(Math.random() * 25 + 62)
+              // 3. Spawning radiant explosion sparks (capped for silky 60/120fps)
+              const isMobile = window.innerWidth < 768
+              const burstCount = isMobile 
+                ? Math.floor(Math.random() * 8 + 24) 
+                : Math.floor(Math.random() * 12 + 38)
+
               for (let k = 0; k < burstCount; k++) {
                 const angle = (Math.PI * 2 * k) / burstCount + (Math.random() - 0.5) * 0.25
-                const velocity = Math.random() * 6.8 + 1.8
+                const velocity = Math.random() * 6.2 + 1.8
                 const sparkColor = Math.random() < 0.45 
                   ? r.color 
                   : festiveColors[Math.floor(Math.random() * festiveColors.length)]
@@ -433,13 +481,13 @@ export function FestiveCountdownBanner() {
                   vy: Math.sin(angle) * velocity,
                   color: sparkColor,
                   alpha: 1,
-                  decay: Math.random() * 0.016 + 0.011,
-                  size: Math.random() * 2.8 + 1.8,
+                  decay: Math.random() * 0.016 + 0.012,
+                  size: Math.random() * 2.6 + 1.6,
                   trail: []
                 })
               }
 
-              // Bright central flare
+              // Bright central burst flare
               sparks.push({
                 x: r.x,
                 y: r.y,
@@ -448,7 +496,7 @@ export function FestiveCountdownBanner() {
                 color: '#FFFFFF',
                 alpha: 1,
                 decay: 0.15,
-                size: 10,
+                size: 9,
                 trail: []
               })
 
@@ -459,8 +507,10 @@ export function FestiveCountdownBanner() {
           // ===================================================================
           // 4. UPDATE & DRAW BURST SPARKS (EXPANDING WITH WILLOW TRAILS & GRAVITY)
           // ===================================================================
-          if (sparks.length > 280) {
-            sparks.splice(0, sparks.length - 280)
+          const isMobile = window.innerWidth < 768
+          const maxSparks = isMobile ? 120 : 200
+          if (sparks.length > maxSparks) {
+            sparks.splice(0, sparks.length - maxSparks)
           }
 
           for (let s = sparks.length - 1; s >= 0; s--) {
@@ -484,29 +534,23 @@ export function FestiveCountdownBanner() {
             } else {
               // Draw mini-trailing spark tail
               if (p.trail.length > 1) {
-                ctx.save()
-                ctx.globalAlpha = Math.max(0, p.alpha * 0.6)
+                ctx.globalAlpha = Math.max(0, p.alpha * 0.55)
                 ctx.strokeStyle = p.color
-                ctx.lineWidth = p.size * 0.7
+                ctx.lineWidth = p.size * 0.65
                 ctx.beginPath()
                 ctx.moveTo(p.trail[0].x, p.trail[0].y)
                 for (let t = 1; t < p.trail.length; t++) {
                   ctx.lineTo(p.trail[t].x, p.trail[t].y)
                 }
                 ctx.stroke()
-                ctx.restore()
               }
 
               // Draw spark head
-              ctx.save()
               ctx.globalAlpha = Math.max(0, p.alpha)
               ctx.fillStyle = p.color
-              ctx.shadowColor = p.color
-              ctx.shadowBlur = 10
               ctx.beginPath()
               ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
               ctx.fill()
-              ctx.restore()
             }
           }
 
@@ -515,34 +559,40 @@ export function FestiveCountdownBanner() {
           // ===================================================================
           const w = canvas.width
           const h = canvas.height
-          // Left Anar (near laptop / speakers)
-          if (Math.random() > 0.35) {
-            sparks.push({
-              x: w * 0.08 + (Math.random() - 0.5) * 16,
-              y: h * 0.88,
-              vx: (Math.random() - 0.5) * 2.2,
-              vy: -Math.random() * 4.2 - 2,
-              color: Math.random() > 0.5 ? '#FFE600' : '#FF7700',
-              alpha: 1,
-              decay: 0.035,
-              size: Math.random() * 2 + 1,
-              trail: []
-            })
+          if (sparks.length < (isMobile ? 80 : 150)) {
+            // Left Anar (near laptop / speakers)
+            if (Math.random() > 0.45) {
+              sparks.push({
+                x: w * 0.08 + (Math.random() - 0.5) * 14,
+                y: h * 0.88,
+                vx: (Math.random() - 0.5) * 2.0,
+                vy: -Math.random() * 4.0 - 2,
+                color: Math.random() > 0.5 ? '#FFE600' : '#FF7700',
+                alpha: 1,
+                decay: 0.038,
+                size: Math.random() * 2 + 1,
+                trail: []
+              })
+            }
+            // Right Anar (near diyas / crates)
+            if (Math.random() > 0.45) {
+              sparks.push({
+                x: w * 0.92 + (Math.random() - 0.5) * 14,
+                y: h * 0.88,
+                vx: (Math.random() - 0.5) * 2.0,
+                vy: -Math.random() * 4.0 - 2,
+                color: Math.random() > 0.5 ? '#FFE600' : '#FF007A',
+                alpha: 1,
+                decay: 0.038,
+                size: Math.random() * 2 + 1,
+                trail: []
+              })
+            }
           }
-          // Right Anar (near diyas / crates)
-          if (Math.random() > 0.35) {
-            sparks.push({
-              x: w * 0.92 + (Math.random() - 0.5) * 16,
-              y: h * 0.88,
-              vx: (Math.random() - 0.5) * 2.2,
-              vy: -Math.random() * 4.2 - 2,
-              color: Math.random() > 0.5 ? '#FFE600' : '#FF007A',
-              alpha: 1,
-              decay: 0.035,
-              size: Math.random() * 2 + 1,
-              trail: []
-            })
-          }
+
+          // Reset canvas composite mode and global alpha back to normal
+          ctx.globalCompositeOperation = 'source-over'
+          ctx.globalAlpha = 1
         }
 
         canvasRafId = window.requestAnimationFrame(render)
@@ -557,6 +607,9 @@ export function FestiveCountdownBanner() {
         window.removeEventListener('scroll', onScroll)
         window.removeEventListener('resize', resizeCanvas)
         window.cancelAnimationFrame(canvasRafId)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+        window.removeEventListener('blur', handleVisibilityChange)
+        window.removeEventListener('focus', handleVisibilityChange)
         observer.disconnect()
       }
     }
