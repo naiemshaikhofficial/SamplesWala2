@@ -81,7 +81,17 @@ export function FestiveCountdownBanner() {
       ticking = false
       if (!isVisible || !bannerRef.current || !posterRef.current) return
 
-      // Measure sticky header height
+      // MOBILE OPTIMIZATION:
+      // Mobile devices use touch inertia dragging. Translating elements in opposite direction
+      // during touch drag causes the browser compositor to stutter ("atak atak ke chalna").
+      // On mobile (<768px), keep poster in natural flow for guaranteed 60/120 FPS native smooth touch scrolling.
+      if (window.innerWidth < 768) {
+        posterRef.current.style.transform = 'translate3d(0, 0, 0)'
+        posterRef.current.style.filter = 'none'
+        return
+      }
+
+      // DESKTOP: Smooth cinematic curtain parallax
       const headerEl = document.querySelector('header')
       const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 80
 
@@ -133,10 +143,6 @@ export function FestiveCountdownBanner() {
     window.addEventListener('scroll', onScroll, { passive: true })
     updateParallax()
 
-    // =========================================================================
-    // DIWALI FESTIVE FIREWORK ROCKET ENGINE (CANVAS 60FPS)
-    // - Rockets shoot UP with blazing sparkler tails
-    // - Reach the sky and BURST (Fatan!) into radiant cascading colorful sparks
     // =========================================================================
     // HEAVY DIWALI FESTIVE FIREWORK ROCKET ENGINE (CANVAS 60FPS)
     // - Rapid multi-rocket volleys with thick blazing sparkler tails
@@ -207,18 +213,37 @@ export function FestiveCountdownBanner() {
       let flashes: Flash[] = []
 
       const resizeCanvas = () => {
-        if (!canvas || !canvas.parentElement) return
-        canvas.width = canvas.parentElement.clientWidth
-        canvas.height = canvas.parentElement.clientHeight
+        if (!canvas) return
+        const parent = posterRef.current || canvas.parentElement
+        if (!parent) return
+        const w = parent.clientWidth || window.innerWidth
+        const h = parent.clientHeight || 500
+        if (w > 0 && h > 0) {
+          if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w
+            canvas.height = h
+          }
+        }
       }
 
       resizeCanvas()
       window.addEventListener('resize', resizeCanvas)
 
+      // ResizeObserver to detect when the poster image loads and changes height
+      const resizeObs = new ResizeObserver(() => {
+        resizeCanvas()
+      })
+      if (posterRef.current) {
+        resizeObs.observe(posterRef.current)
+      }
+
       const spawnSingleRocket = (xPos?: number, targetRatio?: number) => {
-        if (!canvas || canvas.width === 0 || canvas.height === 0) return
-        const w = canvas.width
-        const h = canvas.height
+        if (!canvas) return
+        if (canvas.width === 0 || canvas.height === 0) {
+          resizeCanvas()
+        }
+        const w = canvas.width || window.innerWidth
+        const h = canvas.height || 600
 
         const x = xPos !== undefined ? xPos : w * 0.12 + Math.random() * (w * 0.76)
         const targetY = h * (targetRatio !== undefined ? targetRatio : 0.10 + Math.random() * 0.28)
@@ -593,6 +618,12 @@ export function FestiveCountdownBanner() {
               loading="eager"
               fetchPriority="high"
               decoding="async"
+              onLoad={() => {
+                if (canvasRef.current && posterRef.current) {
+                  canvasRef.current.width = posterRef.current.clientWidth || window.innerWidth
+                  canvasRef.current.height = posterRef.current.clientHeight || 500
+                }
+              }}
               style={{
                 imageRendering: '-webkit-optimize-contrast',
                 transform: 'translateZ(0)',
@@ -613,8 +644,7 @@ export function FestiveCountdownBanner() {
         {/* Real-time Diwali Firework Rockets Launching and Bursting (Fatan) */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 w-full h-full pointer-events-none z-25"
-          style={{ mixBlendMode: 'screen' }}
+          className="absolute inset-0 w-full h-full pointer-events-none z-30"
         />
 
         {/* ========================================================================= */}
