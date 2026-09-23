@@ -1,4 +1,4 @@
-import { Permanent_Marker, Luckiest_Guy, Kalam } from 'next/font/google'
+import { Permanent_Marker, Luckiest_Guy, Kalam, Mouse_Memoirs } from 'next/font/google'
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -20,6 +20,13 @@ const kalam = Kalam({
   weight: ['700'],
   subsets: ['devanagari'],
   variable: '--font-kalam',
+  display: 'swap',
+})
+
+const mouseMemoirs = Mouse_Memoirs({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-mouse-memoirs',
   display: 'swap',
 })
 import { generatePageMetadata } from "@/lib/seo/metadata";
@@ -91,6 +98,11 @@ export default async function RootLayout({
         <meta name="topic" content="Music Production and Beat Making" />
         <meta name="summary" content="Samples Wala - Premium Indian sample packs, loops, software presets, and audio libraries. 100% royalty-free for music producers." />
 
+        {/* Mouse Memoirs Google Font */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Mouse+Memoirs&display=swap" rel="stylesheet" />
+
         {/* Rich Google SEO Structured Data */}
         <StorefrontJsonLd />
 
@@ -99,7 +111,7 @@ export default async function RootLayout({
           strategy="lazyOnload" 
         />
       </head>
-      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} antialiased min-h-screen flex flex-col text-white`}>
+      <body className={`${permanentMarker.variable} ${luckiestGuy.variable} ${kalam.variable} ${mouseMemoirs.variable} antialiased min-h-screen flex flex-col text-white`}>
         <AuthProvider>
           <CurrencyProvider>
             <CartProvider>

@@ -8,6 +8,7 @@ import { BrowseLibrary } from '@/components/BrowseLibrary'
 import { HomePacks } from '@/components/HomePacks'
 import { FreeSection } from '@/components/FreeSection'
 import { ArtistTestimonials } from '@/components/ArtistTestimonials'
+import { ParallaxMarketplaceBanner } from '@/components/ParallaxMarketplaceBanner'
 import { TrustpilotBadge } from '@/components/TrustpilotBadge'
 import { PresetCard } from '@/components/PresetCard'
 import { HeroSlider } from '@/components/HeroSlider'
@@ -908,6 +909,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* World's Fastest Growing Sample Store & Marketplace Parallax Banner */}
+      <ParallaxMarketplaceBanner />
 
       <ArtistTestimonials />
 
