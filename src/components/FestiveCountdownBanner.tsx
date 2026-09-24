@@ -214,7 +214,7 @@ export function FestiveCountdownBanner() {
 
       const resizeCanvas = () => {
         if (!canvas) return
-        const parent = posterRef.current || canvas.parentElement
+        const parent = canvas.parentElement || posterRef.current
         if (!parent) return
         const w = parent.clientWidth || window.innerWidth
         const h = parent.clientHeight || 500
@@ -235,6 +235,9 @@ export function FestiveCountdownBanner() {
       })
       if (posterRef.current) {
         resizeObs.observe(posterRef.current)
+      }
+      if (canvas.parentElement) {
+        resizeObs.observe(canvas.parentElement)
       }
 
       // Tab Visibility & Focus Lifecycle Management:
@@ -610,6 +613,7 @@ export function FestiveCountdownBanner() {
         document.removeEventListener('visibilitychange', handleVisibilityChange)
         window.removeEventListener('blur', handleVisibilityChange)
         window.removeEventListener('focus', handleVisibilityChange)
+        resizeObs.disconnect()
         observer.disconnect()
       }
     }
@@ -626,10 +630,10 @@ export function FestiveCountdownBanner() {
       {/* 1. The Poster Layer in the BACK (z-index: 10) - Stays pinned/lingering in background */}
       <div 
         ref={posterRef}
-        className="w-full relative z-10 will-change-transform transform-gpu origin-top bg-black"
+        className="w-full relative z-10 will-change-transform transform-gpu origin-top bg-black overflow-hidden flex justify-center"
         style={{ contain: 'paint' }}
       >
-        {/* Deep Festive Ambient Glow Background */}
+        {/* Deep Festive Ambient Glow Background (spans full viewport width) */}
         <div 
           ref={bgGlowRef}
           className="absolute inset-0 pointer-events-none z-0 will-change-transform opacity-70"
@@ -639,66 +643,75 @@ export function FestiveCountdownBanner() {
           <div className="absolute right-0 bottom-10 w-96 h-96 bg-[#00E5FF]/20 blur-3xl rounded-full" />
         </div>
 
-        <Link 
-          href="/browse" 
-          className="block w-full cursor-pointer relative group/img"
-          title="Samplistic Festival — Get 20% Off on Every Sample Pack (Starts 8 October)"
-        >
-          {/* Pristine Full-Resolution 100% Uncropped Poster (Desktop Panoramic vs Mobile Portrait) */}
-          <picture className="block w-full">
-            {/* Desktop & Tablet: Ultra-Wide 1983x793 Panoramic Graphic */}
-            <source
-              media="(min-width: 768px)"
-              srcSet="/festive-banner-desktop.webp"
-              type="image/webp"
-            />
-            <source
-              media="(min-width: 768px)"
-              srcSet="/festive-banner-desktop.png"
-              type="image/png"
-            />
+        {/* Centered Poster Stage: Bounds artwork on large / 2K / 4K / Ultrawide screens to prevent pixelation & overflow */}
+        <div className="w-full max-w-[1920px] relative mx-auto z-10">
+          <Link 
+            href="/browse" 
+            className="block w-full cursor-pointer relative group/img"
+            title="Samplistic Festival — Get 20% Off on Every Sample Pack (Starts 8 October)"
+          >
+            {/* Pristine Full-Resolution 100% Uncropped Poster (Desktop Panoramic vs Mobile Portrait) */}
+            <picture className="block w-full">
+              {/* Desktop & Tablet: Ultra-Wide 1983x793 Panoramic Graphic with 2x 4K Retina Support */}
+              <source
+                media="(min-width: 768px)"
+                srcSet="/festive-banner-desktop.webp 1x, /festive-banner-desktop-2x.webp 2x"
+                type="image/webp"
+              />
+              <source
+                media="(min-width: 768px)"
+                srcSet="/festive-banner-desktop.png 1x, /festive-banner-desktop-2x.png 2x"
+                type="image/png"
+              />
 
-            {/* Mobile Phone: High-Impact 941x1672 Vertical Portrait Graphic */}
-            <source
-              srcSet="/festive-banner-mobile.webp"
-              type="image/webp"
-            />
-            <img
-              src="/festive-banner-mobile.png"
-              alt="Samplistic Festival — Festive Sale is Here — Get 20% Off on Every Sample Pack — Starts 8 October"
-              width={1983}
-              height={793}
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              onLoad={() => {
-                if (canvasRef.current && posterRef.current) {
-                  canvasRef.current.width = posterRef.current.clientWidth || window.innerWidth
-                  canvasRef.current.height = posterRef.current.clientHeight || 500
-                }
-              }}
-              style={{
-                imageRendering: '-webkit-optimize-contrast',
-                transform: 'translateZ(0)',
-                backfaceVisibility: 'hidden',
-              }}
-              className="w-full h-auto block select-none pointer-events-none group-hover/img:brightness-[1.02] transition-all duration-300"
-            />
-          </picture>
+              {/* Mobile Phone: High-Impact 941x1672 Vertical Portrait Graphic */}
+              <source
+                srcSet="/festive-banner-mobile.webp"
+                type="image/webp"
+              />
+              <img
+                src="/festive-banner-mobile.png"
+                alt="Samplistic Festival — Festive Sale is Here — Get 20% Off on Every Sample Pack — Starts 8 October"
+                width={1983}
+                height={793}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                onLoad={() => {
+                  if (canvasRef.current) {
+                    const parent = canvasRef.current.parentElement || posterRef.current
+                    if (parent) {
+                      canvasRef.current.width = parent.clientWidth || window.innerWidth
+                      canvasRef.current.height = parent.clientHeight || 500
+                    }
+                  }
+                }}
+                style={{
+                  imageRendering: 'auto',
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
+                }}
+                className="w-full h-auto block select-none pointer-events-none group-hover/img:brightness-[1.02] transition-all duration-300"
+              />
+            </picture>
 
-          {/* Dynamic Holographic Light Sheen Overlay that sweeps with scroll */}
-          <div 
-            ref={sheenRef}
-            className="absolute inset-y-0 -left-1/2 w-1/3 pointer-events-none z-20 will-change-transform bg-gradient-to-r from-transparent via-white/20 to-transparent blur-md opacity-0 transform-gpu"
-            style={{ mixBlendMode: 'overlay' }}
+            {/* Dynamic Holographic Light Sheen Overlay that sweeps with scroll */}
+            <div 
+              ref={sheenRef}
+              className="absolute inset-y-0 -left-1/2 w-1/3 pointer-events-none z-20 will-change-transform bg-gradient-to-r from-transparent via-white/20 to-transparent blur-md opacity-0 transform-gpu"
+              style={{ mixBlendMode: 'overlay' }}
+            />
+          </Link>
+
+          {/* Cinematic Edge Vignette Fades for Extra-Wide (>1920px) Displays */}
+          <div className="hidden 2xl:block absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-black via-black/80 to-transparent pointer-events-none z-20" />
+          <div className="hidden 2xl:block absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-black via-black/80 to-transparent pointer-events-none z-20" />
+
+          {/* Real-time Diwali Firework Rockets Launching and Bursting (Fatan) */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none z-30"
           />
-        </Link>
-
-        {/* Real-time Diwali Firework Rockets Launching and Bursting (Fatan) */}
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full pointer-events-none z-30"
-        />
 
         {/* ========================================================================= */}
         {/* FESTIVE FIRECRACKERS, SPARKLERS & SALE DHAMAKA OVERLAYS                   */}
@@ -833,6 +846,7 @@ export function FestiveCountdownBanner() {
           <div className="absolute top-[38%] left-[7%] flex sm:hidden items-center justify-center filter drop-shadow-[0_0_12px_#00E5FF]">
             <Music size={20} className="text-[#00E5FF] rotate-[-18deg]" />
           </div>
+        </div>
         </div>
       </div>
 
