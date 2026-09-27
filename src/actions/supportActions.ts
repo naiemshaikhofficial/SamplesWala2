@@ -47,6 +47,28 @@ export interface TicketSubmissionData {
   description: string
 }
 
+import fs from 'fs'
+import path from 'path'
+
+function ensureSupabaseAdminEnv() {
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) return
+  try {
+    const envPath = path.resolve(process.cwd(), '.env.local')
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8')
+      const mUrl = content.match(/NEXT_PUBLIC_SUPABASE_URL\s*=\s*(.+)/)
+      if (mUrl && mUrl[1]) process.env.NEXT_PUBLIC_SUPABASE_URL = mUrl[1].trim().replace(/^['"]|['"]$/g, '')
+      const mKey = content.match(/SUPABASE_SERVICE_ROLE_KEY\s*=\s*(.+)/)
+      if (mKey && mKey[1]) process.env.SUPABASE_SERVICE_ROLE_KEY = mKey[1].trim().replace(/^['"]|['"]$/g, '')
+    }
+  } catch (err) {
+    console.warn('[supportActions] Error reading .env.local:', err)
+  }
+}
+
+// Ensure env is available immediately on module import
+ensureSupabaseAdminEnv()
+
 /**
  * Generate a clean, unique ticket code (e.g. SW-TK-72419)
  */
@@ -56,9 +78,59 @@ function generateTicketNumber(): string {
 }
 
 /**
- * Normalize category string to DB constraint allowed values
+ * Normalize category string to DB constraint allowed values:
+ * 'download', 'payment', 'daw', 'licensing', 'general', 'technical', 'other'
  */
 function normalizeCategory(category: string): string {
+  const clean = (category || '').toUpperCase().trim()
+  if (
+    clean.includes('AUDIO') ||
+    clean.includes('ENGINEER') ||
+    clean.includes('TECH') ||
+    clean.includes('DESK') ||
+    clean.includes('BUG') ||
+    clean.includes('ERROR')
+  ) {
+    return 'technical'
+  }
+  if (
+    clean.includes('DOWNLOAD') ||
+    clean.includes('VAULT') ||
+    clean.includes('DRIVE') ||
+    clean.includes('LINK') ||
+    clean.includes('FILE') ||
+    clean.includes('ZIP')
+  ) {
+    return 'download'
+  }
+  if (
+    clean.includes('PAY') ||
+    clean.includes('ORDER') ||
+    clean.includes('BILL') ||
+    clean.includes('INVOICE') ||
+    clean.includes('REFUND') ||
+    clean.includes('CHARGE')
+  ) {
+    return 'payment'
+  }
+  if (
+    clean.includes('DAW') ||
+    clean.includes('STUDIO') ||
+    clean.includes('ABLETON') ||
+    clean.includes('LOGIC') ||
+    clean.includes('FL')
+  ) {
+    return 'daw'
+  }
+  if (
+    clean.includes('LICENSE') ||
+    clean.includes('ROYALTY') ||
+    clean.includes('COMMERCIAL') ||
+    clean.includes('RIGHTS')
+  ) {
+    return 'licensing'
+  }
+
   const map: Record<string, string> = {
     DOWNLOAD_ISSUE: 'download',
     PAYMENT_ORDER: 'payment',
@@ -66,10 +138,15 @@ function normalizeCategory(category: string): string {
     LICENSING: 'licensing',
     GENERAL: 'general',
     TECHNICAL: 'technical',
-    PAYOUT: 'payout',
+    PAYOUT: 'payment',
+    OTHER: 'other',
   }
-  const clean = category?.toUpperCase() || ''
-  return map[clean] || category?.toLowerCase() || 'general'
+
+  if (map[clean]) return map[clean]
+
+  const lower = (category || '').toLowerCase().trim()
+  const validCategories = new Set(['download', 'payment', 'daw', 'licensing', 'general', 'technical', 'other'])
+  return validCategories.has(lower) ? lower : 'technical'
 }
 
 /**
@@ -181,6 +258,7 @@ export async function createSupportTicketAction(data: TicketSubmissionData): Pro
   }
 
   try {
+    ensureSupabaseAdminEnv()
     const admin = getAdminClient()
     const { data: authData } = await getUser()
     const userId = authData?.user?.id || null

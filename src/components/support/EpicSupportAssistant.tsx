@@ -1105,7 +1105,7 @@ export function EpicSupportAssistant({
       const res = await createSupportTicketAction({
         name: customerName,
         email: emailToSend,
-        category: 'Senior Audio Engineering Desk',
+        category: 'technical',
         priority: 'NORMAL',
         subject: exactUserQuestion.slice(0, 150),
         description: `User Inquiry: "${exactUserQuestion}"\n\n=== FULL CONVERSATION TRANSCRIPT ===\n${conversationHistory}`,
