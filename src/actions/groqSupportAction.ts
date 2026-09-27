@@ -12,8 +12,18 @@ export interface RecommendedProduct {
   cover_image: string
   price_usd?: number
   price_inr: number
+  mrp_inr?: number
   product_type: string
   short_description?: string | null
+  total_contents_summary?: string | null
+  loop_count?: number
+  one_shot_count?: number
+  melody_count?: number
+  preset_count?: number
+  series?: string | null
+  daws?: string[] | null
+  plugins_used?: string[] | null
+  full_description?: string | null
 }
 
 export interface ComingSoonProduct {
@@ -176,8 +186,16 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
     cover_image: 'https://imagizer.imageshack.com/img922/4591/uA7sLt.jpg',
     price_inr: 999,
     price_usd: 14.99,
+    mrp_inr: 1999,
     product_type: 'sample_pack',
+    total_contents_summary: 'Includes 110+ Samples',
+    loop_count: 104,
+    melody_count: 6,
+    one_shot_count: 0,
+    preset_count: 0,
+    series: 'India Journey',
     short_description: 'Authentic South Indian & Tapori Loops covering Kuthu, festival beats, dholak, and folk percussion.',
+    full_description: 'The South is a powerful collection of South Indian loops, Kuthu grooves, festival-style rhythms, and Tapori-inspired patterns crafted for high-energy DJ remixes, reel beats, and dance productions.',
   },
   {
     id: '654161bb-294a-48cc-acdc-af1abca18bfb',
@@ -186,8 +204,16 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
     cover_image: 'https://imagizer.imageshack.com/img922/7492/HkEhZY.png',
     price_inr: 799,
     price_usd: 9.99,
+    mrp_inr: 1499,
     product_type: 'sample_pack',
+    total_contents_summary: '477 One-Shot Drum Samples (Chenda, Clap, Iddaka, Kick, Kuthu, Mridangam, Percussion, Snare, Tape, Thappu, Urmi)',
+    loop_count: 0,
+    melody_count: 0,
+    one_shot_count: 477,
+    preset_count: 0,
+    series: 'India Journey',
     short_description: '477 custom one-shot samples featuring Chenda, Clap, Iddaka, Kick, Kuthu, Mridangam, Thappu, Urmi.',
+    full_description: 'South Drum is a premium one-shot drum sample pack delivering bold, punchy, and authentic South Indian drum sounds across 477 custom one-shots designed to cut through modern mixes.',
   },
   {
     id: 'c2e5cb42-a0dc-4d4f-b98a-986fc0d091a1',
@@ -196,8 +222,16 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
     cover_image: 'https://imagizer.imageshack.com/img924/6673/1i7cNl.png',
     price_inr: 999,
     price_usd: 14.99,
+    mrp_inr: 2999,
     product_type: 'sample_pack',
+    total_contents_summary: '131+ High Quality Samples (400+ loops across all editions)',
+    loop_count: 124,
+    melody_count: 25,
+    one_shot_count: 1,
+    preset_count: 0,
+    series: 'India Journey',
     short_description: 'Cinematic and commercial Indian sounds, melodic loops, dholak, tabla, and signature Bollywood grooves.',
+    full_description: 'Bollywood Sample Pack is a premium collection of authentic Indian sounds, loops, and one-shots crafted for modern music producers who want the true essence of Bollywood in their beats.',
   },
   {
     id: 'e1d2c3b4-a5b6-7c8d-9e0f-1a2b3c4d5e6f',
@@ -206,8 +240,16 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
     cover_image: 'https://imagizer.imageshack.com/img923/627/vc1DbH.png',
     price_inr: 1999,
     price_usd: 21.99,
+    mrp_inr: 3999,
     product_type: 'sample_pack',
+    total_contents_summary: 'Includes 250+ Samples, MIDI, and Project Files',
+    loop_count: 250,
+    melody_count: 0,
+    one_shot_count: 0,
+    preset_count: 0,
+    series: 'India Journey',
     short_description: 'Authentic Sambalpuri folk percussion, traditional rhythms, and energetic desi grooves from Odisha.',
+    full_description: 'Sambalpuri Rhythm Sample Pack is a premium collection of authentic Sambalpuri folk sounds, traditional Odisha percussion, ethnic loops, and cultural textures specially crafted for modern producers with 250+ samples, MIDI, and project files.',
   },
   {
     id: '8f421d2a-5452-4d22-aa00-9c1c9896e5e9',
@@ -216,8 +258,16 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
     cover_image: 'https://imagizer.imageshack.com/img921/4153/dVxZTV.png',
     price_inr: 0,
     price_usd: 0,
+    mrp_inr: 0,
     product_type: 'sample_pack',
+    total_contents_summary: '10 Free Tabla Rhythm Loops',
+    loop_count: 10,
+    melody_count: 0,
+    one_shot_count: 0,
+    preset_count: 0,
+    series: 'India Journey',
     short_description: '10 FREE authentic Indian classical, Bollywood, and Sufi tabla samples and loops.',
+    full_description: 'Bring the authentic sound of Indian Tabla into your music production with The Ten Tabla’s, featuring 10 pristine free tabla rhythm loops for classical, Sufi, and Bollywood productions.',
   },
   {
     id: 'a9bb41c1-3c8d-4617-91e9-c5a6f83c47b8',
@@ -226,8 +276,16 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
     cover_image: 'https://imagizer.imageshack.com/img921/4723/6EtjtS.png',
     price_inr: 0,
     price_usd: 0,
+    mrp_inr: 0,
     product_type: 'sample_pack',
+    total_contents_summary: '25 Free Rhythm Loops',
+    loop_count: 25,
+    melody_count: 0,
+    one_shot_count: 0,
+    preset_count: 0,
+    series: 'India Journey',
     short_description: '25 FREE rhythm loops covering Tapori, South Indian street grooves, and folk percussion.',
+    full_description: '25 FREE Indian Rhythm Loops capturing the feeling of India’s streets — busy markets, local festivals, roadside celebrations, dhols, and folk percussion.',
   },
   {
     id: '4064e95e-473b-4240-b206-3793780e4c52',
@@ -235,28 +293,44 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
     slug: 'the-real-punjab',
     cover_image: 'https://imagizer.imageshack.com/img922/7726/Eov3Nv.png',
     price_inr: 499,
+    mrp_inr: 1499,
     product_type: 'preset',
+    daws: ['FL Studio'],
+    plugins_used: [
+      'Antares Auto-Tune Pro',
+      'Fruity Parametric EQ 2',
+      'Fruity Multiband Compressor',
+      'FabFilter Pro-Q 4',
+      'Fresh Air',
+      'iZotope RX Mouth De-click',
+      'iZotope RX De-click',
+      'soothe2',
+      'Fruity Limiter',
+    ],
     short_description: 'Professional FL Studio vocal preset pack crafted for authentic Punjabi vocals, Bhangra, and Hip-Hop.',
+    full_description: '2 custom vocal presets designed specifically for clean, punchy, and industry-level Punjabi vocal sound in FL Studio, utilizing professional chain routing with Auto-Tune, soothe2, and FabFilter.',
   },
 ]
 
-  // 3. Fetch Live Catalog from Supabase (sample_packs & presets)
+  // 3. Fetch Live Catalog from Supabase (sample_packs & presets) with FULL COLUMNS
   let liveInventoryList = ''
   let allProducts: RecommendedProduct[] = []
 
   try {
     const packsPromise = adminSupabase
       .from('sample_packs')
-      .select('id, name, slug, cover_url, price_inr, price_usd, description')
+      .select(
+        'id, name, slug, cover_url, price_inr, price_usd, mrp_inr, total_contents_summary, loop_count, one_shot_count, melody_count, preset_count, series, description'
+      )
       .order('created_at', { ascending: false })
-      .limit(50)
+      .limit(60)
 
-    // Note: presets table doesn't have price_usd
     const presetsPromise = adminSupabase
       .from('presets')
-      .select('id, name, slug, cover_url, price_inr, description')
+      .select('id, name, slug, cover_url, price_inr, mrp_inr, type, daws, plugins_used, description')
+      .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .limit(20)
+      .limit(30)
 
     const [packsRes, presetsRes] = await Promise.allSettled([packsPromise, presetsPromise])
 
@@ -269,8 +343,16 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
             cover_image: p.cover_url || '',
             price_inr: Number(p.price_inr ?? 0),
             price_usd: p.price_usd != null ? Number(p.price_usd) : undefined,
+            mrp_inr: p.mrp_inr != null ? Number(p.mrp_inr) : undefined,
             product_type: 'sample_pack',
-            short_description: p.description ? p.description.slice(0, 160).replace(/\r?\n/g, ' ') : null,
+            total_contents_summary: p.total_contents_summary || null,
+            loop_count: p.loop_count != null ? Number(p.loop_count) : undefined,
+            one_shot_count: p.one_shot_count != null ? Number(p.one_shot_count) : undefined,
+            melody_count: p.melody_count != null ? Number(p.melody_count) : undefined,
+            preset_count: p.preset_count != null ? Number(p.preset_count) : undefined,
+            series: p.series || null,
+            short_description: p.description ? p.description.slice(0, 180).replace(/\r?\n/g, ' ') : null,
+            full_description: p.description || null,
           }))
         : []
 
@@ -282,8 +364,12 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
             slug: pr.slug,
             cover_image: pr.cover_url || '',
             price_inr: Number(pr.price_inr ?? 0),
+            mrp_inr: pr.mrp_inr != null ? Number(pr.mrp_inr) : undefined,
             product_type: 'preset',
-            short_description: pr.description ? pr.description.slice(0, 160).replace(/\r?\n/g, ' ') : null,
+            daws: Array.isArray(pr.daws) ? pr.daws : [],
+            plugins_used: Array.isArray(pr.plugins_used) ? pr.plugins_used : [],
+            short_description: pr.description ? pr.description.slice(0, 180).replace(/\r?\n/g, ' ') : null,
+            full_description: pr.description || null,
           }))
         : []
 
@@ -297,14 +383,44 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
     allProducts = [...VERIFIED_STORE_PACKS]
   }
 
+  // Formulate Rich Technical Inventory Profile for Every Product from Database
   liveInventoryList = allProducts
     .map((p) => {
       const price = p.price_inr === 0 ? 'FREE' : `₹${p.price_inr}`
-      const desc = p.short_description ? ` - ${p.short_description}` : ''
+      const mrp = p.mrp_inr ? ` (MRP: ₹${p.mrp_inr})` : ''
       const link = p.product_type === 'preset' ? `/browse/presets/${p.slug}` : `/packs/${p.slug}`
-      return `- [${p.name}](${link}) (${price}, ${p.product_type}) [STATUS: AVAILABLE IN STORE]${desc}`
+
+      const specLines: string[] = []
+      if (p.total_contents_summary) {
+        specLines.push(`Total Contents: ${p.total_contents_summary.replace(/\r?\n/g, ' | ')}`)
+      }
+      const countParts: string[] = []
+      if (p.loop_count != null && p.loop_count > 0) countParts.push(`${p.loop_count} Loops`)
+      if (p.one_shot_count != null && p.one_shot_count > 0) countParts.push(`${p.one_shot_count} One-Shots`)
+      if (p.melody_count != null && p.melody_count > 0) countParts.push(`${p.melody_count} Melodic Loops`)
+      if (p.preset_count != null && p.preset_count > 0) countParts.push(`${p.preset_count} Presets`)
+      if (countParts.length > 0) {
+        specLines.push(`Breakdown: ${countParts.join(', ')}`)
+      }
+      if (p.series) {
+        specLines.push(`Collection Series: ${p.series}`)
+      }
+      if (p.daws && p.daws.length > 0) {
+        specLines.push(`DAWs: ${p.daws.join(', ')}`)
+      }
+      if (p.plugins_used && p.plugins_used.length > 0) {
+        specLines.push(`Plugins Required: ${p.plugins_used.join(', ')}`)
+      }
+
+      const specsBlock = specLines.length > 0 ? `\n  - SPECIFICATIONS: ${specLines.join(' | ')}` : ''
+      const cleanDesc = p.full_description ? p.full_description.trim() : (p.short_description || '')
+      const descBlock = cleanDesc ? `\n  - OVERVIEW: ${cleanDesc}` : ''
+
+      return `[PRODUCT: ${p.name}]
+  - Link: [${p.name}](${link})
+  - Price: ${price}${mrp} [Type: ${p.product_type}]${specsBlock}${descBlock}`
     })
-    .join('\n')
+    .join('\n\n')
 
   // 4. Fetch User Purchases / Vault Items
   let userPurchases: any[] = []
@@ -519,7 +635,7 @@ LIVE SAMPLES WALA STORE INVENTORY (QUERY RESULT FROM DATABASE):
 ${liveInventoryList}
 
 CRITICAL RULES FOR PRODUCT RECOMMENDATION & REAL STORE INVENTORY:
-- You must ONLY recommend products from the LIVE SAMPLES WALA STORE INVENTORY list above.
+- You must ONLY recommend and answer questions about products from the LIVE SAMPLES WALA STORE INVENTORY list above.
 - NEVER INVENT OR HALLUCINATE non-existent sound packs (such as "Indian Rhythms & Percussion" or "Sexy Drill"). Those do not exist in the database!
 
 CRITICAL MANDATE: ALWAYS PROVIDE SMART, DEEP & CONTEXT-AWARE ANSWERS (NO GENERIC / BOT-LIKE REPLIES):
@@ -528,21 +644,24 @@ CRITICAL MANDATE: ALWAYS PROVIDE SMART, DEEP & CONTEXT-AWARE ANSWERS (NO GENERIC
   * Identify their genre (Bollywood, Desi Hip-Hop, Punjabi, Drill, Regional Folk, EDM, Classical/Sufi).
   * Identify their production need (punchy drum grooves, melody loops, vocal chain processing, 808 layering, DAW workflow).
   * Tailor your answer specifically to their creative context instead of giving a flat, lazy list.
-- SMART TECHNICAL BREAKDOWNS FOR STORE PACKS:
-  1. For Bollywood / Commercial Pop / Melodic Film Hits:
-     Recommend [The Bollywood](/packs/the-bollywood) (₹999). Explain why: it features authentic live dholak, tabla phrases, sitar, and signature Bollywood grooves, pre-mixed and EQ-balanced so the low frequencies sit tight without clashing with the vocal pocket or 808s.
-  2. For South Indian / High-Energy Festival / Kuthu / Tapori Beats:
-     Recommend [The South](/packs/the-south) (₹999) for syncopated festival loops (120-140+ BPM) and [South Drums](/packs/south-drums) (₹799) for 477 punchy one-shots (Chenda, Thappu, Urmi, Kuthu, Mridangam, Iddaka) perfect for custom beat programming in FL Studio or Ableton.
-  3. For Indian Drill / Desi Trap / Modern Hip-Hop:
-     Explain that for aggressive drill patterns, producers pair sliding 808s with sharp Indian percussion one-shots from [South Drums](/packs/south-drums) (₹799) or percussion loops from [The South](/packs/the-south) (₹999) to create distinctive Desi Drill bounces.
-  4. For Regional Folk / Odisha Desi Rhythms:
-     Recommend [Sambalpur Rhythm](/packs/sambalpur-rhythm) (₹1999). Detail its authentic Western Odisha folk percussion, distinct 6/8 and fast 4/4 syncopations, and organic acoustic punch.
-  5. For 100% Free Authentic Classical & Sufi Tablas:
-     Recommend [The Ten Tabla’s](/packs/the-ten-tablas) (FREE) for pristine studio-recorded bayans (deep bass modulations) and dayans (crisp high rim tones).
-  6. For 100% Free Desi Street Rhythms:
-     Recommend [India Street Rhythm](/packs/india-street) (FREE) for 25 high-energy street loops and festival percussion.
-  7. For Vocal Mixing in FL Studio:
-     Recommend [The Real Punjab (Vocal Preset)](/browse/presets/the-real-punjab) (₹499). Explain how its specialized FL Studio vocal chain provides surgical EQ, optical compression, presence boost, and stereo air specifically dialed for aggressive Punjabi vocals and rap.
+
+CRITICAL DATABASE-DRIVEN SPECIFICATION & SAMPLE COUNT RULES (ZERO HARDCODING - DATABASE TRUTH):
+- Every sound pack and preset in your LIVE SAMPLES WALA STORE INVENTORY above contains LIVE DATABASE SPECIFICATIONS:
+  * Total Contents Summary (e.g. Sambalpur Rhythm = "Includes 250+ Samples, MIDI, and Project Files", South Drums = "477 One-Shot Drum Samples", The South = "Includes 110+ Samples", The Bollywood = "131+ High Quality Samples", The Ten Tabla's = "10 Free Tabla Rhythm Loops", India Street Rhythm = "25 Free Rhythm Loops").
+  * Exact loop counts, one-shot counts, melody counts, and preset counts.
+  * Instruments list, series name, DAWs, plugins used, and full overview.
+- WHEN A USER ASKS QUESTIONS ABOUT A PRODUCT'S CONTENTS OR SPECIFICATIONS:
+  * Queries like: "how many samples have in it", "isme kitne samples hain", "what is included", "instruments kon se hain", "plugins kaun se chahiye", "price kya hai":
+  1. Identify which product the user is referring to (from their question or recent chat history).
+  2. Quote the EXACT sample count, loop count, one-shot count, and instruments directly from its SPECIFICATIONS and OVERVIEW in the live inventory above!
+     * For example, if asked about Sambalpur Rhythm ("how many samples have in it"), answer with authority and precision: State that Sambalpur Rhythm contains **250+ Samples, MIDI files, and project files** (including 250 authentic folk rhythm loops) at 24-bit studio fidelity!
+     * If asked about South Drums, state that it features **477 One-Shot Drum Samples** including Chenda, Clap, Iddaka, Kick, Kuthu, Mridangam, Percussion, Snare, Tape, Thappu, and Urmi.
+     * If asked about The Bollywood, state that it includes **131+ High Quality Samples** (124 loops, 25 melodies, and one-shots).
+     * If asked about The South, state that it includes **110+ Samples** (104 rhythm loops, 6 melodies).
+     * If asked about The Real Punjab, state that it includes **2 custom FL Studio vocal presets** utilizing Auto-Tune Pro, soothe2, FabFilter Pro-Q 4, Fresh Air, etc.
+  3. NEVER EVER say "sample count is not explicitly listed in the database" or "check the product page for sample count". Every product has its full sample count and content breakdown right in your live inventory above!
+  4. FOR ANY NEW OR FUTURE PRODUCTS ADDED TO THE DATABASE:
+     Read their SPECIFICATIONS and OVERVIEW dynamically from the live inventory list above and answer with the exact same deep technical precision without any code changes!
 - ALWAYS format links using markdown: [Pack Name](/packs/slug).
 - Inform the user that interactive sound pack preview cards with cover artwork, track info, and direct links have been attached right below your answer!
 
@@ -699,6 +818,25 @@ CRITICAL FORMATTING INSTRUCTIONS:
           (p) => p.slug === 'the-bollywood' || p.slug === 'the-south' || p.slug === 'south-drums'
         )
         result.push(...topPacks.slice(0, 2))
+      }
+    }
+
+    // 3. If still empty, check if recent chat history specifically discussed a product
+    if (result.length === 0 && history && history.length > 0) {
+      const recentHistoryText = history.slice(-3).map((h) => h.content.toLowerCase()).join(' ')
+      for (const p of allProducts) {
+        const slugLower = (p.slug || '').toLowerCase()
+        const nameLower = (p.name || '').toLowerCase()
+        const shortName = nameLower.split(/[–—-]/)[0].trim()
+
+        if (
+          recentHistoryText.includes(slugLower) ||
+          (shortName.length > 3 && recentHistoryText.includes(shortName))
+        ) {
+          if (!result.some((r) => r.id === p.id)) {
+            result.push(p)
+          }
+        }
       }
     }
 
