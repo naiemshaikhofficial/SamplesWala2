@@ -1458,7 +1458,7 @@ export function EpicSupportAssistant({
                         {/* Assistant Header */}
                         <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                           <Image
-                            src="/images/robot-avatar.png"
+                            src="/images/sampi-avatar.png"
                             alt="Sampi"
                             width={24}
                             height={24}
@@ -1472,7 +1472,7 @@ export function EpicSupportAssistant({
                         {msg.isThinking ? (
                           <div className="inline-flex items-center gap-3.5 bg-[#0e1118] border-2 border-black text-zinc-200 rounded-2xl rounded-tl-none px-6 py-4 shadow-[4px_4px_0px_#FFE600] w-fit font-bold">
                             <Image
-                              src="/images/robot-avatar.png"
+                              src="/images/sampi-avatar.png"
                               alt="Sampi is thinking..."
                               width={24}
                               height={24}
@@ -1790,7 +1790,7 @@ export function EpicSupportAssistant({
                         <div className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full max-w-4xl pt-2">
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                             <Image
-                              src="/images/robot-avatar.png"
+                              src="/images/sampi-avatar.png"
                               alt="Sampi"
                               width={24}
                               height={24}
@@ -1856,7 +1856,7 @@ export function EpicSupportAssistant({
                         <div className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full max-w-4xl pt-2">
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                             <Image
-                              src="/images/robot-avatar.png"
+                              src="/images/sampi-avatar.png"
                               alt="Sampi"
                               width={24}
                               height={24}
@@ -1959,7 +1959,7 @@ export function EpicSupportAssistant({
                         <div className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full max-w-4xl pt-2">
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                             <Image
-                              src="/images/robot-avatar.png"
+                              src="/images/sampi-avatar.png"
                               alt="Sampi"
                               width={24}
                               height={24}
