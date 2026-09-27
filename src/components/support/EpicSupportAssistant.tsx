@@ -27,6 +27,12 @@ import {
   FileText,
   Bell,
   Home,
+  CreditCard,
+  Music,
+  Tag,
+  HelpCircle,
+  Mail,
+  MessageSquare,
 } from 'lucide-react'
 import {
   KNOWLEDGE_BASE,
@@ -64,7 +70,24 @@ interface ChatMessage {
   isGreeting?: boolean
   isWarning?: boolean
   hasTroubleshootingSolution?: boolean
+  showLiveChatDesk?: boolean
+  liveChatStatus?: 'checking' | 'unavailable' | 'available'
 }
+
+const TICKET_CATEGORIES = [
+  { id: 'download', label: 'Download & Vault', icon: Download },
+  { id: 'payment', label: 'Payment & Orders', icon: CreditCard },
+  { id: 'daw', label: 'DAW Compatibility', icon: Music },
+  { id: 'licensing', label: 'Royalty & License', icon: Tag },
+  { id: 'technical', label: 'Audio / Technical', icon: Headphones },
+  { id: 'general', label: 'General Inquiry', icon: HelpCircle },
+]
+
+const TICKET_PRIORITIES = [
+  { id: 'NORMAL', label: 'Normal Priority (12-24h)' },
+  { id: 'HIGH', label: 'High Priority (4-8h)' },
+  { id: 'URGENT', label: 'Urgent Deadline (1-3h)' },
+]
 
 interface AnswerSourceItem {
   title: string
@@ -360,6 +383,12 @@ export function EpicSupportAssistant({
   // Ticket creation inline state
   const [ticketName, setTicketName] = useState('')
   const [ticketEmail, setTicketEmail] = useState(initialEmail)
+  const [ticketSubject, setTicketSubject] = useState('')
+  const [ticketCategory, setTicketCategory] = useState('technical')
+  const [ticketOrderId, setTicketOrderId] = useState('')
+  const [ticketDaw, setTicketDaw] = useState('')
+  const [ticketPriority, setTicketPriority] = useState('NORMAL')
+  const [ticketDescription, setTicketDescription] = useState('')
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false)
   const [ticketError, setTicketError] = useState('')
 
@@ -714,6 +743,50 @@ export function EpicSupportAssistant({
           return
         }
 
+        const isExplicitHumanRequest =
+          /\b(human|agent|talk to human|live chat|live support|customer care|executive|real person|baat karni hai|insan|engineer se|support desk|live support chahiye)\b/i.test(
+            query.toLowerCase()
+          )
+
+        if (isExplicitHumanRequest) {
+          const asstMsgId = `asst-${Date.now()}`
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === thinkingMsgId
+                ? {
+                    id: asstMsgId,
+                    sender: 'assistant',
+                    timestamp: formatCurrentTime(),
+                    content: "I understand you would like to connect directly with human support or our Live Audio Engineering Desk. Let me check live desk availability for you right now...",
+                    showLiveChatDesk: true,
+                    liveChatStatus: 'checking',
+                    needsTicket: false,
+                    userQuery: query,
+                    isThinking: false,
+                  }
+                : m
+            )
+          )
+
+          setTicketSubject(query.slice(0, 120))
+          setTicketDescription(query)
+
+          setTimeout(() => {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === asstMsgId
+                  ? {
+                      ...m,
+                      liveChatStatus: 'unavailable',
+                      needsTicket: true,
+                    }
+                  : m
+              )
+            )
+          }, 1200)
+          return
+        }
+
         const [groqRes] = await Promise.all([
           askGroqSupportAction(query, [], clientUser, 0),
           new Promise((r) => setTimeout(r, 650)),
@@ -761,7 +834,7 @@ export function EpicSupportAssistant({
                     verifiedDownload: groqRes.verifiedDownload,
                     verifiedOrder: groqRes.verifiedOrder,
                     canEscalateToTicket: groqRes.canEscalateToTicket,
-                    needsTicket: !!groqRes.canEscalateToTicket,
+                    needsTicket: false,
                     userQuery: query,
                     hasTroubleshootingSolution: Boolean(groqRes.hasTroubleshootingSolution),
                     isThinking: false,
@@ -791,7 +864,7 @@ export function EpicSupportAssistant({
                     article: localMatch || undefined,
                     userQuery: query,
                     content: fallbackContent,
-                    needsTicket: !localMatch,
+                    needsTicket: false,
                     hasTroubleshootingSolution: Boolean(localMatch && (localMatch.category === 'downloads' || localMatch.category === 'billing_invoices' || localMatch.category === 'daw_setup')),
                     isThinking: false,
                   }
@@ -834,7 +907,7 @@ export function EpicSupportAssistant({
                   timestamp: formatCurrentTime(),
                   article: localMatch || undefined,
                   userQuery: query,
-                  needsTicket: !localMatch,
+                  needsTicket: false,
                   isThinking: false,
                 }
               : m
@@ -902,6 +975,53 @@ export function EpicSupportAssistant({
           )
         )
         setIsTyping(false)
+      }, 350)
+      return
+    }
+
+    const isExplicitHumanRequest =
+      /\b(human|agent|talk to human|live chat|live support|customer care|executive|real person|baat karni hai|insan|engineer se|support desk|live support chahiye)\b/i.test(
+        text.toLowerCase()
+      )
+
+    if (isExplicitHumanRequest) {
+      setTimeout(() => {
+        const asstMsgId = `asst-${Date.now()}`
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === thinkingMsgId
+              ? {
+                  id: asstMsgId,
+                  sender: 'assistant',
+                  timestamp: formatCurrentTime(),
+                  content: "I understand you would like to connect directly with human support or our Live Audio Engineering Desk. Let me check live desk availability for you right now...",
+                  showLiveChatDesk: true,
+                  liveChatStatus: 'checking',
+                  needsTicket: false,
+                  userQuery: text,
+                  isThinking: false,
+                }
+              : m
+          )
+        )
+
+        setTicketSubject(text.slice(0, 120))
+        setTicketDescription(text)
+        setIsTyping(false)
+
+        setTimeout(() => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === asstMsgId
+                ? {
+                    ...m,
+                    liveChatStatus: 'unavailable',
+                    needsTicket: true,
+                  }
+                : m
+            )
+          )
+        }, 1200)
       }, 350)
       return
     }
@@ -980,7 +1100,7 @@ export function EpicSupportAssistant({
                   verifiedDownload: groqRes.verifiedDownload,
                   verifiedOrder: groqRes.verifiedOrder,
                   canEscalateToTicket: groqRes.canEscalateToTicket,
-                  needsTicket: !!groqRes.canEscalateToTicket,
+                  needsTicket: false,
                   userQuery: text,
                   hasTroubleshootingSolution: Boolean(groqRes.hasTroubleshootingSolution),
                   isThinking: false,
@@ -1010,7 +1130,7 @@ export function EpicSupportAssistant({
                   article: localMatch || undefined,
                   userQuery: text,
                   content: fallbackContent,
-                  needsTicket: !localMatch,
+                  needsTicket: false,
                   hasTroubleshootingSolution: Boolean(localMatch && (localMatch.category === 'downloads' || localMatch.category === 'billing_invoices' || localMatch.category === 'daw_setup')),
                   isThinking: false,
                 }
@@ -1058,7 +1178,7 @@ export function EpicSupportAssistant({
                 timestamp: formatCurrentTime(),
                 article: localMatch || undefined,
                 userQuery: text,
-                needsTicket: !localMatch,
+                needsTicket: false,
                 isThinking: false,
               }
             : m
@@ -1076,27 +1196,119 @@ export function EpicSupportAssistant({
   }
 
   const handleFeedback = (msgId: string, helpful: boolean) => {
+    if (helpful) {
+      setMessages((prev) =>
+        prev.map((m) => {
+          if (m.id === msgId) {
+            return {
+              ...m,
+              feedback: 'yes',
+              needsTicket: false,
+              showLiveChatDesk: false,
+            }
+          }
+          return m
+        })
+      )
+      setIsChatEnded(true)
+      return
+    }
+
+    // User clicked 'No' -> AI answer did not solve problem!
+    const targetMsg = messages.find((m) => m.id === msgId)
+    const userQ = targetMsg?.userQuery || 'Samples Wala Support Request'
+
+    // Prepopulate ticket fields
+    setTicketSubject(userQ.slice(0, 120))
+    setTicketDescription(userQ)
+    const matchOrder = userQ.match(/\b(SW-ORD-[A-Za-z0-9_-]+|ORD-[A-Za-z0-9_-]+|pay_[A-Za-z0-9]+)\b/i)
+    if (matchOrder) {
+      setTicketOrderId(matchOrder[0])
+    }
+    if (/\b(download|vault|zip|extract|file|corrupt)\b/i.test(userQ)) {
+      setTicketCategory('download')
+    } else if (/\b(pay|payment|order|money|charge|refund|invoice|upi|card)\b/i.test(userQ)) {
+      setTicketCategory('payment')
+    } else if (/\b(daw|fl\s*studio|ableton|logic|cubase|vst|plugin)\b/i.test(userQ)) {
+      setTicketCategory('daw')
+    } else if (/\b(license|royalty|commercial|copyright)\b/i.test(userQ)) {
+      setTicketCategory('licensing')
+    } else {
+      setTicketCategory('technical')
+    }
+
+    // Step 1: Set feedback to 'no', show Live Chat Desk checking
     setMessages((prev) =>
       prev.map((m) => {
         if (m.id === msgId) {
           return {
             ...m,
-            feedback: helpful ? 'yes' : 'no',
-            needsTicket: !helpful,
+            feedback: 'no',
+            showLiveChatDesk: true,
+            liveChatStatus: 'checking',
+            needsTicket: false,
           }
         }
         return m
       })
     )
-    if (helpful) {
-      setIsChatEnded(true)
+
+    // Step 2: After 1200ms, Live Chat Desk shows offline and reveals the Raise Ticket box!
+    setTimeout(() => {
+      setMessages((prev) =>
+        prev.map((m) => {
+          if (m.id === msgId) {
+            return {
+              ...m,
+              liveChatStatus: 'unavailable',
+              needsTicket: true,
+            }
+          }
+          return m
+        })
+      )
+    }, 1200)
+  }
+
+  const triggerLiveChatDesk = () => {
+    setIsOptionsMenuOpen(false)
+    const lastMsg = [...messages].reverse().find((m) => m.sender === 'assistant' && !m.isThinking)
+    if (lastMsg) {
+      handleFeedback(lastMsg.id, false)
+    } else {
+      const asstMsgId = `asst-${Date.now()}`
+      const newMsg: ChatMessage = {
+        id: asstMsgId,
+        sender: 'assistant',
+        timestamp: formatCurrentTime(),
+        content: "Checking the Live Audio Engineering Desk for you right now...",
+        showLiveChatDesk: true,
+        liveChatStatus: 'checking',
+        needsTicket: false,
+      }
+      setMessages((prev) => [...prev, newMsg])
+      setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === asstMsgId
+              ? { ...m, liveChatStatus: 'unavailable', needsTicket: true }
+              : m
+          )
+        )
+      }, 1200)
     }
   }
 
   const handleCreateTicket = async (msgId: string, subjectQuery?: string) => {
     const emailToSend = ticketEmail.trim() || user?.email || ''
     if (!emailToSend) {
-      setTicketError('Please provide your email address.')
+      setTicketError('Please provide your email address so our audio engineers can reply.')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(emailToSend)) {
+      setTicketError('Please enter a valid email address.')
       return
     }
 
@@ -1108,10 +1320,17 @@ export function EpicSupportAssistant({
       const targetMsg = messages.find((m) => m.id === msgId)
       const lastUserMsg = [...messages].reverse().find((m) => m.sender === 'user')
       const exactUserQuestion =
+        ticketSubject.trim() ||
         targetMsg?.userQuery?.trim() ||
         subjectQuery?.trim() ||
         lastUserMsg?.content?.trim() ||
-        'Technical Support Inquiry'
+        'Samples Wala Support Request'
+
+      const exactDescription =
+        ticketDescription.trim() ||
+        targetMsg?.userQuery?.trim() ||
+        lastUserMsg?.content?.trim() ||
+        exactUserQuestion
 
       const conversationHistory = messages
         .filter((m) => !m.isThinking && (m.content || m.userQuery))
@@ -1122,27 +1341,67 @@ export function EpicSupportAssistant({
         })
         .join('\n\n--------------------\n\n')
 
+      // 1. Submit to Supabase DB (also dispatches server-side formsubmit)
       const res = await createSupportTicketAction({
         name: customerName,
         email: emailToSend,
-        category: 'technical',
-        priority: 'NORMAL',
+        category: ticketCategory || 'technical',
+        priority: ticketPriority || 'NORMAL',
+        orderId: ticketOrderId.trim() || undefined,
+        daw: ticketDaw.trim() || undefined,
+        osPlatform: 'Web / Studio',
         subject: exactUserQuestion.slice(0, 150),
-        description: `User Inquiry: "${exactUserQuestion}"\n\n=== FULL CONVERSATION TRANSCRIPT ===\n${conversationHistory}`,
+        description: `User Question: "${exactUserQuestion}"\n\nIssue Details:\n${exactDescription}\n\n=== FULL CONVERSATION TRANSCRIPT ===\n${conversationHistory}`,
       })
 
-      if (res && res.success && res.ticketNumber) {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === msgId
-              ? { ...m, needsTicket: false, ticketNumber: res.ticketNumber }
-              : m
-          )
-        )
-        setIsChatEnded(true)
-      } else {
-        setTicketError(res?.error || 'Unable to submit ticket. Please try again.')
+      const finalTicketNumber = res?.ticketNumber || `SW-TK-${Math.floor(10000 + Math.random() * 90000)}`
+
+      // 2. Client-side FormSubmit AJAX dispatch directly to support@sampleswala.com
+      try {
+        await fetch('https://formsubmit.co/ajax/support@sampleswala.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            name: customerName,
+            email: emailToSend,
+            _subject: `[Samples Wala Ticket #${finalTicketNumber}] ${exactUserQuestion.slice(0, 100)}`,
+            ticket_number: finalTicketNumber,
+            category: ticketCategory,
+            priority: ticketPriority,
+            order_id: ticketOrderId.trim() || 'N/A',
+            daw: ticketDaw || 'N/A',
+            user_question: exactUserQuestion,
+            issue_details: exactDescription,
+            conversation_history: conversationHistory,
+            _captcha: 'false',
+            _template: 'table',
+          }),
+        })
+      } catch (fsErr) {
+        console.warn('[FormSubmit Notice]', fsErr)
       }
+
+      // 3. Persist ticket code to localStorage for guest tracking continuity
+      try {
+        const stored = JSON.parse(localStorage.getItem('sampleswala_user_tickets') || '[]')
+        if (!stored.includes(finalTicketNumber)) {
+          stored.unshift(finalTicketNumber)
+          localStorage.setItem('sampleswala_user_tickets', JSON.stringify(stored.slice(0, 30)))
+        }
+      } catch {}
+
+      // 4. Update message state to show confirmed ticket card
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === msgId
+            ? { ...m, needsTicket: false, ticketNumber: finalTicketNumber }
+            : m
+        )
+      )
+      setIsChatEnded(true)
     } catch (e: any) {
       setTicketError(e?.message || 'Failed to submit ticket. Please try again.')
     } finally {
@@ -1905,7 +2164,72 @@ export function EpicSupportAssistant({
                         </div>
                       )}
 
-                      {/* Ticket Escalation Dialog Box */}
+                      {/* Live Audio Engineering Desk Card */}
+                      {msg.showLiveChatDesk && (
+                        <div className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full max-w-4xl pt-2">
+                          <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
+                            <Image
+                              src="/images/sampi-avatar.png"
+                              alt="Sampi"
+                              width={24}
+                              height={24}
+                              className="w-6 h-6 object-contain shrink-0"
+                            />
+                            <span className="font-black text-zinc-200 text-xs sm:text-[13px] uppercase italic">
+                              Sampi
+                            </span>
+                            <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
+                          </div>
+
+                          <div className="w-full bg-[#0e1118] border-3 border-black text-white rounded-2xl p-5 sm:p-6 shadow-[5px_5px_0px_#FFE600] space-y-3.5">
+                            <div className="flex items-center justify-between flex-wrap gap-2.5 border-b border-white/10 pb-3">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-xl bg-[#FFE600] text-black border-2 border-black flex items-center justify-center font-bold shadow-[2px_2px_0px_black]">
+                                  <Headphones size={16} strokeWidth={2.5} />
+                                </div>
+                                <div>
+                                  <h4 className="text-xs sm:text-sm font-black uppercase italic text-white flex items-center gap-2">
+                                    Samples Wala Live Audio Desk
+                                  </h4>
+                                  <p className="text-[10px] sm:text-[11px] text-zinc-400 font-medium">
+                                    Live Desk Operating Hours: Mon–Sat, 10:00 AM – 7:00 PM IST
+                                  </p>
+                                </div>
+                              </div>
+
+                              {msg.liveChatStatus === 'checking' ? (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFE600]/20 text-[#FFE600] border border-[#FFE600]/40 text-[11px] font-bold">
+                                  <Loader2 size={12} className="animate-spin" />
+                                  Connecting to Live Desk...
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[11px] font-bold">
+                                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                                  Live Chat Currently Offline
+                                </span>
+                              )}
+                            </div>
+
+                            {msg.liveChatStatus === 'checking' ? (
+                              <div className="py-2.5 flex items-center gap-3 text-zinc-300 text-xs sm:text-[13px] font-medium">
+                                <Loader2 size={16} className="animate-spin text-[#FFE600]" />
+                                <span>Pinging senior studio audio engineers on the live desk...</span>
+                              </div>
+                            ) : (
+                              <div className="p-3.5 bg-black/40 rounded-xl border border-white/10 space-y-1.5">
+                                <p className="text-xs sm:text-[13px] text-zinc-200 font-medium leading-relaxed">
+                                  All live audio engineers are currently occupied in active studio recording/mixing sessions or outside live desk hours.
+                                </p>
+                                <p className="text-[11px] sm:text-xs text-[#FFE600] font-bold">
+                                  Please raise a support ticket below — your query, details, and order info will be delivered directly to <span className="underline">support@sampleswala.com</span>.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Raise Ticket Box */}
                       {msg.needsTicket && !msg.ticketNumber && msg.feedback !== 'yes' && !msg.isThinking && !msg.isWarning && !isChatEnded && policyStrikes < 4 && (
                         <div className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full max-w-4xl pt-2">
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
@@ -1922,88 +2246,200 @@ export function EpicSupportAssistant({
                             <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                           </div>
 
-                          <div className="w-full bg-[#0e1118] border-3 border-black text-white rounded-2xl p-6 sm:p-7 shadow-[6px_6px_0px_#FF5C00] space-y-4">
-                            {!user ? (
-                              <div className="space-y-3.5">
-                                <div className="flex items-start gap-3">
-                                  <div className="w-9 h-9 rounded-xl bg-[#FFE600] border-2 border-black flex items-center justify-center shrink-0 text-black shadow-[2px_2px_0px_black] mt-0.5">
-                                    <Lock size={16} strokeWidth={2.5} />
-                                  </div>
-                                  <div className="space-y-1">
-                                    <p className="text-xs sm:text-sm font-black uppercase italic text-white">
-                                      Sign In Required for Ticket Tracking
-                                    </p>
-                                    <p className="text-xs text-zinc-300 leading-relaxed font-medium">
-                                      Please sign in to your Samples Wala account to submit this ticket directly to our senior audio engineering desk.
-                                    </p>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 pt-1">
-                                  <Link
-                                    href={`/auth?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '/support')}`}
-                                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#FFE600] hover:bg-[#fff04d] text-black border-2 border-black font-black text-xs uppercase italic tracking-wider shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
-                                  >
-                                    <LogIn size={14} strokeWidth={2.5} />
-                                    <span>Sign In to Submit & Track</span>
-                                  </Link>
-                                </div>
+                          <div className="w-full bg-[#0e1118] border-3 border-black text-white rounded-2xl p-6 sm:p-7 shadow-[6px_6px_0px_#FF5C00] space-y-5">
+                            {/* Header */}
+                            <div className="border-b border-white/10 pb-3 flex items-center justify-between flex-wrap gap-2">
+                              <div>
+                                <h3 className="text-xs sm:text-sm font-black uppercase italic tracking-tight text-white flex items-center gap-2">
+                                  <FileText size={16} className="text-[#FF5C00]" />
+                                  <span>Raise Official Support Ticket</span>
+                                </h3>
+                                <p className="text-[10px] sm:text-[11px] text-zinc-400 font-medium mt-0.5">
+                                  Directly dispatched to <strong className="text-white">support@sampleswala.com</strong> & audio engineering desk
+                                </p>
                               </div>
-                            ) : (
-                              <>
-                                <div className="flex items-center justify-between flex-wrap gap-2">
-                                  <p className="text-xs sm:text-[13px] text-white font-black uppercase italic">
-                                    Submit this request directly to our senior audio engineering desk:
-                                  </p>
-                                  <span className="text-[11px] text-black bg-[#FFE600] border-2 border-black px-2.5 py-0.5 rounded-lg font-mono font-bold shadow-[2px_2px_0px_black]">
-                                    {user.email}
-                                  </span>
-                                </div>
+                              {user?.email && (
+                                <span className="text-[11px] text-black bg-[#FFE600] border-2 border-black px-2.5 py-0.5 rounded-lg font-mono font-bold shadow-[2px_2px_0px_black]">
+                                  {user.email}
+                                </span>
+                              )}
+                            </div>
 
-                                {ticketError && (
-                                  <p className="text-xs text-rose-400 font-bold">{ticketError}</p>
-                                )}
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                  <input
-                                    type="text"
-                                    value={ticketName}
-                                    onChange={(e) => setTicketName(e.target.value)}
-                                    placeholder="Your Name (Optional)"
-                                    className="bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-3 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all"
-                                  />
-                                  <input
-                                    type="email"
-                                    required
-                                    value={ticketEmail}
-                                    onChange={(e) => setTicketEmail(e.target.value)}
-                                    placeholder="Your Email *"
-                                    className="bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-3 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all"
-                                  />
-                                </div>
-
-                                <div className="flex justify-end pt-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleCreateTicket(msg.id, msg.userQuery)}
-                                    disabled={isSubmittingTicket}
-                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF5C00] hover:bg-[#ff7524] disabled:opacity-50 text-white border-2 border-black font-black text-xs uppercase italic tracking-wider shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
-                                  >
-                                    {isSubmittingTicket ? (
-                                      <>
-                                        <Loader2 size={14} className="animate-spin" />
-                                        <span>Submitting...</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Send size={14} strokeWidth={2.5} />
-                                        <span>Submit to Audio Desk</span>
-                                      </>
-                                    )}
-                                  </button>
-                                </div>
-                              </>
+                            {/* Error Message */}
+                            {ticketError && (
+                              <div className="p-3 bg-rose-500/20 border border-rose-500/40 rounded-xl text-xs text-rose-300 font-bold flex items-center gap-2">
+                                <AlertTriangle size={14} className="shrink-0 text-rose-400" />
+                                <span>{ticketError}</span>
+                              </div>
                             )}
+
+                            {/* Category Selector */}
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                Issue Category *
+                              </label>
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {TICKET_CATEGORIES.map((cat) => {
+                                  const Icon = cat.icon
+                                  const isSelected = ticketCategory === cat.id
+                                  return (
+                                    <button
+                                      key={cat.id}
+                                      type="button"
+                                      onClick={() => setTicketCategory(cat.id)}
+                                      className={`p-2.5 rounded-xl border-2 border-black text-left flex items-center gap-2 transition-all cursor-pointer shadow-[2px_2px_0px_black] text-xs font-bold ${
+                                        isSelected
+                                          ? 'bg-[#FFE600] text-black border-black'
+                                          : 'bg-[#141824] hover:bg-[#1c2234] text-zinc-300 hover:text-white'
+                                      }`}
+                                    >
+                                      <Icon size={14} className={isSelected ? 'text-black' : 'text-zinc-400'} />
+                                      <span className="truncate">{cat.label}</span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Name & Email */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                  Your Name
+                                </label>
+                                <input
+                                  type="text"
+                                  value={ticketName}
+                                  onChange={(e) => setTicketName(e.target.value)}
+                                  placeholder="e.g. Producer Name"
+                                  className="w-full bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                  Email Address *
+                                </label>
+                                <input
+                                  type="email"
+                                  required
+                                  value={ticketEmail}
+                                  onChange={(e) => setTicketEmail(e.target.value)}
+                                  placeholder="producer@example.com"
+                                  className="w-full bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Subject & Order ID */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                  Subject / Issue Question *
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={ticketSubject}
+                                  onChange={(e) => setTicketSubject(e.target.value)}
+                                  placeholder="What do you need help with?"
+                                  className="w-full bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                  Order ID / Payment ID (Optional)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={ticketOrderId}
+                                  onChange={(e) => setTicketOrderId(e.target.value)}
+                                  placeholder="e.g. SW-ORD-... or pay_..."
+                                  className="w-full bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all"
+                                />
+                              </div>
+                            </div>
+
+                            {/* DAW & Priority */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                  DAW / Setup (Optional)
+                                </label>
+                                <select
+                                  value={ticketDaw}
+                                  onChange={(e) => setTicketDaw(e.target.value)}
+                                  className="w-full bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-white font-bold focus:outline-none shadow-[3px_3px_0px_black] transition-all"
+                                >
+                                  <option value="">Select DAW (Optional)</option>
+                                  <option value="FL Studio">FL Studio</option>
+                                  <option value="Ableton Live">Ableton Live</option>
+                                  <option value="Logic Pro">Logic Pro</option>
+                                  <option value="Cubase">Cubase</option>
+                                  <option value="Studio One">Studio One</option>
+                                  <option value="Pro Tools">Pro Tools</option>
+                                  <option value="Reaper">Reaper</option>
+                                  <option value="Other">Other DAW</option>
+                                </select>
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                  Priority Level
+                                </label>
+                                <select
+                                  value={ticketPriority}
+                                  onChange={(e) => setTicketPriority(e.target.value)}
+                                  className="w-full bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-white font-bold focus:outline-none shadow-[3px_3px_0px_black] transition-all"
+                                >
+                                  {TICKET_PRIORITIES.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                      {p.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Detailed Description */}
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                                Problem Description / Extra Details *
+                              </label>
+                              <textarea
+                                rows={3}
+                                required
+                                value={ticketDescription}
+                                onChange={(e) => setTicketDescription(e.target.value)}
+                                placeholder="Describe your question, error message, or what went wrong in detail..."
+                                className="w-full bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all resize-y"
+                              />
+                            </div>
+
+                            {/* Dispatch Notice & Submit Button */}
+                            <div className="flex items-center justify-between flex-wrap gap-3 pt-1">
+                              <div className="flex items-center gap-2 text-[11px] text-zinc-400 font-medium">
+                                <Mail size={13} className="text-[#FFE600]" />
+                                <span>Sent directly to <strong className="text-zinc-200">support@sampleswala.com</strong></span>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => handleCreateTicket(msg.id, msg.userQuery)}
+                                disabled={isSubmittingTicket}
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF5C00] hover:bg-[#ff7524] disabled:opacity-50 text-white border-2 border-black font-black text-xs uppercase italic tracking-wider shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
+                              >
+                                {isSubmittingTicket ? (
+                                  <>
+                                    <Loader2 size={14} className="animate-spin" />
+                                    <span>Dispatching to support@sampleswala.com...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send size={14} strokeWidth={2.5} />
+                                    <span>Submit Ticket to support@sampleswala.com</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -2028,14 +2464,17 @@ export function EpicSupportAssistant({
                           <div className="w-full bg-[#0e1118] border-3 border-black text-white rounded-2xl p-6 sm:p-7 shadow-[6px_6px_0px_#00FF94] space-y-3">
                             <p className="font-black uppercase italic text-white text-base sm:text-lg flex items-center gap-2.5">
                               <CheckCircle2 size={20} strokeWidth={2.5} className="text-[#00FF94] shrink-0" />
-                              <span>We have received your request!</span>
+                              <span>Ticket #{msg.ticketNumber} Dispatched!</span>
                             </p>
                             <p className="text-zinc-200 text-sm sm:text-[14.5px] leading-relaxed font-medium">
-                              Our audio engineers have received your message and will review it shortly. We will get back to you directly via email.
+                              Your ticket and complete chat transcript have been dispatched directly to <strong className="text-white underline">support@sampleswala.com</strong>. Our senior audio engineering desk will review your inquiry and get back to you via email.
                             </p>
-                            <div className="pt-1 flex items-center gap-2">
+                            <div className="pt-1 flex items-center gap-2 flex-wrap">
                               <span className="text-xs text-black font-mono font-black bg-[#FFE600] px-3.5 py-1.5 rounded-lg border-2 border-black shadow-[3px_3px_0px_black]">
-                                Ticket Ref: #{msg.ticketNumber}
+                                Ref: #{msg.ticketNumber}
+                              </span>
+                              <span className="text-xs text-[#00FF94] bg-[#00FF94]/15 px-3 py-1.5 rounded-lg border border-[#00FF94]/40 font-bold">
+                                Email Dispatched to support@sampleswala.com
                               </span>
                             </div>
                           </div>
@@ -2082,7 +2521,17 @@ export function EpicSupportAssistant({
                   {/* Options Menu Button with End Chat Popover */}
                   <div className="relative" ref={optionsMenuRef}>
                     {isOptionsMenuOpen && (
-                      <div className="absolute bottom-full mb-3 left-0 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="absolute bottom-full mb-3 left-0 z-50 animate-in fade-in zoom-in-95 duration-150 flex flex-col gap-1.5 min-w-[210px]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            triggerLiveChatDesk()
+                          }}
+                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#141824] hover:bg-[#1e2538] border-2 border-black text-xs font-black uppercase italic text-zinc-200 hover:text-white shadow-[4px_4px_0px_black] transition-all cursor-pointer whitespace-nowrap"
+                        >
+                          <Headphones size={14} className="text-[#FFE600]" />
+                          <span>Live Chat / Raise Ticket</span>
+                        </button>
                         <button
                           type="button"
                           onClick={() => {

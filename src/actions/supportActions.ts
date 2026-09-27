@@ -321,6 +321,36 @@ export async function createSupportTicketAction(data: TicketSubmissionData): Pro
       })
     }
 
+    // Forward ticket notification to support@sampleswala.com via formsubmit.co
+    try {
+      await fetch('https://formsubmit.co/ajax/support@sampleswala.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': 'https://sampleswala.com',
+          'Referer': 'https://sampleswala.com/support',
+        },
+        body: JSON.stringify({
+          ticket_number: ticketNumber,
+          producer_name: name.trim(),
+          email: email.trim().toLowerCase(),
+          _subject: `[Samples Wala #${ticketNumber}] ${subject.trim()}`,
+          category: dbCategory,
+          priority: cleanPriority,
+          order_id: orderId?.trim() || 'N/A',
+          os_platform: osPlatform || 'N/A',
+          daw: daw || 'N/A',
+          subject: subject.trim(),
+          description: description.trim(),
+          _captcha: 'false',
+          _template: 'table',
+        }),
+      })
+    } catch (fsErr) {
+      console.warn('[createSupportTicketAction] FormSubmit dispatch notice:', fsErr)
+    }
+
     return {
       success: true,
       ticketNumber,
