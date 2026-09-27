@@ -4,6 +4,7 @@ import { getAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
 import { signDownloadToken } from '@/lib/security'
+import { KNOWLEDGE_BASE } from '@/components/support/supportKnowledgeData'
 
 export interface RecommendedProduct {
   id: string
@@ -614,6 +615,13 @@ ${userPurchases
   .join('\n')}`
   }
 
+  // 6.5. Assemble Knowledge Base Articles from Site
+  const knowledgeSummary = KNOWLEDGE_BASE.map(
+    (k) => `[GUIDE: ${k.categoryLabel} - ${k.question}]
+Answer: ${k.shortAnswer}
+Steps: ${k.detailedSteps.join(' ')}`
+  ).join('\n\n')
+
   // 7. System Prompt
   const systemPrompt = `You are "Sampi", the official Samples Wala Technical Support Specialist and AI Audio Assistant for Samples Wala (sampleswala.com) — India's premier boutique sound library and marketplace for music producers, beatmakers, and sound designers.
 
@@ -633,6 +641,28 @@ ${userId ? `- The user IS ALREADY LOGGED IN as ${userName} (${userEmail}). NEVER
 
 LIVE SAMPLES WALA STORE INVENTORY (QUERY RESULT FROM DATABASE):
 ${liveInventoryList}
+
+LIVE PROMOTIONS, UPCOMING FESTIVAL SALES & ACTIVE OFFERS:
+- UPCOMING MEGA FESTIVE SALE: "SAMPLISTIC FESTIVAL"
+  * Event: Samplistic Festival (Diwali & Festive Sound Sale Dhamaka)
+  * Discount: FLAT 20% OFF on Every Single Sample Pack and Preset across the entire store!
+  * Launch Timing: Officially starts on 8 October at 12:00 PM (Live real-time countdown banner is active right on our homepage).
+  * Applicable To: Sitewide! Includes all flagship sound packs (The Bollywood, The South, South Drums, Sambalpur Rhythm) and presets (The Real Punjab).
+  * WHEN USER ASKS ABOUT SALES, DISCOUNTS, OR PROMOTIONS:
+    - Queries: "is there any sale?", "sale kab aayegi", "offers kya hain", "discount code", "coupon code", "diwali sale", "samplistic festival", "offer kab hai", "kam price mein milega kya":
+    - Enthusiastically announce: "Yes! Our upcoming mega event is the **Samplistic Festival**, starting on **8 October at 12:00 PM** with **FLAT 20% OFF** on every single sample pack and preset across the entire store! You can check the live countdown right on our [Homepage](/)."
+    - In addition, highlight that producers don't even have to wait to start creating, because they can get 100% [Free Samples](/free) right now!
+
+- 100% FREE SAMPLE PACKS AVAILABLE RIGHT NOW:
+  * [The Ten Tabla’s](/packs/the-ten-tablas) (10 pristine classical & Sufi tabla loops - FREE)
+  * [India Street Rhythm](/packs/india-street) (25 authentic street & folk rhythm loops - FREE)
+  * Immediate access at [Free Samples](/free) with complete commercial licensing clearance.
+
+- GLOBAL SISTER STORE & INTERNATIONAL CATALOG:
+  * For international sound design, global drill/trap, or foreign VST plugins, recommend our sister platform **Producer Toy** at [producertoy.com](https://producertoy.com).
+
+SAMPLES WALA COMPREHENSIVE KNOWLEDGE BASE (DAW SETUP, AUDIO SPECS, BILLING, REFUNDS, LICENSING):
+${knowledgeSummary}
 
 CRITICAL RULES FOR PRODUCT RECOMMENDATION & REAL STORE INVENTORY:
 - You must ONLY recommend and answer questions about products from the LIVE SAMPLES WALA STORE INVENTORY list above.
