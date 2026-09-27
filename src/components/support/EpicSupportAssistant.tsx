@@ -410,6 +410,24 @@ export function EpicSupportAssistant({
   // Options popover menu (End chat)
   const [isOptionsMenuOpen, setIsOptionsMenuOpen] = useState(false)
   const [isChatScrolled, setIsChatScrolled] = useState(false)
+  const [isSubHeaderVisible, setIsSubHeaderVisible] = useState(false)
+  const lastScrollTopRef = useRef(0)
+
+  // Track window scroll if whole page scrolls
+  useEffect(() => {
+    let lastWindowScroll = window.scrollY
+    const handleWindowScroll = () => {
+      const current = window.scrollY
+      if (current > 40 && current > lastWindowScroll + 3) {
+        setIsSubHeaderVisible(true)
+      } else if (current < lastWindowScroll - 3 || current <= 25) {
+        setIsSubHeaderVisible(false)
+      }
+      lastWindowScroll = current
+    }
+    window.addEventListener('scroll', handleWindowScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleWindowScroll)
+  }, [])
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
@@ -1421,6 +1439,8 @@ export function EpicSupportAssistant({
     setMessages([])
     setIsTyping(false)
     setIsHeroLoading(false)
+    setIsSubHeaderVisible(false)
+    lastScrollTopRef.current = 0
     if (typeof window !== 'undefined') {
       window.history.replaceState(null, '', '/support')
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1657,34 +1677,19 @@ export function EpicSupportAssistant({
         /* ========================================================================= */
         <div className="support-page-container w-full h-full flex-1 bg-[#07080a] text-white font-sans flex flex-col overflow-hidden relative">
           
-          {/* Persistent Top Navigation Bar */}
-          <div className="flex-shrink-0 w-full bg-[#07080a] z-20 relative border-b border-white/[0.04]">
-            <div className="w-full max-w-5xl mx-auto h-12 sm:h-13 flex items-center justify-between px-4 sm:px-8">
-              {/* Back to Main Page button */}
-              <button
-                type="button"
-                onClick={handleResetToHero}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#10131a] hover:bg-[#181d28] border border-white/10 hover:border-[#00FF94] text-xs font-bold text-zinc-300 hover:text-white transition-all shadow-[2px_2px_0px_black] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer"
-                title="Return to Support Main Page"
-              >
-                <ArrowLeft size={13} className="text-[#00FF94]" />
-                <span>Main Page</span>
-              </button>
-
-              <span className="text-[11px] sm:text-xs font-bold tracking-[0.24em] uppercase text-zinc-300 select-none font-sans hidden sm:inline-block">
-                Sampi • Samples Wala Support Assistant
+          {/* Sampi Sub-Header (Scroll niche jane pe slide-in hota hai, scroll upar jane pe gayab) */}
+          <div
+            className={`flex-shrink-0 w-full bg-[#07080a] z-20 relative border-b border-white/[0.04] transition-all duration-300 ease-in-out overflow-hidden ${
+              isSubHeaderVisible
+                ? 'max-h-14 opacity-100 translate-y-0'
+                : 'max-h-0 opacity-0 -translate-y-full border-transparent py-0 pointer-events-none'
+            }`}
+          >
+            <div className="w-full max-w-5xl mx-auto h-11 sm:h-12 flex items-center justify-center px-4 sm:px-8">
+              <span className="text-[11px] sm:text-xs font-bold tracking-[0.24em] uppercase text-zinc-300 select-none font-sans flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00FF94] animate-pulse" />
+                <span>Sampi • Samples Wala Support Assistant</span>
               </span>
-
-              {/* End Chat and Redirect button */}
-              <button
-                type="button"
-                onClick={handleResetToHero}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FF5C00]/10 hover:bg-[#FF5C00]/20 border border-[#FF5C00]/40 hover:border-[#FF5C00] text-xs font-bold text-[#FF5C00] hover:text-white transition-all shadow-[2px_2px_0px_black] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer"
-                title="End Chat & Return to Main Page"
-              >
-                <Ban size={12} />
-                <span>End Chat</span>
-              </button>
             </div>
             <div 
               className="absolute top-full left-0 right-0 h-6 pointer-events-none z-10"
@@ -1697,8 +1702,17 @@ export function EpicSupportAssistant({
           {/* Scrollable Chat Feed Area (ONLY THIS SCROLLS!) */}
           <div 
             onScroll={(e) => {
-              const isPast = e.currentTarget.scrollTop > 50
+              const currentScrollTop = e.currentTarget.scrollTop
+              const isPast = currentScrollTop > 50
               if (isPast !== isChatScrolled) setIsChatScrolled(isPast)
+
+              // Niche jane pe ana chahiye, upar jane pe gayab
+              if (currentScrollTop > 40 && currentScrollTop > lastScrollTopRef.current + 3) {
+                setIsSubHeaderVisible(true)
+              } else if (currentScrollTop < lastScrollTopRef.current - 3 || currentScrollTop <= 25) {
+                setIsSubHeaderVisible(false)
+              }
+              lastScrollTopRef.current = currentScrollTop
             }}
             data-lenis-prevent="true"
             className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden w-full relative z-0"
