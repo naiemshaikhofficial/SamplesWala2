@@ -1676,8 +1676,8 @@ export function EpicSupportAssistant({
                                         </Link>
 
                                         <div className="flex items-baseline gap-1.5 flex-wrap">
-                                          <span className="inline-block bg-[#00FF94] text-black border-2 border-black font-black text-xs sm:text-sm px-2.5 py-0.5 rounded shadow-[2px_2px_0px_black]">
-                                            ₹{prod.price_inr}
+                                          <span className={`inline-block border-2 border-black font-black text-xs sm:text-sm px-2.5 py-0.5 rounded shadow-[2px_2px_0px_black] ${prod.price_inr === 0 ? 'bg-[#FFE600] text-black' : 'bg-[#00FF94] text-black'}`}>
+                                            {prod.price_inr === 0 ? 'FREE' : `₹${prod.price_inr}`}
                                           </span>
                                         </div>
 
@@ -1693,7 +1693,7 @@ export function EpicSupportAssistant({
                                         href={prod.product_type === 'preset' ? `/browse/presets/${prod.slug}` : `/packs/${prod.slug}`}
                                         className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#0074e4] hover:bg-[#1c88ff] text-white border-2 border-black font-black uppercase italic text-[11px] sm:text-xs shadow-[3px_3px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] transition-all text-center"
                                       >
-                                        <span>View Sound Pack</span>
+                                        <span>{prod.product_type === 'preset' ? 'View Preset' : 'View Sound Pack'}</span>
                                         <ArrowRight size={13} strokeWidth={2.5} />
                                       </Link>
                                     </div>

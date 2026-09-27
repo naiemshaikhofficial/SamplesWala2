@@ -168,49 +168,143 @@ export async function askGroqSupportAction(
 
   const targetEmail = userEmail || scannedEmail
 
+const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
+  {
+    id: 'b6f6ad72-6a7f-44e2-a764-ba5f070b4ec7',
+    name: 'The South – South Indian And Tapori Loop Pack (Kuthu, Festival & Folk Loops)',
+    slug: 'the-south',
+    cover_image: 'https://imagizer.imageshack.com/img922/4591/uA7sLt.jpg',
+    price_inr: 999,
+    price_usd: 14.99,
+    product_type: 'sample_pack',
+    short_description: 'Authentic South Indian & Tapori Loops covering Kuthu, festival beats, dholak, and folk percussion.',
+  },
+  {
+    id: '654161bb-294a-48cc-acdc-af1abca18bfb',
+    name: 'South Drums - South Indian And Tapori One Shot Drum',
+    slug: 'south-drums',
+    cover_image: 'https://imagizer.imageshack.com/img922/7492/HkEhZY.png',
+    price_inr: 799,
+    price_usd: 9.99,
+    product_type: 'sample_pack',
+    short_description: '477 custom one-shot samples featuring Chenda, Clap, Iddaka, Kick, Kuthu, Mridangam, Thappu, Urmi.',
+  },
+  {
+    id: 'c2e5cb42-a0dc-4d4f-b98a-986fc0d091a1',
+    name: 'The Bollywood - Authentic Indian Sounds, Loops One Shots (Royalty Free) - Indian Sample Pack',
+    slug: 'the-bollywood',
+    cover_image: 'https://imagizer.imageshack.com/img924/6673/1i7cNl.png',
+    price_inr: 999,
+    price_usd: 14.99,
+    product_type: 'sample_pack',
+    short_description: 'Cinematic and commercial Indian sounds, melodic loops, dholak, tabla, and signature Bollywood grooves.',
+  },
+  {
+    id: 'e1d2c3b4-a5b6-7c8d-9e0f-1a2b3c4d5e6f',
+    name: 'Sambalpur Rhythm – Authentic Odisha Folk Sounds',
+    slug: 'sambalpur-rhythm',
+    cover_image: 'https://imagizer.imageshack.com/img923/627/vc1DbH.png',
+    price_inr: 1999,
+    price_usd: 21.99,
+    product_type: 'sample_pack',
+    short_description: 'Authentic Sambalpuri folk percussion, traditional rhythms, and energetic desi grooves from Odisha.',
+  },
+  {
+    id: '8f421d2a-5452-4d22-aa00-9c1c9896e5e9',
+    name: 'The Ten Tabla’s – 10 FREE Tabla Samples',
+    slug: 'the-ten-tablas',
+    cover_image: 'https://imagizer.imageshack.com/img921/4153/dVxZTV.png',
+    price_inr: 0,
+    price_usd: 0,
+    product_type: 'sample_pack',
+    short_description: '10 FREE authentic Indian classical, Bollywood, and Sufi tabla samples and loops.',
+  },
+  {
+    id: 'a9bb41c1-3c8d-4617-91e9-c5a6f83c47b8',
+    name: 'India Street Rhythm – 25 Free Indian Rhythm Loops',
+    slug: 'india-street',
+    cover_image: 'https://imagizer.imageshack.com/img921/4723/6EtjtS.png',
+    price_inr: 0,
+    price_usd: 0,
+    product_type: 'sample_pack',
+    short_description: '25 FREE rhythm loops covering Tapori, South Indian street grooves, and folk percussion.',
+  },
+  {
+    id: '4064e95e-473b-4240-b206-3793780e4c52',
+    name: 'The Real Punjab (Vocal Preset)',
+    slug: 'the-real-punjab',
+    cover_image: 'https://imagizer.imageshack.com/img922/7726/Eov3Nv.png',
+    price_inr: 499,
+    product_type: 'preset',
+    short_description: 'Professional FL Studio vocal preset pack crafted for authentic Punjabi vocals, Bhangra, and Hip-Hop.',
+  },
+]
+
   // 3. Fetch Live Catalog from Supabase (sample_packs & presets)
   let liveInventoryList = ''
-  let allProducts: any[] = []
+  let allProducts: RecommendedProduct[] = []
 
   try {
-    const [packsRes, presetsRes] = await Promise.all([
-      adminSupabase
-        .from('sample_packs')
-        .select('id, name, slug, cover_url, price_inr, price_usd, description, file_size')
-        .limit(40),
-      adminSupabase
-        .from('presets')
-        .select('id, name, slug, cover_url, price_inr, price_usd, description')
-        .limit(20),
-    ])
+    const packsPromise = adminSupabase
+      .from('sample_packs')
+      .select('id, name, slug, cover_url, price_inr, price_usd, description')
+      .order('created_at', { ascending: false })
+      .limit(50)
 
-    const packs = (packsRes.data || []).map((p) => ({
-      ...p,
-      product_type: 'sample_pack',
-      cover_image: p.cover_url || '',
-    }))
+    // Note: presets table doesn't have price_usd
+    const presetsPromise = adminSupabase
+      .from('presets')
+      .select('id, name, slug, cover_url, price_inr, description')
+      .order('created_at', { ascending: false })
+      .limit(20)
 
-    const presets = (presetsRes.data || []).map((pr) => ({
-      ...pr,
-      product_type: 'preset',
-      cover_image: pr.cover_url || '',
-    }))
+    const [packsRes, presetsRes] = await Promise.allSettled([packsPromise, presetsPromise])
 
-    allProducts = [...packs, ...presets]
+    const dbPacks: RecommendedProduct[] =
+      packsRes.status === 'fulfilled' && packsRes.value.data
+        ? packsRes.value.data.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            cover_image: p.cover_url || '',
+            price_inr: Number(p.price_inr ?? 0),
+            price_usd: p.price_usd != null ? Number(p.price_usd) : undefined,
+            product_type: 'sample_pack',
+            short_description: p.description ? p.description.slice(0, 160).replace(/\r?\n/g, ' ') : null,
+          }))
+        : []
 
-    if (allProducts.length > 0) {
-      liveInventoryList = allProducts
-        .map((p) => {
-          const price = p.price_inr ? `₹${p.price_inr}` : p.price_usd ? `$${p.price_usd}` : 'Free'
-          const desc = p.description ? ` - ${p.description.slice(0, 100)}` : ''
-          const link = p.product_type === 'preset' ? `/browse/presets/${p.slug}` : `/packs/${p.slug}`
-          return `- [${p.name}](${link}) (${price}, ${p.product_type}) [STATUS: AVAILABLE FOR INSTANT PURCHASE]${desc}`
-        })
-        .join('\n')
+    const dbPresets: RecommendedProduct[] =
+      presetsRes.status === 'fulfilled' && presetsRes.value.data
+        ? presetsRes.value.data.map((pr: any) => ({
+            id: pr.id,
+            name: pr.name,
+            slug: pr.slug,
+            cover_image: pr.cover_url || '',
+            price_inr: Number(pr.price_inr ?? 0),
+            product_type: 'preset',
+            short_description: pr.description ? pr.description.slice(0, 160).replace(/\r?\n/g, ' ') : null,
+          }))
+        : []
+
+    if (dbPacks.length > 0 || dbPresets.length > 0) {
+      allProducts = [...dbPacks, ...dbPresets]
+    } else {
+      allProducts = [...VERIFIED_STORE_PACKS]
     }
   } catch (dbErr) {
     console.warn('[askGroqSupportAction] DB product query warning:', dbErr)
+    allProducts = [...VERIFIED_STORE_PACKS]
   }
+
+  liveInventoryList = allProducts
+    .map((p) => {
+      const price = p.price_inr === 0 ? 'FREE' : `₹${p.price_inr}`
+      const desc = p.short_description ? ` - ${p.short_description}` : ''
+      const link = p.product_type === 'preset' ? `/browse/presets/${p.slug}` : `/packs/${p.slug}`
+      return `- [${p.name}](${link}) (${price}, ${p.product_type}) [STATUS: AVAILABLE IN STORE]${desc}`
+    })
+    .join('\n')
 
   // 4. Fetch User Purchases / Vault Items
   let userPurchases: any[] = []
@@ -259,52 +353,92 @@ export async function askGroqSupportAction(
   const headerList = await headers()
   const clientIp = headerList.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1'
 
-  // A. Check for matched download
-  if (userPurchases.length > 0) {
-    const qLower = query.toLowerCase()
-    let targetPurchase = userPurchases[0]
+  // A. Check for matched download - STRICT ZERO-PIRACY & AUTHENTICATION VERIFICATION
+  // Card ONLY appears if:
+  // 1. User is authenticated (valid userId).
+  // 2. Query is an EXPLICIT request for a download link (not a recommendation, browse, or pricing query).
+  // 3. User ACTUALLY owns the product in user_vault (verified purchase).
+  const qLower = query.toLowerCase()
 
+  const isRecommendationOrInfoQuery =
+    /\b(best|recommend|suggest|top|konsa|konsi|achha|compare|difference|review|demo|preview|what is|kya hai|details|kitna|price|rate|cost|discount|coupon)\b/i.test(
+      qLower
+    )
+
+  const isExplicitDownloadLinkRequest =
+    !isRecommendationOrInfoQuery &&
+    /\b(download link|link do|link de do|link bhejo|link chahiye|give me download link|send download link|direct download link|direct link|download nahi ho raha|download nahi chal raha|can't download|cant download|failed to download|corrupt file|link expired|redownload|re-download|mera download|download button do|download link please|paise kat gaye pack nahi mila)\b/i.test(
+      qLower
+    )
+
+  if (Boolean(userId) && isExplicitDownloadLinkRequest && userPurchases.length > 0) {
+    let targetPurchase: any = null
+
+    // 1. Check if the user mentioned a specific product from their verified vault
     for (const p of userPurchases) {
       const pName = (p.item_name || '').toLowerCase()
-      if (qLower.includes(pName) || (p.item_id && qLower.includes(p.item_id))) {
+      const pId = (p.item_id || '').toLowerCase()
+      const shortName = pName.split(/[–—-]/)[0].trim()
+
+      if (
+        (pId && qLower.includes(pId)) ||
+        (shortName.length > 3 && qLower.includes(shortName)) ||
+        (pName.length > 3 && qLower.includes(pName))
+      ) {
         targetPurchase = p
         break
       }
     }
 
-    if (
-      qLower.includes('download') ||
-      qLower.includes('link') ||
-      qLower.includes('pack') ||
-      qLower.includes('file') ||
-      qLower.includes('not showing') ||
-      qLower.includes('access') ||
-      qLower.includes('paid') ||
-      qLower.includes('kharida') ||
-      qLower.includes('kahan')
-    ) {
+    // 2. If user didn't mention an owned pack, check if they mentioned an UNOWNED pack (anti-piracy defense)
+    if (!targetPurchase) {
+      const mentionedUnownedProduct = allProducts.find((prod) => {
+        const prodName = (prod.name || '').toLowerCase()
+        const prodSlug = (prod.slug || '').toLowerCase()
+        const shortProdName = prodName.split(/[–—-]/)[0].trim()
+        return (
+          qLower.includes(prodSlug) ||
+          (shortProdName.length > 3 && qLower.includes(shortProdName)) ||
+          (prodName.length > 3 && qLower.includes(prodName))
+        )
+      })
+
+      // If user is asking for a download link of a pack they do NOT own, targetPurchase remains null!
+      if (!mentionedUnownedProduct && userPurchases.length === 1) {
+        // If user only has 1 purchase in their entire vault and asked for their link, target that single item
+        targetPurchase = userPurchases[0]
+      }
+    }
+
+    // 3. If verified target purchase found, cryptographically sign a high-security time-limited token
+    if (targetPurchase && userId) {
       try {
         const token = signDownloadToken(
           {
-            uid: userId || targetPurchase.user_id || 'verified_support',
+            uid: userId,
             pid: targetPurchase.item_id,
             type: targetPurchase.item_type || 'pack',
             ip: clientIp,
           },
-          3600
+          1800 // Strict 30-minute validity window
         )
 
-        const matchedCatalog = allProducts.find((prod) => prod.id === targetPurchase.item_id)
+        const matchedCatalog = allProducts.find(
+          (prod) => prod.id === targetPurchase.item_id || prod.slug === targetPurchase.item_id
+        )
 
         verifiedDownload = {
           productId: targetPurchase.item_id,
           productName: targetPurchase.item_name,
           productSlug: matchedCatalog?.slug || targetPurchase.item_id,
-          coverImage: matchedCatalog?.cover_image || 'https://imagizer.imageshack.com/img924/3747/53oszD.png',
+          coverImage:
+            matchedCatalog?.cover_image || 'https://imagizer.imageshack.com/img924/6673/1i7cNl.png',
           downloadUrl: `/api/download/${token}`,
           productType: targetPurchase.item_type || 'sample_pack',
-          fileSize: matchedCatalog?.file_size || 'Studio Master Archive (24-bit WAV)',
-          orderNumber: targetPurchase.razorpay_order_id || `SW-ORD-${targetPurchase.id.slice(0, 8).toUpperCase()}`,
+          fileSize: 'Studio Master Archive (24-bit WAV)',
+          orderNumber:
+            targetPurchase.razorpay_order_id ||
+            `SW-ORD-${targetPurchase.id.slice(0, 8).toUpperCase()}`,
           isProvisioned: true,
         }
       } catch (tokenErr) {
@@ -382,15 +516,34 @@ CRITICAL USER SESSION RULES:
 ${userId ? `- The user IS ALREADY LOGGED IN as ${userName} (${userEmail}). NEVER tell them they are in guest mode, NEVER tell them to log in, and NEVER tell them to create an account.` : `- The user is currently browsing as a guest.`}
 
 LIVE SAMPLES WALA STORE INVENTORY (QUERY RESULT FROM DATABASE):
-${liveInventoryList || `- [Indian Rhythms & Percussion](/packs/indian-rhythms) (₹499, sample_pack) [STATUS: AVAILABLE FOR INSTANT PURCHASE] - Master Indian dholak, tabla, and percussion loops.\n- [Sexy Drill](/packs/sexy-drill) (₹399, sample_pack) [STATUS: AVAILABLE FOR INSTANT PURCHASE] - Hard-hitting 808s, sliding drill patterns, and dark melodies.`}
+${liveInventoryList}
 
-CRITICAL RULES FOR AUTONOMOUS ADMINISTRATIVE PROBLEM RESOLUTION:
-1. When user asks about a download, download link, missing pack, or says "payment done", "link do", "download kaise karein":
-   - NEVER EVER say: "I cannot generate a direct download link", "for security reasons I cannot provide links", or "links cannot be provided"! You have full administrative permission to deliver downloads.
-   - If user has purchases or free packs in their vault:
-     Reassure them enthusiastically! State: "Great news, ${userName}! Your pack is verified in our database. I have generated your high-speed, direct secure download button right below this message. Click the Download button below to start downloading your files immediately! You can also access it permanently in [Your Library](/library)."
-   - If user is in guest mode or no purchase found:
-     Politely explain that no verified purchase was recorded for this email. Ask if they used a different checkout email or have an Order/Payment ID.
+CRITICAL RULES FOR PRODUCT RECOMMENDATION & REAL STORE INVENTORY:
+- You must ONLY recommend products from the LIVE SAMPLES WALA STORE INVENTORY list above.
+- NEVER INVENT OR HALLUCINATE non-existent sound packs (such as "Indian Rhythms & Percussion" or "Sexy Drill"). Those do not exist in the database!
+- When a user asks "best sample pack konsa hai", "suggest sound pack", "drill beat ke liye kya lu", "drums chahiye", "free packs kya hain", etc.:
+  - Recommend our top real packs:
+    * For Bollywood / Commercial Hits / Indian Melodies: [The Bollywood](/packs/the-bollywood) (₹999)
+    * For South Indian / Kuthu / Tapori Festival Beats: [The South](/packs/the-south) (₹999)
+    * For Punchy Indian Drums & One-Shots: [South Drums](/packs/south-drums) (₹799)
+    * For Authentic Folk & Regional Odisha Sounds: [Sambalpur Rhythm](/packs/sambalpur-rhythm) (₹1999)
+    * For 100% Free Authentic Classical & Bollywood Tablas: [The Ten Tabla’s](/packs/the-ten-tablas) (FREE)
+    * For 100% Free Desi Street Rhythms & Percussion: [India Street Rhythm](/packs/india-street) (FREE)
+    * For Vocal Mixing & Punjabi Mixes in FL Studio: [The Real Punjab](/browse/presets/the-real-punjab) (₹499)
+  - ALWAYS format links using markdown: [Pack Name](/packs/slug).
+  - Inform the user that interactive sound pack preview cards with cover artwork, track info, and direct links have been attached right below your answer!
+
+CRITICAL RULES FOR AUTONOMOUS ADMINISTRATIVE PROBLEM RESOLUTION & ZERO-PIRACY:
+1. STRICT DOWNLOAD & DOWNLOAD LINK REQUESTS:
+   - When user specifically asks to download or requests a download link (e.g. "download link do", "link bhejo", "download nahi ho raha"):
+     * IF the requested pack is VERIFIED in their vault (listed in USER'S VERIFIED PURCHASES / VAULT ITEMS above):
+       Reassure them enthusiastically! State: "Great news, ${userName}! Your purchase is verified in our database. I have generated your official secure, high-speed download button right below this message. Click the Download button below to start downloading your files immediately! You can also access it permanently in [Your Library](/library)."
+     * IF the user asks for a download link of a pack they DO NOT own in their vault (e.g. asking for free download of a paid pack):
+       Strictly and politely clarify: "This pack is not registered in your account library. To download this sound pack, you can purchase it directly from the official store at [Pack Name](/packs/slug)." NEVER promise or pretend to deliver a download link for an unowned product!
+     * IF user is not logged in / guest:
+       Politely explain that they need to log in with their registered account at [Sign In](/auth) to access verified downloads, or check their order confirmation email.
+   - When user is simply asking questions, asking for recommendations ("best sample pack konsa hai", "what sounds are included", "price kya hai"):
+     * NEVER mention or promise a download link button! Only discuss the sound packs, genres, and audio quality, and highlight the interactive product preview cards attached below.
 2. When user asks for an Invoice, Bill, or Receipt:
    - Provide the details (Order Ref, Date, Amount, Payment ID). State that their official printable Bill of Supply / Tax Invoice has been generated and attached right below this message.
 3. Audio Specs:
@@ -471,31 +624,72 @@ CRITICAL FORMATTING INSTRUCTIONS (MATCH PRODUCER TOY SUPPORT ASSISTANT EXACTLY):
     const textLower = (text || '').toLowerCase()
     const qLower = (query || '').toLowerCase()
 
-    if (allProducts && allProducts.length > 0) {
-      for (const p of allProducts) {
-        const nameLower = (p.name || '').toLowerCase()
-        const slugLower = (p.slug || '').toLowerCase()
-        const isMatched =
-          textLower.includes(nameLower) ||
-          textLower.includes(slugLower) ||
-          qLower.includes(nameLower) ||
-          qLower.includes(slugLower)
+    if (!allProducts || allProducts.length === 0) return result
 
-        if (isMatched && !result.some((r) => r.id === p.id)) {
-          result.push({
-            id: p.id,
-            name: p.name,
-            slug: p.slug,
-            cover_image: p.cover_image || p.cover_url || '',
-            price_inr: Number(p.price_inr || 499),
-            price_usd: p.price_usd ? Number(p.price_usd) : undefined,
-            product_type: p.product_type || 'sample_pack',
-            short_description: p.description || null,
-          })
-        }
+    // 1. Check which products from allProducts are referenced in the answer or query
+    for (const p of allProducts) {
+      const nameLower = (p.name || '').toLowerCase()
+      const slugLower = (p.slug || '').toLowerCase()
+      const shortName = nameLower.split(/[–—-]/)[0].trim()
+
+      const isMentionedInAnswer =
+        textLower.includes(slugLower) ||
+        textLower.includes(`/packs/${slugLower}`) ||
+        textLower.includes(`/presets/${slugLower}`) ||
+        (shortName.length > 3 && textLower.includes(shortName)) ||
+        textLower.includes(nameLower)
+
+      const isMentionedInQuery =
+        qLower.includes(slugLower) ||
+        (shortName.length > 3 && qLower.includes(shortName))
+
+      if ((isMentionedInAnswer || isMentionedInQuery) && !result.some((r) => r.id === p.id)) {
+        result.push(p)
       }
     }
-    return result
+
+    // 2. If the user is asking a product inquiry, recommendation, or comparison query
+    const isProductOrRecommendQuery =
+      /\b(best|recommend|suggest|top|pack|packs|sample|kit|loop|loops|drum|drums|tabla|vocal|preset|bollywood|south|sambalpur|folk|drill|konsa|konsi|achha|kharidu|le lu|buy|price|rate|browse)\b/i.test(
+        qLower
+      )
+
+    if (isProductOrRecommendQuery) {
+      if (/\b(drum|drums|one shot|percussion)\b/i.test(qLower)) {
+        const p = allProducts.find((item) => item.slug === 'south-drums')
+        if (p && !result.some((r) => r.id === p.id)) result.push(p)
+      }
+      if (/\b(tabla|classical|sufi)\b/i.test(qLower)) {
+        const p = allProducts.find((item) => item.slug === 'the-ten-tablas')
+        if (p && !result.some((r) => r.id === p.id)) result.push(p)
+      }
+      if (/\b(bollywood|hindi|melody|melodies)\b/i.test(qLower)) {
+        const p = allProducts.find((item) => item.slug === 'the-bollywood')
+        if (p && !result.some((r) => r.id === p.id)) result.push(p)
+      }
+      if (/\b(south|kuthu|tapori)\b/i.test(qLower)) {
+        const p = allProducts.find((item) => item.slug === 'the-south')
+        if (p && !result.some((r) => r.id === p.id)) result.push(p)
+      }
+      if (/\b(folk|sambalpur|odisha)\b/i.test(qLower)) {
+        const p = allProducts.find((item) => item.slug === 'sambalpur-rhythm')
+        if (p && !result.some((r) => r.id === p.id)) result.push(p)
+      }
+      if (/\b(vocal|punjabi|preset|fl studio)\b/i.test(qLower)) {
+        const p = allProducts.find((item) => item.slug === 'the-real-punjab')
+        if (p && !result.some((r) => r.id === p.id)) result.push(p)
+      }
+
+      // If general recommendation query ("best sample pack", etc.) and empty, provide the top flagship packs
+      if (result.length === 0) {
+        const topPacks = allProducts.filter(
+          (p) => p.slug === 'the-bollywood' || p.slug === 'the-south' || p.slug === 'south-drums'
+        )
+        result.push(...topPacks.slice(0, 2))
+      }
+    }
+
+    return result.slice(0, 4)
   }
 
   try {
