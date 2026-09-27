@@ -379,7 +379,7 @@ export async function askGroqSupportAction(
       liveTopSellingPacksSummary = `REAL-TIME SALES LEADERBOARD (FROM LIVE DATABASE):
 - Top Best-Selling Paid Packs:
 ${topPaid.map((s, idx) => `  ${idx + 1}. "${s.name}" (${s.count} verified purchases)`).join('\n')}
-- Most Popular Free Starter Packs:
+- Most Popular Free Starter Packs (ONLY disclose if user explicitly asks for free):
 ${topFree.map((s, idx) => `  ${idx + 1}. "${s.name}" (${s.count} community downloads)`).join('\n')}`
     }
   } catch (salesErr) {
@@ -585,12 +585,12 @@ IDENTITY & SECURITY:
 
 PROMOTIONS & OFFERS:
 - UPCOMING FESTIVAL SALE: "Samplistic Festival" starts 8 October at 12:00 PM with FLAT 20% OFF sitewide! Check live countdown on [Homepage](/).
-- 100% Free Starter Samples: Available right now at [Free Samples](/free).
+- Free Starter Tier: [Free Samples](/free) exists, but ONLY mention or share it if the user EXPLICITLY asks for free samples or zero-cost packs.
 - International Sound Design / VSTs: Sister platform Producer Toy at [producertoy.com](https://producertoy.com).
 
 AUDIO SPECS & NAVIGATION:
 - Specs: 24-bit / 44.1kHz or 48kHz uncompressed WAV, 100% Royalty-Free Commercial License (Spotify, YouTube, TV). Universal DAW support (FL Studio, Ableton, Logic Pro, Cubase).
-- Links: [Your Library](/library), [Browse Packs](/browse), [Free Samples](/free), [Refund Policy](/refund-policy), [Terms](/terms).
+- Links: [Your Library](/library), [Browse Packs](/browse), [Free Samples](/free) (only when asked for free), [Refund Policy](/refund-policy), [Terms](/terms).
 - Refund Policy: Digital downloads are delivered instantly and non-refundable once downloaded. Audio demos are on every pack page.
 
 LIVE STORE INVENTORY:
@@ -600,12 +600,14 @@ ZERO-PIRACY & VAULT DOWNLOADS:
 - If pack is VERIFIED in user's vault: Reassure them and state their official high-speed download button is attached below and accessible in [Your Library](/library).
 - If pack is NOT in their vault: State it is not registered to their account, and link them to purchase from official store: [Pack Name](/packs/slug). Never give download buttons for unowned packs.
 
-CROSS-SELLING & RECOMMENDATION RULES:
+SALES & RECOMMENDATION RULES (ALWAYS SELL PAID PRODUCTS):
+- COMMERCIAL PRIORITY: Always prioritize recommending and selling our premium PAID sound packs and presets. Highlight their punchy mix-readiness, analog processing, and 24-bit studio quality.
+- NEVER SUGGEST FREE PACKS PROACTIVELY: Do NOT suggest or pitch free sound packs unless the user EXPLICITLY asks for free samples or zero-cost packs (e.g. "kuch free hai", "free pack do", "free samples", "muft").
 - STRICT PROHIBITION: NEVER pitch, sell, or attach sound packs for:
   1. Trust / Legitimacy ("are you guys genuine", "is this real", "scam"): State Samples Wala is a registered boutique sound library, secure checkout via Razorpay/UPI, instant delivery to library, 100% royalty-free. Build pure trust!
   2. Issues & Troubleshooting: Focus 100% on solving their issue immediately.
   3. Casual Greetings ("hi", "how are you"): Introduce yourself politely as Sampi and ask what they are producing today.
-- When genuinely recommending: Max 2 packs with musical reasoning and markdown links [Pack Name](/packs/slug).
+- When genuinely recommending: Max 2 PAID packs with musical reasoning and markdown links [Pack Name](/packs/slug).
 
 POLICY ENFORCEMENT:
 - Detect vulgarity/abuse in English, Hindi/Urdu/Hinglish slang.
@@ -624,7 +626,7 @@ AI RESOLUTION DETECTION:
 ${liveTopSellingPacksSummary}
 
 REAL-TIME SALES LEADERBOARD INSTRUCTIONS:
-- When user asks about best-selling or most popular packs: State the top paid and free packs directly from the leaderboard above with genre and direct links [Pack Name](/packs/slug).
+- When user asks about best-selling or most popular packs: Always quote our Top Best-Selling PAID Packs first from the leaderboard above with genre and direct links [Pack Name](/packs/slug). DO NOT mention free starter packs unless the user explicitly asks if there is a free pack available.
 
 ${userAccountSummary}
 
@@ -758,12 +760,23 @@ ${duplicatePaymentNotice}`
 
     const textLower = (text || '').toLowerCase()
     const qLower = (query || '').toLowerCase()
+    const isExplicitlyAskingFree = /\b(free|muft|zero\s*cost|no\s*money|bina\s*paise|free\s*pack|free\s*sample|free\s*samples)\b/i.test(qLower)
 
     // Dynamic scoring for each product in allProducts
     const scoredProducts: { product: RecommendedProduct; score: number }[] = []
 
     for (const p of allProducts) {
+      // Commercial rule: DO NOT suggest free packs unless user explicitly asks for free
+      if (p.price_inr === 0 && !isExplicitlyAskingFree) {
+        continue
+      }
+
       let score = 0
+      // Baseline priority for paid commercial products
+      if (p.price_inr > 0) {
+        score += 15
+      }
+
       const nameLower = (p.name || '').toLowerCase()
       const slugLower = (p.slug || '').toLowerCase()
       const seriesLower = (p.series || '').toLowerCase()
@@ -806,8 +819,8 @@ ${duplicatePaymentNotice}`
       if (/\b(preset|presets|vocal|fl\s*studio|chain|autotune)\b/i.test(qLower)) {
         if (p.product_type === 'preset' || slugLower.includes('preset') || slugLower.includes('vocal')) score += 25
       }
-      if (/\b(free|muft|bina paise|free pack)\b/i.test(qLower)) {
-        if (p.price_inr === 0) score += 30
+      if (isExplicitlyAskingFree && p.price_inr === 0) {
+        score += 50
       }
 
       // Only include products with genuine relevance (score >= 25)
@@ -828,9 +841,14 @@ ${duplicatePaymentNotice}`
       /\b(best|recommend|suggest|top|pack|packs|sample|kit|loop|loops|achha|kharidu|buy|store|catalog|browse)\b/i.test(
         qLower
       )
-    if (result.length === 0 && isGeneralRecommendation) {
-      const topPicks = allProducts.filter((p) => p.price_inr > 0).slice(0, 2)
-      result.push(...topPicks)
+    if (result.length === 0) {
+      if (isExplicitlyAskingFree) {
+        const freePicks = allProducts.filter((p) => p.price_inr === 0).slice(0, 2)
+        result.push(...freePicks)
+      } else if (isGeneralRecommendation) {
+        const topPicks = allProducts.filter((p) => p.price_inr > 0).slice(0, 2)
+        result.push(...topPicks)
+      }
     }
 
     return result.slice(0, 2)
