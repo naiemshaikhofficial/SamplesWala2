@@ -564,12 +564,29 @@ export function EpicSupportAssistant({
     })
   }
 
+  const escapeRegExp = (string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  }
+
   // Fallback local matching
   const findLocalAnswer = (query: string): KnowledgeArticle | null => {
     const raw = query.trim().toLowerCase()
     if (!raw) return null
 
-    const stopWords = new Set(['what', 'is', 'a', 'the', 'to', 'in', 'on', 'for', 'how', 'do', 'i', 'can', 'from', 'where', 'me', 'my', 'of'])
+    // Ignore greetings and recommendation/conversational questions - these must be handled by AI assistant
+    if (/^(hey|hi|hello|hola|yo|sup|namaste|salam|kya haal hai|good morning|good afternoon|good evening)\b/i.test(raw)) {
+      return null
+    }
+
+    if (/\b(suggest|recommend|best|top|which|konsa|konsi|what is|kya hai|tell me|who are you|about|samples\s*wala|sampi)\b/i.test(raw)) {
+      return null
+    }
+
+    const stopWords = new Set([
+      'what', 'is', 'a', 'the', 'to', 'in', 'on', 'for', 'how', 'do', 'i', 'can', 'from',
+      'where', 'me', 'my', 'of', 'you', 'have', 'give', 'get', 'want', 'need', 'sample',
+      'samples', 'pack', 'packs', 'sound', 'sounds', 'please'
+    ])
     const tokens = raw.split(/\s+/).filter((t) => t.length > 2 && !stopWords.has(t))
     if (tokens.length === 0) return null
 
@@ -580,15 +597,16 @@ export function EpicSupportAssistant({
       let score = 0
       const qLower = article.question.toLowerCase()
       const aLower = article.shortAnswer.toLowerCase()
-      const tagString = article.tags.join(' ').toLowerCase()
 
-      if (qLower.includes(raw)) score += 100
-      if (tagString.includes(raw)) score += 80
+      const rawRegex = new RegExp(`(^|\\b)${escapeRegExp(raw)}(\\b|$)`, 'i')
+      if (rawRegex.test(qLower)) score += 100
+      if (article.tags.some((t) => rawRegex.test(t))) score += 80
 
       tokens.forEach((token) => {
-        if (qLower.includes(token)) score += 25
-        if (tagString.includes(token)) score += 20
-        if (aLower.includes(token)) score += 5
+        const tokenRegex = new RegExp(`(^|\\b)${escapeRegExp(token)}(\\b|$)`, 'i')
+        if (tokenRegex.test(qLower)) score += 25
+        if (article.tags.some((t) => tokenRegex.test(t))) score += 20
+        if (tokenRegex.test(aLower)) score += 5
       })
 
       if (score > highestScore) {
@@ -597,7 +615,7 @@ export function EpicSupportAssistant({
       }
     }
 
-    return highestScore >= 50 ? bestArticle : null
+    return highestScore >= 75 ? bestArticle : null
   }
 
   // Submit from Screen 1 (Hero Landing)
@@ -737,9 +755,14 @@ export function EpicSupportAssistant({
           )
         } else {
           const localMatch = findLocalAnswer(query)
-          const fallbackContent = localMatch
-            ? `Hello! I'm Sampi, your Samples Wala Support Assistant.\n\n${localMatch.shortAnswer}\n\nHere are the exact steps:\n${localMatch.detailedSteps.map((s, idx) => `${idx + 1}. **Step ${idx + 1}**: ${s}`).join('\n')}\n\nAre you downloading on Windows or Mac, or need DAW setup help in FL Studio, Ableton, or Logic Pro?`
-            : `I'm here to help, but couldn't find an exact solution for "${query}". Would you like to connect with our audio engineers?`
+          let fallbackContent = ''
+          if (localMatch) {
+            fallbackContent = `Hello! I'm Sampi, your Samples Wala Support Assistant.\n\n${localMatch.shortAnswer}\n\nHere are the exact steps:\n${localMatch.detailedSteps.map((s, idx) => `${idx + 1}. **Step ${idx + 1}**: ${s}`).join('\n')}\n\nAre you downloading on Windows or Mac, or need DAW setup help in FL Studio, Ableton, or Logic Pro?`
+          } else if (/\b(samples\s*wala|kya hai|what is|about|who are you|sampi)\b/i.test(query)) {
+            fallbackContent = `Hello! I'm Sampi, your official Samples Wala AI Audio Assistant.\n\nSamples Wala is India's leading digital sound boutique providing 100% royalty-free authentic Indian sound packs, loops, one-shots, and vocal presets for music producers, beatmakers, and sound designers.\n\nAre you looking for sound pack recommendations, order assistance, or DAW setup guidance?`
+          } else {
+            fallbackContent = `Hello! I'm Sampi, your Samples Wala AI Audio Assistant. I'm here to help you with sound packs, order downloads, and DAW setup. Could you please share a few more details about what you need assistance with?`
+          }
 
           setMessages((prev) =>
             prev.map((m) =>
@@ -949,9 +972,14 @@ export function EpicSupportAssistant({
         )
       } else {
         const localMatch = findLocalAnswer(text)
-        const fallbackContent = localMatch
-          ? `Hello! I'm Sampi, your Samples Wala Support Assistant.\n\n${localMatch.shortAnswer}\n\nHere are the exact steps:\n${localMatch.detailedSteps.map((s, idx) => `${idx + 1}. **Step ${idx + 1}**: ${s}`).join('\n')}\n\nAre you downloading on Windows or Mac, or need DAW setup help in FL Studio, Ableton, or Logic Pro?`
-          : `I'm here to help, but couldn't find an automated solution for "${text}". Would you like to raise a support ticket with our audio engineers?`
+        let fallbackContent = ''
+        if (localMatch) {
+          fallbackContent = `Hello! I'm Sampi, your Samples Wala Support Assistant.\n\n${localMatch.shortAnswer}\n\nHere are the exact steps:\n${localMatch.detailedSteps.map((s, idx) => `${idx + 1}. **Step ${idx + 1}**: ${s}`).join('\n')}\n\nAre you downloading on Windows or Mac, or need DAW setup help in FL Studio, Ableton, or Logic Pro?`
+        } else if (/\b(samples\s*wala|kya hai|what is|about|who are you|sampi)\b/i.test(text)) {
+          fallbackContent = `Hello! I'm Sampi, your official Samples Wala AI Audio Assistant.\n\nSamples Wala is India's leading digital sound boutique providing 100% royalty-free authentic Indian sound packs, loops, one-shots, and vocal presets for music producers, beatmakers, and sound designers.\n\nAre you looking for sound pack recommendations, order assistance, or DAW setup guidance?`
+        } else {
+          fallbackContent = `I'm Sampi, your Samples Wala AI Audio Assistant. I'm here to help you with our sound packs, order downloads, and production setup. Could you please share a bit more detail about what you need help with?`
+        }
 
         setMessages((prev) =>
           prev.map((m) =>

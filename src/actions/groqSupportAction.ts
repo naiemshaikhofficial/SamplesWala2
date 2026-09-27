@@ -1,10 +1,49 @@
 'use server'
 
 import { getAdminClient } from '@/lib/supabase/admin'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getUser } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
 import { signDownloadToken } from '@/lib/security'
 import { KNOWLEDGE_BASE } from '@/components/support/supportKnowledgeData'
+import fs from 'fs'
+import path from 'path'
+
+function getGroqApiKey(): string | null {
+  if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim()) {
+    return process.env.GROQ_API_KEY.trim()
+  }
+  try {
+    const envPath = path.resolve(process.cwd(), '.env.local')
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8')
+      const match = content.match(/GROQ_API_KEY\s*=\s*(.+)/)
+      if (match && match[1]) {
+        const val = match[1].trim().replace(/^['"]|['"]$/g, '')
+        process.env.GROQ_API_KEY = val
+        return val
+      }
+    }
+  } catch (err) {
+    console.warn('[getGroqApiKey] Error reading .env.local:', err)
+  }
+  return null
+}
+
+function ensureSupabaseAdminEnv() {
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) return
+  try {
+    const envPath = path.resolve(process.cwd(), '.env.local')
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8')
+      const mUrl = content.match(/NEXT_PUBLIC_SUPABASE_URL\s*=\s*(.+)/)
+      if (mUrl && mUrl[1]) process.env.NEXT_PUBLIC_SUPABASE_URL = mUrl[1].trim().replace(/^['"]|['"]$/g, '')
+      const mKey = content.match(/SUPABASE_SERVICE_ROLE_KEY\s*=\s*(.+)/)
+      if (mKey && mKey[1]) process.env.SUPABASE_SERVICE_ROLE_KEY = mKey[1].trim().replace(/^['"]|['"]$/g, '')
+    }
+  } catch (err) {
+    console.warn('[ensureSupabaseAdminEnv] Error reading .env.local:', err)
+  }
+}
 
 export interface RecommendedProduct {
   id: string
@@ -130,14 +169,17 @@ export async function askGroqSupportAction(
   clientUser?: ClientUserInfo,
   currentStrikes: number = 0
 ): Promise<GroqResponse> {
-  const apiKey = process.env.GROQ_API_KEY
+  try {
+    ensureSupabaseAdminEnv()
+    const apiKey = getGroqApiKey()
 
-  if (!apiKey) {
-    return {
-      success: false,
-      error: 'Support service currently unavailable.',
+    if (!apiKey) {
+      console.error('[askGroqSupportAction] Missing GROQ_API_KEY')
+      return {
+        success: false,
+        error: 'Support service currently unavailable.',
+      }
     }
-  }
 
   const adminSupabase = getAdminClient()
 
@@ -149,15 +191,12 @@ export async function askGroqSupportAction(
 
   if (!userId || !userEmail) {
     try {
-      const supabase = await createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        currentUser = user
-        userId = userId || user.id
-        userEmail = userEmail || (user.email ? user.email.toLowerCase().trim() : null)
-        userName = userName !== 'Producer' ? userName : (user.user_metadata?.full_name || user.email?.split('@')[0] || 'Producer')
+      const { data } = await getUser()
+      if (data?.user) {
+        currentUser = data.user
+        userId = userId || data.user.id
+        userEmail = userEmail || (data.user.email ? data.user.email.toLowerCase().trim() : null)
+        userName = userName !== 'Producer' ? userName : (data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Producer')
       }
     } catch (authErr) {
       console.warn('[askGroqSupportAction] Auth check notice:', authErr)
@@ -179,141 +218,7 @@ export async function askGroqSupportAction(
 
   const targetEmail = userEmail || scannedEmail
 
-const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
-  {
-    id: 'b6f6ad72-6a7f-44e2-a764-ba5f070b4ec7',
-    name: 'The South – South Indian And Tapori Loop Pack (Kuthu, Festival & Folk Loops)',
-    slug: 'the-south',
-    cover_image: 'https://imagizer.imageshack.com/img922/4591/uA7sLt.jpg',
-    price_inr: 999,
-    price_usd: 14.99,
-    mrp_inr: 1999,
-    product_type: 'sample_pack',
-    total_contents_summary: 'Includes 110+ Samples',
-    loop_count: 104,
-    melody_count: 6,
-    one_shot_count: 0,
-    preset_count: 0,
-    series: 'India Journey',
-    short_description: 'Authentic South Indian & Tapori Loops covering Kuthu, festival beats, dholak, and folk percussion.',
-    full_description: 'The South is a powerful collection of South Indian loops, Kuthu grooves, festival-style rhythms, and Tapori-inspired patterns crafted for high-energy DJ remixes, reel beats, and dance productions.',
-  },
-  {
-    id: '654161bb-294a-48cc-acdc-af1abca18bfb',
-    name: 'South Drums - South Indian And Tapori One Shot Drum',
-    slug: 'south-drums',
-    cover_image: 'https://imagizer.imageshack.com/img922/7492/HkEhZY.png',
-    price_inr: 799,
-    price_usd: 9.99,
-    mrp_inr: 1499,
-    product_type: 'sample_pack',
-    total_contents_summary: '477 One-Shot Drum Samples (Chenda, Clap, Iddaka, Kick, Kuthu, Mridangam, Percussion, Snare, Tape, Thappu, Urmi)',
-    loop_count: 0,
-    melody_count: 0,
-    one_shot_count: 477,
-    preset_count: 0,
-    series: 'India Journey',
-    short_description: '477 custom one-shot samples featuring Chenda, Clap, Iddaka, Kick, Kuthu, Mridangam, Thappu, Urmi.',
-    full_description: 'South Drum is a premium one-shot drum sample pack delivering bold, punchy, and authentic South Indian drum sounds across 477 custom one-shots designed to cut through modern mixes.',
-  },
-  {
-    id: 'c2e5cb42-a0dc-4d4f-b98a-986fc0d091a1',
-    name: 'The Bollywood - Authentic Indian Sounds, Loops One Shots (Royalty Free) - Indian Sample Pack',
-    slug: 'the-bollywood',
-    cover_image: 'https://imagizer.imageshack.com/img924/6673/1i7cNl.png',
-    price_inr: 999,
-    price_usd: 14.99,
-    mrp_inr: 2999,
-    product_type: 'sample_pack',
-    total_contents_summary: '131+ High Quality Samples (400+ loops across all editions)',
-    loop_count: 124,
-    melody_count: 25,
-    one_shot_count: 1,
-    preset_count: 0,
-    series: 'India Journey',
-    short_description: 'Cinematic and commercial Indian sounds, melodic loops, dholak, tabla, and signature Bollywood grooves.',
-    full_description: 'Bollywood Sample Pack is a premium collection of authentic Indian sounds, loops, and one-shots crafted for modern music producers who want the true essence of Bollywood in their beats.',
-  },
-  {
-    id: 'e1d2c3b4-a5b6-7c8d-9e0f-1a2b3c4d5e6f',
-    name: 'Sambalpur Rhythm – Authentic Odisha Folk Sounds',
-    slug: 'sambalpur-rhythm',
-    cover_image: 'https://imagizer.imageshack.com/img923/627/vc1DbH.png',
-    price_inr: 1999,
-    price_usd: 21.99,
-    mrp_inr: 3999,
-    product_type: 'sample_pack',
-    total_contents_summary: 'Includes 250+ Samples, MIDI, and Project Files',
-    loop_count: 250,
-    melody_count: 0,
-    one_shot_count: 0,
-    preset_count: 0,
-    series: 'India Journey',
-    short_description: 'Authentic Sambalpuri folk percussion, traditional rhythms, and energetic desi grooves from Odisha.',
-    full_description: 'Sambalpuri Rhythm Sample Pack is a premium collection of authentic Sambalpuri folk sounds, traditional Odisha percussion, ethnic loops, and cultural textures specially crafted for modern producers with 250+ samples, MIDI, and project files.',
-  },
-  {
-    id: '8f421d2a-5452-4d22-aa00-9c1c9896e5e9',
-    name: 'The Ten Tabla’s – 10 FREE Tabla Samples',
-    slug: 'the-ten-tablas',
-    cover_image: 'https://imagizer.imageshack.com/img921/4153/dVxZTV.png',
-    price_inr: 0,
-    price_usd: 0,
-    mrp_inr: 0,
-    product_type: 'sample_pack',
-    total_contents_summary: '10 Free Tabla Rhythm Loops',
-    loop_count: 10,
-    melody_count: 0,
-    one_shot_count: 0,
-    preset_count: 0,
-    series: 'India Journey',
-    short_description: '10 FREE authentic Indian classical, Bollywood, and Sufi tabla samples and loops.',
-    full_description: 'Bring the authentic sound of Indian Tabla into your music production with The Ten Tabla’s, featuring 10 pristine free tabla rhythm loops for classical, Sufi, and Bollywood productions.',
-  },
-  {
-    id: 'a9bb41c1-3c8d-4617-91e9-c5a6f83c47b8',
-    name: 'India Street Rhythm – 25 Free Indian Rhythm Loops',
-    slug: 'india-street',
-    cover_image: 'https://imagizer.imageshack.com/img921/4723/6EtjtS.png',
-    price_inr: 0,
-    price_usd: 0,
-    mrp_inr: 0,
-    product_type: 'sample_pack',
-    total_contents_summary: '25 Free Rhythm Loops',
-    loop_count: 25,
-    melody_count: 0,
-    one_shot_count: 0,
-    preset_count: 0,
-    series: 'India Journey',
-    short_description: '25 FREE rhythm loops covering Tapori, South Indian street grooves, and folk percussion.',
-    full_description: '25 FREE Indian Rhythm Loops capturing the feeling of India’s streets — busy markets, local festivals, roadside celebrations, dhols, and folk percussion.',
-  },
-  {
-    id: '4064e95e-473b-4240-b206-3793780e4c52',
-    name: 'The Real Punjab (Vocal Preset)',
-    slug: 'the-real-punjab',
-    cover_image: 'https://imagizer.imageshack.com/img922/7726/Eov3Nv.png',
-    price_inr: 499,
-    mrp_inr: 1499,
-    product_type: 'preset',
-    daws: ['FL Studio'],
-    plugins_used: [
-      'Antares Auto-Tune Pro',
-      'Fruity Parametric EQ 2',
-      'Fruity Multiband Compressor',
-      'FabFilter Pro-Q 4',
-      'Fresh Air',
-      'iZotope RX Mouth De-click',
-      'iZotope RX De-click',
-      'soothe2',
-      'Fruity Limiter',
-    ],
-    short_description: 'Professional FL Studio vocal preset pack crafted for authentic Punjabi vocals, Bhangra, and Hip-Hop.',
-    full_description: '2 custom vocal presets designed specifically for clean, punchy, and industry-level Punjabi vocal sound in FL Studio, utilizing professional chain routing with Auto-Tune, soothe2, and FabFilter.',
-  },
-]
-
-  // 3. Fetch Live Catalog from Supabase (sample_packs & presets) with FULL COLUMNS
+  // 3. Fetch Live Catalog 100% Dynamically from Supabase (sample_packs & presets)
   let liveInventoryList = ''
   let allProducts: RecommendedProduct[] = []
 
@@ -324,14 +229,14 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
         'id, name, slug, cover_url, price_inr, price_usd, mrp_inr, total_contents_summary, loop_count, one_shot_count, melody_count, preset_count, series, description'
       )
       .order('created_at', { ascending: false })
-      .limit(60)
+      .limit(100)
 
     const presetsPromise = adminSupabase
       .from('presets')
       .select('id, name, slug, cover_url, price_inr, mrp_inr, type, daws, plugins_used, description')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .limit(30)
+      .limit(60)
 
     const [packsRes, presetsRes] = await Promise.allSettled([packsPromise, presetsPromise])
 
@@ -374,54 +279,38 @@ const VERIFIED_STORE_PACKS: RecommendedProduct[] = [
           }))
         : []
 
-    if (dbPacks.length > 0 || dbPresets.length > 0) {
-      allProducts = [...dbPacks, ...dbPresets]
-    } else {
-      allProducts = [...VERIFIED_STORE_PACKS]
-    }
+    allProducts = [...dbPacks, ...dbPresets]
   } catch (dbErr) {
     console.warn('[askGroqSupportAction] DB product query warning:', dbErr)
-    allProducts = [...VERIFIED_STORE_PACKS]
+    allProducts = []
   }
 
-  // Formulate Rich Technical Inventory Profile for Every Product from Database
+  // Formulate Dense, Token-Efficient Inventory Profile from Database
   liveInventoryList = allProducts
     .map((p) => {
       const price = p.price_inr === 0 ? 'FREE' : `₹${p.price_inr}`
       const mrp = p.mrp_inr ? ` (MRP: ₹${p.mrp_inr})` : ''
       const link = p.product_type === 'preset' ? `/browse/presets/${p.slug}` : `/packs/${p.slug}`
 
-      const specLines: string[] = []
+      const specParts: string[] = []
       if (p.total_contents_summary) {
-        specLines.push(`Total Contents: ${p.total_contents_summary.replace(/\r?\n/g, ' | ')}`)
+        specParts.push(p.total_contents_summary.replace(/\r?\n/g, ' '))
+      } else {
+        const countParts: string[] = []
+        if (p.loop_count) countParts.push(`${p.loop_count} Loops`)
+        if (p.one_shot_count) countParts.push(`${p.one_shot_count} One-Shots`)
+        if (p.melody_count) countParts.push(`${p.melody_count} Melodies`)
+        if (p.preset_count) countParts.push(`${p.preset_count} Presets`)
+        if (countParts.length > 0) specParts.push(countParts.join(', '))
       }
-      const countParts: string[] = []
-      if (p.loop_count != null && p.loop_count > 0) countParts.push(`${p.loop_count} Loops`)
-      if (p.one_shot_count != null && p.one_shot_count > 0) countParts.push(`${p.one_shot_count} One-Shots`)
-      if (p.melody_count != null && p.melody_count > 0) countParts.push(`${p.melody_count} Melodic Loops`)
-      if (p.preset_count != null && p.preset_count > 0) countParts.push(`${p.preset_count} Presets`)
-      if (countParts.length > 0) {
-        specLines.push(`Breakdown: ${countParts.join(', ')}`)
-      }
-      if (p.series) {
-        specLines.push(`Collection Series: ${p.series}`)
-      }
-      if (p.daws && p.daws.length > 0) {
-        specLines.push(`DAWs: ${p.daws.join(', ')}`)
-      }
-      if (p.plugins_used && p.plugins_used.length > 0) {
-        specLines.push(`Plugins Required: ${p.plugins_used.join(', ')}`)
-      }
+      if (p.series) specParts.push(`Series: ${p.series}`)
+      if (p.daws && p.daws.length > 0) specParts.push(`DAWs: ${p.daws.join(', ')}`)
+      if (p.plugins_used && p.plugins_used.length > 0) specParts.push(`Plugins: ${p.plugins_used.join(', ')}`)
 
-      const specsBlock = specLines.length > 0 ? `\n  - SPECIFICATIONS: ${specLines.join(' | ')}` : ''
-      const cleanDesc = p.full_description ? p.full_description.trim() : (p.short_description || '')
-      const descBlock = cleanDesc ? `\n  - OVERVIEW: ${cleanDesc}` : ''
-
-      return `[PRODUCT: ${p.name}]
-  - Link: [${p.name}](${link})
-  - Price: ${price}${mrp} [Type: ${p.product_type}]${specsBlock}${descBlock}`
+      const descSnippet = p.short_description ? ` | ${p.short_description}` : ''
+      return `- [${p.name}](${link}): ${price}${mrp} [${p.product_type}] | Specs: ${specParts.join(' • ')}${descSnippet}`
     })
-    .join('\n\n')
+    .join('\n')
 
   // 4. Fetch User Purchases / Vault Items
   let userPurchases: any[] = []
@@ -615,12 +504,17 @@ ${userPurchases
   .join('\n')}`
   }
 
-  // 6.5. Assemble Knowledge Base Articles from Site
-  const knowledgeSummary = KNOWLEDGE_BASE.map(
-    (k) => `[GUIDE: ${k.categoryLabel} - ${k.question}]
-Answer: ${k.shortAnswer}
-Steps: ${k.detailedSteps.join(' ')}`
-  ).join('\n\n')
+  // 6.5. Assemble Concise Knowledge Base Context
+  const qL = query.toLowerCase()
+  const relevantArticles = KNOWLEDGE_BASE.filter((k) =>
+    k.tags.some((t) => qL.includes(t.toLowerCase())) ||
+    k.question.toLowerCase().includes(qL) ||
+    k.categoryLabel.toLowerCase().includes(qL)
+  ).slice(0, 3)
+
+  const knowledgeSummary = relevantArticles.length > 0
+    ? relevantArticles.map((k) => `[GUIDE: ${k.question}] ${k.shortAnswer} Steps: ${k.detailedSteps.slice(0, 2).join(' ')}`).join('\n')
+    : `Audio Specs: 24-bit studio WAV, 100% royalty-free commercial license. DAWs: FL Studio, Ableton, Logic Pro, Cubase. Digital goods delivered immediately to Library; non-refundable once downloaded.`
 
   // 7. System Prompt
   const systemPrompt = `You are "Sampi", the official Samples Wala Technical Support Specialist and AI Audio Assistant for Samples Wala (sampleswala.com) — India's premier boutique sound library and marketplace for music producers, beatmakers, and sound designers.
@@ -788,154 +682,131 @@ CRITICAL FORMATTING INSTRUCTIONS:
 
     if (!allProducts || allProducts.length === 0) return result
 
-    // 1. Check which products from allProducts are referenced in the answer or query
+    // Dynamic scoring for each product in allProducts
+    const scoredProducts: { product: RecommendedProduct; score: number }[] = []
+
     for (const p of allProducts) {
+      let score = 0
       const nameLower = (p.name || '').toLowerCase()
       const slugLower = (p.slug || '').toLowerCase()
-      const shortName = nameLower.split(/[–—-]/)[0].trim()
+      const seriesLower = (p.series || '').toLowerCase()
+      const shortName = nameLower.split(/[–—-]/)[0].trim().toLowerCase()
+      const daws = (p.daws || []).map((d) => d.toLowerCase())
+      const plugins = (p.plugins_used || []).map((pl) => pl.toLowerCase())
 
-      const isMentionedInAnswer =
-        textLower.includes(slugLower) ||
-        textLower.includes(`/packs/${slugLower}`) ||
-        textLower.includes(`/presets/${slugLower}`) ||
-        (shortName.length > 3 && textLower.includes(shortName)) ||
-        textLower.includes(nameLower)
+      // 1. Direct mention in generated answer or user query
+      if (textLower.includes(`/packs/${slugLower}`) || textLower.includes(`/presets/${slugLower}`)) {
+        score += 60
+      }
+      if (textLower.includes(slugLower) || qLower.includes(slugLower)) {
+        score += 40
+      }
+      if (shortName.length > 2 && (textLower.includes(shortName) || qLower.includes(shortName))) {
+        score += 30
+      }
+      if (nameLower.length > 3 && (textLower.includes(nameLower) || qLower.includes(nameLower))) {
+        score += 30
+      }
+      if (seriesLower && (textLower.includes(seriesLower) || qLower.includes(seriesLower))) {
+        score += 15
+      }
 
-      const isMentionedInQuery =
-        qLower.includes(slugLower) ||
-        (shortName.length > 3 && qLower.includes(shortName))
+      // 2. Query words matching product attributes
+      const qTokens = qLower.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !GENERIC_PRODUCT_WORDS.has(w))
+      for (const token of qTokens) {
+        if (slugLower.includes(token)) score += 12
+        if (nameLower.includes(token)) score += 12
+        if (p.full_description?.toLowerCase().includes(token)) score += 4
+        if (p.total_contents_summary?.toLowerCase().includes(token)) score += 6
+        if (daws.some((d) => d.includes(token))) score += 8
+        if (plugins.some((pl) => pl.includes(token))) score += 8
+      }
 
-      if ((isMentionedInAnswer || isMentionedInQuery) && !result.some((r) => r.id === p.id)) {
-        result.push(p)
+      // 3. Audio & Genre categorizations (100% dynamically evaluated)
+      if (/\b(drum|drums|one\s*shot|percussion|snare|kick|hihat|clap|cymbals)\b/i.test(qLower)) {
+        if ((p.one_shot_count && p.one_shot_count > 0) || slugLower.includes('drum')) score += 15
+      }
+      if (/\b(loop|loops|melody|melodies|chords|stems)\b/i.test(qLower)) {
+        if ((p.loop_count && p.loop_count > 0) || (p.melody_count && p.melody_count > 0)) score += 12
+      }
+      if (/\b(preset|presets|vocal|fl\s*studio|chain|autotune)\b/i.test(qLower)) {
+        if (p.product_type === 'preset' || slugLower.includes('preset') || slugLower.includes('vocal')) score += 20
+      }
+      if (/\b(free|muft|bina paise|free pack)\b/i.test(qLower)) {
+        if (p.price_inr === 0) score += 25
+      }
+
+      if (score > 0) {
+        scoredProducts.push({ product: p, score })
       }
     }
 
-    // 2. If the user is asking a product inquiry, recommendation, or comparison query
-    const isProductOrRecommendQuery =
-      /\b(best|recommend|suggest|top|pack|packs|sample|kit|loop|loops|drum|drums|tabla|vocal|preset|bollywood|south|sambalpur|folk|drill|konsa|konsi|achha|kharidu|le lu|buy|price|rate|browse)\b/i.test(
+    scoredProducts.sort((a, b) => b.score - a.score)
+    for (const item of scoredProducts) {
+      if (!result.some((r) => r.id === item.product.id)) {
+        result.push(item.product)
+      }
+    }
+
+    // Dynamic general recommendations if query asks for suggestions
+    const isGeneralRecommendation =
+      /\b(best|recommend|suggest|top|pack|packs|sample|kit|loop|loops|achha|kharidu|buy|store|catalog|browse)\b/i.test(
         qLower
       )
-
-    if (isProductOrRecommendQuery) {
-      if (/\b(drum|drums|one shot|percussion)\b/i.test(qLower)) {
-        const p = allProducts.find((item) => item.slug === 'south-drums')
-        if (p && !result.some((r) => r.id === p.id)) result.push(p)
-      }
-      if (/\b(tabla|classical|sufi)\b/i.test(qLower)) {
-        const p = allProducts.find((item) => item.slug === 'the-ten-tablas')
-        if (p && !result.some((r) => r.id === p.id)) result.push(p)
-      }
-      if (/\b(bollywood|hindi|melody|melodies)\b/i.test(qLower)) {
-        const p = allProducts.find((item) => item.slug === 'the-bollywood')
-        if (p && !result.some((r) => r.id === p.id)) result.push(p)
-      }
-      if (/\b(south|kuthu|tapori)\b/i.test(qLower)) {
-        const p = allProducts.find((item) => item.slug === 'the-south')
-        if (p && !result.some((r) => r.id === p.id)) result.push(p)
-      }
-      if (/\b(folk|sambalpur|odisha)\b/i.test(qLower)) {
-        const p = allProducts.find((item) => item.slug === 'sambalpur-rhythm')
-        if (p && !result.some((r) => r.id === p.id)) result.push(p)
-      }
-      if (/\b(vocal|punjabi|preset|fl studio)\b/i.test(qLower)) {
-        const p = allProducts.find((item) => item.slug === 'the-real-punjab')
-        if (p && !result.some((r) => r.id === p.id)) result.push(p)
-      }
-
-      // If general recommendation query ("best sample pack", etc.) and empty, provide the top flagship packs
-      if (result.length === 0) {
-        const topPacks = allProducts.filter(
-          (p) => p.slug === 'the-bollywood' || p.slug === 'the-south' || p.slug === 'south-drums'
-        )
-        result.push(...topPacks.slice(0, 2))
-      }
-    }
-
-    // 3. If still empty, check if recent chat history specifically discussed a product
-    if (result.length === 0 && history && history.length > 0) {
-      const recentHistoryText = history.slice(-3).map((h) => h.content.toLowerCase()).join(' ')
-      for (const p of allProducts) {
-        const slugLower = (p.slug || '').toLowerCase()
-        const nameLower = (p.name || '').toLowerCase()
-        const shortName = nameLower.split(/[–—-]/)[0].trim()
-
-        if (
-          recentHistoryText.includes(slugLower) ||
-          (shortName.length > 3 && recentHistoryText.includes(shortName))
-        ) {
-          if (!result.some((r) => r.id === p.id)) {
-            result.push(p)
-          }
-        }
-      }
+    if (result.length === 0 && isGeneralRecommendation) {
+      const topPicks = allProducts.filter((p) => p.price_inr > 0).slice(0, 3)
+      result.push(...topPicks)
     }
 
     return result.slice(0, 4)
   }
 
-  try {
-    const formattedMessages = [
+  const formattedMessages = [
       { role: 'system', content: systemPrompt },
       ...history.slice(-4),
       { role: 'user', content: query },
     ]
 
-    let response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3.8-27b',
-        messages: formattedMessages,
-        temperature: 0.35,
-        max_tokens: 1200,
-      }),
-    })
+    const modelsToTry = ['qwen/qwen3.8-27b', 'allam-2-7b', 'openai/gpt-oss-120b']
+    let rawAnswer = ''
 
-    if (!response.ok) {
-      // Fallback model: openai/gpt-oss-120b
-      response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'openai/gpt-oss-120b',
-          messages: formattedMessages,
-          temperature: 0.35,
-          max_tokens: 1200,
-        }),
-      })
+    for (const model of modelsToTry) {
+      try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: formattedMessages,
+            temperature: 0.35,
+            max_tokens: 380,
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const choice = data.choices?.[0]?.message
+          const candidate = (choice?.content || choice?.reasoning || '').trim()
+          if (candidate) {
+            rawAnswer = candidate
+            break
+          }
+        } else {
+          const errText = await response.text()
+          console.warn(`[askGroqSupportAction] Model ${model} returned ${response.status}:`, errText)
+        }
+      } catch (modelErr) {
+        console.warn(`[askGroqSupportAction] Model ${model} fetch error:`, modelErr)
+      }
     }
 
-    if (!response.ok) {
-      // Second fallback: openai/gpt-oss-20b
-      response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'openai/gpt-oss-20b',
-          messages: formattedMessages,
-          temperature: 0.35,
-          max_tokens: 1200,
-        }),
-      })
-    }
-
-    if (!response.ok) {
-      const errText = await response.text()
-      console.error('Groq Support API Error:', errText)
+    if (!rawAnswer) {
+      console.error('[askGroqSupportAction] All Groq models failed to return content.')
       return { success: false, error: 'Support desk is currently busy. Please try again.' }
     }
-
-    const data = await response.json()
-    const rawAnswer = data.choices?.[0]?.message?.content || ''
 
     const isPolicyViolation =
       rawAnswer.includes('[POLICY_VIOLATION]') ||
