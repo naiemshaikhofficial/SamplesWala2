@@ -869,11 +869,24 @@ CRITICAL FORMATTING INSTRUCTIONS:
       { role: 'user', content: query },
     ]
 
-    const modelsToTry = ['qwen/qwen3.8-27b', 'allam-2-7b', 'openai/gpt-oss-120b']
+    // Multi-Model Auto-Fallback & Token Optimization Hierarchy (Best Practices):
+    // 1. Primary: 'qwen/qwen3.8-27b' (Ultra-fast, accurate, no reasoning token waste)
+    // 2. High-IQ Reasoning Fallback: 'openai/gpt-oss-120b' (120B parameter deep comprehension)
+    // 3. High-Throughput Fallback: 'openai/gpt-oss-20b' (20B parameter resilient model)
+    // 4. Lightweight Emergency Fallback: 'allam-2-7b' (Guarantees zero-downtime under peak loads)
+    const modelsToTry = [
+      'qwen/qwen3.8-27b',
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'allam-2-7b',
+    ]
     let rawAnswer = ''
 
     for (const model of modelsToTry) {
       try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 8000)
+
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -886,7 +899,9 @@ CRITICAL FORMATTING INSTRUCTIONS:
             temperature: 0.35,
             max_tokens: 380,
           }),
+          signal: controller.signal,
         })
+        clearTimeout(timeoutId)
 
         if (response.ok) {
           const data = await response.json()
@@ -898,10 +913,10 @@ CRITICAL FORMATTING INSTRUCTIONS:
           }
         } else {
           const errText = await response.text()
-          console.warn(`[askGroqSupportAction] Model ${model} returned ${response.status}:`, errText)
+          console.warn(`[askGroqSupportAction] Model ${model} returned HTTP ${response.status}. Seamlessly falling over to next model in failover chain. Details:`, errText)
         }
-      } catch (modelErr) {
-        console.warn(`[askGroqSupportAction] Model ${model} fetch error:`, modelErr)
+      } catch (modelErr: any) {
+        console.warn(`[askGroqSupportAction] Model ${model} error (${modelErr.message || 'fetch error'}). Falling over to next model...`)
       }
     }
 
