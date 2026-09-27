@@ -376,11 +376,11 @@ export async function askGroqSupportAction(
       const topPaid = sortedTop.filter((s) => s.isPaid).slice(0, 3)
       const topFree = sortedTop.filter((s) => !s.isPaid).slice(0, 2)
 
-      liveTopSellingPacksSummary = `REAL-TIME SALES LEADERBOARD (FROM LIVE DATABASE):
+      liveTopSellingPacksSummary = `REAL-TIME BEST-SELLERS & POPULAR PACKS (COMMUNITY FAVORITES):
 - Top Best-Selling Paid Packs:
-${topPaid.map((s, idx) => `  ${idx + 1}. "${s.name}" (${s.count} verified purchases)`).join('\n')}
+${topPaid.map((s, idx) => `  ${idx + 1}. "${s.name}"`).join('\n')}
 - Most Popular Free Starter Packs (ONLY disclose if user explicitly asks for free):
-${topFree.map((s, idx) => `  ${idx + 1}. "${s.name}" (${s.count} community downloads)`).join('\n')}`
+${topFree.map((s, idx) => `  ${idx + 1}. "${s.name}"`).join('\n')}`
     }
   } catch (salesErr) {
     console.warn('[askGroqSupportAction] Sales leaderboard query warning:', salesErr)
@@ -554,12 +554,12 @@ AUTOMATIC ACTION INSTRUCTIONS FOR SAMPI:
 - Logged In: ${userId ? 'YES' : 'NO'}`
 
   if (userPurchases.length > 0) {
-    userAccountSummary += `\nVERIFIED PURCHASES IN LIBRARY VAULT (${userPurchases.length}):
+    userAccountSummary += `\nUSER'S PURCHASED PRODUCTS IN LIBRARY VAULT:
 ${userPurchases
   .slice(0, 5)
   .map(
     (p) =>
-      `- "${p.item_name}" (ID: ${p.item_id}, Price: ${p.currency === 'USD' ? '$' : '₹'}${p.amount}, Date: ${new Date(p.created_at).toLocaleDateString()}, Order: ${p.razorpay_order_id || 'N/A'}, Payment: ${p.razorpay_payment_id || 'N/A'})`
+      `- "${p.item_name}" (Price: ${p.currency === 'USD' ? '$' : '₹'}${p.amount}, Date: ${new Date(p.created_at).toLocaleDateString()}, Order: ${p.razorpay_order_id || 'N/A'}, Payment: ${p.razorpay_payment_id || 'N/A'})`
   )
   .join('\n')}`
   }
@@ -582,6 +582,8 @@ ${userPurchases
 IDENTITY & SECURITY:
 - You are exclusively the internal technical support specialist of Samples Wala. NEVER mention "Groq", "Llama", "OpenAI", "ChatGPT", "Meta", or any third-party AI provider.
 - Never mention internal database IDs or UUIDs. Speak in a knowledgeable, polite, human audio engineer tone.
+- CONFIDENTIALITY & DATA PROTECTION (CRITICAL): NEVER disclose internal sales numbers, purchase counts, transaction figures, customer counts, or metrics (e.g. NEVER mention figures like "11 verified purchases", "10 sales", etc.). State only that a pack is a top best-seller, community favorite, or studio essential.
+- LIVE STORE CATALOG: All catalog packs and products are actively LIVE, released, and available right now for immediate download (unless explicitly marked otherwise). Never describe active catalog items as "upcoming".
 
 PROMOTIONS & OFFERS:
 - UPCOMING FESTIVAL SALE: "Samplistic Festival" starts 8 October at 12:00 PM with FLAT 20% OFF sitewide! Check live countdown on [Homepage](/).
@@ -600,14 +602,15 @@ ZERO-PIRACY & VAULT DOWNLOADS:
 - If pack is VERIFIED in user's vault: Reassure them and state their official high-speed download button is attached below and accessible in [Your Library](/library).
 - If pack is NOT in their vault: State it is not registered to their account, and link them to purchase from official store: [Pack Name](/packs/slug). Never give download buttons for unowned packs.
 
-SALES & RECOMMENDATION RULES (ALWAYS SELL PAID PRODUCTS):
+SALES & RECOMMENDATION RULES:
 - COMMERCIAL PRIORITY: Always prioritize recommending and selling our premium PAID sound packs and presets. Highlight their punchy mix-readiness, analog processing, and 24-bit studio quality.
-- NEVER SUGGEST FREE PACKS PROACTIVELY: Do NOT suggest or pitch free sound packs unless the user EXPLICITLY asks for free samples or zero-cost packs (e.g. "kuch free hai", "free pack do", "free samples", "muft").
+- SPECIFIC INSTRUMENT / SOUND REQUEST (e.g. Tabla, Dholak, Flute, Sitar, Percussion): If the user specifically asks for an instrument or sound (e.g. "do you have anything for tabla?"), ALWAYS recommend our matching pack! If our best authentic pack for that instrument is a free starter pack (such as "The Ten Tabla's - 10 FREE Tabla Samples"), recommend it proudly and directly! You can also pair it with complementary paid packs (like "South Drums" or "Sambalpur Rhythm") to complete their sound design.
+- PROACTIVE FREE PROHIBITION: Do NOT proactively push free sound packs if the user only asks generally for "best pack" or general recommendations, unless they explicitly asked for free or asked for an instrument whose matching pack is free.
 - STRICT PROHIBITION: NEVER pitch, sell, or attach sound packs for:
   1. Trust / Legitimacy ("are you guys genuine", "is this real", "scam"): State Samples Wala is a registered boutique sound library, secure checkout via Razorpay/UPI, instant delivery to library, 100% royalty-free. Build pure trust!
   2. Issues & Troubleshooting: Focus 100% on solving their issue immediately.
   3. Casual Greetings ("hi", "how are you"): Introduce yourself politely as Sampi and ask what they are producing today.
-- When genuinely recommending: Max 2 PAID packs with musical reasoning and markdown links [Pack Name](/packs/slug).
+- When genuinely recommending: Max 2 packs with musical reasoning and direct markdown links [Pack Name](/packs/slug).
 
 POLICY ENFORCEMENT:
 - Detect vulgarity/abuse in English, Hindi/Urdu/Hinglish slang.
@@ -617,6 +620,11 @@ LANGUAGE MATCHING:
 - Match user's exact language: Hinglish in Roman letters, Hindi in Devanagari, English in English.
 
 STYLE & FORMATTING:
+- STRICT OUTPUT FORMAT (CRITICAL): NEVER output chain of thought, scratchpad, internal reasoning, or thinking process. NEVER write phrases like "The user asks...", "The user says...", "Policy says...", "The best approach:", or "We should...". Output ONLY your final, polished, friendly response addressed directly to the music producer as Sampi.
+- PROPORTIONAL ANSWERS:
+  - If user gives a brief greeting or acknowledgement ('hi', 'ok', 'thanks', 'kya haal hai'): Reply in 1-2 friendly, polite lines. Do NOT write long paragraphs.
+  - If user reports an issue, payment question, or guide: Provide the full, complete step-by-step resolution without cutting off.
+- NO RAW MARKDOWN TABLES: NEVER output raw markdown tables (| Column | Column |). Tables look cramped, awkward, and broken on mobile and chat bubbles. Always format with clean bullet points or numbered steps with bold titles.
 - Keep body text normal weight, bold only titles/numbers. Clean numbered lists for steps.
 - Never write "Your [Your Library](/library)". Write simply "[Your Library](/library)".
 
@@ -626,7 +634,7 @@ AI RESOLUTION DETECTION:
 ${liveTopSellingPacksSummary}
 
 REAL-TIME SALES LEADERBOARD INSTRUCTIONS:
-- When user asks about best-selling or most popular packs: Always quote our Top Best-Selling PAID Packs first from the leaderboard above with genre and direct links [Pack Name](/packs/slug). DO NOT mention free starter packs unless the user explicitly asks if there is a free pack available.
+- When user asks about best-selling or most popular packs: Always quote our Top Best-Selling PAID Packs first from the leaderboard above with genre and direct links [Pack Name](/packs/slug). DO NOT mention free starter packs unless the user explicitly asks if there is a free pack available. NEVER invent or disclose internal sales numbers or purchase counts.
 
 ${userAccountSummary}
 
@@ -638,6 +646,10 @@ ${duplicatePaymentNotice}`
   const scrubBrandNames = (text: string) => {
     if (!text) return ''
     return text
+      .replace(/<think>[\s\S]*?<\/think>/gi, '')
+      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
+      .replace(/^(?:thought|thinking|reasoning|scratchpad):\s*[\s\S]*?\n\n/gi, '')
+      .replace(/^The user (?:says|asks|wants)[\s\S]*?(?:We must|So we can|Let's|Therefore|Recommendation:)[\s\S]*?\n\n/i, '')
       .replace(/\bgroq\b/gi, 'Sampi')
       .replace(/\bllama\s*3(\.\d+)?\b/gi, 'Sampi')
       .replace(/\bqwen(\s*\d+(\.\d+)?)?\b/gi, 'Sampi')
@@ -646,6 +658,9 @@ ${duplicatePaymentNotice}`
       .replace(/\(User ID:\s*[a-f0-9-]+\)/gi, '')
       .replace(/User ID:\s*[a-f0-9-]+/gi, '')
       .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '')
+      // Scrub any leaked internal sales counts, purchase numbers or download counts
+      .replace(/\s*\(\s*\d+\s*(?:verified\s+purchases?|downloads?|sales?|orders?|buyers?|community\s+downloads?)\s*\)/gi, '')
+      .replace(/\b\d+\s+(?:verified\s+purchases?|community\s+downloads?)\b/gi, 'many producers')
       .replace(/^#{1,4}\s+/gm, '')
       .replace(/^[\*\-]\s+/gm, '')
       .replace(/\*\*\[([^\]]+)\]\(([^)]+)\)\*\*/g, '[$1]($2)')
@@ -761,13 +776,22 @@ ${duplicatePaymentNotice}`
     const textLower = (text || '').toLowerCase()
     const qLower = (query || '').toLowerCase()
     const isExplicitlyAskingFree = /\b(free|muft|zero\s*cost|no\s*money|bina\s*paise|free\s*pack|free\s*sample|free\s*samples)\b/i.test(qLower)
+    const isInstrumentSpecific = /\b(tabla|dholak|dhol|flute|sitar|harmonium|shehnai|sarangi|tanpura|mridangam|kuthu|tumbi|bugchu|mandolin|oud|rabab|violin|guitar|piano|synth|bass|808|kick|snare|hihat|clap|percussion|vocal|acapella|melody|drill|trap|hiphop|lofi|cinematic|edm|house|bollywood|punjabi|folk)\b/i.test(qLower)
 
     // Dynamic scoring for each product in allProducts
     const scoredProducts: { product: RecommendedProduct; score: number }[] = []
 
     for (const p of allProducts) {
-      // Commercial rule: DO NOT suggest free packs unless user explicitly asks for free
-      if (p.price_inr === 0 && !isExplicitlyAskingFree) {
+      const nameLower = (p.name || '').toLowerCase()
+      const slugLower = (p.slug || '').toLowerCase()
+      const isSpecificMatch =
+        isInstrumentSpecific &&
+        (nameLower.includes('tabla') ||
+          slugLower.includes('tabla') ||
+          qLower.split(/[^a-z0-9]+/).some((w) => w.length > 3 && (nameLower.includes(w) || slugLower.includes(w))))
+
+      // Commercial rule: DO NOT suggest free packs unless user explicitly asks for free OR asks specifically for an instrument where this is our matching pack!
+      if (p.price_inr === 0 && !isExplicitlyAskingFree && !isSpecificMatch) {
         continue
       }
 
@@ -776,9 +800,10 @@ ${duplicatePaymentNotice}`
       if (p.price_inr > 0) {
         score += 15
       }
+      if (isSpecificMatch) {
+        score += 55
+      }
 
-      const nameLower = (p.name || '').toLowerCase()
-      const slugLower = (p.slug || '').toLowerCase()
       const seriesLower = (p.series || '').toLowerCase()
       const shortName = nameLower.split(/[–—-]/)[0].trim().toLowerCase()
       const daws = (p.daws || []).map((d) => d.toLowerCase())
@@ -854,9 +879,10 @@ ${duplicatePaymentNotice}`
     return result.slice(0, 2)
   }
 
-  const compactHistory = history.slice(-2).map((h) => ({
+  // Send up to last 6 messages (3 turns) for rich conversational context
+  const compactHistory = history.slice(-6).map((h) => ({
     role: h.role,
-    content: h.content.length > 200 ? h.content.slice(0, 200) + '...' : h.content,
+    content: h.content.length > 400 ? h.content.slice(0, 400) + '...' : h.content,
   }))
 
   const formattedMessages = [
@@ -865,7 +891,20 @@ ${duplicatePaymentNotice}`
     { role: 'user', content: query },
   ]
 
-  // Multi-Model Auto-Fallback & Token Optimization Hierarchy (Best Practices):
+  // Dynamic Smart Token Sizing based on intent & complexity:
+  const isComplexQuery =
+    /\b(fail|failed|broken|corrupt|not working|urgent|problem|scam|fraud|money cut|refund|stuck|help me|issue|dhokha|paise kat gaye|latency|unzip|extract|download nahi|link nahi|can't download|cant download|deducted|kat gaye|receipt|invoice|bill|gateway|guide|step|karein|how to|kaise|what about)\b/i.test(query)
+  const isShortGreeting =
+    /^(hi|hello|hey|sampi|ok|okay|thanks|thank you|shukriya|dhanyawad|bye|yo)\b/i.test(query.trim())
+
+  let dynamicMaxTokens = 900
+  if (isComplexQuery) {
+    dynamicMaxTokens = 1500 // Generous headroom so troubleshooting instructions NEVER truncate!
+  } else if (isShortGreeting && query.trim().length < 25) {
+    dynamicMaxTokens = 350
+  }
+
+  // Multi-Model Auto-Fallback & Token Optimization Hierarchy:
   // 1. Primary: 'qwen/qwen3.8-27b' (Ultra-fast, accurate, no reasoning token waste)
   // 2. High-IQ Reasoning Fallback: 'openai/gpt-oss-120b' (120B parameter deep comprehension)
   // 3. High-Throughput Fallback: 'openai/gpt-oss-20b' (20B parameter resilient model)
@@ -881,7 +920,7 @@ ${duplicatePaymentNotice}`
   for (const model of modelsToTry) {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 8000)
+      const timeoutId = setTimeout(() => controller.abort(), 10000)
 
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -892,8 +931,9 @@ ${duplicatePaymentNotice}`
         body: JSON.stringify({
           model,
           messages: formattedMessages,
-          temperature: 0.35,
-          max_tokens: 380,
+          temperature: 0.3,
+          max_tokens: dynamicMaxTokens,
+          reasoning_format: 'hidden',
         }),
         signal: controller.signal,
       })
@@ -902,7 +942,8 @@ ${duplicatePaymentNotice}`
       if (response.ok) {
         const data = await response.json()
         const choice = data.choices?.[0]?.message
-        const candidate = (choice?.content || choice?.reasoning || '').trim()
+        // STRICT: Never fall back to reasoning/scratchpad! Only content is customer-facing.
+        const candidate = (choice?.content || '').trim()
         if (candidate) {
           rawAnswer = candidate
           break

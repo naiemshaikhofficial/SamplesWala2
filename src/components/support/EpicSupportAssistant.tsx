@@ -456,6 +456,73 @@ export function EpicSupportAssistant({
   // Chat history for Screen 2
   const [messages, setMessages] = useState<ChatMessage[]>([])
 
+  // ---------------------------------------------------------------------------
+  // SECURE LOCALSTORAGE CHAT SESSION PERSISTENCE
+  // - Restores ongoing conversation across page refreshes, tab close, & login
+  // - Wipes conversation when user explicitly starts "New Chat" or logs out
+  // ---------------------------------------------------------------------------
+  const isSessionRestoredRef = useRef(false)
+  const prevUserRef = useRef(user)
+
+  // 1. Initial Load: Restore existing chat session if valid and recent (< 7 days)
+  useEffect(() => {
+    if (typeof window === 'undefined' || isSessionRestoredRef.current) return
+    isSessionRestoredRef.current = true
+
+    try {
+      const stored = localStorage.getItem('sampleswala_support_chat_session_v1')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        const isFresh = parsed.timestamp && Date.now() - parsed.timestamp < 7 * 24 * 60 * 60 * 1000
+        if (isFresh && Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+          setMessages(parsed.messages)
+          setIsChatStarted(true)
+          if (typeof parsed.policyStrikes === 'number') {
+            setPolicyStrikes(parsed.policyStrikes)
+            strikesRef.current = parsed.policyStrikes
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[SupportChat] LocalStorage session restore notice:', err)
+    }
+  }, [])
+
+  // 2. Continuous Persistence: Save chat session whenever messages update
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (isChatStarted && messages.length > 0) {
+      try {
+        localStorage.setItem(
+          'sampleswala_support_chat_session_v1',
+          JSON.stringify({
+            messages: messages.slice(-30),
+            policyStrikes,
+            isChatStarted: true,
+            timestamp: Date.now(),
+          })
+        )
+      } catch (e) {
+        console.warn('[SupportChat] LocalStorage session save notice:', e)
+      }
+    }
+  }, [messages, isChatStarted, policyStrikes])
+
+  // 3. Security/Privacy: Clear session if user explicitly logs out
+  useEffect(() => {
+    if (prevUserRef.current && !user) {
+      try {
+        localStorage.removeItem('sampleswala_support_chat_session_v1')
+      } catch {}
+      setMessages([])
+      setIsChatStarted(false)
+      setIsChatEnded(false)
+      setPolicyStrikes(0)
+      strikesRef.current = 0
+    }
+    prevUserRef.current = user
+  }, [user])
+
   useEffect(() => {
     if (!isChatStarted || messages.length === 0) return
 
@@ -535,7 +602,9 @@ export function EpicSupportAssistant({
           else if (path === '/free') label = 'Free Packs'
           else if (path === '/refund-policy') label = 'Refund Policy'
           else if (path === '/terms') label = 'Terms of Service'
-          else if (path === '/auth') label = 'Sign In / Account'
+          else if (path === '/auth') {
+            return `[Sign In / Account](/auth?next=/support)`
+          }
           else if (path === '/support') label = 'Support Desk'
           else if (path.startsWith('/packs/')) label = 'View Sound Pack'
           return `[${label}](${path})`
@@ -600,10 +669,11 @@ export function EpicSupportAssistant({
             </a>
           )
         } else {
+          const finalUrl = url === '/auth' ? '/auth?next=/support' : url
           elements.push(
             <Link
               key={`link-${lIdx}-${matchIndex}`}
-              href={url}
+              href={finalUrl}
               className="text-[#00FF94] hover:text-[#FFE600] font-semibold underline underline-offset-4 decoration-1 decoration-[#00FF94] hover:decoration-[#FFE600] transition-colors cursor-pointer"
             >
               {linkContent}
@@ -1428,6 +1498,11 @@ export function EpicSupportAssistant({
   }
 
   const handleResetToHero = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('sampleswala_support_chat_session_v1')
+      }
+    } catch {}
     setIsOptionsMenuOpen(false)
     setIsChatStarted(false)
     setIsChatEnded(false)

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Menu, X, ShoppingBag, ChevronRight, Search, ArrowRight } from 'lucide-react'
 import { HeaderCartIcon } from './HeaderCartIcon'
 import { LogoutButton } from './LogoutButton'
@@ -205,6 +205,8 @@ function HeaderSearch({ onSearchClose }: { onSearchClose?: () => void }) {
 export function Header() {
   const { user, isArtist } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const authUrl = pathname === '/support' ? '/auth?next=/support' : '/auth'
 
   const dashboardUrl = process.env.NODE_ENV === 'production'
     ? 'https://dashboard.sampleswala.com'
@@ -254,7 +256,7 @@ export function Header() {
           <LogoutButton />
         ) : (
           <Link
-            href="/auth"
+            href={authUrl}
             prefetch={false}
             onClick={() => setIsMenuOpen(false)}
             className="px-4 py-2 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[11px] tracking-wide whitespace-nowrap"
@@ -309,7 +311,7 @@ export function Header() {
         <div className="flex md:hidden items-center gap-3">
           {!user && (
             <Link
-              href="/auth"
+              href={authUrl}
               prefetch={false}
               className="px-3 py-1.5 bg-[#00FF94] hover:bg-[#00e685] text-black font-bold transition-all rounded-lg shadow-sm text-[10px] whitespace-nowrap"
             >
@@ -415,7 +417,7 @@ export function Header() {
                   </div>
                 ) : (
                   <Link
-                    href="/auth"
+                    href={authUrl}
                     prefetch={false}
                     onClick={() => setIsMenuOpen(false)}
                     className="w-full h-16 bg-studio-yellow text-black flex items-center justify-center text-lg font-black tracking-widest border-4 border-black shadow-[8px_8px_0px_black] italic hover:bg-white transition-all"
