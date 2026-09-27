@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
+  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   ChevronDown,
@@ -25,6 +26,7 @@ import {
   Receipt,
   FileText,
   Bell,
+  Home,
 } from 'lucide-react'
 import {
   KNOWLEDGE_BASE,
@@ -61,6 +63,7 @@ interface ChatMessage {
   isThinking?: boolean
   isGreeting?: boolean
   isWarning?: boolean
+  hasTroubleshootingSolution?: boolean
 }
 
 interface AnswerSourceItem {
@@ -760,6 +763,7 @@ export function EpicSupportAssistant({
                     canEscalateToTicket: groqRes.canEscalateToTicket,
                     needsTicket: !!groqRes.canEscalateToTicket,
                     userQuery: query,
+                    hasTroubleshootingSolution: Boolean(groqRes.hasTroubleshootingSolution),
                     isThinking: false,
                     isSourcesOpen: false,
                   }
@@ -788,6 +792,7 @@ export function EpicSupportAssistant({
                     userQuery: query,
                     content: fallbackContent,
                     needsTicket: !localMatch,
+                    hasTroubleshootingSolution: Boolean(localMatch && (localMatch.category === 'downloads' || localMatch.category === 'billing_invoices' || localMatch.category === 'daw_setup')),
                     isThinking: false,
                   }
                 : m
@@ -977,6 +982,7 @@ export function EpicSupportAssistant({
                   canEscalateToTicket: groqRes.canEscalateToTicket,
                   needsTicket: !!groqRes.canEscalateToTicket,
                   userQuery: text,
+                  hasTroubleshootingSolution: Boolean(groqRes.hasTroubleshootingSolution),
                   isThinking: false,
                   isSourcesOpen: false,
                 }
@@ -1005,6 +1011,7 @@ export function EpicSupportAssistant({
                   userQuery: text,
                   content: fallbackContent,
                   needsTicket: !localMatch,
+                  hasTroubleshootingSolution: Boolean(localMatch && (localMatch.category === 'downloads' || localMatch.category === 'billing_invoices' || localMatch.category === 'daw_setup')),
                   isThinking: false,
                 }
               : m
@@ -1144,6 +1151,7 @@ export function EpicSupportAssistant({
   }
 
   const handleResetToHero = () => {
+    setIsOptionsMenuOpen(false)
     setIsChatStarted(false)
     setIsChatEnded(false)
     strikesRef.current = 0
@@ -1155,6 +1163,7 @@ export function EpicSupportAssistant({
     setIsTyping(false)
     setIsHeroLoading(false)
     if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '/support')
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
@@ -1290,8 +1299,17 @@ export function EpicSupportAssistant({
           <div className="absolute top-[22%] right-[23%] w-2 h-2 rounded-full bg-[#FFE600] opacity-75 pointer-events-none z-0 shadow-[0_0_8px_#FFE600]" />
           <div className="absolute bottom-1/4 right-[21%] w-3 h-3 rounded-full bg-[#0074e4] blur-[1px] opacity-80 pointer-events-none z-0 animate-pulse" />
 
-          {/* Server Status */}
-          <div className="absolute top-5 right-6 sm:top-6 sm:right-10 z-20">
+          {/* Top Bar Actions */}
+          <div className="absolute top-5 right-6 sm:top-6 sm:right-10 z-20 flex items-center gap-2.5">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#0d0f14] border border-[#1b2230] hover:border-[#00FF94] text-xs text-zinc-300 hover:text-white transition-colors shadow-xl"
+              title="Return to Samples Wala Home"
+            >
+              <Home size={12} className="text-[#00FF94]" />
+              <span className="font-semibold">Home</span>
+            </Link>
+
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[6px] bg-[#0d0f14] border border-[#1b2230] text-xs text-zinc-300 shadow-xl">
               <span className="text-zinc-400 font-normal">Server status:</span>
               <span className="inline-flex items-center gap-1.5 text-[#00FF94] font-semibold text-xs">
@@ -1380,19 +1398,39 @@ export function EpicSupportAssistant({
         /* ========================================================================= */
         <div className="support-page-container w-full h-full flex-1 bg-[#07080a] text-white font-sans flex flex-col overflow-hidden relative">
           
-          {/* Sticky Header */}
-          <div className={`flex-shrink-0 w-full bg-[#07080a] z-20 relative transition-all duration-300 ease-in-out ${
-            isChatScrolled ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
-          }`}>
-            <div className="w-full h-12 sm:h-13 flex items-center justify-center px-4 border-b border-white/[0.04]">
-              <span className="text-[11px] sm:text-xs font-bold tracking-[0.24em] uppercase text-zinc-300 select-none font-sans">
+          {/* Persistent Top Navigation Bar */}
+          <div className="flex-shrink-0 w-full bg-[#07080a] z-20 relative border-b border-white/[0.04]">
+            <div className="w-full max-w-5xl mx-auto h-12 sm:h-13 flex items-center justify-between px-4 sm:px-8">
+              {/* Back to Main Page button */}
+              <button
+                type="button"
+                onClick={handleResetToHero}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#10131a] hover:bg-[#181d28] border border-white/10 hover:border-[#00FF94] text-xs font-bold text-zinc-300 hover:text-white transition-all shadow-[2px_2px_0px_black] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer"
+                title="Return to Support Main Page"
+              >
+                <ArrowLeft size={13} className="text-[#00FF94]" />
+                <span>Main Page</span>
+              </button>
+
+              <span className="text-[11px] sm:text-xs font-bold tracking-[0.24em] uppercase text-zinc-300 select-none font-sans hidden sm:inline-block">
                 Sampi • Samples Wala Support Assistant
               </span>
+
+              {/* End Chat and Redirect button */}
+              <button
+                type="button"
+                onClick={handleResetToHero}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FF5C00]/10 hover:bg-[#FF5C00]/20 border border-[#FF5C00]/40 hover:border-[#FF5C00] text-xs font-bold text-[#FF5C00] hover:text-white transition-all shadow-[2px_2px_0px_black] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer"
+                title="End Chat & Return to Main Page"
+              >
+                <Ban size={12} />
+                <span>End Chat</span>
+              </button>
             </div>
             <div 
-              className="absolute top-full left-0 right-0 h-10 sm:h-14 pointer-events-none z-10"
+              className="absolute top-full left-0 right-0 h-6 pointer-events-none z-10"
               style={{
-                background: 'linear-gradient(to bottom, #07080a 0%, rgba(7, 8, 10, 0.85) 40%, rgba(7, 8, 10, 0.3) 75%, transparent 100%)',
+                background: 'linear-gradient(to bottom, #07080a 0%, transparent 100%)',
               }}
             />
           </div>
@@ -1801,8 +1839,8 @@ export function EpicSupportAssistant({
 
                       </div>
 
-                      {/* Feedback Dialog Box */}
-                      {isLatestAssistant && !msg.ticketNumber && !msg.isGreeting && !msg.isThinking && !msg.isWarning && !isChatEnded && policyStrikes < 4 && (
+                      {/* Feedback Dialog Box - Only displayed when AI intelligence provided an actual troubleshooting solution */}
+                      {isLatestAssistant && !msg.ticketNumber && !msg.isGreeting && !msg.isThinking && !msg.isWarning && !isChatEnded && policyStrikes < 4 && Boolean(msg.hasTroubleshootingSolution) && (
                         <div className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full max-w-4xl pt-2">
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                             <Image
@@ -2033,7 +2071,7 @@ export function EpicSupportAssistant({
                     className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl bg-[#FFE600] hover:bg-[#fff04d] text-black border-2 border-black font-black uppercase italic text-sm sm:text-[15px] transition-all duration-200 shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] cursor-pointer"
                   >
                     <RotateCcw size={16} strokeWidth={2.5} />
-                    <span>Start New Conversation</span>
+                    <span>Return to Main Support Page</span>
                   </button>
                 </div>
               ) : (
@@ -2048,8 +2086,7 @@ export function EpicSupportAssistant({
                         <button
                           type="button"
                           onClick={() => {
-                            setIsOptionsMenuOpen(false)
-                            setIsChatEnded(true)
+                            handleResetToHero()
                           }}
                           className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#141824] hover:bg-[#1e2538] border-2 border-black text-xs font-black uppercase italic text-zinc-200 hover:text-white shadow-[4px_4px_0px_black] transition-all cursor-pointer whitespace-nowrap"
                         >
