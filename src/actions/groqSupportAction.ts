@@ -575,8 +575,24 @@ CRITICAL RULES FOR DYNAMIC PRODUCT RECOMMENDATION (100% DATABASE-DRIVEN - ZERO H
      * When user asks what is included or how many samples are in a pack ("how many samples have in it", "what is included", "instruments kya hain", "kitne loops hain", "price kya hai"):
        Quote the EXACT sample count, loop count, one-shot count, and breakdown directly from that product's live specifications in the inventory above!
      * Never guess or say "sample count is unknown". Always state the exact numbers given in the live inventory.
-- ALWAYS format links using markdown: [Pack Name](/packs/slug) or [Preset Name](/browse/presets/slug).
-- Inform the user that interactive sound pack preview cards with cover artwork, track info, and direct links have been attached right below your answer!
+- CONVERSATIONAL INTELLIGENCE & CROSS-SELLING CONTROL (DO NOT PUSH PRODUCTS ON EVERY QUESTION):
+  * Only recommend specific sound packs and mention interactive preview cards when the user is explicitly or contextually inquiring about sounds, music production, sample packs, presets, recommendations, sales, or buying.
+  * NEVER push product sales, promote sound packs, or mention attached cards when the user is asking about:
+    1. Trust & Legitimacy ("are you guys genuine", "is this real", "is Samples Wala legit", "scam toh nahi", "fraud", "safe to buy"):
+       - Answer directly with 100% confidence, honesty, and verified facts about Samples Wala:
+         * Samples Wala is India's registered boutique digital sound library and marketplace built by and for music producers.
+         * 100% secure checkout powered by verified payment gateways (Razorpay, UPI, Cards, NetBanking).
+         * Direct, immediate delivery: purchased sound packs are instantly unlocked and permanently accessible in [Your Library](/library).
+         * 100% Royalty-Free Commercial License (legal for Spotify, Apple Music, YouTube monetization, TV, and commercial releases).
+         * Every pack is crafted by seasoned Indian music producers and audio engineers with playable audio previews.
+         * DO NOT pitch or sell sound packs when answering trust questions! Build authentic credibility.
+    2. Support & Issues (broken download link, failed payment, invoice, refund, technical troubleshooting):
+       - Focus 100% on solving their issue immediately. Never cross-sell to a customer seeking technical or billing help!
+    3. Casual Greetings ("hi", "who are you", "kya haal hai"):
+       - Be friendly and polite, introduce yourself as Sampi, and ask how you can help their music production today. Do NOT dump product recommendations!
+  * When genuinely recommending a pack (upon user request or music production discussion):
+    - ALWAYS format links using markdown: [Pack Name](/packs/slug) or [Preset Name](/browse/presets/slug).
+    - Inform them that interactive sound pack preview cards with cover artwork, track info, and direct links have been attached below your answer.
 
 CRITICAL RULES FOR AUTONOMOUS ADMINISTRATIVE PROBLEM RESOLUTION & ZERO-PIRACY:
 1. STRICT DOWNLOAD & DOWNLOAD LINK REQUESTS:
@@ -664,12 +680,111 @@ CRITICAL FORMATTING INSTRUCTIONS:
       .trim()
   }
 
+  /**
+   * Determine if the query should trigger product cross-selling / recommendations.
+   * Product cards must NEVER be shown on trust/legitimacy, support/error, billing,
+   * licensing, or casual greeting questions.
+   */
+  const isEligibleForProductCrossSelling = (
+    userQuery: string,
+    catalog: RecommendedProduct[]
+  ): { allowed: boolean; specificTargetProduct?: RecommendedProduct | null } => {
+    const q = (userQuery || '').toLowerCase().trim()
+
+    // 1. Strict blacklist: Queries where cross-selling MUST NEVER happen
+    // A. Trust, Legitimacy, Scam, Safety queries
+    const isTrustQuery =
+      /\b(genuine|legit|legitimate|real|fake|scam|fraud|dhokha|trust|trustworthy|safe|safety|secure|security|asli|nakli|proof|guarantee|scammer)\b/i.test(
+        q
+      )
+    if (isTrustQuery) return { allowed: false }
+
+    // B. Order, Billing, Payment, Refund, Invoice queries
+    const isBillingOrOrderQuery =
+      /\b(payment|pay|order|ord_|pay_|invoice|bill|receipt|refund|money|paise|charged|payout|deducted|transaction|bank|gateway)\b/i.test(
+        q
+      )
+    if (isBillingOrOrderQuery) return { allowed: false }
+
+    // C. Technical issues, Broken downloads, Errors, Bugs
+    const isTechnicalIssueQuery =
+      /\b(error|fail|failed|broken|corrupt|not working|crash|issue|problem|bug|stuck|latency|unzip|extract|download nahi|link nahi|can't download|cant download)\b/i.test(
+        q
+      )
+    if (isTechnicalIssueQuery) return { allowed: false }
+
+    // D. Account, Login, Password
+    const isAccountQuery =
+      /\b(login|log in|sign in|signin|signup|sign up|password|forgot password|register|registration|account|profile|email change)\b/i.test(
+        q
+      )
+    if (isAccountQuery) return { allowed: false }
+
+    // E. Pure Licensing / Legal / Copyright inquiries (without asking for recommendations)
+    const isLicensingQuery =
+      /\b(license|licensing|royalty\s*free|commercial\s*use|copyright|strike|strikes|dmca|legal|terms|conditions)\b/i.test(
+        q
+      )
+    const isAskingForPackRecommendation =
+      /\b(recommend|suggest|best|top|konsa|konsi|accha|which pack|what pack|buy|kharidna)\b/i.test(
+        q
+      )
+    if (isLicensingQuery && !isAskingForPackRecommendation) {
+      return { allowed: false }
+    }
+
+    // F. Casual greetings / Small talk / Sampi identity without product search
+    const isCasualGreeting =
+      /^(hi|hello|hey|yo|namaste|salam|sup|who are you|what is your name|who made you|kya haal hai|good morning|good afternoon|good evening|thanks|thank you|shukriya|bye|goodbye|ok|okay)\b/i.test(
+        q
+      )
+    const hasSoundIntent =
+      /\b(pack|packs|sample|samples|sound|sounds|kit|kits|loop|loops|preset|presets|beat|beats|drum|drums|vocal|vocals|melody|melodies|one\s*shot|drill|bollywood|punjabi|folk|south|edm|hiphop|trap|free|sale|discount|recommend|suggest|buy|store|catalog)\b/i.test(
+        q
+      )
+    if (isCasualGreeting && !hasSoundIntent) {
+      return { allowed: false }
+    }
+
+    // 2. Check if user specifically asked about an exact product from inventory
+    for (const p of catalog) {
+      const slug = (p.slug || '').toLowerCase()
+      const name = (p.name || '').toLowerCase()
+      const shortName = name.split(/[–—-]/)[0].trim()
+      if (
+        (slug.length > 3 && q.includes(slug)) ||
+        (shortName.length > 3 && q.includes(shortName))
+      ) {
+        return { allowed: true, specificTargetProduct: p }
+      }
+    }
+
+    // 3. Strict whitelist: Queries where cross-selling IS welcomed and valuable
+    const isSoundDiscoveryOrShopping =
+      /\b(recommend|suggest|suggestion|best|top|konsa|konsi|accha|pack|packs|sample|samples|sound|sounds|kit|kits|loop|loops|preset|presets|drum|drums|vocal|vocals|melody|melodies|beat|beats|one\s*shot|drill|punjabi|bollywood|south|folk|tabla|dholak|sitar|guitar|synth|bass|808|buy|kharidna|price|cost|free|muft|offer|sale|discount|samplistic|store|catalog|browse|genre)\b/i.test(
+        q
+      )
+
+    return { allowed: isSoundDiscoveryOrShopping }
+  }
+
   const findMatchedProducts = (text: string): RecommendedProduct[] => {
     const result: RecommendedProduct[] = []
+    if (!allProducts || allProducts.length === 0) return result
+
+    // 1. Verify eligibility for product cross-selling
+    const eligibility = isEligibleForProductCrossSelling(query, allProducts)
+    if (!eligibility.allowed) {
+      return result
+    }
+
+    // 2. If a specific product was requested by name, return only that product
+    if (eligibility.specificTargetProduct) {
+      return [eligibility.specificTargetProduct]
+    }
+
     const textLower = (text || '').toLowerCase()
     const qLower = (query || '').toLowerCase()
-
-    if (!allProducts || allProducts.length === 0) return result
 
     // Dynamic scoring for each product in allProducts
     const scoredProducts: { product: RecommendedProduct; score: number }[] = []
@@ -683,49 +798,47 @@ CRITICAL FORMATTING INSTRUCTIONS:
       const daws = (p.daws || []).map((d) => d.toLowerCase())
       const plugins = (p.plugins_used || []).map((pl) => pl.toLowerCase())
 
-      // 1. Direct mention in generated answer or user query
+      // 1. Direct explicit link in generated answer or query
       if (textLower.includes(`/packs/${slugLower}`) || textLower.includes(`/presets/${slugLower}`)) {
         score += 60
       }
-      if (textLower.includes(slugLower) || qLower.includes(slugLower)) {
-        score += 40
+      if (qLower.includes(slugLower)) {
+        score += 45
       }
-      if (shortName.length > 2 && (textLower.includes(shortName) || qLower.includes(shortName))) {
-        score += 30
+      if (shortName.length > 3 && qLower.includes(shortName)) {
+        score += 35
       }
-      if (nameLower.length > 3 && (textLower.includes(nameLower) || qLower.includes(nameLower))) {
-        score += 30
-      }
-      if (seriesLower && (textLower.includes(seriesLower) || qLower.includes(seriesLower))) {
-        score += 15
+      if (nameLower.length > 4 && qLower.includes(nameLower)) {
+        score += 35
       }
 
       // 2. Query words matching product attributes
       const qTokens = qLower.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !GENERIC_PRODUCT_WORDS.has(w))
       for (const token of qTokens) {
-        if (slugLower.includes(token)) score += 12
-        if (nameLower.includes(token)) score += 12
+        if (slugLower.includes(token)) score += 15
+        if (nameLower.includes(token)) score += 15
         if (p.full_description?.toLowerCase().includes(token)) score += 4
         if (p.total_contents_summary?.toLowerCase().includes(token)) score += 6
-        if (daws.some((d) => d.includes(token))) score += 8
-        if (plugins.some((pl) => pl.includes(token))) score += 8
+        if (daws.some((d) => d.includes(token))) score += 10
+        if (plugins.some((pl) => pl.includes(token))) score += 10
       }
 
       // 3. Audio & Genre categorizations (100% dynamically evaluated)
       if (/\b(drum|drums|one\s*shot|percussion|snare|kick|hihat|clap|cymbals)\b/i.test(qLower)) {
-        if ((p.one_shot_count && p.one_shot_count > 0) || slugLower.includes('drum')) score += 15
+        if ((p.one_shot_count && p.one_shot_count > 0) || slugLower.includes('drum')) score += 20
       }
       if (/\b(loop|loops|melody|melodies|chords|stems)\b/i.test(qLower)) {
-        if ((p.loop_count && p.loop_count > 0) || (p.melody_count && p.melody_count > 0)) score += 12
+        if ((p.loop_count && p.loop_count > 0) || (p.melody_count && p.melody_count > 0)) score += 15
       }
       if (/\b(preset|presets|vocal|fl\s*studio|chain|autotune)\b/i.test(qLower)) {
-        if (p.product_type === 'preset' || slugLower.includes('preset') || slugLower.includes('vocal')) score += 20
+        if (p.product_type === 'preset' || slugLower.includes('preset') || slugLower.includes('vocal')) score += 25
       }
       if (/\b(free|muft|bina paise|free pack)\b/i.test(qLower)) {
-        if (p.price_inr === 0) score += 25
+        if (p.price_inr === 0) score += 30
       }
 
-      if (score > 0) {
+      // Only include products with genuine relevance (score >= 25)
+      if (score >= 25) {
         scoredProducts.push({ product: p, score })
       }
     }
@@ -737,17 +850,17 @@ CRITICAL FORMATTING INSTRUCTIONS:
       }
     }
 
-    // Dynamic general recommendations if query asks for suggestions
+    // Dynamic general recommendations if query asks for suggestions but no keyword score reached >= 25
     const isGeneralRecommendation =
       /\b(best|recommend|suggest|top|pack|packs|sample|kit|loop|loops|achha|kharidu|buy|store|catalog|browse)\b/i.test(
         qLower
       )
     if (result.length === 0 && isGeneralRecommendation) {
-      const topPicks = allProducts.filter((p) => p.price_inr > 0).slice(0, 3)
+      const topPicks = allProducts.filter((p) => p.price_inr > 0).slice(0, 2)
       result.push(...topPicks)
     }
 
-    return result.slice(0, 4)
+    return result.slice(0, 2)
   }
 
   const formattedMessages = [
