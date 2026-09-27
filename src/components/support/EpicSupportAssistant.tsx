@@ -1239,7 +1239,17 @@ export function EpicSupportAssistant({
 
           {/* Center Hero Heading & Input */}
           <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 w-full py-8 flex flex-col items-center justify-center text-center my-auto">
-            <div className="space-y-2 mb-7 sm:mb-8">
+            <div className="space-y-3 mb-7 sm:mb-8 flex flex-col items-center">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 transition-transform hover:scale-105 duration-300 drop-shadow-[0_0_25px_rgba(0,116,228,0.45)]">
+                <Image
+                  src="/images/robot-avatar.png"
+                  alt="Samples Wala Support Assistant Mascot"
+                  fill
+                  sizes="96px"
+                  priority
+                  className="object-contain"
+                />
+              </div>
               <p className="text-sm sm:text-[15px] font-medium text-studio-neon tracking-wide">
                 Samples Wala Support
               </p>
@@ -1351,7 +1361,16 @@ export function EpicSupportAssistant({
                 <div className="absolute -top-16 -right-12 w-[500px] h-[200px] rotate-[30deg] bg-gradient-to-l from-[#0074e4]/14 via-[#00FF94]/06 to-transparent blur-3xl" />
               </div>
 
-              <div className="space-y-1.5 relative z-10 px-4">
+              <div className="space-y-2 relative z-10 px-4 flex flex-col items-center">
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-1 drop-shadow-[0_0_20px_rgba(0,116,228,0.4)]">
+                  <Image
+                    src="/images/robot-avatar.png"
+                    alt="Samples Wala Support Assistant Mascot"
+                    fill
+                    sizes="64px"
+                    className="object-contain"
+                  />
+                </div>
                 <p className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-zinc-400 font-mono">
                   Your Chat With
                 </p>

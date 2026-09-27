@@ -7,6 +7,7 @@ import { SupportDeskClient } from '@/components/support/SupportDeskClient'
 import { SupportConveyor } from '@/components/support/SupportConveyor'
 import { Bot, Ticket, ArrowLeft, ArrowRight, Zap } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 function SupportClientInner() {
   const searchParams = useSearchParams()
@@ -45,7 +46,13 @@ function SupportClientInner() {
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            <Bot size={13} />
+            <Image
+              src="/images/robot-avatar.png"
+              alt="AI Mascot"
+              width={16}
+              height={16}
+              className="w-4 h-4 object-contain shrink-0"
+            />
             <span>AI Assistant</span>
           </button>
 
