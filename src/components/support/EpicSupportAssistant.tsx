@@ -462,7 +462,26 @@ export function EpicSupportAssistant({
   const renderFormattedAnswer = (text: string) => {
     if (!text) return null
 
-    const rawLines = text.split('\n')
+    // Preprocess: Convert any bare internal routes and references into markdown links
+    let normalizedText = text
+      .replace(
+        /(?<!\]\()(\/(?:library|browse|free|refund-policy|terms|auth|support|packs\/[\w-]+))(?=[)\s.,!?"']|$)/gi,
+        (_match, path) => {
+          let label = path
+          if (path === '/library') label = 'Your Library'
+          else if (path === '/browse') label = 'Browse Packs'
+          else if (path === '/free') label = 'Free Packs'
+          else if (path === '/refund-policy') label = 'Refund Policy'
+          else if (path === '/terms') label = 'Terms of Service'
+          else if (path === '/auth') label = 'Sign In / Account'
+          else if (path === '/support') label = 'Support Desk'
+          else if (path.startsWith('/packs/')) label = 'View Sound Pack'
+          return `[${label}](${path})`
+        }
+      )
+      .replace(/(?<=(?:in|on|to|visit|your|open)\s+)["']?Library["']?(?!\s*\]|\()/gi, '[Your Library](/library)')
+
+    const rawLines = normalizedText.split('\n')
 
     return rawLines.map((rawLine, lIdx) => {
       const line = rawLine.replace(/^[\*\-]\s+/, '').replace(/^#{1,4}\s+/, '').trim()
@@ -511,7 +530,7 @@ export function EpicSupportAssistant({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#0074e4] hover:text-[#00FF94] font-semibold underline underline-offset-2 decoration-[#0074e4]/60 hover:decoration-[#00FF94] inline-flex items-center gap-0.5 transition-colors cursor-pointer"
+              className="text-[#00FF94] hover:text-[#FFE600] font-black underline underline-offset-4 decoration-2 decoration-[#00FF94] hover:decoration-[#FFE600] inline-flex items-center gap-0.5 transition-colors cursor-pointer"
             >
               <span>{linkContent}</span>
               <ExternalLink size={12} className="inline ml-0.5" />
@@ -522,7 +541,7 @@ export function EpicSupportAssistant({
             <Link
               key={`link-${lIdx}-${matchIndex}`}
               href={url}
-              className="text-[#0074e4] hover:text-[#00FF94] font-semibold underline underline-offset-2 decoration-[#0074e4]/60 hover:decoration-[#00FF94] transition-colors cursor-pointer"
+              className="text-[#00FF94] hover:text-[#FFE600] font-black underline underline-offset-4 decoration-2 decoration-[#00FF94] hover:decoration-[#FFE600] transition-colors cursor-pointer"
             >
               {linkContent}
             </Link>
@@ -1268,10 +1287,10 @@ export function EpicSupportAssistant({
                     if (inputError) setInputError('')
                   }}
                   placeholder="Describe your problem here"
-                  className={`flex-1 bg-[#0d1017] hover:bg-[#111520] focus:bg-[#111520] border rounded-[10px] px-5 py-3 sm:py-3.5 text-sm sm:text-[15px] text-white placeholder-zinc-500 focus:outline-none transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`flex-1 bg-[#0d1017] hover:bg-[#111520] focus:bg-[#111520] border-2 rounded-xl px-5 py-3 sm:py-3.5 text-sm sm:text-[15px] text-white font-medium placeholder-zinc-500 focus:outline-none transition-all shadow-[4px_4px_0px_black] disabled:opacity-50 disabled:cursor-not-allowed ${
                     inputError
                       ? 'border-rose-500 focus:border-rose-500'
-                      : 'border-white/20 hover:border-white/30 focus:border-[#0074e4]'
+                      : 'border-black focus:border-[#FFE600]'
                   }`}
                 />
 
@@ -1279,16 +1298,16 @@ export function EpicSupportAssistant({
                   type="submit"
                   disabled={isHeroLoading || heroInput.trim().length < 3}
                   aria-label="Submit problem"
-                  className={`w-11 h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all flex-shrink-0 border-2 border-black ${
                     heroInput.trim().length >= 3
-                      ? 'bg-[#0074e4] hover:bg-[#0084ff] text-white shadow-lg shadow-[#0074e4]/40 cursor-pointer active:scale-95'
-                      : 'bg-white/[0.07] text-white/20 border border-white/5 cursor-not-allowed pointer-events-none'
+                      ? 'bg-[#00FF94] hover:bg-[#19ff9e] text-black shadow-[3px_3px_0px_black] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer'
+                      : 'bg-white/[0.07] text-white/20 border-black/40 cursor-not-allowed pointer-events-none'
                   }`}
                 >
                   {isHeroLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <Loader2 className="w-4 h-4 animate-spin text-black" />
                   ) : (
-                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                    <ArrowRight className="w-5 h-5 stroke-[2.5]" />
                   )}
                 </button>
               </div>
@@ -1377,7 +1396,7 @@ export function EpicSupportAssistant({
             <main className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-10 pt-2 pb-48 flex-1 space-y-8 sm:space-y-10">
               
               <div className="text-center pt-8 pb-4 sm:pb-6">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-[#14161d] border border-white/[0.08] text-xs text-zinc-400 font-medium select-none shadow-sm">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-[#10131c] border-2 border-black text-xs text-zinc-300 font-black uppercase tracking-wider select-none shadow-[3px_3px_0px_black]">
                   {formatCurrentDate()}
                 </span>
               </div>
@@ -1393,11 +1412,11 @@ export function EpicSupportAssistant({
                     return (
                       <div key={msg.id} className="flex flex-col items-end space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
                         <div className="text-xs text-zinc-400 pr-1 flex items-center gap-2">
-                          <span className="font-semibold text-zinc-300">You</span>
+                          <span className="font-black text-zinc-200 uppercase italic">You</span>
                           <span className="text-[11px] text-zinc-500">{msg.timestamp}</span>
                         </div>
 
-                        <div className="bg-gradient-to-r from-[#005bb5] via-[#0074e4] to-[#0094ff] text-white font-medium px-6 py-3.5 sm:px-7 sm:py-4 rounded-2xl rounded-tr-xs max-w-xl sm:max-w-2xl shadow-lg shadow-[#0074e4]/20 text-[14.5px] sm:text-[15.5px] leading-relaxed">
+                        <div className="bg-[#0074e4] border-2 border-black text-white font-bold px-6 py-3.5 sm:px-7 sm:py-4 rounded-2xl rounded-tr-none max-w-xl sm:max-w-2xl shadow-[4px_4px_0px_black] text-[14.5px] sm:text-[15.5px] leading-relaxed tracking-tight">
                           {msg.content}
                         </div>
                       </div>
@@ -1417,13 +1436,13 @@ export function EpicSupportAssistant({
                             height={24}
                             className="w-6 h-6 object-contain shrink-0"
                           />
-                          <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">Sampi</span>
+                          <span className="font-black text-zinc-200 text-xs sm:text-[13px] uppercase italic">Sampi</span>
                           <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                         </div>
 
                         {/* Thinking Spinner */}
                         {msg.isThinking ? (
-                          <div className="inline-flex items-center gap-3.5 bg-[#14161d] border border-white/[0.08] text-zinc-300 rounded-2xl rounded-tl-xs px-7 py-5 shadow-xl w-fit">
+                          <div className="inline-flex items-center gap-3.5 bg-[#0e1118] border-2 border-black text-zinc-200 rounded-2xl rounded-tl-none px-6 py-4 shadow-[4px_4px_0px_#FFE600] w-fit font-bold">
                             <Image
                               src="/images/robot-avatar.png"
                               alt="Sampi is thinking..."
@@ -1431,21 +1450,17 @@ export function EpicSupportAssistant({
                               height={24}
                               className="w-6 h-6 object-contain shrink-0"
                             />
-                            <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-[#0074e4] animate-spin flex-shrink-0" />
-                            <span className="text-zinc-300 text-sm sm:text-[15px] font-normal">Sampi is thinking...</span>
+                            <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-[#00FF94] animate-spin flex-shrink-0" />
+                            <span className="text-zinc-200 text-sm sm:text-[15px] font-bold">Sampi is thinking...</span>
                           </div>
                         ) : (
-                          <div className="bg-[#14161d] border border-white/[0.08] text-[#d1d1d6] rounded-2xl sm:rounded-[20px] p-6 sm:p-8 md:p-9 text-[15px] sm:text-[16px] leading-[1.75] space-y-5 shadow-2xl w-full">
+                          <div className="bg-[#0e1118] border-3 border-black text-[#d1d1d6] rounded-2xl p-6 sm:p-8 md:p-9 text-[15px] sm:text-[16px] leading-[1.75] space-y-5 shadow-[6px_6px_0px_black] w-full relative">
                             
                             {/* Policy Notice Badge */}
                             {msg.isWarning && (
-                              <div className="flex items-center gap-2 border-b border-amber-500/20 pb-3 mb-2">
-                                <div className="w-5 h-5 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
-                                  <AlertTriangle size={12} />
-                                </div>
-                                <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-                                  Policy Notice &bull; Communication Guidelines
-                                </span>
+                              <div className="inline-flex items-center gap-2 bg-[#FF5C00] text-white border-2 border-black px-3 py-1 rounded-lg shadow-[3px_3px_0px_black] font-black uppercase text-[11px] tracking-wider mb-2">
+                                <AlertTriangle size={13} className="shrink-0" />
+                                <span>Policy Notice &bull; Communication Guidelines</span>
                               </div>
                             )}
 
@@ -1458,64 +1473,62 @@ export function EpicSupportAssistant({
 
                             {/* Verified Download Card */}
                             {msg.verifiedDownload && (
-                              <div className="rounded-xl bg-[#0d1017] border border-[#232938] p-4 sm:p-5 space-y-3.5 shadow-xl">
-                                <div className="flex items-center justify-between gap-2 border-b border-[#232938] pb-2.5">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full bg-[#00FF94]/20 border border-[#00FF94]/40 flex items-center justify-center text-[#00FF94]">
-                                      <CheckCircle2 size={12} />
-                                    </div>
-                                    <span className="text-[11px] font-bold text-[#00FF94] uppercase tracking-wider">
-                                      Official Purchase Verified &bull; Instant Secure Download
-                                    </span>
+                              <div className="rounded-2xl bg-[#0b0e14] border-3 border-black p-5 sm:p-6 space-y-4 shadow-[6px_6px_0px_#00FF94] relative overflow-hidden">
+                                <div className="flex items-center justify-between gap-2 border-b-2 border-black pb-3">
+                                  <div className="inline-flex items-center gap-1.5 bg-[#00FF94] text-black border-2 border-black font-black uppercase italic tracking-wider px-3 py-1 text-[11px] shadow-[3px_3px_0px_black]">
+                                    <CheckCircle2 size={13} strokeWidth={2.5} />
+                                    <span>Verified Download &bull; Instant Delivery</span>
                                   </div>
                                   {msg.verifiedDownload.orderNumber && (
-                                    <span className="text-[10px] font-mono text-zinc-500">
+                                    <span className="bg-[#FFE600] text-black border-2 border-black font-black font-mono text-[10px] px-2.5 py-0.5 shadow-[2px_2px_0px_black]">
                                       #{msg.verifiedDownload.orderNumber}
                                     </span>
                                   )}
                                 </div>
 
-                                <div className="flex items-center gap-3.5">
+                                <div className="flex items-center gap-3.5 sm:gap-4">
                                   {msg.verifiedDownload.coverImage && (
-                                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden relative bg-[#18181b] border border-[#333] shrink-0">
+                                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden relative bg-[#18181b] border-2 border-black shadow-[3px_3px_0px_black] shrink-0">
                                       <Image
                                         src={msg.verifiedDownload.coverImage}
                                         alt={msg.verifiedDownload.productName}
                                         fill
-                                        sizes="64px"
+                                        sizes="80px"
                                         className="object-cover"
                                       />
                                     </div>
                                   )}
-                                  <div className="space-y-0.5 min-w-0 flex-1">
-                                    <h4 className="text-sm sm:text-base font-bold text-white truncate">
+                                  <div className="space-y-1 min-w-0 flex-1">
+                                    <h4 className="text-base sm:text-lg font-black uppercase italic tracking-tight text-white truncate">
                                       {msg.verifiedDownload.productName}
                                     </h4>
-                                    <p className="text-[11px] sm:text-xs text-zinc-400">
+                                    <p className="text-xs font-bold text-zinc-300">
                                       {msg.verifiedDownload.fileSize || 'Studio Master Archive (24-bit WAV)'}
                                     </p>
-                                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-[#1a202c] text-zinc-300 border border-[#2d3748]">
-                                      100% Royalty-Free Commercial License Active
-                                    </span>
+                                    <div className="pt-0.5">
+                                      <span className="inline-block px-2.5 py-0.5 text-[10px] font-black uppercase italic bg-[#FFE600] text-black border-2 border-black shadow-[2px_2px_0px_black]">
+                                        100% Royalty-Free Commercial License
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
 
-                                <div className="flex items-center gap-3 pt-1 flex-wrap">
+                                <div className="flex items-center gap-3 pt-1.5 flex-wrap">
                                   <a
                                     href={msg.verifiedDownload.downloadUrl}
                                     download
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#0074e4] hover:bg-[#0084ff] text-white text-xs sm:text-[13px] font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00FF94] hover:bg-[#19ff9e] text-black border-2 border-black font-black text-xs sm:text-sm uppercase italic tracking-wider shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
                                   >
-                                    <Download size={14} />
+                                    <Download size={15} strokeWidth={2.5} />
                                     <span>Download {msg.verifiedDownload.productName}</span>
                                   </a>
 
                                   <Link
                                     href="/library"
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-[#181d28] hover:bg-[#202736] text-zinc-300 hover:text-white border border-[#2d3748] text-xs font-semibold transition-all"
+                                    className="inline-flex items-center gap-1.5 px-4 py-3 rounded-xl bg-[#161a24] hover:bg-[#202636] text-white border-2 border-black font-bold text-xs uppercase italic shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                                   >
                                     <span>View in My Library</span>
-                                    <ArrowRight size={12} />
+                                    <ArrowRight size={13} strokeWidth={2.5} />
                                   </Link>
                                 </div>
                               </div>
@@ -1523,57 +1536,55 @@ export function EpicSupportAssistant({
 
                             {/* Verified Order / Invoice Card */}
                             {msg.verifiedOrder && (
-                              <div className="rounded-xl bg-[#0d1017] border border-[#232938] p-4 sm:p-5 space-y-3.5 shadow-xl">
-                                <div className="flex items-center justify-between gap-2 border-b border-[#232938] pb-2.5">
-                                  <div className="flex items-center gap-2">
-                                    <Receipt size={15} className="text-[#0074e4]" />
-                                    <span className="text-[11px] font-bold text-zinc-200 uppercase tracking-wider">
-                                      Official Tax Invoice &bull; Order #{msg.verifiedOrder.orderNumber}
-                                    </span>
+                              <div className="rounded-2xl bg-[#0b0e14] border-3 border-black p-5 sm:p-6 space-y-4 shadow-[6px_6px_0px_#FFE600] relative overflow-hidden">
+                                <div className="flex items-center justify-between gap-2 border-b-2 border-black pb-3">
+                                  <div className="inline-flex items-center gap-1.5 bg-[#FFE600] text-black border-2 border-black font-black uppercase italic tracking-wider px-3 py-1 text-[11px] shadow-[3px_3px_0px_black]">
+                                    <Receipt size={14} strokeWidth={2.5} />
+                                    <span>Tax Invoice &bull; Order #{msg.verifiedOrder.orderNumber}</span>
                                   </div>
-                                  <span className="text-[10px] font-bold text-[#00FF94] bg-emerald-950/40 border border-[#00FF94]/30 px-2 py-0.5 rounded">
+                                  <span className="bg-[#00FF94] text-black border-2 border-black font-black uppercase px-2.5 py-0.5 text-[10px] shadow-[2px_2px_0px_black]">
                                     ● Payment Completed
                                   </span>
                                 </div>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs py-1">
-                                  <div className="bg-[#141824] p-2.5 rounded-lg border border-[#202638]">
-                                    <span className="text-[10px] text-zinc-500 block uppercase font-mono">Date</span>
-                                    <span className="text-zinc-200 font-semibold">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs py-1">
+                                  <div className="bg-[#161a24] p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_black]">
+                                    <span className="text-[10px] text-zinc-400 block uppercase font-mono font-bold">Date</span>
+                                    <span className="text-white font-black text-sm">
                                       {new Date(msg.verifiedOrder.date).toLocaleDateString()}
                                     </span>
                                   </div>
-                                  <div className="bg-[#141824] p-2.5 rounded-lg border border-[#202638]">
-                                    <span className="text-[10px] text-zinc-500 block uppercase font-mono">Total Paid</span>
-                                    <span className="text-white font-bold">
+                                  <div className="bg-[#161a24] p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_black]">
+                                    <span className="text-[10px] text-zinc-400 block uppercase font-mono font-bold">Total Paid</span>
+                                    <span className="text-[#00FF94] font-black text-sm">
                                       {msg.verifiedOrder.currency === 'USD' ? '$' : '₹'}
                                       {msg.verifiedOrder.amount}
                                     </span>
                                   </div>
-                                  <div className="bg-[#141824] p-2.5 rounded-lg border border-[#202638]">
-                                    <span className="text-[10px] text-zinc-500 block uppercase font-mono">Gateway</span>
-                                    <span className="text-zinc-200 font-semibold capitalize">
+                                  <div className="bg-[#161a24] p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_black]">
+                                    <span className="text-[10px] text-zinc-400 block uppercase font-mono font-bold">Gateway</span>
+                                    <span className="text-white font-black capitalize text-sm">
                                       {msg.verifiedOrder.gateway || 'Razorpay'}
                                     </span>
                                   </div>
-                                  <div className="bg-[#141824] p-2.5 rounded-lg border border-[#202638]">
-                                    <span className="text-[10px] text-zinc-500 block uppercase font-mono">Transaction ID</span>
-                                    <span className="text-zinc-300 font-mono text-[11px] truncate block">
+                                  <div className="bg-[#161a24] p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_black]">
+                                    <span className="text-[10px] text-zinc-400 block uppercase font-mono font-bold">Transaction ID</span>
+                                    <span className="text-zinc-200 font-mono font-bold text-xs truncate block">
                                       {msg.verifiedOrder.paymentId ? msg.verifiedOrder.paymentId.slice(-10).toUpperCase() : 'VERIFIED'}
                                     </span>
                                   </div>
                                 </div>
 
                                 {msg.verifiedOrder.items && msg.verifiedOrder.items.length > 0 && (
-                                  <div className="space-y-1.5 pt-1">
-                                    <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                                  <div className="space-y-2 pt-1">
+                                    <span className="text-[11px] font-black text-zinc-300 uppercase tracking-wider block">
                                       Purchased Items:
                                     </span>
-                                    <div className="space-y-1">
+                                    <div className="space-y-1.5">
                                       {msg.verifiedOrder.items.map((item, idx) => (
-                                        <div key={idx} className="flex items-center justify-between text-xs py-1 px-2.5 rounded bg-[#141824] text-zinc-300">
-                                          <span className="font-medium text-white">{item.name}</span>
-                                          <span className="font-mono text-zinc-400">
+                                        <div key={idx} className="flex items-center justify-between text-xs py-2 px-3 rounded-lg bg-[#161a24] border-2 border-black text-zinc-200 font-bold shadow-[2px_2px_0px_black]">
+                                          <span className="font-bold text-white">{item.name}</span>
+                                          <span className="font-mono text-[#00FF94] font-black">
                                             {msg.verifiedOrder?.currency === 'USD' ? '$' : '₹'}{item.price}
                                           </span>
                                         </div>
@@ -1582,7 +1593,7 @@ export function EpicSupportAssistant({
                                   </div>
                                 )}
 
-                                <div className="flex items-center gap-3 pt-1 flex-wrap">
+                                <div className="flex items-center gap-3 pt-1.5 flex-wrap">
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -1612,18 +1623,18 @@ export function EpicSupportAssistant({
                                         msg.verifiedOrder.customerName
                                       )
                                     }}
-                                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#0074e4] hover:bg-[#0084ff] text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+                                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#FFE600] hover:bg-[#fff04d] text-black border-2 border-black font-black text-xs sm:text-sm uppercase italic tracking-wider shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
                                   >
-                                    <FileText size={13} />
+                                    <FileText size={14} strokeWidth={2.5} />
                                     <span>View &amp; Print Official Tax Invoice</span>
                                   </button>
 
                                   <Link
                                     href="/library"
-                                    className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#181d28] hover:bg-[#202736] text-zinc-300 hover:text-white border border-[#2d3748] text-xs font-semibold transition-all"
+                                    className="inline-flex items-center gap-1.5 px-4 py-3 rounded-xl bg-[#0074e4] hover:bg-[#1c88ff] text-white border-2 border-black font-black text-xs uppercase italic shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                                   >
                                     <span>All Purchases in Library</span>
-                                    <ExternalLink size={11} />
+                                    <ExternalLink size={12} strokeWidth={2.5} />
                                   </Link>
                                 </div>
                               </div>
@@ -1635,18 +1646,18 @@ export function EpicSupportAssistant({
                                 className={`pt-2 pb-1 ${
                                   msg.recommendedProducts.length === 1
                                     ? 'grid grid-cols-1 sm:grid-cols-2 max-w-sm'
-                                    : 'grid grid-cols-2 gap-2 sm:gap-3.5'
+                                    : 'grid grid-cols-2 gap-3 sm:gap-4'
                                 }`}
                               >
                                 {msg.recommendedProducts.map((prod) => (
                                   <div
                                     key={prod.id}
-                                    className="rounded-xl bg-[#181c28] border border-[#273045] hover:border-[#0074e4]/60 p-2 sm:p-3.5 transition-all duration-200 shadow-lg group flex flex-col justify-between"
+                                    className="rounded-2xl bg-[#0e121a] border-3 border-black p-3.5 sm:p-4 transition-all duration-200 shadow-[5px_5px_0px_#0074e4] hover:shadow-[5px_5px_0px_#00FF94] hover:-translate-y-0.5 group flex flex-col justify-between relative overflow-hidden"
                                   >
                                     <div>
                                       <Link
                                         href={prod.product_type === 'preset' ? `/browse/presets/${prod.slug}` : `/packs/${prod.slug}`}
-                                        className="aspect-square w-full rounded-lg overflow-hidden relative bg-[#0e121a] border border-[#2b354d] shadow-sm group-hover:border-[#0074e4]/50 transition-colors block mb-2 sm:mb-2.5"
+                                        className="aspect-square w-full rounded-xl overflow-hidden relative bg-[#07090e] border-2 border-black shadow-[3px_3px_0px_black] group-hover:border-[#00FF94] transition-colors block mb-3"
                                       >
                                         <Image
                                           src={prod.cover_image || 'https://imagizer.imageshack.com/img924/3747/53oszD.png'}
@@ -1657,33 +1668,33 @@ export function EpicSupportAssistant({
                                         />
                                       </Link>
 
-                                      <div className="space-y-1">
+                                      <div className="space-y-1.5">
                                         <Link href={prod.product_type === 'preset' ? `/browse/presets/${prod.slug}` : `/packs/${prod.slug}`} className="block">
-                                          <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-[#0074e4] transition-colors line-clamp-1 leading-snug">
+                                          <h4 className="text-xs sm:text-sm font-black uppercase italic tracking-tight text-white group-hover:text-[#FFE600] transition-colors line-clamp-1 leading-snug">
                                             {prod.name}
                                           </h4>
                                         </Link>
 
                                         <div className="flex items-baseline gap-1.5 flex-wrap">
-                                          <span className="text-xs sm:text-sm font-extrabold text-white">
+                                          <span className="inline-block bg-[#00FF94] text-black border-2 border-black font-black text-xs sm:text-sm px-2.5 py-0.5 rounded shadow-[2px_2px_0px_black]">
                                             ₹{prod.price_inr}
                                           </span>
                                         </div>
 
-                                        <p className="text-[11px] sm:text-xs text-zinc-400 line-clamp-2 leading-tight pt-0.5">
+                                        <p className="text-[11px] sm:text-xs text-zinc-400 line-clamp-2 leading-tight pt-0.5 font-medium">
                                           {prod.short_description ||
                                             'High-fidelity, professionally recorded sounds crafted specifically for music producers.'}
                                         </p>
                                       </div>
                                     </div>
 
-                                    <div className="pt-2.5 sm:pt-3 mt-auto">
+                                    <div className="pt-3 mt-auto">
                                       <Link
                                         href={prod.product_type === 'preset' ? `/browse/presets/${prod.slug}` : `/packs/${prod.slug}`}
-                                        className="w-full inline-flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-2 rounded-lg bg-[#0074e4] hover:bg-[#0084ff] text-white font-bold text-[11px] sm:text-xs shadow-md transition-all active:scale-95 text-center"
+                                        className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#0074e4] hover:bg-[#1c88ff] text-white border-2 border-black font-black uppercase italic text-[11px] sm:text-xs shadow-[3px_3px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] transition-all text-center"
                                       >
                                         <span>View Sound Pack</span>
-                                        <ArrowRight size={12} strokeWidth={2.5} />
+                                        <ArrowRight size={13} strokeWidth={2.5} />
                                       </Link>
                                     </div>
                                   </div>
@@ -1717,23 +1728,23 @@ export function EpicSupportAssistant({
                               <div className="pt-2">
                                 <button
                                   onClick={() => toggleSources(msg.id)}
-                                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-[#181d28] hover:bg-[#202738] border border-white/5 text-xs text-zinc-300 hover:text-white transition-colors cursor-pointer font-medium"
+                                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#141824] hover:bg-[#1a2030] border-2 border-black text-xs text-white font-black uppercase italic shadow-[3px_3px_0px_black] transition-all cursor-pointer"
                                 >
                                   <span>Answer sources</span>
-                                  {msg.isSourcesOpen ? <ChevronUp size={14} className="text-zinc-400" /> : <ChevronDown size={14} className="text-zinc-400" />}
+                                  {msg.isSourcesOpen ? <ChevronUp size={15} strokeWidth={2.5} className="text-[#FFE600]" /> : <ChevronDown size={15} strokeWidth={2.5} className="text-[#FFE600]" />}
                                 </button>
 
                                 {msg.isSourcesOpen && (
-                                  <div className="mt-2 p-3 rounded-xl bg-[#141720] border border-[#262f44] space-y-2.5 text-xs animate-in fade-in">
+                                  <div className="mt-2.5 p-3.5 rounded-xl bg-[#0b0d13] border-2 border-black space-y-2.5 text-xs shadow-[4px_4px_0px_black] animate-in fade-in">
                                     {getAnswerSources(msg).map((source, sIdx) => (
-                                      <div key={sIdx} className="flex items-center justify-between text-zinc-300 gap-3">
-                                        <span className="truncate text-zinc-300 font-normal">{source.title}</span>
+                                      <div key={sIdx} className="flex items-center justify-between text-zinc-300 gap-3 border-b border-white/5 pb-1.5 last:border-0 last:pb-0">
+                                        <span className="truncate text-zinc-300 font-medium">{source.title}</span>
                                         <Link
                                           href={source.href}
-                                          className="inline-flex items-center gap-1 text-[#0074e4] hover:underline font-medium shrink-0"
+                                          className="inline-flex items-center gap-1 text-[#00FF94] hover:text-[#FFE600] font-black uppercase text-[11px] shrink-0 transition-colors"
                                         >
                                           <span>{source.label}</span>
-                                          <ExternalLink size={11} />
+                                          <ExternalLink size={12} strokeWidth={2.5} />
                                         </Link>
                                       </div>
                                     ))}
@@ -1757,53 +1768,53 @@ export function EpicSupportAssistant({
                               height={24}
                               className="w-6 h-6 object-contain shrink-0"
                             />
-                            <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">
+                            <span className="font-black text-zinc-200 text-xs sm:text-[13px] uppercase italic">
                               Sampi
                             </span>
                             <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                           </div>
 
-                          <div className="w-full bg-[#14161d] border border-white/[0.08] text-white rounded-2xl sm:rounded-[20px] p-5 sm:p-6 shadow-2xl space-y-3">
+                          <div className="w-full bg-[#0e1118] border-3 border-black text-white rounded-2xl p-5 sm:p-6 shadow-[6px_6px_0px_#FFE600] space-y-3">
                             {!msg.feedback ? (
                               <div className="flex items-center justify-between gap-4 flex-wrap">
-                                <span className="text-xs sm:text-sm font-medium text-zinc-300">
+                                <span className="text-xs sm:text-sm font-black uppercase italic tracking-tight text-white">
                                   Did this solve your problem?
                                 </span>
-                                <div className="flex items-center gap-2.5">
+                                <div className="flex items-center gap-3">
                                   <button
                                     type="button"
                                     onClick={() => handleFeedback(msg.id, true)}
-                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border font-semibold text-xs transition-all cursor-pointer bg-[#1c2130] text-zinc-200 hover:text-white hover:bg-[#252b3d] border-white/[0.08]"
+                                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl border-2 border-black font-black text-xs uppercase italic transition-all cursor-pointer bg-[#00FF94] text-black shadow-[3px_3px_0px_black] hover:shadow-[1px_1px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px]"
                                   >
-                                    <ThumbsUp size={13} className="text-[#00FF94]" />
+                                    <ThumbsUp size={14} strokeWidth={2.5} />
                                     <span>Yes</span>
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => handleFeedback(msg.id, false)}
-                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border font-semibold text-xs transition-all cursor-pointer bg-[#1c2130] text-zinc-200 hover:text-white hover:bg-[#252b3d] border-white/[0.08]"
+                                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl border-2 border-black font-black text-xs uppercase italic transition-all cursor-pointer bg-[#FF5C00] text-white shadow-[3px_3px_0px_black] hover:shadow-[1px_1px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px]"
                                   >
-                                    <ThumbsDown size={13} className="text-zinc-400" />
+                                    <ThumbsDown size={14} strokeWidth={2.5} />
                                     <span>No</span>
                                   </button>
                                 </div>
                               </div>
                             ) : msg.feedback === 'yes' ? (
                               <div className="space-y-1.5 animate-in fade-in">
-                                <p className="text-xs sm:text-sm text-[#00FF94] flex items-center gap-2 font-semibold">
-                                  <CheckCircle2 size={16} className="text-[#00FF94]" />
+                                <p className="text-xs sm:text-sm text-[#00FF94] flex items-center gap-2 font-black uppercase italic">
+                                  <CheckCircle2 size={16} strokeWidth={2.5} />
                                   <span>Glad that helped!</span>
                                 </p>
-                                <p className="text-xs text-zinc-500 font-medium select-none">
+                                <p className="text-xs text-zinc-500 font-bold select-none">
                                   Chat ended.
                                 </p>
                               </div>
                             ) : (
-                              <div className="space-y-1 animate-in fade-in">
-                                <p className="text-xs sm:text-sm text-amber-400 font-semibold flex items-center gap-2">
+                              <div className="space-y-1.5 animate-in fade-in">
+                                <p className="text-xs sm:text-sm text-[#FFE600] font-black uppercase italic flex items-center gap-2">
                                   <span>We&apos;re sorry this didn&apos;t resolve your issue.</span>
                                 </p>
-                                <p className="text-xs text-zinc-400">
+                                <p className="text-xs text-zinc-300 font-medium">
                                   Please submit a support ticket below to connect directly with our senior audio engineering desk.
                                 </p>
                               </div>
@@ -1823,24 +1834,24 @@ export function EpicSupportAssistant({
                               height={24}
                               className="w-6 h-6 object-contain shrink-0"
                             />
-                            <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">
+                            <span className="font-black text-zinc-200 text-xs sm:text-[13px] uppercase italic">
                               Sampi
                             </span>
                             <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                           </div>
 
-                          <div className="w-full bg-[#14161d] border border-white/[0.08] text-white rounded-2xl sm:rounded-[20px] p-6 sm:p-7 shadow-2xl space-y-4">
+                          <div className="w-full bg-[#0e1118] border-3 border-black text-white rounded-2xl p-6 sm:p-7 shadow-[6px_6px_0px_#FF5C00] space-y-4">
                             {!user ? (
-                              <div className="space-y-3">
+                              <div className="space-y-3.5">
                                 <div className="flex items-start gap-3">
-                                  <div className="w-8 h-8 rounded-lg bg-[#181d28] border border-white/5 flex items-center justify-center shrink-0 text-[#0074e4] mt-0.5">
-                                    <Lock size={15} />
+                                  <div className="w-9 h-9 rounded-xl bg-[#FFE600] border-2 border-black flex items-center justify-center shrink-0 text-black shadow-[2px_2px_0px_black] mt-0.5">
+                                    <Lock size={16} strokeWidth={2.5} />
                                   </div>
                                   <div className="space-y-1">
-                                    <p className="text-xs sm:text-[13px] font-semibold text-white">
+                                    <p className="text-xs sm:text-sm font-black uppercase italic text-white">
                                       Sign In Required for Ticket Tracking
                                     </p>
-                                    <p className="text-xs text-zinc-400 leading-relaxed">
+                                    <p className="text-xs text-zinc-300 leading-relaxed font-medium">
                                       Please sign in to your Samples Wala account to submit this ticket directly to our senior audio engineering desk.
                                     </p>
                                   </div>
@@ -1849,9 +1860,9 @@ export function EpicSupportAssistant({
                                 <div className="flex items-center gap-3 pt-1">
                                   <Link
                                     href={`/auth?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '/support')}`}
-                                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#0074e4] hover:bg-[#0084ff] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#FFE600] hover:bg-[#fff04d] text-black border-2 border-black font-black text-xs uppercase italic tracking-wider shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
                                   >
-                                    <LogIn size={13} />
+                                    <LogIn size={14} strokeWidth={2.5} />
                                     <span>Sign In to Submit & Track</span>
                                   </Link>
                                 </div>
@@ -1859,16 +1870,16 @@ export function EpicSupportAssistant({
                             ) : (
                               <>
                                 <div className="flex items-center justify-between flex-wrap gap-2">
-                                  <p className="text-xs sm:text-[13px] text-zinc-200 font-medium">
+                                  <p className="text-xs sm:text-[13px] text-white font-black uppercase italic">
                                     Submit this request directly to our senior audio engineering desk:
                                   </p>
-                                  <span className="text-[11px] text-zinc-400 bg-[#181d28] px-2.5 py-0.5 rounded-md border border-white/5 font-mono">
+                                  <span className="text-[11px] text-black bg-[#FFE600] border-2 border-black px-2.5 py-0.5 rounded-lg font-mono font-bold shadow-[2px_2px_0px_black]">
                                     {user.email}
                                   </span>
                                 </div>
 
                                 {ticketError && (
-                                  <p className="text-xs text-rose-400">{ticketError}</p>
+                                  <p className="text-xs text-rose-400 font-bold">{ticketError}</p>
                                 )}
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1877,7 +1888,7 @@ export function EpicSupportAssistant({
                                     value={ticketName}
                                     onChange={(e) => setTicketName(e.target.value)}
                                     placeholder="Your Name (Optional)"
-                                    className="bg-[#181d28] border border-[#2b354a] focus:border-[#0074e4] rounded-lg px-3.5 py-2.5 text-xs sm:text-[13px] text-white placeholder-zinc-500 focus:outline-none transition-colors"
+                                    className="bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-3 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all"
                                   />
                                   <input
                                     type="email"
@@ -1885,7 +1896,7 @@ export function EpicSupportAssistant({
                                     value={ticketEmail}
                                     onChange={(e) => setTicketEmail(e.target.value)}
                                     placeholder="Your Email *"
-                                    className="bg-[#181d28] border border-[#2b354a] focus:border-[#0074e4] rounded-lg px-3.5 py-2.5 text-xs sm:text-[13px] text-white placeholder-zinc-500 focus:outline-none transition-colors"
+                                    className="bg-[#141824] border-2 border-black focus:border-[#FFE600] rounded-xl px-4 py-3 text-xs sm:text-[13px] text-white font-bold placeholder-zinc-500 focus:outline-none shadow-[3px_3px_0px_black] transition-all"
                                   />
                                 </div>
 
@@ -1894,16 +1905,16 @@ export function EpicSupportAssistant({
                                     type="button"
                                     onClick={() => handleCreateTicket(msg.id, msg.userQuery)}
                                     disabled={isSubmittingTicket}
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#0074e4] hover:bg-[#0084ff] disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF5C00] hover:bg-[#ff7524] disabled:opacity-50 text-white border-2 border-black font-black text-xs uppercase italic tracking-wider shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
                                   >
                                     {isSubmittingTicket ? (
                                       <>
-                                        <Loader2 size={13} className="animate-spin" />
+                                        <Loader2 size={14} className="animate-spin" />
                                         <span>Submitting...</span>
                                       </>
                                     ) : (
                                       <>
-                                        <Send size={13} />
+                                        <Send size={14} strokeWidth={2.5} />
                                         <span>Submit to Audio Desk</span>
                                       </>
                                     )}
@@ -1926,22 +1937,22 @@ export function EpicSupportAssistant({
                               height={24}
                               className="w-6 h-6 object-contain shrink-0"
                             />
-                            <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">
+                            <span className="font-black text-zinc-200 text-xs sm:text-[13px] uppercase italic">
                               Sampi
                             </span>
                             <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                           </div>
 
-                          <div className="w-full bg-[#14161d] border border-white/[0.08] text-white rounded-2xl sm:rounded-[20px] p-6 sm:p-7 shadow-2xl space-y-3">
-                            <p className="font-semibold text-white text-base sm:text-lg flex items-center gap-2.5">
-                              <CheckCircle2 size={18} className="text-[#00FF94] shrink-0" />
+                          <div className="w-full bg-[#0e1118] border-3 border-black text-white rounded-2xl p-6 sm:p-7 shadow-[6px_6px_0px_#00FF94] space-y-3">
+                            <p className="font-black uppercase italic text-white text-base sm:text-lg flex items-center gap-2.5">
+                              <CheckCircle2 size={20} strokeWidth={2.5} className="text-[#00FF94] shrink-0" />
                               <span>We have received your request!</span>
                             </p>
-                            <p className="text-zinc-300 text-sm sm:text-[14.5px] leading-relaxed">
+                            <p className="text-zinc-200 text-sm sm:text-[14.5px] leading-relaxed font-medium">
                               Our audio engineers have received your message and will review it shortly. We will get back to you directly via email.
                             </p>
                             <div className="pt-1 flex items-center gap-2">
-                              <span className="text-xs text-zinc-400 font-mono bg-[#181d28] px-3 py-1.5 rounded-lg border border-white/[0.06]">
+                              <span className="text-xs text-black font-mono font-black bg-[#FFE600] px-3.5 py-1.5 rounded-lg border-2 border-black shadow-[3px_3px_0px_black]">
                                 Ticket Ref: #{msg.ticketNumber}
                               </span>
                             </div>
@@ -1969,15 +1980,15 @@ export function EpicSupportAssistant({
             <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-10 pb-5 sm:pb-6 pt-3">
               {isChatEnded || policyStrikes >= 4 || strikesRef.current >= 4 || messages.some((m) => !!m.ticketNumber || m.feedback === 'yes') ? (
                 <div className="w-full flex flex-col items-center gap-2.5 animate-in fade-in zoom-in-95 duration-200">
-                  <p className="text-xs text-zinc-500 font-medium select-none tracking-wide">
+                  <p className="text-xs text-zinc-500 font-bold select-none tracking-wide">
                     Chat ended.
                   </p>
                   <button
                     type="button"
                     onClick={handleResetToHero}
-                    className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl bg-[#0074e4] hover:bg-[#0084ff] text-white font-bold text-sm sm:text-[15px] transition-all duration-200 shadow-xl shadow-[#0074e4]/25 active:scale-[0.99] cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl bg-[#FFE600] hover:bg-[#fff04d] text-black border-2 border-black font-black uppercase italic text-sm sm:text-[15px] transition-all duration-200 shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] cursor-pointer"
                   >
-                    <RotateCcw size={16} strokeWidth={2.4} />
+                    <RotateCcw size={16} strokeWidth={2.5} />
                     <span>Start New Conversation</span>
                   </button>
                 </div>
@@ -1996,9 +2007,9 @@ export function EpicSupportAssistant({
                             setIsOptionsMenuOpen(false)
                             setIsChatEnded(true)
                           }}
-                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#141824] hover:bg-[#1e2538] border border-[#2b354d] text-xs font-semibold text-zinc-200 hover:text-white shadow-2xl transition-all cursor-pointer whitespace-nowrap"
+                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#141824] hover:bg-[#1e2538] border-2 border-black text-xs font-black uppercase italic text-zinc-200 hover:text-white shadow-[4px_4px_0px_black] transition-all cursor-pointer whitespace-nowrap"
                         >
-                          <Ban size={13} className="text-zinc-400" />
+                          <Ban size={14} className="text-[#FF5C00]" />
                           <span>End chat</span>
                         </button>
                       </div>
@@ -2009,13 +2020,13 @@ export function EpicSupportAssistant({
                       onClick={() => setIsOptionsMenuOpen((prev) => !prev)}
                       title="Options"
                       aria-label="Chat options"
-                      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors cursor-pointer flex-shrink-0 ${
+                      className={`w-11 h-11 rounded-xl border-2 border-black flex items-center justify-center transition-all cursor-pointer flex-shrink-0 shadow-[3px_3px_0px_black] active:translate-x-[1px] active:translate-y-[1px] ${
                         isOptionsMenuOpen
-                          ? 'bg-[#182033] border-[#0074e4]/60 text-white'
-                          : 'bg-[#14161d] hover:bg-[#1a202c] border-white/[0.08] text-zinc-400 hover:text-white'
+                          ? 'bg-[#FFE600] text-black'
+                          : 'bg-[#14161d] hover:bg-[#1a202c] text-zinc-300 hover:text-white'
                       }`}
                     >
-                      <MoreVertical size={18} />
+                      <MoreVertical size={18} strokeWidth={2.5} />
                     </button>
                   </div>
 
@@ -2033,7 +2044,7 @@ export function EpicSupportAssistant({
                         : 'Write a message to Sampi...'
                     }
                     disabled={isTyping || isChatEnded || policyStrikes >= 4 || strikesRef.current >= 4 || messages.some((m) => m.isThinking)}
-                    className="flex-1 bg-[#0d1017] hover:bg-[#111520] focus:bg-[#111520] border border-white/10 focus:border-[#0074e4] rounded-xl px-5 py-3 text-sm sm:text-[14.5px] text-white placeholder-zinc-500 focus:outline-none transition-all shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-[#0d1017] hover:bg-[#111520] focus:bg-[#111520] border-2 border-black focus:border-[#FFE600] rounded-xl px-5 py-3 text-sm sm:text-[14.5px] text-white font-medium placeholder-zinc-500 focus:outline-none transition-all shadow-[3px_3px_0px_black] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
 
                   {/* Send Button */}
@@ -2041,13 +2052,13 @@ export function EpicSupportAssistant({
                     type="submit"
                     disabled={!chatInput.trim() || isTyping || isChatEnded || policyStrikes >= 4 || strikesRef.current >= 4 || messages.some((m) => m.isThinking)}
                     aria-label="Send message"
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all flex-shrink-0 active:scale-95 ${
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all flex-shrink-0 border-2 border-black ${
                       chatInput.trim().length > 0 && !isTyping && !isChatEnded && policyStrikes < 4 && strikesRef.current < 4 && !messages.some((m) => m.isThinking)
-                        ? 'bg-[#0074e4] hover:bg-[#0084ff] text-white shadow-lg shadow-[#0074e4]/40 cursor-pointer'
-                        : 'bg-white/[0.06] text-white/20 border border-white/5 cursor-not-allowed pointer-events-none'
+                        ? 'bg-[#00FF94] hover:bg-[#19ff9e] text-black shadow-[3px_3px_0px_black] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer'
+                        : 'bg-white/[0.06] text-white/20 border-black/40 cursor-not-allowed pointer-events-none'
                     }`}
                   >
-                    <ArrowRight size={16} strokeWidth={2.5} />
+                    <ArrowRight size={18} strokeWidth={2.5} />
                   </button>
                 </form>
               )}
