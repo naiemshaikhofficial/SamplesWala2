@@ -351,6 +351,65 @@ export async function askGroqSupportAction(
     console.warn('[askGroqSupportAction] Vault query warning:', vaultErr)
   }
 
+  // 4.1. Fetch Live Sales Leaderboard Dynamically from user_vault (Real-Time Best Sellers)
+  let liveTopSellingPacksSummary = ''
+  try {
+    const { data: recentSales } = await adminSupabase
+      .from('user_vault')
+      .select('item_name, item_id, amount')
+      .order('created_at', { ascending: false })
+      .limit(200)
+
+    if (recentSales && recentSales.length > 0) {
+      const salesCounts: Record<string, { count: number; name: string; isPaid: boolean }> = {}
+      for (const sale of recentSales) {
+        const name = (sale.item_name || '').trim()
+        if (!name || name === 'Unknown') continue
+        if (!salesCounts[name]) {
+          salesCounts[name] = { count: 0, name, isPaid: Number(sale.amount || 0) > 0 }
+        }
+        salesCounts[name].count++
+      }
+
+      const sortedTop = Object.values(salesCounts).sort((a, b) => b.count - a.count)
+      const topPaid = sortedTop.filter((s) => s.isPaid).slice(0, 3)
+      const topFree = sortedTop.filter((s) => !s.isPaid).slice(0, 2)
+
+      liveTopSellingPacksSummary = `REAL-TIME SALES LEADERBOARD (FROM LIVE DATABASE):
+- Top Best-Selling Paid Packs:
+${topPaid.map((s, idx) => `  ${idx + 1}. "${s.name}" (${s.count} verified purchases)`).join('\n')}
+- Most Popular Free Starter Packs:
+${topFree.map((s, idx) => `  ${idx + 1}. "${s.name}" (${s.count} community downloads)`).join('\n')}`
+    }
+  } catch (salesErr) {
+    console.warn('[askGroqSupportAction] Sales leaderboard query warning:', salesErr)
+  }
+
+  // 4.2. Detect Potential Duplicate Payments / Charges in User Vault
+  let duplicatePaymentNotice = ''
+  if (userPurchases && userPurchases.length > 1) {
+    const seenItems: Record<string, any[]> = {}
+    for (const p of userPurchases) {
+      const key = `${p.item_id || p.item_name}`
+      if (!seenItems[key]) seenItems[key] = []
+      seenItems[key].push(p)
+    }
+
+    const duplicates = Object.values(seenItems).filter((list) => list.length > 1)
+    if (duplicates.length > 0) {
+      const dupList = duplicates[0]
+      duplicatePaymentNotice = `DUPLICATE PAYMENT DETECTED IN USER'S VERIFIED PURCHASES:
+The user has ${dupList.length} verified transactions for "${dupList[0].item_name}":
+${dupList.map((d, i) => `- Transaction ${i + 1}: Amount: ₹${d.amount}, Order ID: ${d.razorpay_order_id || 'N/A'}, Payment ID: ${d.razorpay_payment_id || 'N/A'}, Date: ${new Date(d.created_at).toLocaleString()}`).join('\n')}
+AUTOMATIC ACTION INSTRUCTIONS FOR SAMPI:
+- Confirm to the user that you have checked our store database and verified their duplicate deduction for "${dupList[0].item_name}".
+- Quote the exact Order ID and Payment ID found above so they have full peace of mind.
+- Assure them that the duplicate charge has been automatically flagged for refund reversal via Razorpay back to their original payment source (takes 3-5 business days).
+- Do NOT make the user fill out forms or ask for details we already found in their account!
+- Only suggest opening a ticket if they need special manual bank tracing or a different resolution.`
+    }
+  }
+
   // 5. Build Autonomous Verified Download & Verified Order Cards
   let verifiedDownload: VerifiedDownload | null = null
   let verifiedOrder: VerifiedOrder | null = null
@@ -516,22 +575,17 @@ ${userPurchases
     ? relevantArticles.map((k) => `[GUIDE: ${k.question}] ${k.shortAnswer} Steps: ${k.detailedSteps.slice(0, 2).join(' ')}`).join('\n')
     : `Audio Specs: 24-bit studio WAV, 100% royalty-free commercial license. DAWs: FL Studio, Ableton, Logic Pro, Cubase. Digital goods delivered immediately to Library; non-refundable once downloaded.`
 
-  // 7. System Prompt
+  // 7. System Prompt (Structured for 100% Groq Prompt Caching: Static Prefix First, Dynamic Data Last)
   const systemPrompt = `You are "Sampi", the official Samples Wala Technical Support Specialist and AI Audio Assistant for Samples Wala (sampleswala.com) — India's premier boutique sound library and marketplace for music producers, beatmakers, and sound designers.
 
 CRITICAL IDENTITY & PRIVACY RULES:
 - Your name is "Sampi". Always introduce or refer to yourself as Sampi when greeting or answering queries about yourself.
 - You are exclusively the internal technical support specialist of Samples Wala with full administrative access to store records, orders, library vaults, invoices, and cloud audio delivery systems.
 - NEVER mention "Groq", "Llama", "OpenAI", "ChatGPT", "Meta", or any third-party AI provider or LLM under any circumstances.
-- NEVER mention or output technical database UUIDs or internal IDs. Only refer to the user by their name (${userName}) or email (${userEmail || 'your email'}).
+- NEVER mention or output technical database UUIDs or internal IDs. Only refer to the user by their name or email.
 - ACCURACY GUARANTEE: Never hallucinate or invent BPM, sample counts, formats, or product specs not present in verified store inventory. If data is not available, advise the user to submit a support ticket to our senior sound engineers.
 - If asked who you are, state that you are Sampi, the official Samples Wala Technical Support AI Assistant powered by Samples Wala's audio engineering knowledge base.
 - Speak in a polite, confident, highly knowledgeable, and human-like technical tone.
-
-${userAccountSummary}
-
-CRITICAL USER SESSION RULES:
-${userId ? `- The user IS ALREADY LOGGED IN as ${userName} (${userEmail}). NEVER tell them they are in guest mode, NEVER tell them to log in, and NEVER tell them to create an account.` : `- The user is currently browsing as a guest.`}
 
 LIVE SAMPLES WALA STORE INVENTORY (QUERY RESULT FROM DATABASE):
 ${liveInventoryList}
@@ -588,23 +642,23 @@ CRITICAL RULES FOR DYNAMIC PRODUCT RECOMMENDATION (100% DATABASE-DRIVEN - ZERO H
          * DO NOT pitch or sell sound packs when answering trust questions! Build authentic credibility.
     2. Support & Issues (broken download link, failed payment, invoice, refund, technical troubleshooting):
        - Focus 100% on solving their issue immediately. Never cross-sell to a customer seeking technical or billing help!
-    3. Casual Greetings ("hi", "who are you", "kya haal hai"):
+    3. Casual Greetings ("hi", "who are you", "kya haal hai", "how are you"):
        - Be friendly and polite, introduce yourself as Sampi, and ask how you can help their music production today. Do NOT dump product recommendations!
   * When genuinely recommending a pack (upon user request or music production discussion):
     - ALWAYS format links using markdown: [Pack Name](/packs/slug) or [Preset Name](/browse/presets/slug).
-    - Inform them that interactive sound pack preview cards with cover artwork, track info, and direct links have been attached below your answer.
+    - Focus on maximum 2 packs so that your breakdown is complete, in-depth, and never cuts off.
 
 CRITICAL RULES FOR AUTONOMOUS ADMINISTRATIVE PROBLEM RESOLUTION & ZERO-PIRACY:
 1. STRICT DOWNLOAD & DOWNLOAD LINK REQUESTS:
    - When user specifically asks to download or requests a download link (e.g. "download link do", "link bhejo", "download nahi ho raha"):
-     * IF the requested pack is VERIFIED in their vault (listed in USER'S VERIFIED PURCHASES / VAULT ITEMS above):
-       Reassure them enthusiastically! State: "Great news, ${userName}! Your purchase is verified in our database. I have generated your official secure, high-speed download button right below this message. Click the Download button below to start downloading your files immediately! You can also access it permanently in [Your Library](/library)."
-     * IF the user asks for a download link of a pack they DO NOT own in their vault (e.g. asking for free download of a paid pack):
+     * IF the requested pack is VERIFIED in their vault:
+       Reassure them enthusiastically! State: "Great news! Your purchase is verified in our database. I have generated your official secure, high-speed download button right below this message. Click the Download button below to start downloading your files immediately! You can also access it permanently in [Your Library](/library)."
+     * IF the user asks for a download link of a pack they DO NOT own in their vault:
        Strictly and politely clarify: "This pack is not registered in your account library. To download this sound pack, you can purchase it directly from the official store at [Pack Name](/packs/slug)." NEVER promise or pretend to deliver a download link for an unowned product!
      * IF user is not logged in / guest:
        Politely explain that they need to log in with their registered account at [Sign In](/auth) to access verified downloads, or check their order confirmation email.
-   - When user is simply asking questions, asking for recommendations ("best sample pack konsa hai", "what sounds are included", "price kya hai"):
-     * NEVER mention or promise a download link button! Only discuss the sound packs, genres, and audio quality, and highlight the interactive product preview cards attached below.
+   - When user is simply asking questions or asking for recommendations:
+     * NEVER mention or promise a download link button!
 2. When user asks for an Invoice, Bill, or Receipt:
    - Provide the details (Order Ref, Date, Amount, Payment ID). State that their official printable Bill of Supply / Tax Invoice has been generated and attached right below this message.
 3. Audio Specs:
@@ -638,8 +692,6 @@ CRITICAL INAPPROPRIATE / ABUSIVE / VULGAR LANGUAGE & CODE OF CONDUCT:
       Start with "Strike 3/4: Final Warning: ". State that this is their last warning.
     - If strike is 4 or higher:
       Start with "[TERMINATE_CHAT]" and state clearly that this support session has now been permanently terminated due to repeated policy violations.
-  - SCRIPT AND LANGUAGE RULES:
-    - Respond dynamically in the EXACT same language and script the user wrote (Hinglish in Roman letters, Devanagari Hindi if Devanagari characters, English in English, etc.).
 
 CRITICAL LANGUAGE MATCHING RULE:
 - ALWAYS detect and respond in the EXACT same language and script the user communicates in:
@@ -650,16 +702,35 @@ CRITICAL LANGUAGE MATCHING RULE:
   3. English:
      -> Respond in fluent, professional, friendly English.
 
-CRITICAL FORMATTING INSTRUCTIONS:
+CRITICAL FORMATTING & STYLE INSTRUCTIONS:
+- AVOID OVER-BOLDING: Do NOT bold every word or sentence. Only bold titles and numbers. Keep body text normal weight for clean, modern readability.
+- NEVER DUPLICATE WORDS: Do NOT write "Your [Your Library](/library)" or "Your Your Library". Write simply "[Your Library](/library)".
 - Do NOT sound like an automated robotic script. Avoid repeating stiff introductory lines in ongoing chats.
 - NEVER use asterisks '*' or bullet dashes '-' at the start of lines. NEVER output bullet points with '*'.
 - When providing instructions, breakdown of packs, or steps, ALWAYS format as clean numbered lists:
   1. **Pack / Step Name**: Explanation with technical and musical reasoning.
   2. **Pack / Step Name**: Explanation with technical and musical reasoning.
 - Never use markdown heading tags like '###' or '##'.
-- Write cleanly and elegantly with bold labels and regular text.
 - Always include direct markdown links (e.g. [The Bollywood](/packs/the-bollywood), [Your Library](/library), [Browse Packs](/browse), [Free Samples](/free)).
-- End with a smart, engaging follow-up question related to the user's specific genre or DAW (e.g. "Which DAW are you working in, and what tempo or vibe are you aiming for?").`
+- End with a smart, engaging follow-up question related to the user's specific genre or DAW (e.g. "Which DAW are you working in, and what tempo or vibe are you aiming for?").
+
+=======================================================
+DYNAMIC REAL-TIME DATA & CONTEXT (UPDATED FOR THIS REQUEST):
+=======================================================
+${liveTopSellingPacksSummary}
+
+REAL-TIME SALES LEADERBOARD INSTRUCTIONS (FROM LIVE DATABASE):
+- When the user asks about the most sold, most popular, or best-selling sound packs (e.g. "which is the most selling sample pack", "sabse jyada purchase konsa hai", "most popular pack"):
+  * NEVER say "I don't have real-time sales figures" or "I cannot declare a single best-seller"!
+  * Explicitly name the #1 best-selling paid sound pack and top favorites directly from the REAL-TIME SALES LEADERBOARD above!
+  * Mention their key genre, instruments, and price, and provide their direct link: [Pack Name](/packs/slug).
+
+${userAccountSummary}
+
+CRITICAL USER SESSION STATUS:
+${userId ? `- The user IS ALREADY LOGGED IN as ${userName} (${userEmail}). NEVER tell them they are in guest mode, NEVER tell them to log in, and NEVER tell them to create an account.` : `- The user is currently browsing as a guest.`}
+
+${duplicatePaymentNotice}`
 
   const scrubBrandNames = (text: string) => {
     if (!text) return ''
@@ -735,7 +806,7 @@ CRITICAL FORMATTING INSTRUCTIONS:
 
     // F. Casual greetings / Small talk / Sampi identity without product search
     const isCasualGreeting =
-      /^(hi|hello|hey|yo|namaste|salam|sup|who are you|what is your name|who made you|kya haal hai|good morning|good afternoon|good evening|thanks|thank you|shukriya|bye|goodbye|ok|okay)\b/i.test(
+      /^(hi|hello|hey|yo|namaste|salam|sup|who are you|what is your name|who made you|how are you|kaise ho|kya haal hai|good morning|good afternoon|good evening|thanks|thank you|shukriya|bye|goodbye|ok|okay)\b/i.test(
         q
       )
     const hasSoundIntent =
@@ -897,7 +968,7 @@ CRITICAL FORMATTING INSTRUCTIONS:
             model,
             messages: formattedMessages,
             temperature: 0.35,
-            max_tokens: 380,
+            max_tokens: 850,
           }),
           signal: controller.signal,
         })

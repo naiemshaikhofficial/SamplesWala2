@@ -406,14 +406,21 @@ export function EpicSupportAssistant({
   // Chat history for Screen 2
   const [messages, setMessages] = useState<ChatMessage[]>([])
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   useEffect(() => {
-    if (isChatStarted) {
-      scrollToBottom()
+    if (!isChatStarted || messages.length === 0) return
+
+    const lastMsg = messages[messages.length - 1]
+    if (lastMsg.sender === 'assistant' && !lastMsg.isThinking) {
+      // User requested: "answer generate hone ke baad wo niche chala jata hai jabki answer jaha se shuru hota hai waha scroll hona chahiye tha"
+      // Smoothly scroll to the START of the assistant's answer so the user reads from the beginning!
+      const el = document.getElementById(`msg-container-${lastMsg.id}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+      }
     }
+
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping, isChatStarted])
 
   // Parses markdown links [Text](/url), bold **text**, and single *text*
@@ -464,6 +471,11 @@ export function EpicSupportAssistant({
 
     // Preprocess: Convert any bare internal routes and references into markdown links
     let normalizedText = text
+      // Clean up common duplicate library patterns from AI output
+      .replace(/\b(?:your\s+)+\[(?:your\s+)?library\]\(\/library\)/gi, '[Your Library](/library)')
+      .replace(/\bYour\s+Library\s*[:\-–]\s*\[(?:Your\s+)?Library\]\(\/library\)/gi, '[Your Library](/library)')
+      .replace(/\[(?:your\s+)?library\]\(\/library\)(?:\s*[:\-–]\s*|\s+)\[(?:your\s+)?library\]\(\/library\)/gi, '[Your Library](/library)')
+      .replace(/\b(?:your\s+)+your\s+library\b/gi, 'Your Library')
       .replace(
         /(?<!\]\()(\/(?:library|browse|free|refund-policy|terms|auth|support|packs\/[\w-]+))(?=[)\s.,!?"']|$)/gi,
         (_match, path) => {
@@ -479,7 +491,8 @@ export function EpicSupportAssistant({
           return `[${label}](${path})`
         }
       )
-      .replace(/(?<=(?:in|on|to|visit|your|open)\s+)["']?Library["']?(?!\s*\]|\()/gi, '[Your Library](/library)')
+      .replace(/(?<=\b(?:in|on|to|visit|open)\s+)(?:your\s+)?["']?Library["']?(?!\s*\]|\()/gi, '[Your Library](/library)')
+      .replace(/\b(?:your\s+)+\[Your Library\]/gi, '[Your Library]')
 
     const rawLines = normalizedText.split('\n')
 
@@ -495,7 +508,7 @@ export function EpicSupportAssistant({
       let contentToParse = line
 
       if (numMatch) {
-        prefix = <span className="font-bold text-white mr-1.5">{numMatch[1]}</span>
+        prefix = <span className="font-semibold text-[#00FF94] mr-1.5">{numMatch[1]}</span>
         contentToParse = numMatch[2]
       }
 
@@ -518,7 +531,7 @@ export function EpicSupportAssistant({
 
         const isExternal = url.startsWith('http://') || url.startsWith('https://')
         const linkContent = isBold ? (
-          <strong className="font-bold">{linkText}</strong>
+          <strong className="font-semibold">{linkText}</strong>
         ) : (
           linkText
         )
@@ -530,7 +543,7 @@ export function EpicSupportAssistant({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#00FF94] hover:text-[#FFE600] font-black underline underline-offset-4 decoration-2 decoration-[#00FF94] hover:decoration-[#FFE600] inline-flex items-center gap-0.5 transition-colors cursor-pointer"
+              className="text-[#00FF94] hover:text-[#FFE600] font-semibold underline underline-offset-4 decoration-1 decoration-[#00FF94] hover:decoration-[#FFE600] inline-flex items-center gap-0.5 transition-colors cursor-pointer"
             >
               <span>{linkContent}</span>
               <ExternalLink size={12} className="inline ml-0.5" />
@@ -541,7 +554,7 @@ export function EpicSupportAssistant({
             <Link
               key={`link-${lIdx}-${matchIndex}`}
               href={url}
-              className="text-[#00FF94] hover:text-[#FFE600] font-black underline underline-offset-4 decoration-2 decoration-[#00FF94] hover:decoration-[#FFE600] transition-colors cursor-pointer"
+              className="text-[#00FF94] hover:text-[#FFE600] font-semibold underline underline-offset-4 decoration-1 decoration-[#00FF94] hover:decoration-[#FFE600] transition-colors cursor-pointer"
             >
               {linkContent}
             </Link>
@@ -1438,13 +1451,13 @@ export function EpicSupportAssistant({
 
                   if (msg.sender === 'user') {
                     return (
-                      <div key={msg.id} className="flex flex-col items-end space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                      <div key={msg.id} id={`msg-container-${msg.id}`} className="flex flex-col items-end space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-200 scroll-mt-6">
                         <div className="text-xs text-zinc-400 pr-1 flex items-center gap-2">
-                          <span className="font-black text-zinc-200 uppercase italic">You</span>
+                          <span className="font-bold text-zinc-300 uppercase italic">You</span>
                           <span className="text-[11px] text-zinc-500">{msg.timestamp}</span>
                         </div>
 
-                        <div className="bg-[#0074e4] border-2 border-black text-white font-bold px-6 py-3.5 sm:px-7 sm:py-4 rounded-2xl rounded-tr-none max-w-xl sm:max-w-2xl shadow-[4px_4px_0px_black] text-[14.5px] sm:text-[15.5px] leading-relaxed tracking-tight">
+                        <div className="bg-gradient-to-r from-[#0052cc] via-[#0066fe] to-[#0080ff] border-2 border-black text-white font-medium px-6 py-3.5 sm:px-7 sm:py-4 rounded-2xl rounded-tr-none max-w-xl sm:max-w-2xl shadow-[4px_4px_0px_#00FF94] text-[14.5px] sm:text-[15.5px] leading-relaxed tracking-tight">
                           {msg.content}
                         </div>
                       </div>
@@ -1453,7 +1466,7 @@ export function EpicSupportAssistant({
 
                   return (
                     <React.Fragment key={msg.id}>
-                      <div className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-200 w-full max-w-4xl">
+                      <div id={`msg-container-${msg.id}`} className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-200 w-full max-w-4xl scroll-mt-6">
                         
                         {/* Assistant Header */}
                         <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
@@ -1464,13 +1477,14 @@ export function EpicSupportAssistant({
                             height={24}
                             className="w-6 h-6 object-contain shrink-0"
                           />
-                          <span className="font-black text-zinc-200 text-xs sm:text-[13px] uppercase italic">Sampi</span>
-                          <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
+                          <span className="font-black text-black bg-[#FFE600] border border-black px-2 py-0.5 rounded text-[11px] uppercase italic shadow-[1.5px_1.5px_0px_black]">Sampi &bull; AI Assistant</span>
+                          <span className="text-[11px] sm:text-xs text-zinc-400">{msg.timestamp}</span>
                         </div>
 
                         {/* Thinking Spinner */}
                         {msg.isThinking ? (
-                          <div className="inline-flex items-center gap-3.5 bg-[#0e1118] border-2 border-black text-zinc-200 rounded-2xl rounded-tl-none px-6 py-4 shadow-[4px_4px_0px_#FFE600] w-fit font-bold">
+                          <div className="inline-flex items-center gap-3.5 bg-[#0e1118] border-2 border-[#1e293b] text-zinc-200 rounded-2xl rounded-tl-none px-6 py-4 shadow-[4px_4px_0px_#FFE600] w-fit font-bold relative overflow-hidden">
+                            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#00FF94] via-[#FFE600] to-[#FF5C00]" />
                             <Image
                               src="/images/sampi-avatar.png"
                               alt="Sampi is thinking..."
@@ -1482,7 +1496,9 @@ export function EpicSupportAssistant({
                             <span className="text-zinc-200 text-sm sm:text-[15px] font-bold">Sampi is thinking...</span>
                           </div>
                         ) : (
-                          <div className="bg-[#0e1118] border-3 border-black text-[#d1d1d6] rounded-2xl p-6 sm:p-8 md:p-9 text-[15px] sm:text-[16px] leading-[1.75] space-y-5 shadow-[6px_6px_0px_black] w-full relative">
+                          <div className="bg-[#0b0e14] border-2 border-[#1e293b] text-[#d4d4d8] rounded-2xl p-6 sm:p-8 md:p-9 text-[15px] sm:text-[16px] leading-[1.75] space-y-5 shadow-[6px_6px_0px_#FFE600] w-full relative overflow-hidden">
+                            {/* Colorful Neo-brutalist top accent line */}
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00FF94] via-[#FFE600] to-[#FF5C00]" />
                             
                             {/* Policy Notice Badge */}
                             {msg.isWarning && (
