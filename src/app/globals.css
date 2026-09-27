@@ -95,6 +95,25 @@ body {
   width: 100%;
 }
 
+/* Support Page Fullscreen Clean Lock (No footer, no layout padding, sticky input, zero window scroll) */
+body:has(.support-page-container) {
+  background-color: #07080a !important;
+  overflow: hidden !important;
+}
+
+body:has(.support-page-container) main {
+  padding-bottom: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+body:has(.support-page-container) footer {
+  display: none !important;
+}
+
+
 @layer base {
   body {
     background-color: #121212 !important;

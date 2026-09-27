@@ -12,6 +12,18 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const isThankYouPage = pathname?.startsWith('/thank-you') || pathname?.startsWith('/confirmation')
   const isCheckoutPage = pathname?.startsWith('/checkout')
   const isUnsubscribePage = pathname?.startsWith('/unsubscribe')
+  const isSupportPage = pathname === '/support' || pathname?.startsWith('/support')
+
+  if (isSupportPage) {
+    return (
+      <div className="h-[100dvh] max-h-[100dvh] w-full max-w-full overflow-hidden flex flex-col bg-[#07080a]">
+        <Header />
+        <main className="flex-1 min-h-0 w-full overflow-hidden flex flex-col">
+          {children}
+        </main>
+      </div>
+    )
+  }
 
   if (isThankYouPage || isUnsubscribePage) {
     return (

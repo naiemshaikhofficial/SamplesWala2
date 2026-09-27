@@ -612,7 +612,7 @@ export function EpicSupportAssistant({
         sender: 'assistant',
         timestamp: time,
         content:
-          "Hey 👋 I'm the Samples Wala Support Assistant. I'm AI-powered and here to help you with your sound packs, downloads, and questions.",
+          "Hey 👋 I'm Sampi, your Samples Wala Support Assistant. I'm AI-powered and here to help you with your sound packs, downloads, and questions.",
         isGreeting: true,
         isThinking: false,
       }
@@ -718,6 +718,10 @@ export function EpicSupportAssistant({
           )
         } else {
           const localMatch = findLocalAnswer(query)
+          const fallbackContent = localMatch
+            ? `Hello! I'm Sampi, your Samples Wala Support Assistant.\n\n${localMatch.shortAnswer}\n\nHere are the exact steps:\n${localMatch.detailedSteps.map((s, idx) => `${idx + 1}. **Step ${idx + 1}**: ${s}`).join('\n')}\n\nAre you downloading on Windows or Mac, or need DAW setup help in FL Studio, Ableton, or Logic Pro?`
+            : `I'm here to help, but couldn't find an exact solution for "${query}". Would you like to connect with our audio engineers?`
+
           setMessages((prev) =>
             prev.map((m) =>
               m.id === thinkingMsgId
@@ -727,7 +731,7 @@ export function EpicSupportAssistant({
                     timestamp: formatCurrentTime(),
                     article: localMatch || undefined,
                     userQuery: query,
-                    content: localMatch ? undefined : `I couldn't find an exact solution for "${query}". Would you like to connect with our audio engineers?`,
+                    content: fallbackContent,
                     needsTicket: !localMatch,
                     isThinking: false,
                   }
@@ -926,6 +930,10 @@ export function EpicSupportAssistant({
         )
       } else {
         const localMatch = findLocalAnswer(text)
+        const fallbackContent = localMatch
+          ? `Hello! I'm Sampi, your Samples Wala Support Assistant.\n\n${localMatch.shortAnswer}\n\nHere are the exact steps:\n${localMatch.detailedSteps.map((s, idx) => `${idx + 1}. **Step ${idx + 1}**: ${s}`).join('\n')}\n\nAre you downloading on Windows or Mac, or need DAW setup help in FL Studio, Ableton, or Logic Pro?`
+          : `I'm here to help, but couldn't find an automated solution for "${text}". Would you like to raise a support ticket with our audio engineers?`
+
         setMessages((prev) =>
           prev.map((m) =>
             m.id === thinkingMsgId
@@ -935,7 +943,7 @@ export function EpicSupportAssistant({
                   timestamp: formatCurrentTime(),
                   article: localMatch || undefined,
                   userQuery: text,
-                  content: localMatch ? undefined : `I couldn't find an automated solution for "${text}". Would you like to raise a support ticket?`,
+                  content: fallbackContent,
                   needsTicket: !localMatch,
                   isThinking: false,
                 }
@@ -1041,7 +1049,7 @@ export function EpicSupportAssistant({
       const conversationHistory = messages
         .filter((m) => !m.isThinking && (m.content || m.userQuery))
         .map((m) => {
-          const role = m.sender === 'user' ? 'Customer' : 'Samples Wala Support Assistant'
+          const role = m.sender === 'user' ? 'Customer' : 'Sampi (AI Assistant)'
           const text = m.content || m.userQuery || ''
           return `[${m.timestamp}] ${role}:\n${text}`
         })
@@ -1097,7 +1105,7 @@ export function EpicSupportAssistant({
       {/* SCREEN 1: HERO LANDING STATE (Samples Wala Theme: Studio Blue & Neon)      */}
       {/* ========================================================================= */}
       {!isChatStarted ? (
-        <div className="support-page-container relative w-full flex-1 min-h-[calc(100vh-76px)] bg-[#07080a] text-white font-sans selection:bg-[#0074e4] selection:text-white overflow-hidden flex flex-col items-center justify-center">
+        <div className="support-page-container relative w-full h-full flex-1 bg-[#07080a] text-white font-sans selection:bg-[#0074e4] selection:text-white overflow-hidden flex flex-col items-center justify-center">
           
           {/* Ambient Glowing Background: Samples Wala Electric Blue & Neon Accents */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_12%_15%,_rgba(0,116,228,0.30)_0%,_rgba(0,255,148,0.12)_35%,_rgba(255,230,0,0.04)_60%,_transparent_80%)] pointer-events-none z-0" />
@@ -1239,18 +1247,8 @@ export function EpicSupportAssistant({
 
           {/* Center Hero Heading & Input */}
           <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 w-full py-8 flex flex-col items-center justify-center text-center my-auto">
-            <div className="space-y-3 mb-7 sm:mb-8 flex flex-col items-center">
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 transition-transform hover:scale-105 duration-300 drop-shadow-[0_0_25px_rgba(0,116,228,0.45)]">
-                <Image
-                  src="/images/robot-avatar.png"
-                  alt="Samples Wala Support Assistant Mascot"
-                  fill
-                  sizes="96px"
-                  priority
-                  className="object-contain"
-                />
-              </div>
-              <p className="text-sm sm:text-[15px] font-medium text-studio-neon tracking-wide">
+            <div className="space-y-2 mb-7 sm:mb-8">
+              <p className="text-sm sm:text-[15px] font-medium text-zinc-300 tracking-normal">
                 Samples Wala Support
               </p>
               <h1 className="text-4xl sm:text-[48px] font-bold text-white tracking-tight leading-tight">
@@ -1320,7 +1318,7 @@ export function EpicSupportAssistant({
         /* ========================================================================= */
         /* SCREEN 2: CHAT ASSISTANT INTERACTION                                      */
         /* ========================================================================= */
-        <div className="support-page-container w-full h-[calc(100dvh-60px)] sm:h-[calc(100dvh-72px)] lg:h-[calc(100dvh-76px)] bg-[#07080a] text-white font-sans flex flex-col overflow-hidden relative">
+        <div className="support-page-container w-full h-full flex-1 bg-[#07080a] text-white font-sans flex flex-col overflow-hidden relative">
           
           {/* Sticky Header */}
           <div className={`flex-shrink-0 w-full bg-[#07080a] z-20 relative transition-all duration-300 ease-in-out ${
@@ -1328,7 +1326,7 @@ export function EpicSupportAssistant({
           }`}>
             <div className="w-full h-12 sm:h-13 flex items-center justify-center px-4 border-b border-white/[0.04]">
               <span className="text-[11px] sm:text-xs font-bold tracking-[0.24em] uppercase text-zinc-300 select-none font-sans">
-                Samples Wala Support Assistant
+                Sampi • Samples Wala Support Assistant
               </span>
             </div>
             <div 
@@ -1339,13 +1337,14 @@ export function EpicSupportAssistant({
             />
           </div>
 
-          {/* Scrollable Chat Feed Area */}
+          {/* Scrollable Chat Feed Area (ONLY THIS SCROLLS!) */}
           <div 
             onScroll={(e) => {
               const isPast = e.currentTarget.scrollTop > 50
               if (isPast !== isChatScrolled) setIsChatScrolled(isPast)
             }}
-            className="flex-1 overflow-y-auto overflow-x-hidden w-full relative z-0"
+            data-lenis-prevent="true"
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden w-full relative z-0"
           >
             {/* Header Title with Ambient Backdrop */}
             <div className="relative w-full pt-8 pb-2 text-center select-none">
@@ -1361,22 +1360,16 @@ export function EpicSupportAssistant({
                 <div className="absolute -top-16 -right-12 w-[500px] h-[200px] rotate-[30deg] bg-gradient-to-l from-[#0074e4]/14 via-[#00FF94]/06 to-transparent blur-3xl" />
               </div>
 
-              <div className="space-y-2 relative z-10 px-4 flex flex-col items-center">
-                <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-1 drop-shadow-[0_0_20px_rgba(0,116,228,0.4)]">
-                  <Image
-                    src="/images/robot-avatar.png"
-                    alt="Samples Wala Support Assistant Mascot"
-                    fill
-                    sizes="64px"
-                    className="object-contain"
-                  />
-                </div>
+              <div className="space-y-1.5 relative z-10 px-4">
                 <p className="text-[11px] sm:text-xs font-semibold tracking-[0.24em] uppercase text-zinc-400 font-mono">
                   Your Chat With
                 </p>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
-                  Samples Wala Support Assistant
+                  Sampi
                 </h2>
+                <p className="text-xs text-zinc-400 font-medium tracking-wide">
+                  Samples Wala Support Assistant
+                </p>
               </div>
             </div>
 
@@ -1419,12 +1412,12 @@ export function EpicSupportAssistant({
                         <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                           <Image
                             src="/images/robot-avatar.png"
-                            alt="Samples Wala Support Assistant"
+                            alt="Sampi"
                             width={24}
                             height={24}
                             className="w-6 h-6 object-contain shrink-0"
                           />
-                          <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">Samples Wala Support Assistant</span>
+                          <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">Sampi</span>
                           <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                         </div>
 
@@ -1433,13 +1426,13 @@ export function EpicSupportAssistant({
                           <div className="inline-flex items-center gap-3.5 bg-[#14161d] border border-white/[0.08] text-zinc-300 rounded-2xl rounded-tl-xs px-7 py-5 shadow-xl w-fit">
                             <Image
                               src="/images/robot-avatar.png"
-                              alt="Thinking..."
+                              alt="Sampi is thinking..."
                               width={24}
                               height={24}
                               className="w-6 h-6 object-contain shrink-0"
                             />
                             <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-[#0074e4] animate-spin flex-shrink-0" />
-                            <span className="text-zinc-300 text-sm sm:text-[15px] font-normal">Thinking...</span>
+                            <span className="text-zinc-300 text-sm sm:text-[15px] font-normal">Sampi is thinking...</span>
                           </div>
                         ) : (
                           <div className="bg-[#14161d] border border-white/[0.08] text-[#d1d1d6] rounded-2xl sm:rounded-[20px] p-6 sm:p-8 md:p-9 text-[15px] sm:text-[16px] leading-[1.75] space-y-5 shadow-2xl w-full">
@@ -1698,8 +1691,8 @@ export function EpicSupportAssistant({
                               </div>
                             )}
 
-                            {/* Local Knowledge Article */}
-                            {msg.article && (
+                            {/* Local Knowledge Article Fallback */}
+                            {msg.article && !msg.content && (
                               <div className="space-y-3.5">
                                 <p className="font-semibold text-white">
                                   To {msg.article.question.toLowerCase().replace('how do i ', '').replace('how to ', '')}:
@@ -1759,13 +1752,13 @@ export function EpicSupportAssistant({
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                             <Image
                               src="/images/robot-avatar.png"
-                              alt="Samples Wala Support Assistant"
+                              alt="Sampi"
                               width={24}
                               height={24}
                               className="w-6 h-6 object-contain shrink-0"
                             />
                             <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">
-                              Samples Wala Support Assistant
+                              Sampi
                             </span>
                             <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                           </div>
@@ -1825,13 +1818,13 @@ export function EpicSupportAssistant({
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                             <Image
                               src="/images/robot-avatar.png"
-                              alt="Samples Wala Support Assistant"
+                              alt="Sampi"
                               width={24}
                               height={24}
                               className="w-6 h-6 object-contain shrink-0"
                             />
                             <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">
-                              Samples Wala Support Assistant
+                              Sampi
                             </span>
                             <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                           </div>
@@ -1928,13 +1921,13 @@ export function EpicSupportAssistant({
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                             <Image
                               src="/images/robot-avatar.png"
-                              alt="Samples Wala Support Assistant"
+                              alt="Sampi"
                               width={24}
                               height={24}
                               className="w-6 h-6 object-contain shrink-0"
                             />
                             <span className="font-semibold text-zinc-200 text-xs sm:text-[13px]">
-                              Samples Wala Support Assistant
+                              Sampi
                             </span>
                             <span className="text-[11px] sm:text-xs text-zinc-500">{msg.timestamp}</span>
                           </div>
@@ -2036,8 +2029,8 @@ export function EpicSupportAssistant({
                       isChatEnded || policyStrikes >= 4 || strikesRef.current >= 4
                         ? 'Chat ended.'
                         : isTyping || messages.some((m) => m.isThinking)
-                        ? 'Assistant is thinking...'
-                        : 'Write a message...'
+                        ? 'Sampi is thinking...'
+                        : 'Write a message to Sampi...'
                     }
                     disabled={isTyping || isChatEnded || policyStrikes >= 4 || strikesRef.current >= 4 || messages.some((m) => m.isThinking)}
                     className="flex-1 bg-[#0d1017] hover:bg-[#111520] focus:bg-[#111520] border border-white/10 focus:border-[#0074e4] rounded-xl px-5 py-3 text-sm sm:text-[14.5px] text-white placeholder-zinc-500 focus:outline-none transition-all shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"

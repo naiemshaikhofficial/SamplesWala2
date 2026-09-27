@@ -2,9 +2,15 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { Instagram, Youtube, Send } from 'lucide-react'
 
 export function Footer() {
+  const pathname = usePathname()
+
+  if (pathname === '/support' || pathname?.startsWith('/support')) {
+    return null
+  }
   return (
     <footer className="relative bg-studio-charcoal border-t-8 border-black pt-16 pb-12 shadow-[0_-8px_0_rgba(0,0,0,1)] overflow-hidden">
       {/* 🇮🇳 Tricolor Top Border Accent */}

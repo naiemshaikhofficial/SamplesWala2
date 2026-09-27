@@ -4,7 +4,7 @@ import { generatePageMetadata } from '@/lib/seo/metadata'
 import { SupportClient } from './SupportClient'
 
 export const metadata: Metadata = generatePageMetadata({
-  title: 'Help Center & AI Support Assistant — Samples Wala',
+  title: 'Help Center & Sampi AI Support Assistant — Samples Wala',
   description:
     'Instant assistance for sound packs, audio downloads, payment verification, invoices, DAW troubleshooting (FL Studio, Ableton, Logic Pro), and support ticket tracking.',
   path: '/support',

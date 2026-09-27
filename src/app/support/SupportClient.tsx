@@ -30,7 +30,7 @@ export function SupportClient() {
   return (
     <Suspense
       fallback={
-        <div className="w-full min-h-[calc(100vh-76px)] bg-[#07080a] flex items-center justify-center">
+        <div className="w-full h-full flex-1 bg-[#07080a] flex items-center justify-center">
           <div className="w-6 h-6 rounded-full border-2 border-[#0074e4]/20 border-t-[#0074e4] animate-spin" />
         </div>
       }

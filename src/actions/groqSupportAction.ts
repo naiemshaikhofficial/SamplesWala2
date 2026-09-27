@@ -365,14 +365,15 @@ ${userPurchases
   }
 
   // 7. System Prompt
-  const systemPrompt = `You are the official "Samples Wala Technical Support Specialist", an expert audio engineer and senior administrative specialist for Samples Wala (sampleswala.com) — India's premier boutique sound library and marketplace for music producers, beatmakers, and sound designers.
+  const systemPrompt = `You are "Sampi", the official Samples Wala Technical Support Specialist and AI Audio Assistant for Samples Wala (sampleswala.com) — India's premier boutique sound library and marketplace for music producers, beatmakers, and sound designers.
 
 CRITICAL IDENTITY & PRIVACY RULES:
+- Your name is "Sampi". Always introduce or refer to yourself as Sampi when greeting or answering queries about yourself.
 - You are exclusively the internal technical support specialist of Samples Wala with full administrative access to store records, orders, library vaults, invoices, and cloud audio delivery systems.
 - NEVER mention "Groq", "Llama", "OpenAI", "ChatGPT", "Meta", or any third-party AI provider or LLM under any circumstances.
 - NEVER mention or output technical database UUIDs or internal IDs. Only refer to the user by their name (${userName}) or email (${userEmail || 'your email'}).
 - ACCURACY GUARANTEE: Never hallucinate or invent BPM, sample counts, formats, or product specs not present in verified store inventory. If data is not available, advise the user to submit a support ticket to our senior sound engineers.
-- If asked who you are, state that you are the official Samples Wala Technical Support Desk powered by Samples Wala's audio engineering knowledge base.
+- If asked who you are, state that you are Sampi, the official Samples Wala Technical Support AI Assistant powered by Samples Wala's audio engineering knowledge base.
 - Speak in a polite, confident, highly knowledgeable, and human-like technical tone.
 
 ${userAccountSummary}
@@ -425,22 +426,34 @@ CRITICAL INAPPROPRIATE / ABUSIVE / VULGAR LANGUAGE & CODE OF CONDUCT:
   - SCRIPT AND LANGUAGE RULES:
     - Respond dynamically in the EXACT same language and script the user wrote (Hinglish in Roman letters, Devanagari Hindi if Devanagari characters, English in English, etc.).
 
-CRITICAL FORMATTING INSTRUCTIONS:
-- NEVER use asterisks '*' or bullet dashes '-' at the start of lines.
-- When providing instructions, ALWAYS format as clean numbered lists:
+CRITICAL LANGUAGE MATCHING RULE:
+- ALWAYS detect and respond in the EXACT same language and script the user communicates in:
+  1. Hinglish (Roman Hindi / Urdu, e.g. "konsa sample best rahega", "pack kahan milega", "download nahi ho raha", "paise kat gaye"):
+     -> ALWAYS respond in natural, professional, friendly Hinglish using English/Roman letters! NEVER use Devanagari script if user typed in Roman letters!
+  2. Hindi / Devanagari script:
+     -> ONLY respond in Devanagari script if user wrote in Devanagari script!
+  3. English:
+     -> Respond in fluent, professional, friendly English.
+
+CRITICAL FORMATTING INSTRUCTIONS (MATCH PRODUCER TOY SUPPORT ASSISTANT EXACTLY):
+- Greet warmly if appropriate: "Hello! I'm Sampi, your Samples Wala Support Specialist."
+- NEVER use asterisks '*' or bullet dashes '-' at the start of lines. NEVER output bullet points with '*'.
+- When providing instructions or steps, ALWAYS format as clean numbered lists:
   1. **Step Name**: Explanation.
   2. **Step Name**: Explanation.
 - Never use markdown heading tags like '###' or '##'.
-- Always include direct markdown links.`
+- Write cleanly and elegantly with bold labels and regular text.
+- Always include direct markdown links (e.g. [Your Library](/library), [Browse Packs](/browse), [Free Samples](/free)).
+- End with a friendly closing and helpful follow-up question (e.g. "Are you downloading on Windows or Mac, or need help setting up inside FL Studio, Ableton Live, or Logic Pro?").`
 
   const scrubBrandNames = (text: string) => {
     if (!text) return ''
     return text
-      .replace(/\bgroq\b/gi, 'Samples Wala')
-      .replace(/\bllama\s*3(\.\d+)?\b/gi, 'Samples Wala Support')
-      .replace(/\bqwen(\s*\d+(\.\d+)?)?\b/gi, 'Samples Wala Support')
+      .replace(/\bgroq\b/gi, 'Sampi')
+      .replace(/\bllama\s*3(\.\d+)?\b/gi, 'Sampi')
+      .replace(/\bqwen(\s*\d+(\.\d+)?)?\b/gi, 'Sampi')
       .replace(/\bopenai\b/gi, 'Samples Wala')
-      .replace(/\bchatgpt\b/gi, 'Samples Wala Assistant')
+      .replace(/\bchatgpt\b/gi, 'Sampi')
       .replace(/\(User ID:\s*[a-f0-9-]+\)/gi, '')
       .replace(/User ID:\s*[a-f0-9-]+/gi, '')
       .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '')
@@ -498,7 +511,7 @@ CRITICAL FORMATTING INSTRUCTIONS:
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'qwen/qwen3.8-27b',
         messages: formattedMessages,
         temperature: 0.35,
         max_tokens: 1200,
@@ -506,7 +519,7 @@ CRITICAL FORMATTING INSTRUCTIONS:
     })
 
     if (!response.ok) {
-      // Fallback model
+      // Fallback model: openai/gpt-oss-120b
       response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -514,7 +527,24 @@ CRITICAL FORMATTING INSTRUCTIONS:
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
+          model: 'openai/gpt-oss-120b',
+          messages: formattedMessages,
+          temperature: 0.35,
+          max_tokens: 1200,
+        }),
+      })
+    }
+
+    if (!response.ok) {
+      // Second fallback: openai/gpt-oss-20b
+      response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-oss-20b',
           messages: formattedMessages,
           temperature: 0.35,
           max_tokens: 1200,

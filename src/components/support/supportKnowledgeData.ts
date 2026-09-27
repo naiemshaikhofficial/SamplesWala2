@@ -211,7 +211,7 @@ export const KNOWLEDGE_BASE: KnowledgeArticle[] = [
       'Go to /library on Samples Wala.',
       'Scroll to your purchases or billing section.',
       'Click "Download Invoice" to open an official printable Bill of Supply / Tax Invoice.',
-      'Alternatively, ask this Support Assistant for your invoice by mentioning your order or payment ID.',
+      'Alternatively, ask Sampi for your invoice by mentioning your order or payment ID.',
     ],
     tags: ['invoice', 'bill', 'tax receipt', 'gst invoice', 'bill of supply', 'receipt download'],
     actionCta: {
