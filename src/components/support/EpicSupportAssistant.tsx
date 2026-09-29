@@ -229,6 +229,12 @@ function getAnswerSources(msg: ChatMessage): AnswerSourceItem[] {
         label: 'Refund Policy',
         href: '/refund-policy',
       })
+    } else if (textCombined.includes('producer toy') || textCombined.includes('producertoy')) {
+      sources.push({
+        title: 'Producer Toy • VST Plugins, Synths & Global Audio Gear (Sister Platform)',
+        label: 'Visit Producer Toy',
+        href: 'https://producertoy.com',
+      })
     } else if (textCombined.includes('fl studio') || textCombined.includes('ableton') || textCombined.includes('logic') || textCombined.includes('daw')) {
       sources.push({
         title: 'Samples Wala Technical Audio & DAW Integration Guide',
@@ -2187,8 +2193,8 @@ export function EpicSupportAssistant({
 
                       </div>
 
-                      {/* Feedback Dialog Box - Only displayed when AI intelligence provided an actual troubleshooting solution */}
-                      {isLatestAssistant && !msg.ticketNumber && !msg.isGreeting && !msg.isThinking && !msg.isWarning && !isChatEnded && policyStrikes < 4 && Boolean(msg.hasTroubleshootingSolution) && (
+                      {/* Feedback Dialog Box - Only displayed when AI intelligence provided an actual troubleshooting solution or an issue to resolve */}
+                      {isLatestAssistant && !msg.ticketNumber && !msg.isGreeting && !msg.isThinking && !msg.isWarning && !isChatEnded && policyStrikes < 4 && (Boolean(msg.hasTroubleshootingSolution) || Boolean(msg.canEscalateToTicket)) && (
                         <div className="flex flex-col items-start space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full max-w-4xl pt-2">
                           <div className="flex items-center gap-2.5 text-xs sm:text-[13px] text-zinc-400 px-1">
                             <Image

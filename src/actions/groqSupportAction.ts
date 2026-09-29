@@ -45,6 +45,136 @@ function ensureSupabaseAdminEnv() {
   }
 }
 
+function getRazorpayCredentials(): { keyId: string | null; keySecret: string | null } {
+  let keyId = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || null
+  let keySecret = process.env.RAZORPAY_KEY_SECRET || null
+
+  if (!keyId || !keySecret) {
+    try {
+      const envPath = path.resolve(process.cwd(), '.env.local')
+      if (fs.existsSync(envPath)) {
+        const content = fs.readFileSync(envPath, 'utf8')
+        const mKey = content.match(/(?:RAZORPAY_KEY_ID|NEXT_PUBLIC_RAZORPAY_KEY_ID)\s*=\s*(.+)/)
+        if (mKey && mKey[1]) keyId = mKey[1].trim().replace(/^['"]|['"]$/g, '')
+        const mSec = content.match(/RAZORPAY_KEY_SECRET\s*=\s*(.+)/)
+        if (mSec && mSec[1]) keySecret = mSec[1].trim().replace(/^['"]|['"]$/g, '')
+      }
+    } catch (err) {
+      console.warn('[getRazorpayCredentials] Error reading .env.local:', err)
+    }
+  }
+
+  return { keyId, keySecret }
+}
+
+interface RazorpayVerificationResult {
+  verified: boolean
+  paymentId?: string
+  status?: string
+  amount?: number
+  currency?: string
+  email?: string
+  contact?: string
+  method?: string
+  notes?: Record<string, any>
+  createdAt?: string
+  errorReason?: string
+}
+
+async function verifyRazorpayDirect(
+  paymentId: string | null,
+  email: string | null
+): Promise<RazorpayVerificationResult | null> {
+  const { keyId, keySecret } = getRazorpayCredentials()
+  if (!keyId || !keySecret) return null
+
+  const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString('base64')
+  const rzpHeaders = {
+    Authorization: `Basic ${basicAuth}`,
+    'Content-Type': 'application/json',
+  }
+
+  // 1. Direct Lookup by Payment ID (pay_...)
+  if (paymentId) {
+    try {
+      const res = await fetch(`https://api.razorpay.com/v1/payments/${paymentId}`, {
+        headers: rzpHeaders,
+        cache: 'no-store',
+      })
+      if (res.ok) {
+        const p = await res.json()
+        return {
+          verified: p.status === 'captured',
+          paymentId: p.id,
+          status: p.status,
+          amount: p.amount ? p.amount / 100 : 0,
+          currency: p.currency || 'INR',
+          email: p.email || undefined,
+          contact: p.contact || undefined,
+          method: p.method || undefined,
+          notes: p.notes || {},
+          createdAt: p.created_at ? new Date(p.created_at * 1000).toISOString() : undefined,
+          errorReason: p.error_description || p.error_reason || undefined,
+        }
+      }
+    } catch (err) {
+      console.warn('[verifyRazorpayDirect] Direct lookup error:', err)
+    }
+  }
+
+  // 2. Lookup recent payments by Email if customer reports missing purchase
+  if (email) {
+    try {
+      const res = await fetch(`https://api.razorpay.com/v1/payments?count=15`, {
+        headers: rzpHeaders,
+        cache: 'no-store',
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const items = data.items || []
+        const cleanEmail = email.toLowerCase().trim()
+        const matched = items.find(
+          (p: any) =>
+            p.email && p.email.toLowerCase().trim() === cleanEmail && p.status === 'captured'
+        )
+        if (matched) {
+          return {
+            verified: true,
+            paymentId: matched.id,
+            status: matched.status,
+            amount: matched.amount ? matched.amount / 100 : 0,
+            currency: matched.currency || 'INR',
+            email: matched.email || undefined,
+            contact: matched.contact || undefined,
+            method: matched.method || undefined,
+            notes: matched.notes || {},
+            createdAt: matched.created_at ? new Date(matched.created_at * 1000).toISOString() : undefined,
+          }
+        }
+        const failedMatch = items.find(
+          (p: any) =>
+            p.email && p.email.toLowerCase().trim() === cleanEmail && p.status === 'failed'
+        )
+        if (failedMatch) {
+          return {
+            verified: false,
+            paymentId: failedMatch.id,
+            status: failedMatch.status,
+            amount: failedMatch.amount ? failedMatch.amount / 100 : 0,
+            currency: failedMatch.currency || 'INR',
+            email: failedMatch.email || undefined,
+            errorReason: failedMatch.error_description || failedMatch.error_reason || 'Bank or payment network declined',
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[verifyRazorpayDirect] Email search error:', err)
+    }
+  }
+
+  return null
+}
+
 export interface RecommendedProduct {
   id: string
   name: string
@@ -437,9 +567,10 @@ AUTOMATIC ACTION INSTRUCTIONS FOR SAMPI:
       qLower
     )
 
-  if (Boolean(userId) && isExplicitDownloadLinkRequest && userPurchases.length > 0) {
-    let targetPurchase: any = null
+  let targetPurchase: any = null
+  let adminActionResultNotes = ''
 
+  if (Boolean(userId) && isExplicitDownloadLinkRequest && userPurchases.length > 0) {
     // 1. Check if the user mentioned a specific product from their verified vault
     for (const p of userPurchases) {
       const pName = (p.item_name || '').toLowerCase()
@@ -475,41 +606,99 @@ AUTOMATIC ACTION INSTRUCTIONS FOR SAMPI:
         targetPurchase = userPurchases[0]
       }
     }
+  }
 
-    // 3. If verified target purchase found, cryptographically sign a high-security time-limited token
-    if (targetPurchase && userId) {
-      try {
-        const token = signDownloadToken(
-          {
-            uid: userId,
-            pid: targetPurchase.item_id,
-            type: targetPurchase.item_type || 'pack',
-            ip: clientIp,
-          },
-          1800 // Strict 30-minute validity window
-        )
+  // Live Razorpay Gateway Verification for missing access or payment inquiries
+  const isPaymentInquiry =
+    isExplicitDownloadLinkRequest ||
+    scannedPaymentId ||
+    (scannedOrderNumber && !matchedSpecificOrder) ||
+    /paise kat gaye|payment failed|not received|didn't get access|kharida|bought|purchased|deducted/i.test(qLower)
 
-        const matchedCatalog = allProducts.find(
-          (prod) => prod.id === targetPurchase.item_id || prod.slug === targetPurchase.item_id
-        )
+  if (!targetPurchase && isPaymentInquiry) {
+    const rzpResult = await verifyRazorpayDirect(scannedPaymentId, targetEmail)
+    if (rzpResult && rzpResult.verified) {
+      const matchedCatalog =
+        allProducts.find(
+          (prod) =>
+            qLower.includes((prod.slug || '').toLowerCase()) ||
+            qLower.includes((prod.name || '').toLowerCase())
+        ) || allProducts[0]
 
-        verifiedDownload = {
-          productId: targetPurchase.item_id,
-          productName: targetPurchase.item_name,
-          productSlug: matchedCatalog?.slug || targetPurchase.item_id,
-          coverImage:
-            matchedCatalog?.cover_image || 'https://imagizer.imageshack.com/img924/6673/1i7cNl.png',
-          downloadUrl: `/api/download/${token}`,
-          productType: targetPurchase.item_type || 'sample_pack',
-          fileSize: 'Studio Master Archive (24-bit WAV)',
-          orderNumber:
-            targetPurchase.razorpay_order_id ||
-            `SW-ORD-${targetPurchase.id.slice(0, 8).toUpperCase()}`,
-          isProvisioned: true,
+      if (matchedCatalog) {
+        try {
+          await adminSupabase.from('user_vault').insert({
+            user_id: userId || 'verified-customer',
+            item_id: matchedCatalog.id,
+            item_type: matchedCatalog.product_type || 'sample_pack',
+            item_name: matchedCatalog.name,
+            amount: rzpResult.amount,
+            currency: rzpResult.currency || 'INR',
+            payment_gateway: 'Razorpay',
+            razorpay_order_id: rzpResult.notes?.order_id || null,
+            razorpay_payment_id: rzpResult.paymentId,
+            created_at: rzpResult.createdAt || new Date().toISOString(),
+          })
+
+          targetPurchase = {
+            id: `sw_rzp_${Date.now()}`,
+            user_id: userId || 'verified-customer',
+            item_id: matchedCatalog.id,
+            item_type: matchedCatalog.product_type || 'sample_pack',
+            item_name: matchedCatalog.name,
+            amount: rzpResult.amount,
+            currency: rzpResult.currency || 'INR',
+            payment_gateway: 'Razorpay',
+            razorpay_payment_id: rzpResult.paymentId,
+            created_at: rzpResult.createdAt || new Date().toISOString(),
+          }
+          userPurchases.unshift(targetPurchase)
+          adminActionResultNotes += `\n[LIVE RAZORPAY VERIFICATION SUCCESS]: Real payment verified directly on Razorpay gateway (Payment ID: ${rzpResult.paymentId}, Status: CAPTURED, Amount: ₹${rzpResult.amount}). Pack "${matchedCatalog.name}" has been unlocked in your Library Vault and download mirror is attached below.`
+        } catch (provErr) {
+          console.warn('[askGroqSupportAction] SamplesWala Razorpay provision warning:', provErr)
         }
-      } catch (tokenErr) {
-        console.warn('[askGroqSupportAction] Error generating token:', tokenErr)
       }
+    } else if (rzpResult && rzpResult.status === 'failed') {
+      adminActionResultNotes += `\n[LIVE RAZORPAY RECORD - PAYMENT FAILED]: Real payment record found on Razorpay (Payment ID: ${rzpResult.paymentId}), but status is FAILED. Gateway error reason: "${rzpResult.errorReason}". Explain honestly to the user that the bank transaction failed and no funds were credited to Samples Wala. If their bank debited money, it will auto-reverse within 3–5 business days.`
+    } else if (isPaymentInquiry && !targetPurchase) {
+      adminActionResultNotes += `\n[ADMIN RECORD NOTICE - NO PAYMENT FOUND]: Checked both database and live Razorpay payment gateway for account "${targetEmail || 'user'}". No completed or captured payment was found. Ask the user for their exact Razorpay Payment ID (starts with pay_..., found in their UPI app or bank statement) so we can look it up directly. STRICT RULE: DO NOT fake payment confirmation, and DO NOT tell the user we added it to their account without a verified payment!`
+      canEscalateToTicket = true
+    }
+  }
+
+  // 3. If verified target purchase found, cryptographically sign a high-security time-limited token
+  if (targetPurchase) {
+    try {
+      const token = signDownloadToken(
+        {
+          uid: userId || targetPurchase.user_id || 'verified-customer',
+          pid: targetPurchase.item_id,
+          type: targetPurchase.item_type || 'pack',
+          ip: clientIp,
+        },
+        1800 // Strict 30-minute validity window
+      )
+
+      const matchedCatalog = allProducts.find(
+        (prod) => prod.id === targetPurchase.item_id || prod.slug === targetPurchase.item_id
+      )
+
+      verifiedDownload = {
+        productId: targetPurchase.item_id,
+        productName: targetPurchase.item_name,
+        productSlug: matchedCatalog?.slug || targetPurchase.item_id,
+        coverImage:
+          matchedCatalog?.cover_image || 'https://imagizer.imageshack.com/img924/6673/1i7cNl.png',
+        downloadUrl: `/api/download/${token}`,
+        productType: targetPurchase.item_type || 'sample_pack',
+        fileSize: 'Studio Master Archive (24-bit WAV)',
+        orderNumber:
+          targetPurchase.razorpay_order_id ||
+          `SW-ORD-${targetPurchase.id.slice(0, 8).toUpperCase()}`,
+        isProvisioned: true,
+      }
+    } catch (tokenErr) {
+      console.warn('[askGroqSupportAction] Error generating token:', tokenErr)
     }
   }
 
@@ -562,6 +751,12 @@ ${userPurchases
       `- "${p.item_name}" (Price: ${p.currency === 'USD' ? '$' : '₹'}${p.amount}, Date: ${new Date(p.created_at).toLocaleDateString()}, Order: ${p.razorpay_order_id || 'N/A'}, Payment: ${p.razorpay_payment_id || 'N/A'})`
   )
   .join('\n')}`
+  } else {
+    userAccountSummary += `\nUSER'S PURCHASED PRODUCTS IN LIBRARY VAULT: 0 purchases recorded (no active orders or vault items found on this account)`
+  }
+
+  if (adminActionResultNotes) {
+    userAccountSummary += `\n${adminActionResultNotes}`
   }
 
   // 6.5. Assemble Concise Knowledge Base Context
@@ -582,8 +777,15 @@ ${userPurchases
 IDENTITY & SECURITY:
 - You are exclusively the internal technical support specialist of Samples Wala. NEVER mention "Groq", "Llama", "OpenAI", "ChatGPT", "Meta", or any third-party AI provider.
 - Never mention internal database IDs or UUIDs. Speak in a knowledgeable, polite, human audio engineer tone.
-- CONFIDENTIALITY & DATA PROTECTION (CRITICAL): NEVER disclose internal sales numbers, purchase counts, transaction figures, customer counts, or metrics (e.g. NEVER mention figures like "11 verified purchases", "10 sales", etc.). State only that a pack is a top best-seller, community favorite, or studio essential.
+- CONFIDENTIALITY & DATA PROTECTION (CRITICAL): NEVER disclose internal sales numbers, purchase counts, transaction figures, customer counts, or metrics. State only that a pack is a top best-seller, community favorite, or studio essential. If the user has 0 orders, state politely that no previous purchases were found under their account. NEVER output phrases like "many producers" or invent purchase statistics.
+- ZERO FAKE CLAIMS & PAYMENT VERIFICATION: NEVER tell the user "we verified your payment and added it to your account" unless payment is genuinely confirmed and verified in our database or live Razorpay gateway! If no verified payment exists, politely ask them for their Razorpay Payment ID (starts with pay_...) so we can search the gateway directly.
 - LIVE STORE CATALOG: All catalog packs and products are actively LIVE, released, and available right now for immediate download (unless explicitly marked otherwise). Never describe active catalog items as "upcoming".
+
+SISTER PLATFORMS:
+- Samples Wala (sampleswala.com) and Producer Toy (producertoy.com) are SISTER PLATFORMS founded by the same core team!
+- Samples Wala is India's dedicated sound library platform specializing in Indian/Bollywood/Desi sample packs, acoustic instruments (Tabla, Dholak, Harmonium, Bansuri flute), and vocal toolkits in INR (₹).
+- Producer Toy is the premier international marketplace for global producers, VST plugins, mixing tools, synth presets, and software toolkits in USD ($) and international currencies.
+- If asked about Producer Toy or Western plugins: proudly explain that Producer Toy is our sister company, and direct them to [Producer Toy](https://producertoy.com)!
 
 PROMOTIONS & OFFERS:
 - UPCOMING FESTIVAL SALE: "Samplistic Festival" starts 8 October at 12:00 PM with FLAT 20% OFF sitewide! Check live countdown on [Homepage](/).
@@ -622,7 +824,7 @@ LANGUAGE MATCHING:
 STYLE & FORMATTING:
 - STRICT OUTPUT FORMAT (CRITICAL): NEVER output chain of thought, scratchpad, internal reasoning, or thinking process. NEVER write phrases like "The user asks...", "The user says...", "Policy says...", "The best approach:", or "We should...". Output ONLY your final, polished, friendly response addressed directly to the music producer as Sampi.
 - PROPORTIONAL ANSWERS:
-  - If user gives a brief greeting or acknowledgement ('hi', 'ok', 'thanks', 'kya haal hai'): Reply in 1-2 friendly, polite lines. Do NOT write long paragraphs.
+  - If user gives a brief greeting or single short query: Reply in 1-2 friendly, polite lines. Do NOT write long paragraphs.
   - If user reports an issue, payment question, or guide: Provide the full, complete step-by-step resolution without cutting off.
 - NO RAW MARKDOWN TABLES: NEVER output raw markdown tables (| Column | Column |). Tables look cramped, awkward, and broken on mobile and chat bubbles. Always format with clean bullet points or numbered steps with bold titles.
 - Keep body text normal weight, bold only titles/numbers. Clean numbered lists for steps.
@@ -660,7 +862,6 @@ ${duplicatePaymentNotice}`
       .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '')
       // Scrub any leaked internal sales counts, purchase numbers or download counts
       .replace(/\s*\(\s*\d+\s*(?:verified\s+purchases?|downloads?|sales?|orders?|buyers?|community\s+downloads?)\s*\)/gi, '')
-      .replace(/\b\d+\s+(?:verified\s+purchases?|community\s+downloads?)\b/gi, 'many producers')
       .replace(/^#{1,4}\s+/gm, '')
       .replace(/^[\*\-]\s+/gm, '')
       .replace(/\*\*\[([^\]]+)\]\(([^)]+)\)\*\*/g, '[$1]($2)')
