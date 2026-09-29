@@ -928,7 +928,7 @@ export function EpicSupportAssistant({
                     verifiedDownload: groqRes.verifiedDownload,
                     verifiedOrder: groqRes.verifiedOrder,
                     canEscalateToTicket: groqRes.canEscalateToTicket,
-                    needsTicket: false,
+                    needsTicket: !!groqRes.canEscalateToTicket,
                     userQuery: query,
                     hasTroubleshootingSolution: Boolean(groqRes.hasTroubleshootingSolution),
                     isThinking: false,
@@ -937,6 +937,20 @@ export function EpicSupportAssistant({
                 : m
             )
           )
+
+          if (groqRes.canEscalateToTicket) {
+            const detectedId =
+              query.match(/\b(?:6E[A-Za-z0-9]+|PAYID-[A-Za-z0-9]+|pay_[A-Za-z0-9]+|CF_[A-Za-z0-9_-]+|cf_[A-Za-z0-9_-]+|SW-ORD-[A-Za-z0-9_-]+|ORD-[A-Za-z0-9_-]+|[0-9A-Za-z]{16,20})\b/i)?.[0] || ''
+            if (detectedId) {
+              setTicketOrderId(detectedId)
+              setTicketCategory('orders')
+              setTicketSubject(`Payment Verification - ${detectedId}`)
+              setTicketDescription(`I made a payment with ID: ${detectedId}. Please verify my transaction and help me access my order.`)
+            } else if (!ticketSubject) {
+              setTicketSubject(query.slice(0, 100))
+              setTicketDescription(query)
+            }
+          }
         } else {
           const localMatch = findLocalAnswer(query)
           let fallbackContent = ''
@@ -1194,7 +1208,7 @@ export function EpicSupportAssistant({
                   verifiedDownload: groqRes.verifiedDownload,
                   verifiedOrder: groqRes.verifiedOrder,
                   canEscalateToTicket: groqRes.canEscalateToTicket,
-                  needsTicket: false,
+                  needsTicket: !!groqRes.canEscalateToTicket,
                   userQuery: text,
                   hasTroubleshootingSolution: Boolean(groqRes.hasTroubleshootingSolution),
                   isThinking: false,
@@ -1203,6 +1217,20 @@ export function EpicSupportAssistant({
               : m
           )
         )
+
+        if (groqRes.canEscalateToTicket) {
+          const detectedId =
+            text.match(/\b(?:6E[A-Za-z0-9]+|PAYID-[A-Za-z0-9]+|pay_[A-Za-z0-9]+|CF_[A-Za-z0-9_-]+|cf_[A-Za-z0-9_-]+|SW-ORD-[A-Za-z0-9_-]+|ORD-[A-Za-z0-9_-]+|[0-9A-Za-z]{16,20})\b/i)?.[0] || ''
+          if (detectedId) {
+            setTicketOrderId(detectedId)
+            setTicketCategory('orders')
+            setTicketSubject(`Payment Verification - ${detectedId}`)
+            setTicketDescription(`I made a payment with ID: ${detectedId}. Please verify my transaction and help me access my order.`)
+          } else if (!ticketSubject) {
+            setTicketSubject(text.slice(0, 100))
+            setTicketDescription(text)
+          }
+        }
       } else {
         const localMatch = findLocalAnswer(text)
         let fallbackContent = ''
@@ -1403,6 +1431,16 @@ export function EpicSupportAssistant({
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(emailToSend)) {
       setTicketError('Please enter a valid email address.')
+      return
+    }
+
+    if (!ticketSubject.trim() || ticketSubject.trim().length < 3) {
+      setTicketError('Please enter a subject / question for your ticket.')
+      return
+    }
+
+    if (!ticketDescription.trim() || ticketDescription.trim().length < 5) {
+      setTicketError('Please provide a description of what went wrong in the details field.')
       return
     }
 
@@ -2350,7 +2388,7 @@ export function EpicSupportAssistant({
                                   <span>Raise Official Support Ticket</span>
                                 </h3>
                                 <p className="text-[10px] sm:text-[11px] text-zinc-400 font-medium mt-0.5">
-                                  Directly dispatched to <strong className="text-white">support@sampleswala.com</strong> & audio engineering desk
+                                  Directly assigned to our senior audio engineering desk
                                 </p>
                               </div>
                               {user?.email && (
@@ -2513,24 +2551,24 @@ export function EpicSupportAssistant({
                             <div className="flex items-center justify-between flex-wrap gap-3 pt-1">
                               <div className="flex items-center gap-2 text-[11px] text-zinc-400 font-medium">
                                 <Mail size={13} className="text-[#FFE600]" />
-                                <span>Sent directly to <strong className="text-zinc-200">support@sampleswala.com</strong></span>
+                                <span>Priority Senior Audio Support Desk</span>
                               </div>
 
                               <button
                                 type="button"
                                 onClick={() => handleCreateTicket(msg.id, msg.userQuery)}
-                                disabled={isSubmittingTicket}
+                                disabled={isSubmittingTicket || !ticketEmail.trim() || !ticketSubject.trim() || !ticketDescription.trim()}
                                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF5C00] hover:bg-[#ff7524] disabled:opacity-50 text-white border-2 border-black font-black text-xs uppercase italic tracking-wider shadow-[4px_4px_0px_black] hover:shadow-[2px_2px_0px_black] hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
                               >
                                 {isSubmittingTicket ? (
                                   <>
                                     <Loader2 size={14} className="animate-spin" />
-                                    <span>Dispatching to support@sampleswala.com...</span>
+                                    <span>Submitting Ticket...</span>
                                   </>
                                 ) : (
                                   <>
                                     <Send size={14} strokeWidth={2.5} />
-                                    <span>Submit Ticket to support@sampleswala.com</span>
+                                    <span>Submit Official Ticket</span>
                                   </>
                                 )}
                               </button>
@@ -2559,17 +2597,17 @@ export function EpicSupportAssistant({
                           <div className="w-full bg-[#0e1118] border-3 border-black text-white rounded-2xl p-6 sm:p-7 shadow-[6px_6px_0px_#00FF94] space-y-3">
                             <p className="font-black uppercase italic text-white text-base sm:text-lg flex items-center gap-2.5">
                               <CheckCircle2 size={20} strokeWidth={2.5} className="text-[#00FF94] shrink-0" />
-                              <span>Ticket #{msg.ticketNumber} Dispatched!</span>
+                              <span>Ticket #{msg.ticketNumber} Submitted Successfully!</span>
                             </p>
                             <p className="text-zinc-200 text-sm sm:text-[14.5px] leading-relaxed font-medium">
-                              Your ticket and complete chat transcript have been dispatched directly to <strong className="text-white underline">support@sampleswala.com</strong>. Our senior audio engineering desk will review your inquiry and get back to you via email.
+                              Your support ticket has been received. Our senior audio engineering desk will review your inquiry and get back to you directly via your registered email.
                             </p>
                             <div className="pt-1 flex items-center gap-2 flex-wrap">
                               <span className="text-xs text-black font-mono font-black bg-[#FFE600] px-3.5 py-1.5 rounded-lg border-2 border-black shadow-[3px_3px_0px_black]">
                                 Ref: #{msg.ticketNumber}
                               </span>
                               <span className="text-xs text-[#00FF94] bg-[#00FF94]/15 px-3 py-1.5 rounded-lg border border-[#00FF94]/40 font-bold">
-                                Email Dispatched to support@sampleswala.com
+                                Ticket Registered
                               </span>
                             </div>
                           </div>

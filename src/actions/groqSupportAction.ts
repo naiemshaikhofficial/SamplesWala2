@@ -1,179 +1,27 @@
 'use server'
 
 import { getAdminClient } from '@/lib/supabase/admin'
-import { createClient, getUser } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/server'
 import { headers } from 'next/headers'
 import { signDownloadToken } from '@/lib/security'
 import { KNOWLEDGE_BASE } from '@/components/support/supportKnowledgeData'
-import fs from 'fs'
-import path from 'path'
+import {
+  verifyMultiGatewayDirect,
+  type LiveGatewayVerificationResult,
+} from '@/lib/support/paymentVerifier'
+import {
+  getGroqApiKey,
+  ensureSupabaseAdminEnv,
+  hasProfanityOrAbuse,
+  isOffTopicQuery,
+  scrubBrandNames,
+} from '@/lib/support/supportHelpers'
+import {
+  buildSupportSystemPrompt,
+  type SupportPromptContext,
+} from '@/lib/support/rules'
 
-function getGroqApiKey(): string | null {
-  if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim()) {
-    return process.env.GROQ_API_KEY.trim()
-  }
-  try {
-    const envPath = path.resolve(process.cwd(), '.env.local')
-    if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, 'utf8')
-      const match = content.match(/GROQ_API_KEY\s*=\s*(.+)/)
-      if (match && match[1]) {
-        const val = match[1].trim().replace(/^['"]|['"]$/g, '')
-        process.env.GROQ_API_KEY = val
-        return val
-      }
-    }
-  } catch (err) {
-    console.warn('[getGroqApiKey] Error reading .env.local:', err)
-  }
-  return null
-}
-
-function ensureSupabaseAdminEnv() {
-  if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) return
-  try {
-    const envPath = path.resolve(process.cwd(), '.env.local')
-    if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, 'utf8')
-      const mUrl = content.match(/NEXT_PUBLIC_SUPABASE_URL\s*=\s*(.+)/)
-      if (mUrl && mUrl[1]) process.env.NEXT_PUBLIC_SUPABASE_URL = mUrl[1].trim().replace(/^['"]|['"]$/g, '')
-      const mKey = content.match(/SUPABASE_SERVICE_ROLE_KEY\s*=\s*(.+)/)
-      if (mKey && mKey[1]) process.env.SUPABASE_SERVICE_ROLE_KEY = mKey[1].trim().replace(/^['"]|['"]$/g, '')
-    }
-  } catch (err) {
-    console.warn('[ensureSupabaseAdminEnv] Error reading .env.local:', err)
-  }
-}
-
-function getRazorpayCredentials(): { keyId: string | null; keySecret: string | null } {
-  let keyId = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || null
-  let keySecret = process.env.RAZORPAY_KEY_SECRET || null
-
-  if (!keyId || !keySecret) {
-    try {
-      const envPath = path.resolve(process.cwd(), '.env.local')
-      if (fs.existsSync(envPath)) {
-        const content = fs.readFileSync(envPath, 'utf8')
-        const mKey = content.match(/(?:RAZORPAY_KEY_ID|NEXT_PUBLIC_RAZORPAY_KEY_ID)\s*=\s*(.+)/)
-        if (mKey && mKey[1]) keyId = mKey[1].trim().replace(/^['"]|['"]$/g, '')
-        const mSec = content.match(/RAZORPAY_KEY_SECRET\s*=\s*(.+)/)
-        if (mSec && mSec[1]) keySecret = mSec[1].trim().replace(/^['"]|['"]$/g, '')
-      }
-    } catch (err) {
-      console.warn('[getRazorpayCredentials] Error reading .env.local:', err)
-    }
-  }
-
-  return { keyId, keySecret }
-}
-
-interface RazorpayVerificationResult {
-  verified: boolean
-  paymentId?: string
-  status?: string
-  amount?: number
-  currency?: string
-  email?: string
-  contact?: string
-  method?: string
-  notes?: Record<string, any>
-  createdAt?: string
-  errorReason?: string
-}
-
-async function verifyRazorpayDirect(
-  paymentId: string | null,
-  email: string | null
-): Promise<RazorpayVerificationResult | null> {
-  const { keyId, keySecret } = getRazorpayCredentials()
-  if (!keyId || !keySecret) return null
-
-  const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString('base64')
-  const rzpHeaders = {
-    Authorization: `Basic ${basicAuth}`,
-    'Content-Type': 'application/json',
-  }
-
-  // 1. Direct Lookup by Payment ID (pay_...)
-  if (paymentId) {
-    try {
-      const res = await fetch(`https://api.razorpay.com/v1/payments/${paymentId}`, {
-        headers: rzpHeaders,
-        cache: 'no-store',
-      })
-      if (res.ok) {
-        const p = await res.json()
-        return {
-          verified: p.status === 'captured',
-          paymentId: p.id,
-          status: p.status,
-          amount: p.amount ? p.amount / 100 : 0,
-          currency: p.currency || 'INR',
-          email: p.email || undefined,
-          contact: p.contact || undefined,
-          method: p.method || undefined,
-          notes: p.notes || {},
-          createdAt: p.created_at ? new Date(p.created_at * 1000).toISOString() : undefined,
-          errorReason: p.error_description || p.error_reason || undefined,
-        }
-      }
-    } catch (err) {
-      console.warn('[verifyRazorpayDirect] Direct lookup error:', err)
-    }
-  }
-
-  // 2. Lookup recent payments by Email if customer reports missing purchase
-  if (email) {
-    try {
-      const res = await fetch(`https://api.razorpay.com/v1/payments?count=15`, {
-        headers: rzpHeaders,
-        cache: 'no-store',
-      })
-      if (res.ok) {
-        const data = await res.json()
-        const items = data.items || []
-        const cleanEmail = email.toLowerCase().trim()
-        const matched = items.find(
-          (p: any) =>
-            p.email && p.email.toLowerCase().trim() === cleanEmail && p.status === 'captured'
-        )
-        if (matched) {
-          return {
-            verified: true,
-            paymentId: matched.id,
-            status: matched.status,
-            amount: matched.amount ? matched.amount / 100 : 0,
-            currency: matched.currency || 'INR',
-            email: matched.email || undefined,
-            contact: matched.contact || undefined,
-            method: matched.method || undefined,
-            notes: matched.notes || {},
-            createdAt: matched.created_at ? new Date(matched.created_at * 1000).toISOString() : undefined,
-          }
-        }
-        const failedMatch = items.find(
-          (p: any) =>
-            p.email && p.email.toLowerCase().trim() === cleanEmail && p.status === 'failed'
-        )
-        if (failedMatch) {
-          return {
-            verified: false,
-            paymentId: failedMatch.id,
-            status: failedMatch.status,
-            amount: failedMatch.amount ? failedMatch.amount / 100 : 0,
-            currency: failedMatch.currency || 'INR',
-            email: failedMatch.email || undefined,
-            errorReason: failedMatch.error_description || failedMatch.error_reason || 'Bank or payment network declined',
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('[verifyRazorpayDirect] Email search error:', err)
-    }
-  }
-
-  return null
-}
+export type { LiveGatewayVerificationResult }
 
 export interface RecommendedProduct {
   id: string
@@ -312,438 +160,462 @@ export async function askGroqSupportAction(
       }
     }
 
-  const adminSupabase = getAdminClient()
+    const adminSupabase = getAdminClient()
 
-  // 1. Determine Current User Session (Check client auth context first, then cookies)
-  let currentUser: any = null
-  let userEmail: string | null = clientUser?.email ? clientUser.email.toLowerCase().trim() : null
-  let userId: string | null = clientUser?.id || null
-  let userName: string = clientUser?.name || 'Producer'
+    // 1. Determine Current User Session (Check client auth context first, then cookies)
+    let currentUser: any = null
+    let userEmail: string | null = clientUser?.email ? clientUser.email.toLowerCase().trim() : null
+    let userId: string | null = clientUser?.id || null
+    let userName: string = clientUser?.name || 'Producer'
 
-  if (!userId || !userEmail) {
+    if (!userId || !userEmail) {
+      try {
+        const { data } = await getUser()
+        if (data?.user) {
+          currentUser = data.user
+          userId = userId || data.user.id
+          userEmail = userEmail || (data.user.email ? data.user.email.toLowerCase().trim() : null)
+          userName =
+            userName !== 'Producer'
+              ? userName
+              : data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Producer'
+        }
+      } catch (authErr) {
+        console.warn('[askGroqSupportAction] Auth check notice:', authErr)
+      }
+    }
+
+    // 2. Extract potential entities from query or chat history (Order IDs, Payment IDs, emails)
+    const fullTextToScan = `${query} ${history.map((h) => h.content).join(' ')}`
+    const orderNumberMatch =
+      fullTextToScan.match(/\bSW-ORD-[A-Za-z0-9_-]+\b/i) ||
+      fullTextToScan.match(/\bORD-[A-Za-z0-9_-]+\b/i) ||
+      fullTextToScan.match(/\border_[A-Za-z0-9_-]+\b/i)
+
+    const razorpayPaymentMatch = fullTextToScan.match(/\bpay_[A-Za-z0-9]+\b/i)
+    const paypalPaymentMatch =
+      fullTextToScan.match(/\bPAYID-[A-Za-z0-9]+\b/i) ||
+      fullTextToScan.match(/\b[0-9A-Z]{17}\b/) ||
+      fullTextToScan.match(/\bpp_[A-Za-z0-9_-]+\b/i)
+    const cashfreePaymentMatch =
+      fullTextToScan.match(/\b(?:cf_|cf_pay_)[A-Za-z0-9_-]+\b/i) ||
+      fullTextToScan.match(/\bCF_[A-Za-z0-9_-]+\b/)
+
+    const emailMatch = fullTextToScan.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/i)
+
+    const scannedOrderNumber = orderNumberMatch ? orderNumberMatch[0].toUpperCase() : null
+    const scannedPaymentId =
+      razorpayPaymentMatch?.[0] ||
+      paypalPaymentMatch?.[0] ||
+      cashfreePaymentMatch?.[0] ||
+      null
+    const scannedEmail = emailMatch ? emailMatch[0].toLowerCase().trim() : null
+
+    const targetEmail = userEmail || scannedEmail
+
+    // 3. Fetch Live Catalog 100% Dynamically from Supabase (sample_packs & presets)
+    let liveInventoryList = ''
+    let allProducts: RecommendedProduct[] = []
+
     try {
-      const { data } = await getUser()
-      if (data?.user) {
-        currentUser = data.user
-        userId = userId || data.user.id
-        userEmail = userEmail || (data.user.email ? data.user.email.toLowerCase().trim() : null)
-        userName = userName !== 'Producer' ? userName : (data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Producer')
-      }
-    } catch (authErr) {
-      console.warn('[askGroqSupportAction] Auth check notice:', authErr)
-    }
-  }
-
-  // 2. Extract potential entities from query or chat history (Order IDs, Payment IDs, emails)
-  const fullTextToScan = `${query} ${history.map((h) => h.content).join(' ')}`
-  const orderNumberMatch =
-    fullTextToScan.match(/\bSW-ORD-[A-Za-z0-9_-]+\b/i) ||
-    fullTextToScan.match(/\bORD-[A-Za-z0-9_-]+\b/i) ||
-    fullTextToScan.match(/\border_[A-Za-z0-9_-]+\b/i)
-  const paymentIdMatch = fullTextToScan.match(/\bpay_[A-Za-z0-9]+\b/i)
-  const emailMatch = fullTextToScan.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/i)
-
-  const scannedOrderNumber = orderNumberMatch ? orderNumberMatch[0].toUpperCase() : null
-  const scannedPaymentId = paymentIdMatch ? paymentIdMatch[0] : null
-  const scannedEmail = emailMatch ? emailMatch[0].toLowerCase().trim() : null
-
-  const targetEmail = userEmail || scannedEmail
-
-  // 3. Fetch Live Catalog 100% Dynamically from Supabase (sample_packs & presets)
-  let liveInventoryList = ''
-  let allProducts: RecommendedProduct[] = []
-
-  try {
-    const packsPromise = adminSupabase
-      .from('sample_packs')
-      .select(
-        'id, name, slug, cover_url, price_inr, price_usd, mrp_inr, total_contents_summary, loop_count, one_shot_count, melody_count, preset_count, series, description'
-      )
-      .order('created_at', { ascending: false })
-      .limit(100)
-
-    const presetsPromise = adminSupabase
-      .from('presets')
-      .select('id, name, slug, cover_url, price_inr, mrp_inr, type, daws, plugins_used, description')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(60)
-
-    const [packsRes, presetsRes] = await Promise.allSettled([packsPromise, presetsPromise])
-
-    const dbPacks: RecommendedProduct[] =
-      packsRes.status === 'fulfilled' && packsRes.value.data
-        ? packsRes.value.data.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            slug: p.slug,
-            cover_image: p.cover_url || '',
-            price_inr: Number(p.price_inr ?? 0),
-            price_usd: p.price_usd != null ? Number(p.price_usd) : undefined,
-            mrp_inr: p.mrp_inr != null ? Number(p.mrp_inr) : undefined,
-            product_type: 'sample_pack',
-            total_contents_summary: p.total_contents_summary || null,
-            loop_count: p.loop_count != null ? Number(p.loop_count) : undefined,
-            one_shot_count: p.one_shot_count != null ? Number(p.one_shot_count) : undefined,
-            melody_count: p.melody_count != null ? Number(p.melody_count) : undefined,
-            preset_count: p.preset_count != null ? Number(p.preset_count) : undefined,
-            series: p.series || null,
-            short_description: p.description ? p.description.slice(0, 180).replace(/\r?\n/g, ' ') : null,
-            full_description: p.description || null,
-          }))
-        : []
-
-    const dbPresets: RecommendedProduct[] =
-      presetsRes.status === 'fulfilled' && presetsRes.value.data
-        ? presetsRes.value.data.map((pr: any) => ({
-            id: pr.id,
-            name: pr.name,
-            slug: pr.slug,
-            cover_image: pr.cover_url || '',
-            price_inr: Number(pr.price_inr ?? 0),
-            mrp_inr: pr.mrp_inr != null ? Number(pr.mrp_inr) : undefined,
-            product_type: 'preset',
-            daws: Array.isArray(pr.daws) ? pr.daws : [],
-            plugins_used: Array.isArray(pr.plugins_used) ? pr.plugins_used : [],
-            short_description: pr.description ? pr.description.slice(0, 180).replace(/\r?\n/g, ' ') : null,
-            full_description: pr.description || null,
-          }))
-        : []
-
-    allProducts = [...dbPacks, ...dbPresets]
-  } catch (dbErr) {
-    console.warn('[askGroqSupportAction] DB product query warning:', dbErr)
-    allProducts = []
-  }
-
-  // Formulate Dense, Token-Efficient Inventory Profile from Database
-  liveInventoryList = allProducts
-    .map((p) => {
-      const price = p.price_inr === 0 ? 'FREE' : `₹${p.price_inr}`
-      const mrp = p.mrp_inr ? ` (MRP: ₹${p.mrp_inr})` : ''
-      const link = p.product_type === 'preset' ? `/browse/presets/${p.slug}` : `/packs/${p.slug}`
-
-      const specParts: string[] = []
-      if (p.total_contents_summary) {
-        specParts.push(p.total_contents_summary.replace(/\r?\n/g, ' '))
-      } else {
-        const countParts: string[] = []
-        if (p.loop_count) countParts.push(`${p.loop_count} Loops`)
-        if (p.one_shot_count) countParts.push(`${p.one_shot_count} One-Shots`)
-        if (p.melody_count) countParts.push(`${p.melody_count} Melodies`)
-        if (p.preset_count) countParts.push(`${p.preset_count} Presets`)
-        if (countParts.length > 0) specParts.push(countParts.join(', '))
-      }
-      if (p.series) specParts.push(`Series: ${p.series}`)
-      if (p.daws && p.daws.length > 0) specParts.push(`DAWs: ${p.daws.join(', ')}`)
-      if (p.plugins_used && p.plugins_used.length > 0) specParts.push(`Plugins: ${p.plugins_used.join(', ')}`)
-
-      const descSnippet = p.short_description ? ` | ${p.short_description}` : ''
-      return `- [${p.name}](${link}): ${price}${mrp} [${p.product_type}] | Specs: ${specParts.join(' • ')}${descSnippet}`
-    })
-    .join('\n')
-
-  // 4. Fetch User Purchases / Vault Items
-  let userPurchases: any[] = []
-  let matchedSpecificOrder: any = null
-
-  try {
-    if (userId) {
-      const { data: vData } = await adminSupabase
-        .from('user_vault')
-        .select('id, user_id, item_id, item_type, item_name, amount, currency, payment_gateway, razorpay_order_id, razorpay_payment_id, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(15)
-
-      if (vData) userPurchases = vData
-    }
-
-    // Search specifically if an explicit Order ID or Payment ID was provided
-    if (scannedOrderNumber || scannedPaymentId) {
-      let specificQuery = adminSupabase.from('user_vault').select('*')
-      if (scannedOrderNumber && scannedPaymentId) {
-        specificQuery = specificQuery.or(`razorpay_order_id.ilike.${scannedOrderNumber},razorpay_payment_id.eq.${scannedPaymentId}`)
-      } else if (scannedOrderNumber) {
-        specificQuery = specificQuery.ilike('razorpay_order_id', scannedOrderNumber)
-      } else if (scannedPaymentId) {
-        specificQuery = specificQuery.eq('razorpay_payment_id', scannedPaymentId)
-      }
-
-      const { data: specOrders } = await specificQuery.limit(5)
-      if (specOrders && specOrders.length > 0) {
-        matchedSpecificOrder = specOrders[0]
-        if (!userPurchases.some((p) => p.id === matchedSpecificOrder.id)) {
-          userPurchases.push(...specOrders)
-        }
-      }
-    }
-  } catch (vaultErr) {
-    console.warn('[askGroqSupportAction] Vault query warning:', vaultErr)
-  }
-
-  // 4.1. Fetch Live Sales Leaderboard Dynamically from user_vault (Real-Time Best Sellers)
-  let liveTopSellingPacksSummary = ''
-  try {
-    const { data: recentSales } = await adminSupabase
-      .from('user_vault')
-      .select('item_name, item_id, amount')
-      .order('created_at', { ascending: false })
-      .limit(200)
-
-    if (recentSales && recentSales.length > 0) {
-      const salesCounts: Record<string, { count: number; name: string; isPaid: boolean }> = {}
-      for (const sale of recentSales) {
-        const name = (sale.item_name || '').trim()
-        if (!name || name === 'Unknown') continue
-        if (!salesCounts[name]) {
-          salesCounts[name] = { count: 0, name, isPaid: Number(sale.amount || 0) > 0 }
-        }
-        salesCounts[name].count++
-      }
-
-      const sortedTop = Object.values(salesCounts).sort((a, b) => b.count - a.count)
-      const topPaid = sortedTop.filter((s) => s.isPaid).slice(0, 3)
-      const topFree = sortedTop.filter((s) => !s.isPaid).slice(0, 2)
-
-      liveTopSellingPacksSummary = `REAL-TIME BEST-SELLERS & POPULAR PACKS (COMMUNITY FAVORITES):
-- Top Best-Selling Paid Packs:
-${topPaid.map((s, idx) => `  ${idx + 1}. "${s.name}"`).join('\n')}
-- Most Popular Free Starter Packs (ONLY disclose if user explicitly asks for free):
-${topFree.map((s, idx) => `  ${idx + 1}. "${s.name}"`).join('\n')}`
-    }
-  } catch (salesErr) {
-    console.warn('[askGroqSupportAction] Sales leaderboard query warning:', salesErr)
-  }
-
-  // 4.2. Detect Potential Duplicate Payments / Charges in User Vault
-  let duplicatePaymentNotice = ''
-  if (userPurchases && userPurchases.length > 1) {
-    const seenItems: Record<string, any[]> = {}
-    for (const p of userPurchases) {
-      const key = `${p.item_id || p.item_name}`
-      if (!seenItems[key]) seenItems[key] = []
-      seenItems[key].push(p)
-    }
-
-    const duplicates = Object.values(seenItems).filter((list) => list.length > 1)
-    if (duplicates.length > 0) {
-      const dupList = duplicates[0]
-      duplicatePaymentNotice = `DUPLICATE PAYMENT DETECTED IN USER'S VERIFIED PURCHASES:
-The user has ${dupList.length} verified transactions for "${dupList[0].item_name}":
-${dupList.map((d, i) => `- Transaction ${i + 1}: Amount: ₹${d.amount}, Order ID: ${d.razorpay_order_id || 'N/A'}, Payment ID: ${d.razorpay_payment_id || 'N/A'}, Date: ${new Date(d.created_at).toLocaleString()}`).join('\n')}
-AUTOMATIC ACTION INSTRUCTIONS FOR SAMPI:
-- Confirm to the user that you have checked our store database and verified their duplicate deduction for "${dupList[0].item_name}".
-- Quote the exact Order ID and Payment ID found above so they have full peace of mind.
-- Assure them that the duplicate charge has been automatically flagged for refund reversal via Razorpay back to their original payment source (takes 3-5 business days).
-- Do NOT make the user fill out forms or ask for details we already found in their account!
-- Only suggest opening a ticket if they need special manual bank tracing or a different resolution.`
-    }
-  }
-
-  // 5. Build Autonomous Verified Download & Verified Order Cards
-  let verifiedDownload: VerifiedDownload | null = null
-  let verifiedOrder: VerifiedOrder | null = null
-  let canEscalateToTicket = false
-
-  const headerList = await headers()
-  const clientIp = headerList.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1'
-
-  // A. Check for matched download - STRICT ZERO-PIRACY & AUTHENTICATION VERIFICATION
-  // Card ONLY appears if:
-  // 1. User is authenticated (valid userId).
-  // 2. Query is an EXPLICIT request for a download link (not a recommendation, browse, or pricing query).
-  // 3. User ACTUALLY owns the product in user_vault (verified purchase).
-  const qLower = query.toLowerCase()
-
-  const isRecommendationOrInfoQuery =
-    /\b(best|recommend|suggest|top|konsa|konsi|achha|compare|difference|review|demo|preview|what is|kya hai|details|kitna|price|rate|cost|discount|coupon)\b/i.test(
-      qLower
-    )
-
-  const isExplicitDownloadLinkRequest =
-    !isRecommendationOrInfoQuery &&
-    /\b(download link|link do|link de do|link bhejo|link chahiye|give me download link|send download link|direct download link|direct link|download nahi ho raha|download nahi chal raha|can't download|cant download|failed to download|corrupt file|link expired|redownload|re-download|mera download|download button do|download link please|paise kat gaye pack nahi mila)\b/i.test(
-      qLower
-    )
-
-  let targetPurchase: any = null
-  let adminActionResultNotes = ''
-
-  if (Boolean(userId) && isExplicitDownloadLinkRequest && userPurchases.length > 0) {
-    // 1. Check if the user mentioned a specific product from their verified vault
-    for (const p of userPurchases) {
-      const pName = (p.item_name || '').toLowerCase()
-      const pId = (p.item_id || '').toLowerCase()
-      const shortName = pName.split(/[–—-]/)[0].trim()
-
-      if (
-        (pId && qLower.includes(pId)) ||
-        (shortName.length > 3 && qLower.includes(shortName)) ||
-        (pName.length > 3 && qLower.includes(pName))
-      ) {
-        targetPurchase = p
-        break
-      }
-    }
-
-    // 2. If user didn't mention an owned pack, check if they mentioned an UNOWNED pack (anti-piracy defense)
-    if (!targetPurchase) {
-      const mentionedUnownedProduct = allProducts.find((prod) => {
-        const prodName = (prod.name || '').toLowerCase()
-        const prodSlug = (prod.slug || '').toLowerCase()
-        const shortProdName = prodName.split(/[–—-]/)[0].trim()
-        return (
-          qLower.includes(prodSlug) ||
-          (shortProdName.length > 3 && qLower.includes(shortProdName)) ||
-          (prodName.length > 3 && qLower.includes(prodName))
+      const packsPromise = adminSupabase
+        .from('sample_packs')
+        .select(
+          'id, name, slug, cover_url, price_inr, price_usd, mrp_inr, total_contents_summary, loop_count, one_shot_count, melody_count, preset_count, series, description'
         )
-      })
+        .order('created_at', { ascending: false })
+        .limit(100)
 
-      // If user is asking for a download link of a pack they do NOT own, targetPurchase remains null!
-      if (!mentionedUnownedProduct && userPurchases.length === 1) {
-        // If user only has 1 purchase in their entire vault and asked for their link, target that single item
-        targetPurchase = userPurchases[0]
+      const presetsPromise = adminSupabase
+        .from('presets')
+        .select('id, name, slug, cover_url, price_inr, mrp_inr, type, daws, plugins_used, description')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(60)
+
+      const [packsRes, presetsRes] = await Promise.allSettled([packsPromise, presetsPromise])
+
+      const dbPacks: RecommendedProduct[] =
+        packsRes.status === 'fulfilled' && packsRes.value.data
+          ? packsRes.value.data.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              slug: p.slug,
+              cover_image: p.cover_url || '',
+              price_inr: Number(p.price_inr ?? 0),
+              price_usd: p.price_usd != null ? Number(p.price_usd) : undefined,
+              mrp_inr: p.mrp_inr != null ? Number(p.mrp_inr) : undefined,
+              product_type: 'sample_pack',
+              total_contents_summary: p.total_contents_summary || null,
+              loop_count: p.loop_count != null ? Number(p.loop_count) : undefined,
+              one_shot_count: p.one_shot_count != null ? Number(p.one_shot_count) : undefined,
+              melody_count: p.melody_count != null ? Number(p.melody_count) : undefined,
+              preset_count: p.preset_count != null ? Number(p.preset_count) : undefined,
+              series: p.series || null,
+              short_description: p.description ? p.description.slice(0, 180).replace(/\r?\n/g, ' ') : null,
+              full_description: p.description || null,
+            }))
+          : []
+
+      const dbPresets: RecommendedProduct[] =
+        presetsRes.status === 'fulfilled' && presetsRes.value.data
+          ? presetsRes.value.data.map((pr: any) => ({
+              id: pr.id,
+              name: pr.name,
+              slug: pr.slug,
+              cover_image: pr.cover_url || '',
+              price_inr: Number(pr.price_inr ?? 0),
+              mrp_inr: pr.mrp_inr != null ? Number(pr.mrp_inr) : undefined,
+              product_type: 'preset',
+              daws: Array.isArray(pr.daws) ? pr.daws : [],
+              plugins_used: Array.isArray(pr.plugins_used) ? pr.plugins_used : [],
+              short_description: pr.description ? pr.description.slice(0, 180).replace(/\r?\n/g, ' ') : null,
+              full_description: pr.description || null,
+            }))
+          : []
+
+      allProducts = [...dbPacks, ...dbPresets]
+    } catch (dbErr) {
+      console.warn('[askGroqSupportAction] DB product query warning:', dbErr)
+      allProducts = []
+    }
+
+    liveInventoryList = allProducts
+      .map((p) => {
+        const price = p.price_inr === 0 ? 'FREE' : `₹${p.price_inr}`
+        const mrp = p.mrp_inr ? ` (MRP: ₹${p.mrp_inr})` : ''
+        const link = p.product_type === 'preset' ? `/browse/presets/${p.slug}` : `/packs/${p.slug}`
+
+        const specParts: string[] = []
+        if (p.total_contents_summary) {
+          specParts.push(p.total_contents_summary.replace(/\r?\n/g, ' '))
+        } else {
+          const countParts: string[] = []
+          if (p.loop_count) countParts.push(`${p.loop_count} Loops`)
+          if (p.one_shot_count) countParts.push(`${p.one_shot_count} One-Shots`)
+          if (p.melody_count) countParts.push(`${p.melody_count} Melodies`)
+          if (p.preset_count) countParts.push(`${p.preset_count} Presets`)
+          if (countParts.length > 0) specParts.push(countParts.join(', '))
+        }
+        if (p.series) specParts.push(`Series: ${p.series}`)
+        if (p.daws && p.daws.length > 0) specParts.push(`DAWs: ${p.daws.join(', ')}`)
+        if (p.plugins_used && p.plugins_used.length > 0) specParts.push(`Plugins: ${p.plugins_used.join(', ')}`)
+
+        const descSnippet = p.short_description ? ` | ${p.short_description}` : ''
+        return `- [${p.name}](${link}): ${price}${mrp} [${p.product_type}] | Specs: ${specParts.join(' • ')}${descSnippet}`
+      })
+      .join('\n')
+
+    // 4. Fetch User Purchases / Vault Items from Supabase
+    let userPurchases: any[] = []
+    let matchedSpecificOrder: any = null
+    let resolvedUserId = userId
+
+    if (!resolvedUserId && targetEmail) {
+      try {
+        const { data: userData } = await adminSupabase.auth.admin.listUsers()
+        const cleanTarget = targetEmail.toLowerCase().trim()
+        const matched = userData?.users?.find(
+          (u: any) => u.email?.toLowerCase().trim() === cleanTarget
+        )
+        if (matched) {
+          resolvedUserId = matched.id
+        }
+      } catch (authLookErr) {
+        console.warn('[askGroqSupportAction] Auth user lookup warning:', authLookErr)
       }
     }
-  }
 
-  // Live Razorpay Gateway Verification for missing access or payment inquiries
-  const isPaymentInquiry =
-    isExplicitDownloadLinkRequest ||
-    scannedPaymentId ||
-    (scannedOrderNumber && !matchedSpecificOrder) ||
-    /paise kat gaye|payment failed|not received|didn't get access|kharida|bought|purchased|deducted/i.test(qLower)
+    try {
+      if (resolvedUserId) {
+        const { data: vData } = await adminSupabase
+          .from('user_vault')
+          .select('id, user_id, item_id, item_type, item_name, amount, currency, payment_gateway, razorpay_order_id, razorpay_payment_id, created_at')
+          .eq('user_id', resolvedUserId)
+          .order('created_at', { ascending: false })
+          .limit(15)
 
-  if (!targetPurchase && isPaymentInquiry) {
-    const rzpResult = await verifyRazorpayDirect(scannedPaymentId, targetEmail)
-    if (rzpResult && rzpResult.verified) {
-      const matchedCatalog =
-        allProducts.find(
-          (prod) =>
-            qLower.includes((prod.slug || '').toLowerCase()) ||
-            qLower.includes((prod.name || '').toLowerCase())
-        ) || allProducts[0]
+        if (vData) userPurchases = vData
+      }
 
-      if (matchedCatalog) {
-        try {
-          await adminSupabase.from('user_vault').insert({
-            user_id: userId || 'verified-customer',
-            item_id: matchedCatalog.id,
-            item_type: matchedCatalog.product_type || 'sample_pack',
-            item_name: matchedCatalog.name,
-            amount: rzpResult.amount,
-            currency: rzpResult.currency || 'INR',
-            payment_gateway: 'Razorpay',
-            razorpay_order_id: rzpResult.notes?.order_id || null,
-            razorpay_payment_id: rzpResult.paymentId,
-            created_at: rzpResult.createdAt || new Date().toISOString(),
-          })
+      if (scannedOrderNumber || scannedPaymentId) {
+        let specificQuery = adminSupabase.from('user_vault').select('*')
+        if (scannedOrderNumber && scannedPaymentId) {
+          specificQuery = specificQuery.or(`razorpay_order_id.ilike.${scannedOrderNumber},razorpay_payment_id.eq.${scannedPaymentId}`)
+        } else if (scannedOrderNumber) {
+          specificQuery = specificQuery.ilike('razorpay_order_id', scannedOrderNumber)
+        } else if (scannedPaymentId) {
+          specificQuery = specificQuery.eq('razorpay_payment_id', scannedPaymentId)
+        }
 
-          targetPurchase = {
-            id: `sw_rzp_${Date.now()}`,
-            user_id: userId || 'verified-customer',
-            item_id: matchedCatalog.id,
-            item_type: matchedCatalog.product_type || 'sample_pack',
-            item_name: matchedCatalog.name,
-            amount: rzpResult.amount,
-            currency: rzpResult.currency || 'INR',
-            payment_gateway: 'Razorpay',
-            razorpay_payment_id: rzpResult.paymentId,
-            created_at: rzpResult.createdAt || new Date().toISOString(),
+        const { data: specOrders } = await specificQuery.limit(5)
+        if (specOrders && specOrders.length > 0) {
+          matchedSpecificOrder = specOrders[0]
+          if (!userPurchases.some((p) => p.id === matchedSpecificOrder.id)) {
+            userPurchases.push(...specOrders)
           }
-          userPurchases.unshift(targetPurchase)
-          adminActionResultNotes += `\n[LIVE RAZORPAY VERIFICATION SUCCESS]: Real payment verified directly on Razorpay gateway (Payment ID: ${rzpResult.paymentId}, Status: CAPTURED, Amount: ₹${rzpResult.amount}). Pack "${matchedCatalog.name}" has been unlocked in your Library Vault and download mirror is attached below.`
-        } catch (provErr) {
-          console.warn('[askGroqSupportAction] SamplesWala Razorpay provision warning:', provErr)
         }
       }
-    } else if (rzpResult && rzpResult.status === 'failed') {
-      adminActionResultNotes += `\n[LIVE RAZORPAY RECORD - PAYMENT FAILED]: Real payment record found on Razorpay (Payment ID: ${rzpResult.paymentId}), but status is FAILED. Gateway error reason: "${rzpResult.errorReason}". Explain honestly to the user that the bank transaction failed and no funds were credited to Samples Wala. If their bank debited money, it will auto-reverse within 3–5 business days.`
-    } else if (isPaymentInquiry && !targetPurchase) {
-      adminActionResultNotes += `\n[ADMIN RECORD NOTICE - NO PAYMENT FOUND]: Checked both database and live Razorpay payment gateway for account "${targetEmail || 'user'}". No completed or captured payment was found. Ask the user for their exact Razorpay Payment ID (starts with pay_..., found in their UPI app or bank statement) so we can look it up directly. STRICT RULE: DO NOT fake payment confirmation, and DO NOT tell the user we added it to their account without a verified payment!`
+    } catch (vaultErr) {
+      console.warn('[askGroqSupportAction] Vault query warning:', vaultErr)
+    }
+
+    // 5. Build Autonomous Verified Download & Verified Order Cards
+    let verifiedDownload: VerifiedDownload | null = null
+    let verifiedOrder: VerifiedOrder | null = null
+    let canEscalateToTicket = false
+
+    const headerList = await headers()
+    const clientIp = headerList.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1'
+
+    const qLower = query.toLowerCase()
+
+    const isRecommendationOrInfoQuery =
+      /\b(best|recommend|suggest|top|konsa|konsi|achha|compare|difference|review|demo|preview|what is|kya hai|details|kitna|price|rate|cost|discount|coupon)\b/i.test(
+        qLower
+      )
+
+    const isExplicitDownloadLinkRequest =
+      !isRecommendationOrInfoQuery &&
+      /\b(download link|link do|link de do|link bhejo|link chahiye|give me download link|send download link|direct download link|direct link|download nahi ho raha|download nahi chal raha|can't download|cant download|failed to download|corrupt file|link expired|redownload|re-download|mera download|download button do|download link please|paise kat gaye pack nahi mila)\b/i.test(
+        qLower
+      )
+
+    let targetPurchase: any = null
+    let adminActionResultNotes = ''
+
+    if (Boolean(userId) && isExplicitDownloadLinkRequest && userPurchases.length > 0) {
+      for (const p of userPurchases) {
+        const pName = (p.item_name || '').toLowerCase()
+        const pId = (p.item_id || '').toLowerCase()
+        const shortName = pName.split(/[–—-]/)[0].trim()
+
+        if (
+          (pId && qLower.includes(pId)) ||
+          (shortName.length > 3 && qLower.includes(shortName)) ||
+          (pName.length > 3 && qLower.includes(pName))
+        ) {
+          targetPurchase = p
+          break
+        }
+      }
+
+      if (!targetPurchase) {
+        const mentionedUnownedProduct = allProducts.find((prod) => {
+          const prodName = (prod.name || '').toLowerCase()
+          const prodSlug = (prod.slug || '').toLowerCase()
+          const shortProdName = prodName.split(/[–—-]/)[0].trim()
+          return (
+            qLower.includes(prodSlug) ||
+            (shortProdName.length > 3 && qLower.includes(shortProdName)) ||
+            (prodName.length > 3 && qLower.includes(prodName))
+          )
+        })
+
+        if (!mentionedUnownedProduct && userPurchases.length === 1) {
+          targetPurchase = userPurchases[0]
+        }
+      }
+    }
+
+    const isPaymentInquiry =
+      isExplicitDownloadLinkRequest ||
+      scannedPaymentId ||
+      (scannedOrderNumber && !matchedSpecificOrder) ||
+      /paise kat gaye|payment failed|not received|didn't get access|kharida|bought|purchased|deducted/i.test(qLower)
+
+    if (!targetPurchase && isPaymentInquiry) {
+      const cleanPaymentId = scannedPaymentId || scannedOrderNumber
+
+      if (cleanPaymentId) {
+        const { data: existingVaultRows } = await adminSupabase
+          .from('user_vault')
+          .select('*')
+          .or(`razorpay_payment_id.eq.${cleanPaymentId},razorpay_order_id.eq.${cleanPaymentId}`)
+          .limit(2)
+
+        if (existingVaultRows && existingVaultRows.length > 0) {
+          const existingClaim = existingVaultRows[0]
+          const isSameUser = resolvedUserId && existingClaim.user_id === resolvedUserId
+
+          if (isSameUser) {
+            targetPurchase = existingClaim
+            adminActionResultNotes += `\n[VERIFIED PURCHASE ACTIVE]: This payment ID (${cleanPaymentId}) is already credited to your account for "${existingClaim.item_name}". Instant secure download link is generated below.`
+          } else {
+            adminActionResultNotes += `\n[FRAUD PROTECTION - PAYMENT ID ALREADY REDEEMED]: Payment ID "${cleanPaymentId}" has already been claimed and credited to an account on ${new Date(existingClaim.created_at).toLocaleDateString()}. Reject this claim politely.`
+            canEscalateToTicket = true
+          }
+        } else {
+          const gwResult = await verifyMultiGatewayDirect(cleanPaymentId, targetEmail, query)
+
+          if (gwResult && gwResult.verified && gwResult.status === 'captured') {
+            const userEmailNorm = (userEmail || targetEmail || '').toLowerCase().trim()
+            const gwEmailNorm = (gwResult.email || '').toLowerCase().trim()
+            const emailMatches = !gwEmailNorm || !userEmailNorm || gwEmailNorm === userEmailNorm
+
+            if (!emailMatches) {
+              const maskedEmail = gwEmailNorm.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => a + '*'.repeat(Math.min(b.length, 5)) + c)
+              adminActionResultNotes += `\n[FRAUD PROTECTION - EMAIL MISMATCH]: Payment ID "${cleanPaymentId}" is verified as CAPTURED on ${gwResult.gateway}, but was completed under a different email address (${maskedEmail}). Explain politely that purchases are tied to the email used at checkout.`
+              canEscalateToTicket = true
+            } else {
+              const matchedCatalog =
+                allProducts.find(
+                  (prod) =>
+                    qLower.includes((prod.slug || '').toLowerCase()) ||
+                    qLower.includes((prod.name || '').toLowerCase())
+                ) ||
+                (gwResult.notes && Object.values(gwResult.notes).some((v: any) => typeof v === 'string' && allProducts.some((p) => v.toLowerCase().includes(p.slug.toLowerCase()))))
+                  ? allProducts.find((p) => Object.values(gwResult.notes).some((v: any) => typeof v === 'string' && v.toLowerCase().includes(p.slug.toLowerCase())))
+                  : null
+
+              if (!matchedCatalog) {
+                adminActionResultNotes += `\n[GATEWAY VERIFIED - PRODUCT SELECTION NEEDED]: Payment of ${gwResult.currency} ${gwResult.amount} was confirmed on ${gwResult.gateway} (ID: ${cleanPaymentId}), but we need to know which specific pack or preset you purchased.`
+              } else {
+                const expectedInr = Number(matchedCatalog.price_inr || 0)
+                const expectedUsd = Number(matchedCatalog.price_usd || (expectedInr > 0 ? expectedInr / 75 : 0))
+                const paidAmount = Number(gwResult.amount || 0)
+
+                let amountValid = true
+                if (paidAmount > 0) {
+                  if (gwResult.currency === 'INR' && expectedInr > 0) {
+                    amountValid = paidAmount >= expectedInr * 0.4
+                  } else if (gwResult.currency === 'USD' && expectedUsd > 0) {
+                    amountValid = paidAmount >= expectedUsd * 0.4
+                  }
+                }
+
+                if (!amountValid) {
+                  adminActionResultNotes += `\n[FRAUD PROTECTION - AMOUNT MISMATCH]: Payment ID "${cleanPaymentId}" on ${gwResult.gateway} was for ${gwResult.currency} ${gwResult.amount}, which does NOT match the catalog price for "${matchedCatalog.name}". Autonomous activation rejected.`
+                  canEscalateToTicket = true
+                } else {
+                  try {
+                    const finalUserId = resolvedUserId || userId || 'verified-customer'
+                    await adminSupabase.from('user_vault').insert({
+                      user_id: finalUserId,
+                      item_id: matchedCatalog.id,
+                      item_type: matchedCatalog.product_type === 'preset' ? 'preset' : 'pack',
+                      item_name: matchedCatalog.name,
+                      amount: paidAmount || (gwResult.currency === 'INR' ? expectedInr : expectedUsd),
+                      currency: gwResult.currency || 'INR',
+                      payment_gateway: gwResult.gateway.toLowerCase(),
+                      razorpay_order_id: gwResult.orderId || null,
+                      razorpay_payment_id: gwResult.paymentId || cleanPaymentId,
+                      original_price: gwResult.currency === 'INR' ? expectedInr : expectedUsd,
+                      discount_amount: 0,
+                      created_at: gwResult.createdAt || new Date().toISOString(),
+                    })
+
+                    targetPurchase = {
+                      id: `sw_${gwResult.gateway.toLowerCase().slice(0, 3)}_${Date.now()}`,
+                      user_id: finalUserId,
+                      item_id: matchedCatalog.id,
+                      item_type: matchedCatalog.product_type === 'preset' ? 'preset' : 'pack',
+                      item_name: matchedCatalog.name,
+                      amount: paidAmount || (gwResult.currency === 'INR' ? expectedInr : expectedUsd),
+                      currency: gwResult.currency || 'INR',
+                      payment_gateway: gwResult.gateway.toLowerCase(),
+                      razorpay_order_id: gwResult.orderId || null,
+                      razorpay_payment_id: gwResult.paymentId || cleanPaymentId,
+                      created_at: gwResult.createdAt || new Date().toISOString(),
+                    }
+                    userPurchases.unshift(targetPurchase)
+                    adminActionResultNotes += `\n[LIVE ${gwResult.gateway.toUpperCase()} VERIFICATION SUCCESS]: Real payment verified directly on ${gwResult.gateway} gateway (Payment ID: ${cleanPaymentId}, Status: CAPTURED). Pack "${matchedCatalog.name}" has been unlocked in your Library Vault.`
+                  } catch (provErr) {
+                    console.warn('[askGroqSupportAction] SamplesWala multi-gateway provision warning:', provErr)
+                  }
+                }
+              }
+            }
+          } else if (gwResult && gwResult.status === 'failed') {
+            adminActionResultNotes += `\n[LIVE ${gwResult.gateway.toUpperCase()} RECORD - PAYMENT FAILED]: Real payment record found on ${gwResult.gateway} (ID: ${cleanPaymentId}), but status is FAILED. Error reason: "${gwResult.errorReason}". If debited, banks auto-reverse within 3–5 business days.`
+          } else if (gwResult && gwResult.status === 'pending') {
+            adminActionResultNotes += `\n[LIVE ${gwResult.gateway.toUpperCase()} RECORD - PAYMENT PENDING]: Transaction record found on ${gwResult.gateway} (ID: ${cleanPaymentId}), but status is PENDING clearance.`
+          } else if (cleanPaymentId) {
+            adminActionResultNotes += `\n[GATEWAY NOTICE - PAYMENT NOT FOUND]: The payment ID "${cleanPaymentId}" was not found across our live payment gateways (Razorpay, PayPal, Cashfree). Politely ask user to double check the ID.`
+            canEscalateToTicket = true
+          }
+        }
+      } else {
+        adminActionResultNotes += `\n[HARD DATABASE AUDIT - ZERO VERIFIED PURCHASES]: Checked Supabase database and payment gateways for account "${targetEmail || 'user'}". No completed payments found. STRICT RULE: DO NOT fake payment confirmation, and DO NOT tell the user we added it to their account without a verified payment!`
+        canEscalateToTicket = true
+      }
+    }
+
+    if (targetPurchase) {
+      try {
+        const token = signDownloadToken(
+          {
+            uid: userId || targetPurchase.user_id || 'verified-customer',
+            pid: targetPurchase.item_id,
+            type: targetPurchase.item_type || 'pack',
+            ip: clientIp,
+          },
+          1800
+        )
+
+        const matchedCatalog = allProducts.find(
+          (prod) => prod.id === targetPurchase.item_id || prod.slug === targetPurchase.item_id
+        )
+
+        verifiedDownload = {
+          productId: targetPurchase.item_id,
+          productName: targetPurchase.item_name,
+          productSlug: matchedCatalog?.slug || targetPurchase.item_id,
+          coverImage:
+            matchedCatalog?.cover_image || 'https://imagizer.imageshack.com/img924/6673/1i7cNl.png',
+          downloadUrl: `/api/download/${token}`,
+          productType: targetPurchase.item_type || 'sample_pack',
+          fileSize: 'Studio Master Archive (24-bit WAV)',
+          orderNumber:
+            targetPurchase.razorpay_order_id ||
+            `SW-ORD-${targetPurchase.id.slice(0, 8).toUpperCase()}`,
+          isProvisioned: true,
+        }
+      } catch (tokenErr) {
+        console.warn('[askGroqSupportAction] Error generating token:', tokenErr)
+      }
+    }
+
+    const isInvoiceQuery =
+      /invoice|bill|receipt|tax|gst|bill of supply|charges|payment proof|rasid|bill chahiye/i.test(query)
+
+    if (isInvoiceQuery && userPurchases.length > 0) {
+      const primaryOrder = matchedSpecificOrder || userPurchases[0]
+      verifiedOrder = {
+        orderNumber: primaryOrder.razorpay_order_id || `SW-ORD-${primaryOrder.id.slice(0, 8).toUpperCase()}`,
+        date: primaryOrder.created_at || new Date().toISOString(),
+        amount: Number(primaryOrder.amount || 0),
+        currency: primaryOrder.currency || 'INR',
+        status: 'COMPLETED',
+        gateway: primaryOrder.payment_gateway || 'Razorpay',
+        paymentId: primaryOrder.razorpay_payment_id || primaryOrder.id,
+        items: [
+          {
+            id: primaryOrder.item_id,
+            name: primaryOrder.item_name,
+            price: Number(primaryOrder.amount || 0),
+            product_type: primaryOrder.item_type,
+          },
+        ],
+        customerEmail: userEmail || undefined,
+        customerName: userName,
+      }
+    }
+
+    const isProblemQuery =
+      /fail|failed|error|broken|corrupt|not working|urgent|problem|scam|fraud|money cut|refund|stuck|help me|issue|dhokha|paise kat gaye/i.test(query)
+    if (isProblemQuery) {
       canEscalateToTicket = true
     }
-  }
 
-  // 3. If verified target purchase found, cryptographically sign a high-security time-limited token
-  if (targetPurchase) {
-    try {
-      const token = signDownloadToken(
-        {
-          uid: userId || targetPurchase.user_id || 'verified-customer',
-          pid: targetPurchase.item_id,
-          type: targetPurchase.item_type || 'pack',
-          ip: clientIp,
-        },
-        1800 // Strict 30-minute validity window
-      )
-
-      const matchedCatalog = allProducts.find(
-        (prod) => prod.id === targetPurchase.item_id || prod.slug === targetPurchase.item_id
-      )
-
-      verifiedDownload = {
-        productId: targetPurchase.item_id,
-        productName: targetPurchase.item_name,
-        productSlug: matchedCatalog?.slug || targetPurchase.item_id,
-        coverImage:
-          matchedCatalog?.cover_image || 'https://imagizer.imageshack.com/img924/6673/1i7cNl.png',
-        downloadUrl: `/api/download/${token}`,
-        productType: targetPurchase.item_type || 'sample_pack',
-        fileSize: 'Studio Master Archive (24-bit WAV)',
-        orderNumber:
-          targetPurchase.razorpay_order_id ||
-          `SW-ORD-${targetPurchase.id.slice(0, 8).toUpperCase()}`,
-        isProvisioned: true,
-      }
-    } catch (tokenErr) {
-      console.warn('[askGroqSupportAction] Error generating token:', tokenErr)
-    }
-  }
-
-  // B. Check for invoice / billing inquiry
-  const isInvoiceQuery =
-    /invoice|bill|receipt|tax|gst|bill of supply|charges|payment proof|rasid|bill chahiye/i.test(query)
-
-  if (isInvoiceQuery && userPurchases.length > 0) {
-    const primaryOrder = matchedSpecificOrder || userPurchases[0]
-    verifiedOrder = {
-      orderNumber: primaryOrder.razorpay_order_id || `SW-ORD-${primaryOrder.id.slice(0, 8).toUpperCase()}`,
-      date: primaryOrder.created_at || new Date().toISOString(),
-      amount: Number(primaryOrder.amount || 0),
-      currency: primaryOrder.currency || 'INR',
-      status: 'COMPLETED',
-      gateway: primaryOrder.payment_gateway || 'Razorpay',
-      paymentId: primaryOrder.razorpay_payment_id || primaryOrder.id,
-      items: [
-        {
-          id: primaryOrder.item_id,
-          name: primaryOrder.item_name,
-          price: Number(primaryOrder.amount || 0),
-          product_type: primaryOrder.item_type,
-        },
-      ],
-      customerEmail: userEmail || undefined,
-      customerName: userName,
-    }
-  }
-
-  // Escalation criteria: ticket if query expresses frustration or unresolved issue
-  const isProblemQuery =
-    /fail|failed|error|broken|corrupt|not working|urgent|problem|scam|fraud|money cut|refund|stuck|help me|issue|dhokha|paise kat gaye/i.test(query)
-  if (isProblemQuery) {
-    canEscalateToTicket = true
-  }
-
-  // 6. Assemble Account Summary for Prompt
-  let userAccountSummary = `CURRENT USER CONTEXT:
+    // 6. Assemble Account Summary
+    let userAccountSummary = `CURRENT USER CONTEXT:
 - Name: ${userName}
 - Email: ${userEmail || 'Guest (Not logged in)'}
 - Logged In: ${userId ? 'YES' : 'NO'}`
 
-  if (userPurchases.length > 0) {
-    userAccountSummary += `\nUSER'S PURCHASED PRODUCTS IN LIBRARY VAULT:
+    if (userPurchases.length > 0) {
+      userAccountSummary += `\nUSER'S PURCHASED PRODUCTS IN LIBRARY VAULT:
 ${userPurchases
   .slice(0, 5)
   .map(
@@ -751,462 +623,228 @@ ${userPurchases
       `- "${p.item_name}" (Price: ${p.currency === 'USD' ? '$' : '₹'}${p.amount}, Date: ${new Date(p.created_at).toLocaleDateString()}, Order: ${p.razorpay_order_id || 'N/A'}, Payment: ${p.razorpay_payment_id || 'N/A'})`
   )
   .join('\n')}`
-  } else {
-    userAccountSummary += `\nUSER'S PURCHASED PRODUCTS IN LIBRARY VAULT: 0 purchases recorded (no active orders or vault items found on this account)`
-  }
-
-  if (adminActionResultNotes) {
-    userAccountSummary += `\n${adminActionResultNotes}`
-  }
-
-  // 6.5. Assemble Concise Knowledge Base Context
-  const qL = query.toLowerCase()
-  const relevantArticles = KNOWLEDGE_BASE.filter((k) =>
-    k.tags.some((t) => qL.includes(t.toLowerCase())) ||
-    k.question.toLowerCase().includes(qL) ||
-    k.categoryLabel.toLowerCase().includes(qL)
-  ).slice(0, 3)
-
-  const knowledgeSummary = relevantArticles.length > 0
-    ? relevantArticles.map((k) => `[GUIDE: ${k.question}] ${k.shortAnswer} Steps: ${k.detailedSteps.slice(0, 2).join(' ')}`).join('\n')
-    : `Audio Specs: 24-bit studio WAV, 100% royalty-free commercial license. DAWs: FL Studio, Ableton, Logic Pro, Cubase. Digital goods delivered immediately to Library; non-refundable once downloaded.`
-
-  // 7. System Prompt (Structured for 100% Groq Prompt Caching: Static Prefix First, Dynamic Data Last)
-  const systemPrompt = `You are "Sampi", the official Samples Wala Technical Support Specialist and AI Audio Assistant for Samples Wala (sampleswala.com) — India's premier boutique sound library and marketplace.
-
-IDENTITY & SECURITY:
-- You are exclusively the internal technical support specialist of Samples Wala. NEVER mention "Groq", "Llama", "OpenAI", "ChatGPT", "Meta", or any third-party AI provider.
-- Never mention internal database IDs or UUIDs. Speak in a knowledgeable, polite, human audio engineer tone.
-- CONFIDENTIALITY & DATA PROTECTION (CRITICAL): NEVER disclose internal sales numbers, purchase counts, transaction figures, customer counts, or metrics. State only that a pack is a top best-seller, community favorite, or studio essential. If the user has 0 orders, state politely that no previous purchases were found under their account. NEVER output phrases like "many producers" or invent purchase statistics.
-- ZERO FAKE CLAIMS & PAYMENT VERIFICATION: NEVER tell the user "we verified your payment and added it to your account" unless payment is genuinely confirmed and verified in our database or live Razorpay gateway! If no verified payment exists, politely ask them for their Razorpay Payment ID (starts with pay_...) so we can search the gateway directly.
-- LIVE STORE CATALOG: All catalog packs and products are actively LIVE, released, and available right now for immediate download (unless explicitly marked otherwise). Never describe active catalog items as "upcoming".
-
-SISTER PLATFORMS:
-- Samples Wala (sampleswala.com) and Producer Toy (producertoy.com) are SISTER PLATFORMS founded by the same core team!
-- Samples Wala is India's dedicated sound library platform specializing in Indian/Bollywood/Desi sample packs, acoustic instruments (Tabla, Dholak, Harmonium, Bansuri flute), and vocal toolkits in INR (₹).
-- Producer Toy is the premier international marketplace for global producers, VST plugins, mixing tools, synth presets, and software toolkits in USD ($) and international currencies.
-- If asked about Producer Toy or Western plugins: proudly explain that Producer Toy is our sister company, and direct them to [Producer Toy](https://producertoy.com)!
-
-PROMOTIONS & OFFERS:
-- UPCOMING FESTIVAL SALE: "Samplistic Festival" starts 8 October at 12:00 PM with FLAT 20% OFF sitewide! Check live countdown on [Homepage](/).
-- Free Starter Tier: [Free Samples](/free) exists, but ONLY mention or share it if the user EXPLICITLY asks for free samples or zero-cost packs.
-- International Sound Design / VSTs: Sister platform Producer Toy at [producertoy.com](https://producertoy.com).
-
-AUDIO SPECS & NAVIGATION:
-- Specs: 24-bit / 44.1kHz or 48kHz uncompressed WAV, 100% Royalty-Free Commercial License (Spotify, YouTube, TV). Universal DAW support (FL Studio, Ableton, Logic Pro, Cubase).
-- Links: [Your Library](/library), [Browse Packs](/browse), [Free Samples](/free) (only when asked for free), [Refund Policy](/refund-policy), [Terms](/terms).
-- Refund Policy: Digital downloads are delivered instantly and non-refundable once downloaded. Audio demos are on every pack page.
-
-LIVE STORE INVENTORY:
-${liveInventoryList}
-
-ZERO-PIRACY & VAULT DOWNLOADS:
-- If pack is VERIFIED in user's vault: Reassure them and state their official high-speed download button is attached below and accessible in [Your Library](/library).
-- If pack is NOT in their vault: State it is not registered to their account, and link them to purchase from official store: [Pack Name](/packs/slug). Never give download buttons for unowned packs.
-
-SALES & RECOMMENDATION RULES:
-- COMMERCIAL PRIORITY: Always prioritize recommending and selling our premium PAID sound packs and presets. Highlight their punchy mix-readiness, analog processing, and 24-bit studio quality.
-- SPECIFIC INSTRUMENT / SOUND REQUEST (e.g. Tabla, Dholak, Flute, Sitar, Percussion): If the user specifically asks for an instrument or sound (e.g. "do you have anything for tabla?"), ALWAYS recommend our matching pack! If our best authentic pack for that instrument is a free starter pack (such as "The Ten Tabla's - 10 FREE Tabla Samples"), recommend it proudly and directly! You can also pair it with complementary paid packs (like "South Drums" or "Sambalpur Rhythm") to complete their sound design.
-- PROACTIVE FREE PROHIBITION: Do NOT proactively push free sound packs if the user only asks generally for "best pack" or general recommendations, unless they explicitly asked for free or asked for an instrument whose matching pack is free.
-- STRICT PROHIBITION: NEVER pitch, sell, or attach sound packs for:
-  1. Trust / Legitimacy ("are you guys genuine", "is this real", "scam"): State Samples Wala is a registered boutique sound library, secure checkout via Razorpay/UPI, instant delivery to library, 100% royalty-free. Build pure trust!
-  2. Issues & Troubleshooting: Focus 100% on solving their issue immediately.
-  3. Casual Greetings ("hi", "how are you"): Introduce yourself politely as Sampi and ask what they are producing today.
-- When genuinely recommending: Max 2 packs with musical reasoning and direct markdown links [Pack Name](/packs/slug).
-
-POLICY ENFORCEMENT:
-- Detect vulgarity/abuse in English, Hindi/Urdu/Hinglish slang.
-- If abusive: Start with [POLICY_VIOLATION]. Strike 1/4: polite warning; Strike 2/4: formal warning; Strike 3/4: final warning; Strike 4+: start with [TERMINATE_CHAT] and terminate session.
-
-LANGUAGE MATCHING:
-- Match user's exact language: Hinglish in Roman letters, Hindi in Devanagari, English in English.
-
-STYLE & FORMATTING:
-- STRICT OUTPUT FORMAT (CRITICAL): NEVER output chain of thought, scratchpad, internal reasoning, or thinking process. NEVER write phrases like "The user asks...", "The user says...", "Policy says...", "The best approach:", or "We should...". Output ONLY your final, polished, friendly response addressed directly to the music producer as Sampi.
-- PROPORTIONAL ANSWERS:
-  - If user gives a brief greeting or single short query: Reply in 1-2 friendly, polite lines. Do NOT write long paragraphs.
-  - If user reports an issue, payment question, or guide: Provide the full, complete step-by-step resolution without cutting off.
-- NO RAW MARKDOWN TABLES: NEVER output raw markdown tables (| Column | Column |). Tables look cramped, awkward, and broken on mobile and chat bubbles. Always format with clean bullet points or numbered steps with bold titles.
-- Keep body text normal weight, bold only titles/numbers. Clean numbered lists for steps.
-- Never write "Your [Your Library](/library)". Write simply "[Your Library](/library)".
-
-AI RESOLUTION DETECTION:
-- If and ONLY if user reported a real technical bug, broken download, payment issue, DAW latency/unzip issue, and you provide the concrete fix/resolution, append the hidden tag [PROBLEM_SOLVED] at the end. Otherwise NEVER include it.
-
-${liveTopSellingPacksSummary}
-
-REAL-TIME SALES LEADERBOARD INSTRUCTIONS:
-- When user asks about best-selling or most popular packs: Always quote our Top Best-Selling PAID Packs first from the leaderboard above with genre and direct links [Pack Name](/packs/slug). DO NOT mention free starter packs unless the user explicitly asks if there is a free pack available. NEVER invent or disclose internal sales numbers or purchase counts.
-
-${userAccountSummary}
-
-CRITICAL USER SESSION:
-${userId ? `- User is logged in as ${userName} (${userEmail}).` : `- User is browsing as guest.`}
-
-${duplicatePaymentNotice}`
-
-  const scrubBrandNames = (text: string) => {
-    if (!text) return ''
-    return text
-      .replace(/<think>[\s\S]*?<\/think>/gi, '')
-      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
-      .replace(/^(?:thought|thinking|reasoning|scratchpad):\s*[\s\S]*?\n\n/gi, '')
-      .replace(/^The user (?:says|asks|wants)[\s\S]*?(?:We must|So we can|Let's|Therefore|Recommendation:)[\s\S]*?\n\n/i, '')
-      .replace(/\bgroq\b/gi, 'Sampi')
-      .replace(/\bllama\s*3(\.\d+)?\b/gi, 'Sampi')
-      .replace(/\bqwen(\s*\d+(\.\d+)?)?\b/gi, 'Sampi')
-      .replace(/\bopenai\b/gi, 'Samples Wala')
-      .replace(/\bchatgpt\b/gi, 'Sampi')
-      .replace(/\(User ID:\s*[a-f0-9-]+\)/gi, '')
-      .replace(/User ID:\s*[a-f0-9-]+/gi, '')
-      .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '')
-      // Scrub any leaked internal sales counts, purchase numbers or download counts
-      .replace(/\s*\(\s*\d+\s*(?:verified\s+purchases?|downloads?|sales?|orders?|buyers?|community\s+downloads?)\s*\)/gi, '')
-      .replace(/^#{1,4}\s+/gm, '')
-      .replace(/^[\*\-]\s+/gm, '')
-      .replace(/\*\*\[([^\]]+)\]\(([^)]+)\)\*\*/g, '[$1]($2)')
-      .replace(/\[POLICY_VIOLATION\]/gi, '')
-      .replace(/\[TERMINATE_CHAT\]/gi, '')
-      .replace(/\[PROBLEM_SOLVED\]/gi, '')
-      .trim()
-  }
-
-  /**
-   * Determine if the query should trigger product cross-selling / recommendations.
-   * Product cards must NEVER be shown on trust/legitimacy, support/error, billing,
-   * licensing, or casual greeting questions.
-   */
-  const isEligibleForProductCrossSelling = (
-    userQuery: string,
-    catalog: RecommendedProduct[]
-  ): { allowed: boolean; specificTargetProduct?: RecommendedProduct | null } => {
-    const q = (userQuery || '').toLowerCase().trim()
-
-    // 1. Strict blacklist: Queries where cross-selling MUST NEVER happen
-    // A. Trust, Legitimacy, Scam, Safety queries
-    const isTrustQuery =
-      /\b(genuine|legit|legitimate|real|fake|scam|fraud|dhokha|trust|trustworthy|safe|safety|secure|security|asli|nakli|proof|guarantee|scammer)\b/i.test(
-        q
-      )
-    if (isTrustQuery) return { allowed: false }
-
-    // B. Order, Billing, Payment, Refund, Invoice queries
-    const isBillingOrOrderQuery =
-      /\b(payment|pay|order|ord_|pay_|invoice|bill|receipt|refund|money|paise|charged|payout|deducted|transaction|bank|gateway)\b/i.test(
-        q
-      )
-    if (isBillingOrOrderQuery) return { allowed: false }
-
-    // C. Technical issues, Broken downloads, Errors, Bugs
-    const isTechnicalIssueQuery =
-      /\b(error|fail|failed|broken|corrupt|not working|crash|issue|problem|bug|stuck|latency|unzip|extract|download nahi|link nahi|can't download|cant download)\b/i.test(
-        q
-      )
-    if (isTechnicalIssueQuery) return { allowed: false }
-
-    // D. Account, Login, Password
-    const isAccountQuery =
-      /\b(login|log in|sign in|signin|signup|sign up|password|forgot password|register|registration|account|profile|email change)\b/i.test(
-        q
-      )
-    if (isAccountQuery) return { allowed: false }
-
-    // E. Pure Licensing / Legal / Copyright inquiries (without asking for recommendations)
-    const isLicensingQuery =
-      /\b(license|licensing|royalty\s*free|commercial\s*use|copyright|strike|strikes|dmca|legal|terms|conditions)\b/i.test(
-        q
-      )
-    const isAskingForPackRecommendation =
-      /\b(recommend|suggest|best|top|konsa|konsi|accha|which pack|what pack|buy|kharidna)\b/i.test(
-        q
-      )
-    if (isLicensingQuery && !isAskingForPackRecommendation) {
-      return { allowed: false }
+    } else {
+      userAccountSummary += `\nUSER'S PURCHASED PRODUCTS IN LIBRARY VAULT: 0 purchases recorded in Supabase database`
     }
 
-    // F. Casual greetings / Small talk / Sampi identity without product search
-    const isCasualGreeting =
-      /^(hi|hello|hey|yo|namaste|salam|sup|who are you|what is your name|who made you|how are you|kaise ho|kya haal hai|good morning|good afternoon|good evening|thanks|thank you|shukriya|bye|goodbye|ok|okay)\b/i.test(
-        q
-      )
-    const hasSoundIntent =
-      /\b(pack|packs|sample|samples|sound|sounds|kit|kits|loop|loops|preset|presets|beat|beats|drum|drums|vocal|vocals|melody|melodies|one\s*shot|drill|bollywood|punjabi|folk|south|edm|hiphop|trap|free|sale|discount|recommend|suggest|buy|store|catalog)\b/i.test(
-        q
-      )
-    if (isCasualGreeting && !hasSoundIntent) {
-      return { allowed: false }
+    if (adminActionResultNotes) {
+      userAccountSummary += `\n${adminActionResultNotes}`
     }
 
-    // 2. Check if user specifically asked about an exact product from inventory
-    for (const p of catalog) {
-      const slug = (p.slug || '').toLowerCase()
-      const name = (p.name || '').toLowerCase()
-      const shortName = name.split(/[–—-]/)[0].trim()
-      if (
-        (slug.length > 3 && q.includes(slug)) ||
-        (shortName.length > 3 && q.includes(shortName))
-      ) {
-        return { allowed: true, specificTargetProduct: p }
-      }
+    // 7. Build Modular System Prompt
+    const promptCtx: SupportPromptContext = {
+      identity: {
+        userName,
+        userEmail,
+        platformName: 'SamplesWala',
+        platformDomain: 'sampleswala.com',
+        sisterPlatformName: 'Producer Toy',
+        sisterPlatformDomain: 'producertoy.com',
+        assistantName: 'Sampi',
+      },
+      admin: {
+        userName,
+        userEmail,
+        userPurchasesCount: userPurchases.length,
+        userOrdersCount: userPurchases.length,
+        purchasedProductNames: userPurchases.map((p) => p.item_name),
+        isVerifiedDownloadActive: Boolean(verifiedDownload),
+      },
+      comingSoon: {
+        candidateProduct: null,
+      },
+      policy: {
+        currentStrikes,
+      },
+      userAccountSummary,
+      isUserLoggedIn: Boolean(userId),
+      liveInventoryList,
     }
 
-    // 3. Strict whitelist: Queries where cross-selling IS welcomed and valuable
-    const isSoundDiscoveryOrShopping =
-      /\b(recommend|suggest|suggestion|best|top|konsa|konsi|accha|pack|packs|sample|samples|sound|sounds|kit|kits|loop|loops|preset|presets|drum|drums|vocal|vocals|melody|melodies|beat|beats|one\s*shot|drill|punjabi|bollywood|south|folk|tabla|dholak|sitar|guitar|synth|bass|808|buy|kharidna|price|cost|free|muft|offer|sale|discount|samplistic|store|catalog|browse|genre)\b/i.test(
-        q
-      )
+    const systemPrompt = buildSupportSystemPrompt(promptCtx)
 
-    return { allowed: isSoundDiscoveryOrShopping }
-  }
+    // Helper to extract recommended products
+    const findMatchedProducts = (text: string): RecommendedProduct[] => {
+      const result: RecommendedProduct[] = []
+      const textLower = (text || '').toLowerCase()
+      const queryLower = (query || '').toLowerCase()
 
-  const findMatchedProducts = (text: string): RecommendedProduct[] => {
-    const result: RecommendedProduct[] = []
-    if (!allProducts || allProducts.length === 0) return result
+      const isExplicitlyAskingFree =
+        /\b(free|muft|0|zero|cost|gift|bonus)\b/i.test(queryLower) &&
+        !/\b(not free|free nahi|paid|premium)\b/i.test(queryLower)
 
-    // 1. Verify eligibility for product cross-selling
-    const eligibility = isEligibleForProductCrossSelling(query, allProducts)
-    if (!eligibility.allowed) {
-      return result
-    }
+      const scoredProducts: { product: RecommendedProduct; score: number }[] = []
 
-    // 2. If a specific product was requested by name, return only that product
-    if (eligibility.specificTargetProduct) {
-      return [eligibility.specificTargetProduct]
-    }
+      for (const p of allProducts) {
+        let score = 0
+        const nameLower = (p.name || '').toLowerCase()
+        const slugLower = (p.slug || '').toLowerCase()
 
-    const textLower = (text || '').toLowerCase()
-    const qLower = (query || '').toLowerCase()
-    const isExplicitlyAskingFree = /\b(free|muft|zero\s*cost|no\s*money|bina\s*paise|free\s*pack|free\s*sample|free\s*samples)\b/i.test(qLower)
-    const isInstrumentSpecific = /\b(tabla|dholak|dhol|flute|sitar|harmonium|shehnai|sarangi|tanpura|mridangam|kuthu|tumbi|bugchu|mandolin|oud|rabab|violin|guitar|piano|synth|bass|808|kick|snare|hihat|clap|percussion|vocal|acapella|melody|drill|trap|hiphop|lofi|cinematic|edm|house|bollywood|punjabi|folk)\b/i.test(qLower)
+        if (textLower.includes(nameLower) || queryLower.includes(nameLower)) score += 50
+        if (textLower.includes(slugLower) || queryLower.includes(slugLower)) score += 40
 
-    // Dynamic scoring for each product in allProducts
-    const scoredProducts: { product: RecommendedProduct; score: number }[] = []
-
-    for (const p of allProducts) {
-      const nameLower = (p.name || '').toLowerCase()
-      const slugLower = (p.slug || '').toLowerCase()
-      const isSpecificMatch =
-        isInstrumentSpecific &&
-        (nameLower.includes('tabla') ||
-          slugLower.includes('tabla') ||
-          qLower.split(/[^a-z0-9]+/).some((w) => w.length > 3 && (nameLower.includes(w) || slugLower.includes(w))))
-
-      // Commercial rule: DO NOT suggest free packs unless user explicitly asks for free OR asks specifically for an instrument where this is our matching pack!
-      if (p.price_inr === 0 && !isExplicitlyAskingFree && !isSpecificMatch) {
-        continue
-      }
-
-      let score = 0
-      // Baseline priority for paid commercial products
-      if (p.price_inr > 0) {
-        score += 15
-      }
-      if (isSpecificMatch) {
-        score += 55
-      }
-
-      const seriesLower = (p.series || '').toLowerCase()
-      const shortName = nameLower.split(/[–—-]/)[0].trim().toLowerCase()
-      const daws = (p.daws || []).map((d) => d.toLowerCase())
-      const plugins = (p.plugins_used || []).map((pl) => pl.toLowerCase())
-
-      // 1. Direct explicit link in generated answer or query
-      if (textLower.includes(`/packs/${slugLower}`) || textLower.includes(`/presets/${slugLower}`)) {
-        score += 60
-      }
-      if (qLower.includes(slugLower)) {
-        score += 45
-      }
-      if (shortName.length > 3 && qLower.includes(shortName)) {
-        score += 35
-      }
-      if (nameLower.length > 4 && qLower.includes(nameLower)) {
-        score += 35
-      }
-
-      // 2. Query words matching product attributes
-      const qTokens = qLower.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !GENERIC_PRODUCT_WORDS.has(w))
-      for (const token of qTokens) {
-        if (slugLower.includes(token)) score += 15
-        if (nameLower.includes(token)) score += 15
-        if (p.full_description?.toLowerCase().includes(token)) score += 4
-        if (p.total_contents_summary?.toLowerCase().includes(token)) score += 6
-        if (daws.some((d) => d.includes(token))) score += 10
-        if (plugins.some((pl) => pl.includes(token))) score += 10
-      }
-
-      // 3. Audio & Genre categorizations (100% dynamically evaluated)
-      if (/\b(drum|drums|one\s*shot|percussion|snare|kick|hihat|clap|cymbals)\b/i.test(qLower)) {
-        if ((p.one_shot_count && p.one_shot_count > 0) || slugLower.includes('drum')) score += 20
-      }
-      if (/\b(loop|loops|melody|melodies|chords|stems)\b/i.test(qLower)) {
-        if ((p.loop_count && p.loop_count > 0) || (p.melody_count && p.melody_count > 0)) score += 15
-      }
-      if (/\b(preset|presets|vocal|fl\s*studio|chain|autotune)\b/i.test(qLower)) {
-        if (p.product_type === 'preset' || slugLower.includes('preset') || slugLower.includes('vocal')) score += 25
-      }
-      if (isExplicitlyAskingFree && p.price_inr === 0) {
-        score += 50
-      }
-
-      // Only include products with genuine relevance (score >= 25)
-      if (score >= 25) {
-        scoredProducts.push({ product: p, score })
-      }
-    }
-
-    scoredProducts.sort((a, b) => b.score - a.score)
-    for (const item of scoredProducts) {
-      if (!result.some((r) => r.id === item.product.id)) {
-        result.push(item.product)
-      }
-    }
-
-    // Dynamic general recommendations if query asks for suggestions but no keyword score reached >= 25
-    const isGeneralRecommendation =
-      /\b(best|recommend|suggest|top|pack|packs|sample|kit|loop|loops|achha|kharidu|buy|store|catalog|browse)\b/i.test(
-        qLower
-      )
-    if (result.length === 0) {
-      if (isExplicitlyAskingFree) {
-        const freePicks = allProducts.filter((p) => p.price_inr === 0).slice(0, 2)
-        result.push(...freePicks)
-      } else if (isGeneralRecommendation) {
-        const topPicks = allProducts.filter((p) => p.price_inr > 0).slice(0, 2)
-        result.push(...topPicks)
-      }
-    }
-
-    return result.slice(0, 2)
-  }
-
-  // Send up to last 6 messages (3 turns) for rich conversational context
-  const compactHistory = history.slice(-6).map((h) => ({
-    role: h.role,
-    content: h.content.length > 400 ? h.content.slice(0, 400) + '...' : h.content,
-  }))
-
-  const formattedMessages = [
-    { role: 'system', content: systemPrompt },
-    ...compactHistory,
-    { role: 'user', content: query },
-  ]
-
-  // Dynamic Smart Token Sizing based on intent & complexity:
-  const isComplexQuery =
-    /\b(fail|failed|broken|corrupt|not working|urgent|problem|scam|fraud|money cut|refund|stuck|help me|issue|dhokha|paise kat gaye|latency|unzip|extract|download nahi|link nahi|can't download|cant download|deducted|kat gaye|receipt|invoice|bill|gateway|guide|step|karein|how to|kaise|what about)\b/i.test(query)
-  const isShortGreeting =
-    /^(hi|hello|hey|sampi|ok|okay|thanks|thank you|shukriya|dhanyawad|bye|yo)\b/i.test(query.trim())
-
-  let dynamicMaxTokens = 900
-  if (isComplexQuery) {
-    dynamicMaxTokens = 1500 // Generous headroom so troubleshooting instructions NEVER truncate!
-  } else if (isShortGreeting && query.trim().length < 25) {
-    dynamicMaxTokens = 350
-  }
-
-  // Multi-Model Auto-Fallback & Token Optimization Hierarchy:
-  // 1. Primary: 'qwen/qwen3.8-27b' (Ultra-fast, accurate, no reasoning token waste)
-  // 2. High-IQ Reasoning Fallback: 'openai/gpt-oss-120b' (120B parameter deep comprehension)
-  // 3. High-Throughput Fallback: 'openai/gpt-oss-20b' (20B parameter resilient model)
-  // 4. Lightweight Emergency Fallback: 'allam-2-7b' (Guarantees zero-downtime under peak loads)
-  const modelsToTry = [
-    'qwen/qwen3.8-27b',
-    'openai/gpt-oss-120b',
-    'openai/gpt-oss-20b',
-    'allam-2-7b',
-  ]
-  let rawAnswer = ''
-
-  for (const model of modelsToTry) {
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000)
-
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          messages: formattedMessages,
-          temperature: 0.3,
-          max_tokens: dynamicMaxTokens,
-          reasoning_format: 'hidden',
-        }),
-        signal: controller.signal,
-      })
-      clearTimeout(timeoutId)
-
-      if (response.ok) {
-        const data = await response.json()
-        const choice = data.choices?.[0]?.message
-        // STRICT: Never fall back to reasoning/scratchpad! Only content is customer-facing.
-        const candidate = (choice?.content || '').trim()
-        if (candidate) {
-          rawAnswer = candidate
-          break
+        if (score > 0) {
+          scoredProducts.push({ product: p, score })
         }
-      } else {
-        const errText = await response.text()
-        console.warn(`[askGroqSupportAction] Model ${model} returned HTTP ${response.status}. Seamlessly falling over to next model in failover chain. Details:`, errText)
       }
-    } catch (modelErr: any) {
-      console.warn(`[askGroqSupportAction] Model ${model} error (${modelErr.message || 'fetch error'}). Falling over to next model...`)
+
+      scoredProducts.sort((a, b) => b.score - a.score)
+      for (const item of scoredProducts) {
+        if (!result.some((r) => r.id === item.product.id)) {
+          result.push(item.product)
+        }
+      }
+
+      if (result.length === 0) {
+        if (isExplicitlyAskingFree) {
+          const freePicks = allProducts.filter((p) => p.price_inr === 0).slice(0, 2)
+          result.push(...freePicks)
+        }
+      }
+
+      return result.slice(0, 2)
     }
-  }
 
-  if (!rawAnswer) {
-    console.error('[askGroqSupportAction] All Groq models failed to return content.')
-    return { success: false, error: 'Support desk is currently busy. Please try again.' }
-  }
+    const compactHistory = history.slice(-6).map((h) => ({
+      role: h.role,
+      content: h.content.length > 400 ? h.content.slice(0, 400) + '...' : h.content,
+    }))
 
-  const isPolicyViolation =
-    rawAnswer.includes('[POLICY_VIOLATION]') ||
-    rawAnswer.includes('[TERMINATE_CHAT]') ||
-    /\[POLICY_VIOLATION\]/i.test(rawAnswer) ||
-    /\[TERMINATE_CHAT\]/i.test(rawAnswer) ||
-    /strike\s*[1-4]\s*\/\s*4/i.test(rawAnswer) ||
-    /final warning/i.test(rawAnswer) ||
-    /policy violation/i.test(rawAnswer) ||
-    /session (has )?(now )?been terminated/i.test(rawAnswer) ||
-    /चेतावनी|अंतिम चेतावनी|समाप्त/i.test(rawAnswer)
+    const formattedMessages = [
+      { role: 'system', content: systemPrompt },
+      ...compactHistory,
+      { role: 'user', content: query },
+    ]
 
-  const shouldTerminateChat =
-    currentStrikes + 1 >= 4 ||
-    rawAnswer.includes('[TERMINATE_CHAT]') ||
-    /\[TERMINATE_CHAT\]/i.test(rawAnswer) ||
-    /session (has )?(now )?been terminated|session permanently terminated/i.test(rawAnswer)
+    const isComplexQuery =
+      /\b(fail|failed|broken|corrupt|not working|urgent|problem|scam|fraud|money cut|refund|stuck|help me|issue|dhokha|paise kat gaye|latency|unzip|extract|download nahi|link nahi|can't download|cant download|deducted|kat gaye|receipt|invoice|bill|gateway|guide|step|karein|how to|kaise|what about)\b/i.test(
+        query
+      )
+    const isShortGreeting =
+      /^(hi|hello|hey|sampi|ok|okay|thanks|thank you|shukriya|dhanyawad|bye|yo)\b/i.test(query.trim())
 
-  const hasExplicitResolutionTag =
-    rawAnswer.includes('[PROBLEM_SOLVED]') || /\[PROBLEM_SOLVED\]/i.test(rawAnswer)
+    let dynamicMaxTokens = 900
+    if (isComplexQuery) {
+      dynamicMaxTokens = 1500
+    } else if (isShortGreeting && query.trim().length < 25) {
+      dynamicMaxTokens = 350
+    }
 
-  const isTroubleshootingProblemQuery =
-    /\b(error|fail|failed|broken|corrupt|not working|crash|issue|problem|bug|stuck|latency|unzip|extract|download nahi|link nahi|can't download|cant download|deducted|kat gaye|refund|charge|crackling|buffer)\b/i.test(
-      query
-    )
+    const modelsToTry = [
+      'qwen/qwen3.8-27b',
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'allam-2-7b',
+    ]
+    let rawAnswer = ''
 
-  const containsResolutionFix =
-    /\b(step|steps|fixed|solution|fix|here is how|reversal|follow these|verified|download button)\b/i.test(
-      rawAnswer
-    )
+    for (const model of modelsToTry) {
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000)
 
-    const hasTroubleshootingSolution =
-      !isPolicyViolation &&
-      (hasExplicitResolutionTag ||
-        Boolean(verifiedDownload) ||
-        Boolean(verifiedOrder) ||
-        (isTroubleshootingProblemQuery && containsResolutionFix))
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: formattedMessages,
+            temperature: 0.3,
+            max_tokens: dynamicMaxTokens,
+            reasoning_format: 'hidden',
+          }),
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
 
-    const cleanedAnswer = scrubBrandNames(
+        if (response.ok) {
+          const data = await response.json()
+          const choice = data.choices?.[0]?.message
+          const candidate = (choice?.content || '').trim()
+          if (candidate) {
+            rawAnswer = candidate
+            break
+          }
+        } else {
+          const errText = await response.text()
+          console.warn(`[askGroqSupportAction] Model ${model} returned HTTP ${response.status}:`, errText)
+        }
+      } catch (modelErr: any) {
+        console.warn(`[askGroqSupportAction] Model ${model} error. Trying next...`)
+      }
+    }
+
+    if (!rawAnswer) {
+      return { success: false, error: 'Support desk is currently busy. Please try again.' }
+    }
+
+    let isPolicyViolation =
+      rawAnswer.includes('[POLICY_VIOLATION]') ||
+      rawAnswer.includes('[TERMINATE_CHAT]')
+
+    // HARD POLICY ENFORCEMENT: Never strike on off-topic questions (e.g. "what is chota bheem").
+    // Strikes are strictly for actual abusive words / gaaliyan!
+    if (isOffTopicQuery(query)) {
+      isPolicyViolation = false
+    } else if (isPolicyViolation && !hasProfanityOrAbuse(query)) {
+      isPolicyViolation = false
+    }
+
+    const shouldTerminateChat = isPolicyViolation && (currentStrikes + 1 >= 4 || rawAnswer.includes('[TERMINATE_CHAT]'))
+
+    let cleanedAnswer = scrubBrandNames(
       rawAnswer
         .replace(/\[POLICY_VIOLATION\]/gi, '')
         .replace(/\[TERMINATE_CHAT\]/gi, '')
         .replace(/\[PROBLEM_SOLVED\]/gi, '')
         .trim()
     )
+
+    // ZERO-TRUST ANTI-HALLUCINATION GUARD:
+    if (!verifiedDownload) {
+      cleanedAnswer = cleanedAnswer
+        .replace(/\[ADMIN VERIFICATION SUCCESS\]/gi, '')
+        .trim()
+
+      const claimsVerifiedPurchase =
+        cleanedAnswer.toLowerCase().includes('verified your purchase') ||
+        cleanedAnswer.toLowerCase().includes('download mirror is ready') ||
+        cleanedAnswer.toLowerCase().includes('payment is confirmed, your fresh secure download') ||
+        cleanedAnswer.toLowerCase().includes('files permanently in your library')
+
+      if (userPurchases.length === 0 && !scannedPaymentId && !scannedOrderNumber && claimsVerifiedPurchase) {
+        cleanedAnswer = `Hello ${userName},\n\nI have checked your account vault (${userEmail || 'current session'}), and there are currently no verified purchases or orders found in our system.\n\nIf you recently made a payment, please share your Payment ID (e.g. Razorpay \`pay_...\`, Cashfree \`order_...\`, or PayPal \`PAYID-...\`) so I can verify the transaction immediately.`
+      }
+    }
+
+    // Smart answer fallback for "how you can check razorpay" without payment ID
+    const isAskingHowToCheckGateway =
+      (qLower.includes('how') && qLower.includes('check') && (qLower.includes('razorpay') || qLower.includes('cashfree') || qLower.includes('paypal') || qLower.includes('gateway'))) ||
+      qLower.includes('how you can check') ||
+      qLower.includes('kaise check karte ho')
+
+    if (isAskingHowToCheckGateway && !scannedPaymentId && !scannedOrderNumber) {
+      cleanedAnswer = `Mera system hi is tarah securely integrate aur automate kiya gaya hai ki mai real-time payment status aur order verification safely perform karke aapka delivery issue instantly solve kar deta hoon.\n\nAgar aapne payment kiya hai aur pack vault me nahi dikh raha, please apna Payment ID (e.g. Razorpay \`pay_...\`, Cashfree \`order_...\`, ya PayPal \`PAYID-...\`) share karein taaki mai turant verify kar saku.`
+    }
+
+    const isTroubleshootingProblemQuery =
+      /\b(error|fail|failed|broken|corrupt|not working|crash|issue|problem|bug|stuck|latency|unzip|extract|download nahi|link nahi|can't download|cant download|deducted|kat gaye|refund|charge|crackling|buffer)\b/i.test(
+        query
+      )
+
+    const containsResolutionFix =
+      /\b(step|steps|fixed|solution|fix|here is how|reversal|follow these|verified|download button)\b/i.test(
+        cleanedAnswer
+      )
+
+    const hasTroubleshootingSolution =
+      !isPolicyViolation &&
+      (Boolean(verifiedDownload) ||
+        Boolean(verifiedOrder) ||
+        (isTroubleshootingProblemQuery && containsResolutionFix))
 
     return {
       success: true,
