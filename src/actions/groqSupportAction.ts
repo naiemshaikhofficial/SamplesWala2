@@ -15,6 +15,7 @@ import {
   hasProfanityOrAbuse,
   isOffTopicQuery,
   scrubBrandNames,
+  detectLanguage,
 } from '@/lib/support/supportHelpers'
 import {
   buildSupportSystemPrompt,
@@ -306,10 +307,22 @@ export async function askGroqSupportAction(
       })
       .join('\n')
 
-    // 4. Fetch User Purchases / Vault Items from Supabase
+    // 4. Fetch User Purchases / Vault Items & Tickets from Supabase
     let userPurchases: any[] = []
     let matchedSpecificOrder: any = null
     let resolvedUserId = userId
+    let userTickets: any[] = []
+    let matchedSpecificTicket: any = null
+    let ticketEmployeeReplies: Array<{
+      ticketNumber: string
+      status: string
+      subject: string
+      createdAt: string
+      agentName: string
+      agentMessage: string
+      agentReplyTime: string
+    }> = []
+    let ticketStatusSummary = ''
 
     if (!resolvedUserId && targetEmail) {
       try {
@@ -356,8 +369,95 @@ export async function askGroqSupportAction(
           }
         }
       }
+
+      // Query Live Support Tickets & Staff Answers from Supabase
+      const TICKET_REGEX = /\b((?:SW|PT)?-?(?:TCK|TK)-[A-Za-z0-9_-]+)\b/i
+      const scannedTicketMatch = query.match(TICKET_REGEX)
+      const scannedTicketNumber = scannedTicketMatch ? scannedTicketMatch[1].toUpperCase() : null
+
+      const queryLowerForTickets = query.toLowerCase()
+      const isTicketInquiry =
+        Boolean(scannedTicketNumber) ||
+        queryLowerForTickets.includes('ticket') ||
+        queryLowerForTickets.includes('complaint') ||
+        queryLowerForTickets.includes('support request') ||
+        queryLowerForTickets.includes('status of my') ||
+        queryLowerForTickets.includes('ticket status') ||
+        queryLowerForTickets.includes('employee answer') ||
+        queryLowerForTickets.includes('staff reply') ||
+        queryLowerForTickets.includes('did anyone reply') ||
+        queryLowerForTickets.includes('mera ticket') ||
+        queryLowerForTickets.includes('ticket ka kya')
+
+      if (scannedTicketNumber || isTicketInquiry || resolvedUserId || targetEmail) {
+        let tQuery = adminSupabase.from('support_tickets').select('*')
+        if (scannedTicketNumber) {
+          tQuery = tQuery.ilike('ticket_number', scannedTicketNumber)
+        } else if (resolvedUserId && targetEmail) {
+          tQuery = tQuery.or(`user_id.eq.${resolvedUserId},email.ilike.${targetEmail}`)
+        } else if (resolvedUserId) {
+          tQuery = tQuery.eq('user_id', resolvedUserId)
+        } else if (targetEmail) {
+          tQuery = tQuery.ilike('email', targetEmail)
+        }
+
+        const { data: tData } = await tQuery.order('created_at', { ascending: false }).limit(5)
+        if (tData && tData.length > 0) {
+          userTickets = tData
+          if (scannedTicketNumber) {
+            matchedSpecificTicket = tData[0]
+          }
+
+          // For found tickets, retrieve any employee messages from support_ticket_messages
+          for (const t of userTickets) {
+            const { data: msgs } = await adminSupabase
+              .from('support_ticket_messages')
+              .select('*')
+              .eq('ticket_id', t.id)
+              .order('created_at', { ascending: true })
+
+            const agentReplies = (msgs || []).filter(
+              (m: any) =>
+                m.sender_type?.toLowerCase() === 'agent' ||
+                m.sender_type?.toLowerCase() === 'staff' ||
+                m.sender_type?.toLowerCase() === 'admin' ||
+                m.sender_type?.toLowerCase() === 'support'
+            )
+
+            if (agentReplies.length > 0) {
+              const latest = agentReplies[agentReplies.length - 1]
+              ticketEmployeeReplies.push({
+                ticketNumber: t.ticket_number,
+                status: t.status || 'open',
+                subject: t.subject || 'Support Ticket',
+                createdAt: t.created_at,
+                agentName: latest.sender_name || 'SamplesWala Audio Desk',
+                agentMessage: latest.message,
+                agentReplyTime: latest.created_at,
+              })
+            }
+          }
+        }
+      }
+
+      if (userTickets.length > 0) {
+        ticketStatusSummary = `\nLIVE DATABASE SUPPORT TICKETS & EMPLOYEE REPLIES:
+${userTickets
+  .map((t) => {
+    const emp = ticketEmployeeReplies.find((r) => r.ticketNumber === t.ticket_number)
+    const replyText = emp
+      ? `  * EMPLOYEE / AUDIO DESK ANSWER (From ${emp.agentName} on ${new Date(emp.agentReplyTime).toLocaleDateString()}): "${emp.agentMessage}"`
+      : `  * EMPLOYEE RESPONSE: No employee reply has been recorded yet. The ticket is currently ${t.status || 'open'} and under active review by our audio support desk.`
+    return `- [Ticket #${t.ticket_number}] Subject: "${t.subject}" | Status: ${t.status || 'open'} | Submitted: ${new Date(t.created_at).toLocaleDateString()}\n${replyText}`
+  })
+  .join('\n')}`
+      } else if (scannedTicketNumber) {
+        ticketStatusSummary = `\nLIVE DATABASE SUPPORT TICKETS & EMPLOYEE REPLIES:\n- [NO TICKET FOUND]: Searched for Ticket ID "${scannedTicketNumber}", but no matching record was found in the database. Ask user to double-check the ticket number or provide their registered email address.`
+      } else if (isTicketInquiry && !resolvedUserId && !targetEmail) {
+        ticketStatusSummary = `\nLIVE DATABASE SUPPORT TICKETS & EMPLOYEE REPLIES:\n- [NOTICE]: User is asking for their ticket status, but no ticket reference number was provided and user is not logged in. Ask them for their Ticket Reference Number (e.g. SW-TK-...) or their registered email address.`
+      }
     } catch (vaultErr) {
-      console.warn('[askGroqSupportAction] Vault query warning:', vaultErr)
+      console.warn('[askGroqSupportAction] Vault and ticket query warning:', vaultErr)
     }
 
     // 5. Build Autonomous Verified Download & Verified Order Cards
@@ -627,6 +727,10 @@ ${userPurchases
       userAccountSummary += `\nUSER'S PURCHASED PRODUCTS IN LIBRARY VAULT: 0 purchases recorded in Supabase database`
     }
 
+    if (ticketStatusSummary) {
+      userAccountSummary += `\n${ticketStatusSummary}`
+    }
+
     if (adminActionResultNotes) {
       userAccountSummary += `\n${adminActionResultNotes}`
     }
@@ -820,14 +924,55 @@ ${userPurchases
       }
     }
 
-    // Smart answer fallback for "how you can check razorpay" without payment ID
+    // Smart answer fallback for "how you can check razorpay" without payment ID (Matches User Language)
     const isAskingHowToCheckGateway =
       (qLower.includes('how') && qLower.includes('check') && (qLower.includes('razorpay') || qLower.includes('cashfree') || qLower.includes('paypal') || qLower.includes('gateway'))) ||
       qLower.includes('how you can check') ||
       qLower.includes('kaise check karte ho')
 
     if (isAskingHowToCheckGateway && !scannedPaymentId && !scannedOrderNumber) {
-      cleanedAnswer = `Mera system hi is tarah securely integrate aur automate kiya gaya hai ki mai real-time payment status aur order verification safely perform karke aapka delivery issue instantly solve kar deta hoon.\n\nAgar aapne payment kiya hai aur pack vault me nahi dikh raha, please apna Payment ID (e.g. Razorpay \`pay_...\`, Cashfree \`order_...\`, ya PayPal \`PAYID-...\`) share karein taaki mai turant verify kar saku.`
+      const lang = detectLanguage(query)
+      if (lang === 'english') {
+        cleanedAnswer = `Our system is securely automated and integrated to safely verify real-time payment status and order records, resolving any delivery or library vault issue immediately.\n\nIf you have attempted a purchase and are unsure if it went through, please share your Payment ID (e.g., Razorpay 'pay_...', Cashfree 'order_...', or PayPal 'PAYID-...') so I can verify it for you immediately.`
+      } else if (lang === 'hindi') {
+        cleanedAnswer = `हमारा सिस्टम पूरी तरह से सुरक्षित और स्वचालित है, जिससे हम रीयल-टाइम में भुगतान स्थिति और ऑर्डर रिकॉर्ड को सुरक्षित रूप से सत्यापित कर आपकी डिलीवरी समस्या का तुरंत समाधान कर देते हैं।\n\nयदि आपने भुगतान किया है और पैक वॉल्ट में नहीं दिख रहा, तो कृपया अपना Payment ID (जैसे Razorpay 'pay_...', Cashfree 'order_...', या PayPal 'PAYID-...') साझा करें ताकि मैं तुरंत सत्यापन कर सकूं।`
+      } else {
+        cleanedAnswer = `Mera system hi is tarah securely integrate aur automate kiya gaya hai ki mai real-time payment status aur order verification safely perform karke aapka delivery issue instantly solve kar deta hoon.\n\nAgar aapne payment kiya hai aur pack vault me nahi dikh raha, please apna Payment ID (e.g. Razorpay 'pay_...', Cashfree 'order_...', ya PayPal 'PAYID-...') share karein taaki mai turant verify kar saku.`
+      }
+    }
+
+    // If query is off-topic (cooking, recipes, sports, cricket, GK, non-music):
+    if (isOffTopicQuery(query)) {
+      const answerLower = cleanedAnswer.toLowerCase()
+      const alreadyDeclined =
+        answerLower.includes('music') ||
+        answerLower.includes('sound') ||
+        answerLower.includes('vst') ||
+        answerLower.includes('sample pack') ||
+        answerLower.includes('موسيقى') ||
+        answerLower.includes('إنتاج') ||
+        answerLower.includes('میوزک') ||
+        answerLower.includes('संगीत') ||
+        answerLower.includes('producción') ||
+        answerLower.includes('sampleswala') ||
+        answerLower.includes('producertoy')
+
+      if (!alreadyDeclined) {
+        const lang = detectLanguage(query)
+        if (lang === 'arabic') {
+          cleanedAnswer = `عذراً، أنا متخصص حصرياً في دعم إنتاج الموسيقى، وتصميم الصوت، ومكتبات العينات الصوتية (Sample Packs)، ومكونات VST، ودعم طلبات SamplesWala. لا يمكنني الإجابة على أسئلة الطبخ أو المعلومات العامة غير الموسيقية. كيف يمكنني مساعدتك في مشاريعك الموسيقية اليوم؟`
+        } else if (lang === 'urdu') {
+          cleanedAnswer = `معذرت، میں صرف میوزک پروڈکشن، ساؤنڈ ڈیزائن، سیمپل پیکس، VST پلگ انز اور SamplesWala کے آرڈرز سے متعلق سوالات میں مدد کر سکتا ہوں۔ میں کھانوں کی تراکیب یا عمومی معلومات کے سوالات کے جوابات نہیں دے سکتا۔ آپ کے میوزک پروجیکٹس میں میں کس طرح مدد کر سکتا ہوں؟`
+        } else if (lang === 'spanish') {
+          cleanedAnswer = `Lo siento, pero estoy dedicado exclusivamente a la producción musical, diseño de sonido, plugins VST, paquetes de muestras y pedidos de SamplesWala. No puedo responder sobre cocina o preguntas de cultura general. ¿En qué te puedo ayudar hoy con tu música o plugins?`
+        } else if (lang === 'hindi') {
+          cleanedAnswer = `मैं केवल SamplesWala, संगीत निर्माण, VST प्लगइन्स, सैंपल पैक और स्टोर ऑर्डर्स से संबंधित प्रश्नों में सहायता कर सकता हूँ। मैं कुकिंग रेसिपी या सामान्य ज्ञान के प्रश्नों के उत्तर नहीं दे सकता। आपके संगीत प्रोजेक्ट या साउंड्स में मैं कैसे मदद कर सकता हूँ?`
+        } else if (lang === 'hinglish') {
+          cleanedAnswer = `Mai sirf SamplesWala, music production, sound design, VST plugins, sample packs, aur store orders se related queries me help kar sakta hoon. Mai cooking recipes ya general knowledge ke answers nahi de sakta. Aapko music production, audio plugins ya sounds me kis tarah ki help chahiye?`
+        } else {
+          cleanedAnswer = `I am exclusively dedicated to helping with music production, sound design, VST plugins, sample packs, and SamplesWala store orders. I cannot assist with cooking recipes, general trivia, or non-music topics. How can I assist you with your music projects, plugins, or sound libraries today?`
+        }
+      }
     }
 
     const isTroubleshootingProblemQuery =

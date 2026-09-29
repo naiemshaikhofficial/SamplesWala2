@@ -322,6 +322,7 @@ export async function createSupportTicketAction(data: TicketSubmissionData): Pro
     }
 
     // Forward ticket notification to support@sampleswala.com via formsubmit.co
+    const userEmail = email.trim().toLowerCase()
     try {
       await fetch('https://formsubmit.co/ajax/support@sampleswala.com', {
         method: 'POST',
@@ -334,7 +335,9 @@ export async function createSupportTicketAction(data: TicketSubmissionData): Pro
         body: JSON.stringify({
           ticket_number: ticketNumber,
           producer_name: name.trim(),
-          email: email.trim().toLowerCase(),
+          email: userEmail,
+          _replyto: userEmail,
+          _cc: userEmail,
           _subject: `[Samples Wala #${ticketNumber}] ${subject.trim()}`,
           category: dbCategory,
           priority: cleanPriority,
@@ -349,6 +352,39 @@ export async function createSupportTicketAction(data: TicketSubmissionData): Pro
       })
     } catch (fsErr) {
       console.warn('[createSupportTicketAction] FormSubmit dispatch notice:', fsErr)
+    }
+
+    // Also dispatch direct confirmation copy to user's detected email address via FormSubmit
+    try {
+      await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(userEmail)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': 'https://sampleswala.com',
+          'Referer': 'https://sampleswala.com/support',
+        },
+        body: JSON.stringify({
+          _subject: `[Samples Wala Ticket #${ticketNumber}] We received your inquiry: ${subject.trim()}`,
+          ticket_number: ticketNumber,
+          producer_name: name.trim(),
+          email: userEmail,
+          category: dbCategory,
+          priority: cleanPriority,
+          status: 'OPEN (In Review by Audio Support Desk)',
+          order_id: orderId?.trim() || 'N/A',
+          os_platform: osPlatform || 'N/A',
+          daw: daw || 'N/A',
+          your_subject: subject.trim(),
+          your_question_or_issue: description.trim(),
+          support_portal: `https://sampleswala.com/support?ticket=${ticketNumber}&email=${encodeURIComponent(userEmail)}`,
+          note: 'Your ticket has been logged in our secure database. Our audio team will respond shortly. You can also ask our AI assistant anytime for real-time status updates.',
+          _captcha: 'false',
+          _template: 'table',
+        }),
+      })
+    } catch (userFsErr) {
+      console.warn('[createSupportTicketAction] FormSubmit user copy notice:', userFsErr)
     }
 
     return {
