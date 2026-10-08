@@ -157,11 +157,14 @@ export function HomePacks({ packs }: { packs: any[] }) {
   }, [packs, geoPreference.boostedSlug])
 
   const handleAddToCart = (pack: any, currentPrice: number) => {
+    const priceDetails = getPackPriceDetails(pack)
     addItem({
       id: pack.id,
       name: pack.name,
-      price: currentPrice,
-      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+      price: priceDetails.priceInr,
+      price_usd: priceDetails.priceUsd,
+      original_price: Number(pack.price_inr),
+      original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -172,11 +175,14 @@ export function HomePacks({ packs }: { packs: any[] }) {
   }
 
   const handleBuyNow = (pack: any, currentPrice: number) => {
+    const priceDetails = getPackPriceDetails(pack)
     buyNow({
       id: pack.id,
       name: pack.name,
-      price: currentPrice,
-      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+      price: priceDetails.priceInr,
+      price_usd: priceDetails.priceUsd,
+      original_price: Number(pack.price_inr),
+      original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -218,13 +224,19 @@ export function HomePacks({ packs }: { packs: any[] }) {
         const isExpired = priceDetails.isExpired
 
         const isFree = currentPrice === 0 || Number(pack.price_inr) === 0
-        const priceNum = getAmount(currentPrice, pack.price_usd)
-        const rawMrp = pack.mrp_inr ? Number(pack.mrp_inr) : (isFree ? 0 : currentPrice * 3)
-        const mrpNum = getAmount(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null)
+        const priceNum = getAmount(currentPrice, priceDetails.priceUsd)
+        
+        // Previous price vs Samplistic festival price
+        const prevPriceInr = Number(pack.price_inr)
+        const prevPriceUsd = pack.price_usd ? Number(pack.price_usd) : null
+        const rawMrp = priceDetails.isFestivalDiscount
+          ? prevPriceInr
+          : (pack.mrp_inr ? Number(pack.mrp_inr) : (isFree ? 0 : currentPrice * 3))
+        const mrpNum = getAmount(rawMrp, priceDetails.isFestivalDiscount ? prevPriceUsd : (priceDetails.priceUsd ? Number(priceDetails.priceUsd) * 3 : null))
 
-        const displayPrice = isFree ? 'FREE' : formatPrice(currentPrice, pack.price_usd)
-        const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null) : null
-        const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
+        const displayPrice = isFree ? 'FREE' : formatPrice(currentPrice, priceDetails.priceUsd)
+        const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, priceDetails.isFestivalDiscount ? prevPriceUsd : (priceDetails.priceUsd ? Number(priceDetails.priceUsd) * 3 : null)) : null
+        const discountPercent = priceDetails.isFestivalDiscount && !isFree ? 20 : (mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0)
 
         return (
           <motion.div
@@ -308,12 +320,14 @@ export function HomePacks({ packs }: { packs: any[] }) {
                       ) : (
                         <>
                           {displayMrp && (
-                            <span className="text-[10px] text-white/50 line-through font-bold">
+                            <span className={`text-[10px] line-through font-bold ${
+                              priceDetails.isFestivalDiscount ? 'text-white/60 font-mono' : 'text-white/50'
+                            }`}>
                               {displayMrp}
                             </span>
                           )}
                           <p className={`text-[16px] font-black italic leading-none ${
-                            isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
+                            isFree ? 'text-[#00FF94]' : (priceDetails.isFestivalDiscount ? 'text-studio-yellow' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon'))
                           }`}>
                             {displayPrice}
                           </p>
@@ -325,10 +339,12 @@ export function HomePacks({ packs }: { packs: any[] }) {
                       <div className="flex flex-col gap-1">
                         {!isFree && discountPercent > 0 ? (
                           <div className={`px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] ${
-                            isIndia ? 'bg-[#128807] text-white font-black' : 'bg-studio-red text-white'
+                            priceDetails.isFestivalDiscount
+                              ? 'bg-gradient-to-r from-[#FFE600] to-[#FF7700] text-black border border-black shadow-[2px_2px_0px_#FF0055]'
+                              : (isIndia ? 'bg-[#128807] text-white font-black' : 'bg-studio-red text-white')
                           }`}>
                             <span className="text-[9px] font-black uppercase italic">
-                              {discountPercent}% OFF
+                              {priceDetails.isFestivalDiscount ? '20% OFF' : `${discountPercent}% OFF`}
                             </span>
                           </div>
                         ) : null}

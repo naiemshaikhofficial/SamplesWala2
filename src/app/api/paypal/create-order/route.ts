@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { validateCoupon } from '@/app/checkout/actions'
-import { getPackPriceDetails } from '@/lib/pricing'
+import { getPackPriceDetails, isSamplisticFestivalActive, getFestivalPriceUsd } from '@/lib/pricing'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
 import { checkRateLimit } from '@/lib/security'
 
@@ -80,17 +80,20 @@ export async function POST(request: Request) {
       return {
         id: pack.id,
         name: pack.name,
-        price_usd: (pack.price_usd !== null && pack.price_usd !== undefined) ? Number(pack.price_usd) : Math.round(priceDetails.priceInr / 80)
+        price_usd: (pack.price_usd !== null && pack.price_usd !== undefined) 
+          ? (isSamplisticFestivalActive() ? getFestivalPriceUsd(Number(pack.price_usd)) : Number(pack.price_usd))
+          : priceDetails.priceUsd
       }
     })
 
     // Securely calculate dynamic USD prices for presets
     const resolvedPresets = (presetsRes.data || []).map((preset: any) => {
+      const baseUsd = preset.price_inr === 0 ? 0 : Math.round((Number(preset.price_inr) / 80) * 100) / 100 || 2.99
       return {
         id: preset.id,
         name: preset.name,
-        // Fallback conversion for presets since they don't have a price_usd column
-        price_usd: preset.price_inr === 0 ? 0 : Math.round((Number(preset.price_inr) / 80) * 100) / 100 || 2.99
+        // Fallback conversion for presets with festival discount if active
+        price_usd: isSamplisticFestivalActive() ? getFestivalPriceUsd(baseUsd) : baseUsd
       }
     })
 

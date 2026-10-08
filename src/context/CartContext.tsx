@@ -3,11 +3,15 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useRouter } from 'next/navigation'
 import { trackCartSnapshot } from '@/lib/telemetryClient'
 
+import { isSamplisticFestivalActive, getFestivalPriceInr, getFestivalPriceUsd } from '@/lib/festival'
+
 export interface CartItem {
   id: string
   name: string
   price: number
   price_usd?: number
+  original_price?: number
+  original_price_usd?: number
   cover_url: string
   slug: string
   type: 'pack' | 'preset'
@@ -66,12 +70,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return false
   })
 
-  // Load cart from localStorage
+  // Load cart from localStorage with automatic festival pricing synchronization
   useEffect(() => {
     const savedCart = localStorage.getItem('sampleswala_lite_cart')
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart))
+        const parsed = JSON.parse(savedCart)
+        if (Array.isArray(parsed)) {
+          const festivalActive = isSamplisticFestivalActive()
+          const synced = parsed.map((item: CartItem) => {
+            if (!item.price || item.price === 0) return item
+            if (festivalActive) {
+              if (item.original_price && item.original_price > 0) {
+                // If original price exists, compute exactly 1x festival discount from original price
+                const origInr = item.original_price
+                const origUsd = item.original_price_usd
+                return {
+                  ...item,
+                  price: getFestivalPriceInr(origInr),
+                  price_usd: origUsd !== undefined ? getFestivalPriceUsd(origUsd) : item.price_usd
+                }
+              }
+              // If no original price, do not re-discount
+              return item
+            } else if (item.original_price !== undefined) {
+              // Automatically revert back to normal price when festival ends
+              return {
+                ...item,
+                price: item.original_price,
+                price_usd: item.original_price_usd,
+                original_price: undefined,
+                original_price_usd: undefined
+              }
+            }
+            return item
+          })
+          setItems(synced)
+        }
       } catch (e) {
         console.error("Failed to parse cart", e)
       }
@@ -234,9 +269,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
+    const festivalActive = isSamplisticFestivalActive()
+    const processedItem: CartItem = { ...item }
+
+    if (processedItem.price > 0 && festivalActive) {
+      if (processedItem.original_price && processedItem.original_price > 0) {
+        // If original_price is explicitly provided (e.g. 499), ensure price is exactly 1x 20% discount (399)
+        processedItem.price = getFestivalPriceInr(processedItem.original_price)
+        if (processedItem.original_price_usd !== undefined) {
+          processedItem.price_usd = getFestivalPriceUsd(processedItem.original_price_usd)
+        }
+      }
+      // If original_price was not provided, item.price is already the discounted price from getPackPriceDetails - do not discount again!
+    }
+
     setItems(prev => {
       if (!prev.find(i => i.id === item.id)) {
-        return [...prev, item]
+        return [...prev, processedItem]
       }
       return prev
     })

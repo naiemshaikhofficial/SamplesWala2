@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Sparkles, Calendar, ArrowRight, Flame, Music, Sparkle } from 'lucide-react'
 import { motion } from 'framer-motion'
 
+import { isSamplisticFestivalActive, FESTIVAL_END_ISO } from '@/lib/festival'
+
 export function FestiveCountdownBanner() {
   const bannerRef = useRef<HTMLDivElement>(null)
   const posterRef = useRef<HTMLDivElement>(null)
@@ -26,8 +28,8 @@ export function FestiveCountdownBanner() {
     setMounted(true)
 
     const calculateTime = () => {
-      // Target: 8th October, 12:00 PM IST (UTC+05:30)
-      const targetTime = new Date('2026-10-08T12:00:00+05:30').getTime()
+      // Target: 20th October, 23:59:59 IST (UTC+05:30)
+      const targetTime = new Date(FESTIVAL_END_ISO).getTime()
       const now = Date.now()
       const diff = targetTime - now
 
@@ -625,6 +627,11 @@ export function FestiveCountdownBanner() {
     }
   }, [])
 
+  // Auto-revert: After October 20, 2026, banner is automatically removed from DOM
+  if (mounted && (!isSamplisticFestivalActive() || timeLeft.isEnded)) {
+    return null
+  }
+
   return (
     <div ref={bannerRef} className="w-full relative z-30 bg-black overflow-hidden select-none">
       {/* 1. The Poster Layer in the BACK (z-index: 10) - Stays pinned/lingering in background */}
@@ -648,11 +655,11 @@ export function FestiveCountdownBanner() {
           <Link 
             href="/browse" 
             className="block w-full cursor-pointer relative group/img"
-            title="Samplistic Festival — Get 20% Off on Every Sample Pack (Starts 8 October)"
+            title="Samplistic Festival — Get 20% Off on Every Sample Pack (Until 20 October)"
           >
             {/* Pristine Full-Resolution 100% Uncropped Poster (Desktop Panoramic vs Mobile Portrait) */}
             <picture className="block w-full">
-              {/* Desktop & Tablet: Ultra-Wide 1983x793 Panoramic Graphic with 2x 4K Retina Support */}
+              {/* Desktop & Tablet: Ultra-Wide 2089x753 Panoramic Graphic with 2x Retina Support */}
               <source
                 media="(min-width: 768px)"
                 srcSet="/festive-banner-desktop.webp 1x, /festive-banner-desktop-2x.webp 2x"
@@ -660,20 +667,20 @@ export function FestiveCountdownBanner() {
               />
               <source
                 media="(min-width: 768px)"
-                srcSet="/festive-banner-desktop.png 1x, /festive-banner-desktop-2x.png 2x"
+                srcSet="/festive-banner-desktop.png 1x, /festive-banner-desktop-2x.webp 2x"
                 type="image/png"
               />
 
-              {/* Mobile Phone: High-Impact 941x1672 Vertical Portrait Graphic */}
+              {/* Mobile Phone: High-Impact 940x1672 Vertical Portrait Graphic */}
               <source
                 srcSet="/festive-banner-mobile.webp"
                 type="image/webp"
               />
               <img
                 src="/festive-banner-mobile.png"
-                alt="Samplistic Festival — Festive Sale is Here — Get 20% Off on Every Sample Pack — Starts 8 October"
-                width={1983}
-                height={793}
+                alt="Samplistic Festival — Festive Sale is Here — Get 20% Off on Every Sample Pack — Until 20 October"
+                width={2089}
+                height={753}
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
@@ -895,7 +902,7 @@ export function FestiveCountdownBanner() {
               {/* Date Badge */}
               <div className="flex items-center gap-1.5 text-zinc-200 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-black/80 px-3 sm:px-3.5 py-1 sm:py-1.5 border-2 border-black shadow-[2px_2px_0px_#00E5FF] rounded-sm">
                 <Calendar size={12} className="text-[#00E5FF] shrink-0" />
-                <span>STARTS 8 OCT • 12:00 PM</span>
+                <span>UNTIL 20 OCTOBER • 20% OFF</span>
               </div>
             </div>
           </div>
@@ -917,7 +924,7 @@ export function FestiveCountdownBanner() {
                     COUNTDOWN
                   </span>
                   <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">
-                    STARTS IN
+                    ENDS IN
                   </span>
                 </div>
 

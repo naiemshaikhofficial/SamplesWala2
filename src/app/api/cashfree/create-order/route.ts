@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { validateCoupon } from '@/app/checkout/actions'
-import { getPackPriceDetails } from '@/lib/pricing'
+import { getPackPriceDetails, getFestivalPriceInr } from '@/lib/pricing'
 import { createCashfreeOrder } from '@/lib/cashfree'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
 import { checkRateLimit } from '@/lib/security'
@@ -50,7 +50,14 @@ export async function POST(request: Request) {
       }
     })
 
-    const allItems = [...resolvedPacks, ...(presetsRes.data || [])]
+    const resolvedPresets = (presetsRes.data || []).map((preset: any) => {
+      return {
+        ...preset,
+        price_inr: getFestivalPriceInr(Number(preset.price_inr))
+      }
+    })
+
+    const allItems = [...resolvedPacks, ...resolvedPresets]
 
     if (allItems.length === 0) {
       return NextResponse.json({ error: 'Items not found' }, { status: 404 })

@@ -1,18 +1,20 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useCart } from '@/context/CartContext'
-import { X, ShoppingBag, Trash2, ArrowRight, Zap } from 'lucide-react'
+import { X, ShoppingBag, Trash2, ArrowRight, Zap, Sparkles, Flame } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useCurrency } from '@/context/CurrencyContext'
 import { CrossSellRecommendations } from '@/components/CrossSellRecommendations'
+import { isSamplisticFestivalActive } from '@/lib/festival'
 
 export function CartSidebar({ initialUser }: { initialUser?: any }) {
   const { items, removeItem, subtotal, discount, total, itemCount, isSidebarOpen, setSidebarOpen } = useCart()
   const { user } = useAuth()
   const router = useRouter()
   const { currency, formatPrice, getAmount } = useCurrency()
+  const isFestival = isSamplisticFestivalActive()
 
   const paidItems = items.filter(item => getAmount(item.price, item.price_usd) > 0)
   const paidSubtotalNum = paidItems.reduce((acc, item) => acc + getAmount(item.price, item.price_usd), 0)
@@ -60,14 +62,14 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
         {/* Header - Cleaned Up */}
         <div className="p-8 border-b-2 border-white/5 flex items-center justify-between relative z-10 bg-black">
           <div className="flex items-center gap-4">
-            <div className="p-2 bg-studio-yellow border-2 border-black -rotate-2">
+            <div className={`p-2 ${isFestival ? 'bg-gradient-to-r from-[#FFE600] to-[#FF7700]' : 'bg-studio-yellow'} border-2 border-black -rotate-2`}>
               <ShoppingBag className="text-black" size={20} />
             </div>
             <div className="flex items-center gap-3">
               <h2 className="text-2xl font-black uppercase tracking-tight italic text-white">
-                YOUR <span className="text-studio-pink">CART</span>
+                YOUR <span className={isFestival ? 'bg-gradient-to-r from-[#FFE600] via-[#FF7700] to-[#FF007A] bg-clip-text text-transparent' : 'text-studio-pink'}>CART</span>
               </h2>
-              <div className="bg-studio-red text-white px-2 py-0.5 border-2 border-black text-[10px] font-black rotate-3">
+              <div className={`${isFestival ? 'bg-[#FF0055]' : 'bg-studio-red'} text-white px-2 py-0.5 border-2 border-black text-[10px] font-black rotate-3`}>
                 {itemCount}
               </div>
             </div>
@@ -79,6 +81,21 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
             <X size={24} />
           </button>
         </div>
+
+        {/* Samplistic Festival Banner Bar in Cart (Auto-hidden after 20 Oct) */}
+        {isFestival && (
+          <div className="px-5 py-2.5 bg-gradient-to-r from-[#FF0055]/20 via-[#FF7700]/20 to-[#FFE600]/20 border-b-2 border-black flex items-center justify-between gap-2 select-none">
+            <div className="flex items-center gap-2">
+              <Flame size={14} className="text-[#FF7700] animate-pulse shrink-0" />
+              <span className="text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-[#FFE600] via-[#FF7700] to-[#FF007A] bg-clip-text text-transparent italic">
+                SAMPLISTIC FESTIVAL SALE
+              </span>
+            </div>
+            <span className="text-[9px] font-black uppercase bg-[#FFE600] text-black px-2 py-0.5 border border-black shadow-[1px_1px_0px_#FF0055] rounded-xs">
+              20% OFF APPLIED
+            </span>
+          </div>
+        )}
 
         {/* Content - More breathing room */}
         <div className="flex-grow overflow-y-auto p-8 space-y-10 relative z-10">
@@ -184,7 +201,19 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
                         <span className="text-[8px] font-black bg-white/10 text-white/40 px-1.5 py-0.5 border border-white/5 uppercase tracking-widest">
                           {item.type}
                         </span>
-                        <p className="text-xs font-black text-studio-yellow italic tracking-widest">{formatPrice(item.price, item.price_usd)}</p>
+                        <div className="flex items-center gap-1.5">
+                          {isFestival && item.original_price && item.price > 0 && (
+                            <span className="text-[10px] text-white/40 line-through font-bold">
+                              {formatPrice(item.original_price, item.original_price_usd)}
+                            </span>
+                          )}
+                          <p className="text-xs font-black text-studio-yellow italic tracking-widest">{formatPrice(item.price, item.price_usd)}</p>
+                          {isFestival && item.price > 0 && (
+                            <span className="text-[8px] font-black bg-[#FFE600] text-black px-1 py-0.2 border border-black shadow-[1px_1px_0px_#FF0055]">
+                              -20%
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <button 
@@ -231,10 +260,18 @@ export function CartSidebar({ initialUser }: { initialUser?: any }) {
             
             <button 
               onClick={handleCheckout}
-              className="w-full h-16 bg-white text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-studio-red hover:text-white transition-all border-4 border-black shadow-[6px_6px_0px_rgba(255,255,255,0.1)] active:translate-x-1 active:translate-y-1 active:shadow-none group"
+              className={`w-full h-16 ${
+                isFestival
+                  ? 'bg-gradient-to-r from-[#FFE600] via-[#FF7700] to-[#FF007A] text-black hover:text-white border-4 border-black shadow-[6px_6px_0px_#FF0055]'
+                  : 'bg-white text-black hover:bg-studio-red hover:text-white border-4 border-black shadow-[6px_6px_0px_rgba(255,255,255,0.1)]'
+              } font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none group`}
             >
               <span className="italic">PROCEED TO CHECKOUT</span>
-              <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+              {isFestival ? (
+                <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
+              ) : (
+                <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+              )}
             </button>
 
             <button 
