@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { verifyCashfreeWebhookSignature } from '@/lib/cashfree'
-import { getPackPriceDetails } from '@/lib/pricing'
+import { getPackPriceDetails, isSamplisticFestivalActive, getFestivalPriceInr } from '@/lib/pricing'
 import { generateInvoicePDF } from '@/lib/invoice'
 import { sendInvoiceEmail } from '@/lib/emails'
 
@@ -116,7 +116,18 @@ export async function POST(request: Request) {
         }
       })
 
-      const allPurchasedItems = [...resolvedPacks, ...(presetsRes.data || [])]
+      const resolvedPresets = (presetsRes.data || []).map((preset: any) => {
+        const baseInr = Number(preset.price_inr || 0)
+        const discountedInr = isSamplisticFestivalActive() && baseInr > 0
+          ? getFestivalPriceInr(baseInr)
+          : baseInr
+        return {
+          ...preset,
+          price_inr: discountedInr
+        }
+      })
+
+      const allPurchasedItems = [...resolvedPacks, ...resolvedPresets]
 
       if (allPurchasedItems.length === 0) {
         return NextResponse.json({ status: 'ok', message: 'Items not found in DB' }, { status: 200 })

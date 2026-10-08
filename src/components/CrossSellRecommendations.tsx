@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Plus, Check } from 'lucide-react'
 import { useCart, CartItem } from '@/context/CartContext'
 import { useCurrency } from '@/context/CurrencyContext'
+import { getPackPriceDetails } from '@/lib/pricing'
 
 interface CrossSellRecommendationsProps {
   mode?: 'cart' | 'checkout' | 'compact'
@@ -119,11 +120,14 @@ export function CrossSellRecommendations({
 
   const handleQuickAdd = (pack: any) => {
     setAddingId(pack.id)
+    const priceDetails = getPackPriceDetails(pack)
     const cartItem: CartItem = {
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr ?? 0),
-      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+      price: priceDetails.priceInr,
+      price_usd: priceDetails.priceUsd,
+      original_price: Number(pack.price_inr),
+      original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || '/placeholder.jpg',
       type: 'pack',
@@ -156,8 +160,11 @@ export function CrossSellRecommendations({
         <div className="space-y-3.5 divide-y divide-white/5">
           {availableRecommendations.map((pack, idx) => {
             const isAdding = addingId === pack.id
-            const priceInr = Number(pack.price_inr ?? 0)
-            const priceUsd = pack.price_usd ? Number(pack.price_usd) : undefined
+            const priceDetails = getPackPriceDetails(pack)
+            const priceInr = priceDetails.priceInr
+            const priceUsd = priceDetails.priceUsd
+            const rawInr = Number(pack.price_inr ?? 0)
+            const isFree = priceInr === 0
 
             return (
               <div
@@ -183,9 +190,21 @@ export function CrossSellRecommendations({
                   <p className="text-[9px] text-neutral-500 font-bold uppercase tracking-wider mt-0.5 truncate">
                     {pack.categories?.name || 'Sample Pack'}
                   </p>
-                  <p className="text-xs font-black text-studio-yellow font-mono mt-1">
-                    {priceInr === 0 ? 'FREE' : formatPrice(priceInr, priceUsd)}
-                  </p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    {priceDetails.isFestivalDiscount && !isFree && (
+                      <span className="text-[10px] text-white/35 line-through font-mono font-bold">
+                        {formatPrice(rawInr, pack.price_usd ? Number(pack.price_usd) : undefined)}
+                      </span>
+                    )}
+                    <span className="text-xs font-black text-studio-yellow font-mono">
+                      {isFree ? 'FREE' : formatPrice(priceInr, priceUsd)}
+                    </span>
+                    {priceDetails.isFestivalDiscount && !isFree && (
+                      <span className="text-[8px] bg-studio-red text-white font-mono font-black px-1 rounded">
+                        -20%
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* 1-Click Add Button */}
@@ -230,8 +249,11 @@ export function CrossSellRecommendations({
       <div className="space-y-2">
         {availableRecommendations.map((pack) => {
           const isAdding = addingId === pack.id
-          const priceInr = Number(pack.price_inr ?? 0)
-          const priceUsd = pack.price_usd ? Number(pack.price_usd) : undefined
+          const priceDetails = getPackPriceDetails(pack)
+          const priceInr = priceDetails.priceInr
+          const priceUsd = priceDetails.priceUsd
+          const rawInr = Number(pack.price_inr ?? 0)
+          const isFree = priceInr === 0
 
           return (
             <div
@@ -252,13 +274,23 @@ export function CrossSellRecommendations({
                 <h5 className="font-bold text-xs text-white truncate group-hover:text-studio-yellow transition-colors">
                   {pack.name}
                 </h5>
-                <div className="flex items-center gap-2 mt-0.5">
+                <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-[8px] font-black uppercase tracking-wider bg-white/10 text-white/50 px-1 rounded">
                     Pack
                   </span>
+                  {priceDetails.isFestivalDiscount && !isFree && (
+                    <span className="text-[9px] text-white/35 line-through font-mono font-bold">
+                      {formatPrice(rawInr, pack.price_usd ? Number(pack.price_usd) : undefined)}
+                    </span>
+                  )}
                   <span className="text-[11px] font-black text-studio-yellow font-mono">
-                    {priceInr === 0 ? 'FREE' : formatPrice(priceInr, priceUsd)}
+                    {isFree ? 'FREE' : formatPrice(priceInr, priceUsd)}
                   </span>
+                  {priceDetails.isFestivalDiscount && !isFree && (
+                    <span className="text-[7px] bg-studio-red text-white font-mono font-black px-1 rounded">
+                      -20%
+                    </span>
+                  )}
                 </div>
               </div>
 

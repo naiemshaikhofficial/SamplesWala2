@@ -657,50 +657,73 @@ export function FestiveCountdownBanner() {
             className="block w-full cursor-pointer relative group/img"
             title="Samplistic Festival — Get 20% Off on Every Sample Pack (Until 20 October)"
           >
-            {/* Pristine Full-Resolution 100% Uncropped Poster (Desktop Panoramic vs Mobile Portrait) */}
-            <picture className="block w-full">
-              {/* Desktop & Tablet: Ultra-Wide 2089x753 Panoramic Graphic with 2x Retina Support */}
-              <source
-                media="(min-width: 768px)"
-                srcSet="/festive-banner-desktop.webp 1x, /festive-banner-desktop-2x.webp 2x"
-                type="image/webp"
-              />
-              <source
-                media="(min-width: 768px)"
-                srcSet="/festive-banner-desktop.png 1x, /festive-banner-desktop-2x.webp 2x"
-                type="image/png"
-              />
-
-              {/* Mobile Phone: High-Impact 940x1672 Vertical Portrait Graphic */}
-              <source
-                srcSet="/festive-banner-mobile.webp"
-                type="image/webp"
-              />
-              <img
-                src="/festive-banner-mobile.png"
-                alt="Samplistic Festival — Festive Sale is Here — Get 20% Off on Every Sample Pack — Until 20 October"
-                width={2089}
-                height={753}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                onLoad={() => {
-                  if (canvasRef.current) {
-                    const parent = canvasRef.current.parentElement || posterRef.current
-                    if (parent) {
-                      canvasRef.current.width = parent.clientWidth || window.innerWidth
-                      canvasRef.current.height = parent.clientHeight || 500
+            {/* Desktop Banner (md+ screens: 2089x753 panoramic graphic) */}
+            <div className="hidden md:block w-full">
+              <picture className="block w-full">
+                <source
+                  srcSet="/festive-banner-desktop.webp 1x, /festive-banner-desktop-2x.webp 2x"
+                  type="image/webp"
+                />
+                <img
+                  src="/festive-banner-desktop.png"
+                  alt="Samplistic Festival — Festive Sale is Here — Get 20% Off on Every Sample Pack — Until 20 October"
+                  width={2089}
+                  height={753}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  onLoad={() => {
+                    if (canvasRef.current) {
+                      const parent = canvasRef.current.parentElement || posterRef.current
+                      if (parent) {
+                        canvasRef.current.width = parent.clientWidth || window.innerWidth
+                        canvasRef.current.height = parent.clientHeight || 500
+                      }
                     }
-                  }
-                }}
-                style={{
-                  imageRendering: 'auto',
-                  transform: 'translateZ(0)',
-                  backfaceVisibility: 'hidden',
-                }}
-                className="w-full h-auto block select-none pointer-events-none group-hover/img:brightness-[1.02] transition-all duration-300"
-              />
-            </picture>
+                  }}
+                  style={{
+                    imageRendering: 'auto',
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden',
+                  }}
+                  className="w-full h-auto block select-none pointer-events-none group-hover/img:brightness-[1.02] transition-all duration-300"
+                />
+              </picture>
+            </div>
+
+            {/* Mobile Banner (<md screens: 940x1672 portrait poster) */}
+            <div className="block md:hidden w-full">
+              <picture className="block w-full">
+                <source
+                  srcSet="/festive-banner-mobile.webp"
+                  type="image/webp"
+                />
+                <img
+                  src="/festive-banner-mobile.png"
+                  alt="Samplistic Festival — Festive Sale is Here — Get 20% Off on Every Sample Pack — Until 20 October"
+                  width={940}
+                  height={1672}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  onLoad={() => {
+                    if (canvasRef.current) {
+                      const parent = canvasRef.current.parentElement || posterRef.current
+                      if (parent) {
+                        canvasRef.current.width = parent.clientWidth || window.innerWidth
+                        canvasRef.current.height = parent.clientHeight || 500
+                      }
+                    }
+                  }}
+                  style={{
+                    imageRendering: 'auto',
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden',
+                  }}
+                  className="w-full h-auto block select-none pointer-events-none group-hover/img:brightness-[1.02] transition-all duration-300"
+                />
+              </picture>
+            </div>
 
             {/* Dynamic Holographic Light Sheen Overlay that sweeps with scroll */}
             <div 

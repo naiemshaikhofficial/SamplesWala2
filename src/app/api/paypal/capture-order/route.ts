@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { generateInvoicePDF } from '@/lib/invoice'
 import { sendInvoiceEmail } from '@/lib/emails'
-import { getPackPriceDetails } from '@/lib/pricing'
+import { getPackPriceDetails, isSamplisticFestivalActive, getFestivalPriceUsd } from '@/lib/pricing'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
 import { checkRateLimit } from '@/lib/security'
 
@@ -135,15 +135,21 @@ export async function POST(request: Request) {
       const priceDetails = getPackPriceDetails(pack)
       return {
         ...pack,
-        price_usd: (pack.price_usd !== null && pack.price_usd !== undefined) ? Number(pack.price_usd) : Math.round(priceDetails.priceInr / 80)
+        price_usd: priceDetails.priceUsd
       }
     })
 
     // Securely calculate dynamic USD prices for presets
     const resolvedPresets = (presetsRes.data || []).map((preset: any) => {
+      const baseUsd = (preset.price_usd !== null && preset.price_usd !== undefined)
+        ? Number(preset.price_usd)
+        : (preset.price_inr === 0 ? 0 : Math.round((Number(preset.price_inr) / 80) * 100) / 100 || 2.99)
+      const discountedUsd = isSamplisticFestivalActive() && baseUsd > 0
+        ? getFestivalPriceUsd(baseUsd)
+        : baseUsd
       return {
         ...preset,
-        price_usd: preset.price_inr === 0 ? 0 : Math.round((Number(preset.price_inr) / 80) * 100) / 100 || 2.99
+        price_usd: discountedUsd
       }
     })
 

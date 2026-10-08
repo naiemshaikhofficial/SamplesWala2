@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAdminClient } from '@/lib/supabase/admin'
 import { generateInvoicePDF } from '@/lib/invoice'
 import { sendInvoiceEmail } from '@/lib/emails'
-import { getPackPriceDetails } from '@/lib/pricing'
+import { getPackPriceDetails, isSamplisticFestivalActive, getFestivalPriceInr } from '@/lib/pricing'
 import { getCashfreeOrder, getCashfreeOrderPayments } from '@/lib/cashfree'
 import { validateBillingDetails } from '@/lib/checkoutValidation'
 import { checkRateLimit } from '@/lib/security'
@@ -112,7 +112,18 @@ export async function POST(request: Request) {
       }
     })
 
-    const allPurchasedItems = [...resolvedPacks, ...(presetsRes.data || [])]
+    const resolvedPresets = (presetsRes.data || []).map((preset: any) => {
+      const baseInr = Number(preset.price_inr || 0)
+      const discountedInr = isSamplisticFestivalActive() && baseInr > 0
+        ? getFestivalPriceInr(baseInr)
+        : baseInr
+      return {
+        ...preset,
+        price_inr: discountedInr
+      }
+    })
+
+    const allPurchasedItems = [...resolvedPacks, ...resolvedPresets]
 
     if (allPurchasedItems.length === 0) {
       return NextResponse.json({ error: 'Failed to verify items in database' }, { status: 500 })
