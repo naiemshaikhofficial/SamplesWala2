@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useCart } from '@/context/CartContext'
+import { isSamplisticFestivalActive, getFestivalPriceInr, getFestivalPriceUsd } from '@/lib/festival'
 
 interface PresetCardProps {
   preset: {
@@ -29,15 +30,23 @@ export function PresetCard({ preset, priority = false }: PresetCardProps) {
   const { formatPrice, getAmount } = useCurrency()
   const { isItemOwned } = useCart()
 
+  const isFestival = isSamplisticFestivalActive()
   const isOwned = isItemOwned(preset.id, preset.slug)
   const isFree = Number(preset.price_inr) === 0
-  const priceVal = preset.price_inr
-  const rawMrp = preset.mrp_inr ? Number(preset.mrp_inr) : (isFree ? 0 : Number(preset.price_inr) * 3)
-  const priceNum = getAmount(priceVal, preset.price_usd)
-  const mrpNum = getAmount(rawMrp, preset.price_usd ? Number(preset.price_usd) * 3 : null)
-  const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
-  const displayPrice = isFree ? 'Free' : formatPrice(priceVal, preset.price_usd)
-  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, preset.price_usd ? Number(preset.price_usd) * 3 : null) : null
+  
+  const finalPriceInr = isFestival && !isFree ? getFestivalPriceInr(preset.price_inr) : preset.price_inr
+  const finalPriceUsd = isFestival && !isFree ? getFestivalPriceUsd(preset.price_usd) : preset.price_usd
+  
+  const rawMrp = isFestival && !isFree
+    ? Number(preset.price_inr)
+    : (preset.mrp_inr ? Number(preset.mrp_inr) : (isFree ? 0 : Number(preset.price_inr) * 3))
+    
+  const priceNum = getAmount(finalPriceInr, finalPriceUsd)
+  const mrpNum = getAmount(rawMrp, isFestival ? preset.price_usd : (preset.price_usd ? Number(preset.price_usd) * 3 : null))
+  const discountPercent = isFestival && !isFree ? 20 : (mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0)
+  
+  const displayPrice = isFree ? 'Free' : formatPrice(finalPriceInr, finalPriceUsd)
+  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, isFestival ? preset.price_usd : (preset.price_usd ? Number(preset.price_usd) * 3 : null)) : null
 
   const categoryLabel = `${preset.type || 'Preset'} ${preset.daws && preset.daws.length > 0 ? `• ${preset.daws.join(' & ')}` : ''}`
 

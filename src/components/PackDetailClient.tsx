@@ -213,8 +213,10 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
     addItem({
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr),
-      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+      price: priceDetails.priceInr,
+      price_usd: priceDetails.priceUsd,
+      original_price: Number(pack.price_inr),
+      original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -232,8 +234,10 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
       addItem({
         id: pack.id,
         name: pack.name,
-        price: Number(pack.price_inr),
-        price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+        price: priceDetails.priceInr,
+        price_usd: priceDetails.priceUsd,
+        original_price: Number(pack.price_inr),
+        original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
         slug: pack.slug,
         cover_url: pack.cover_url || undefined,
         type: 'pack',
@@ -316,13 +320,19 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
   const currentPriceInr = priceDetails.priceInr ?? Number(pack.price_inr ?? 0)
 
   const isFree = currentPriceInr === 0 || Number(pack.price_inr) === 0
-  const priceNum = getAmount(currentPriceInr, pack.price_usd)
-  const rawMrp = pack.mrp_inr ? Number(pack.mrp_inr) : (isFree ? 0 : currentPriceInr * 3)
-  const mrpNum = getAmount(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null)
+  const priceNum = getAmount(currentPriceInr, priceDetails.priceUsd)
+  
+  // Previous price vs Samplistic festival price
+  const prevPriceInr = Number(pack.price_inr ?? 0)
+  const prevPriceUsd = pack.price_usd ? Number(pack.price_usd) : null
+  const rawMrp = priceDetails.isFestivalDiscount
+    ? prevPriceInr
+    : (pack.mrp_inr ? Number(pack.mrp_inr) : (isFree ? 0 : currentPriceInr * 3))
+  const mrpNum = getAmount(rawMrp, priceDetails.isFestivalDiscount ? prevPriceUsd : (priceDetails.priceUsd ? Number(priceDetails.priceUsd) * 3 : null))
 
-  const displayPrice = isFree ? 'FREE' : formatPrice(currentPriceInr, pack.price_usd)
-  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null) : null
-  const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
+  const displayPrice = isFree ? 'FREE' : formatPrice(currentPriceInr, priceDetails.priceUsd)
+  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, priceDetails.isFestivalDiscount ? prevPriceUsd : (priceDetails.priceUsd ? Number(priceDetails.priceUsd) * 3 : null)) : null
+  const discountPercent = priceDetails.isFestivalDiscount && !isFree ? 20 : (mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0)
 
   const videoIds = React.useMemo(() => {
     if (!pack.video_url) return [];
@@ -407,11 +417,18 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
           <div className="order-3 lg:order-none p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">Price & Value</span>
-                <div className="flex items-baseline gap-2">
-                  <span className={`text-3xl font-black italic tracking-tight font-mono ${owned ? 'text-zinc-300' : isFree ? 'text-[#00FF94]' : 'text-white'}`}>{owned ? 'OWNED' : displayPrice}</span>
+                <span className="text-[9px] font-black text-white/45 uppercase tracking-wider block font-mono">
+                  {priceDetails.isFestivalDiscount ? '🎉 Samplistic Festival Price' : 'Price & Value'}
+                </span>
+                <div className="flex items-baseline gap-2.5">
+                  <span className={`text-3xl font-black italic tracking-tight font-mono ${owned ? 'text-zinc-300' : isFree ? 'text-[#00FF94]' : priceDetails.isFestivalDiscount ? 'text-studio-neon' : 'text-white'}`}>
+                    {owned ? 'OWNED' : displayPrice}
+                  </span>
                   {!owned && displayMrp && (
-                    <span className="text-xs text-white/35 line-through font-bold font-mono">{displayMrp}</span>
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-mono font-bold text-white/40 uppercase">Regular</span>
+                      <span className="text-xs text-white/40 line-through font-bold font-mono">{displayMrp}</span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -419,11 +436,15 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
               {!owned && !isFree && discountPercent > 0 ? (
                 <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
                   <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
-                  {!pack.is_downloadable && (
+                  {priceDetails.isFestivalDiscount ? (
+                    <span className="text-[7px] font-black uppercase tracking-tighter px-1.5 rounded-sm mt-0.5 bg-yellow-400 text-black">
+                      FESTIVAL
+                    </span>
+                  ) : !pack.is_downloadable ? (
                     <span className={`text-[7px] font-black uppercase tracking-tighter px-1.5 rounded-sm mt-0.5 ${isExpired ? 'bg-black/40 text-white/60' : 'bg-white text-studio-red'}`}>
                       {isExpired ? 'Regular' : 'Pre-order'}
                     </span>
-                  )}
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -469,8 +490,10 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       item={{
                         id: pack.id,
                         name: pack.name,
-                        price: Number(pack.price_inr),
-                        price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+                        price: currentPriceInr,
+                        price_usd: priceDetails.priceUsd,
+                        original_price: Number(pack.price_inr),
+                        original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
                         slug: pack.slug,
                         cover_url: pack.cover_url || undefined,
                         type: 'pack',
@@ -482,7 +505,7 @@ export function PackDetailClient({ initialPack }: { initialPack: any }) {
                       packId={pack.id}
                       packName={pack.name}
                       price={currentPriceInr}
-                      price_usd={pack.price_usd ? Number(pack.price_usd) : undefined}
+                      price_usd={priceDetails.priceUsd ? Number(priceDetails.priceUsd) : undefined}
                       slug={pack.slug}
                       cover_url={pack.cover_url || ''}
                       userId={user?.id}

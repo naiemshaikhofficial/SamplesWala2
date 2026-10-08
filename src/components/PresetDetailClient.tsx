@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
 import { useCurrency } from '@/context/CurrencyContext'
 import { useCart } from '@/context/CartContext'
+import { isSamplisticFestivalActive, getFestivalPriceInr, getFestivalPriceUsd } from '@/lib/festival'
 
 interface PresetDetailClientProps {
   preset: any
@@ -84,6 +85,13 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
   const isOwned = isItemOwned(preset.id, preset.slug)
 
   const { formatPrice, getAmount } = useCurrency()
+
+  const isFestival = isSamplisticFestivalActive()
+  const finalPriceInr = isFestival && !isFree ? getFestivalPriceInr(preset.price_inr) : preset.price_inr
+  const finalPriceUsd = isFestival && !isFree ? getFestivalPriceUsd(preset.price_usd) : preset.price_usd
+  const rawMrp = isFestival && !isFree
+    ? Number(preset.price_inr)
+    : (preset.mrp_inr ? Number(preset.mrp_inr) : (isFree ? 0 : Number(preset.price_inr) * 3))
 
   const [showFloatingBar, setShowFloatingBar] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -181,8 +189,10 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
     addItem({
       id: preset.id,
       name: preset.name,
-      price: Number(preset.price_inr),
-      price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+      price: finalPriceInr,
+      price_usd: finalPriceUsd ? Number(finalPriceUsd) : undefined,
+      original_price: Number(preset.price_inr),
+      original_price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
       slug: preset.slug,
       cover_url: preset.cover_url || undefined,
       type: 'preset'
@@ -199,8 +209,10 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
       addItem({
         id: preset.id,
         name: preset.name,
-        price: Number(preset.price_inr),
-        price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+        price: finalPriceInr,
+        price_usd: finalPriceUsd ? Number(finalPriceUsd) : undefined,
+        original_price: Number(preset.price_inr),
+        original_price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
         slug: preset.slug,
         cover_url: preset.cover_url || undefined,
         type: 'preset'
@@ -209,9 +221,11 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
     router.push('/checkout')
   }
 
-  const discountPercent = preset.mrp_inr && preset.price_inr > 0
-    ? Math.round((1 - (getAmount(preset.price_inr, preset.price_usd) / getAmount(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)
-    : 0
+  const discountPercent = isFestival && !isFree
+    ? 20
+    : (rawMrp && preset.price_inr > 0
+      ? Math.round((1 - (getAmount(preset.price_inr, preset.price_usd) / getAmount(rawMrp, preset.price_usd ? Number(preset.price_usd) * 3 : null))) * 100)
+      : 0)
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
@@ -278,15 +292,20 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
           <div className="p-6 bg-[#0a0a0af0] backdrop-blur-md border border-white/10 rounded-2xl space-y-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-[9px] font-black text-white/40 uppercase tracking-wider block font-mono">Price & Value</span>
-                <div className="flex items-baseline gap-2">
-                  <span className={`text-3xl font-black italic tracking-tight font-mono ${isFree ? 'text-[#00FF94]' : 'text-white'}`}>
-                    {isFree ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
+                <span className="text-[9px] font-black text-white/40 uppercase tracking-wider block font-mono">
+                  {isFestival && !isFree ? '🎉 Samplistic Festival Price' : 'Price & Value'}
+                </span>
+                <div className="flex items-baseline gap-2.5">
+                  <span className={`text-3xl font-black italic tracking-tight font-mono ${isFree ? 'text-[#00FF94]' : isFestival ? 'text-studio-neon' : 'text-white'}`}>
+                    {isFree ? 'FREE' : formatPrice(finalPriceInr, finalPriceUsd)}
                   </span>
-                  {preset.mrp_inr && (
-                    <span className="text-xs text-white/30 line-through font-bold font-mono">
-                      {formatPrice(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
-                    </span>
+                  {rawMrp > 0 && !isFree && (
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-mono font-bold text-white/40 uppercase">Regular</span>
+                      <span className="text-xs text-white/40 line-through font-bold font-mono">
+                        {formatPrice(rawMrp, isFestival ? preset.price_usd : (preset.price_usd ? Number(preset.price_usd) * 3 : null))}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -294,8 +313,8 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
               {discountPercent > 0 && !isFree && (
                 <div className="bg-studio-red px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(255,49,49,0.25)] flex flex-col items-center rotate-3">
                   <span className="text-xs font-black text-white uppercase italic font-mono">{discountPercent}% OFF</span>
-                  <span className="text-[7px] font-black uppercase tracking-tighter bg-white text-studio-red px-1 rounded-sm mt-0.5">
-                    DEAL
+                  <span className={`text-[7px] font-black uppercase tracking-tighter px-1 rounded-sm mt-0.5 ${isFestival ? 'bg-yellow-400 text-black' : 'bg-white text-studio-red'}`}>
+                    {isFestival ? 'FESTIVAL' : 'DEAL'}
                   </span>
                 </div>
               )}
@@ -322,8 +341,10 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                     item={{
                       id: preset.id,
                       name: preset.name,
-                      price: Number(preset.price_inr),
-                      price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+                      price: finalPriceInr,
+                      price_usd: finalPriceUsd ? Number(finalPriceUsd) : undefined,
+                      original_price: Number(preset.price_inr),
+                      original_price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
                       slug: preset.slug,
                       cover_url: preset.cover_url || undefined,
                       type: 'preset'
@@ -334,8 +355,10 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                       buyNow({
                         id: preset.id,
                         name: preset.name,
-                        price: Number(preset.price_inr),
-                        price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
+                        price: finalPriceInr,
+                        price_usd: finalPriceUsd ? Number(finalPriceUsd) : undefined,
+                        original_price: Number(preset.price_inr),
+                        original_price_usd: preset.price_usd ? Number(preset.price_usd) : undefined,
                         slug: preset.slug,
                         cover_url: preset.cover_url || undefined,
                         type: 'preset'
@@ -344,7 +367,7 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
                     className="w-full h-14 md:h-16 bg-studio-neon text-black font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] md:text-xs flex items-center justify-center gap-3 md:gap-4 hover:bg-white transition-all shadow-[4px_4px_0px_black] md:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] border-4 border-black cursor-pointer"
                   >
                     <Zap size={18} className="md:w-5 md:h-5" fill="currentColor" />
-                    {isFree ? 'GET FOR FREE' : `BUY NOW — ${formatPrice(preset.price_inr, preset.price_usd)}`}
+                    {isFree ? 'GET FOR FREE' : `BUY NOW — ${formatPrice(finalPriceInr, finalPriceUsd)}`}
                   </button>
                 </div>
               )}
@@ -633,13 +656,13 @@ export function PresetDetailClient({ preset, isFree, vId }: PresetDetailClientPr
 
                   {/* Price Info */}
                   <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                    {preset.mrp_inr && (
+                    {rawMrp > 0 && !isFree && (
                       <span className="text-[9px] md:text-xs text-black/50 line-through font-bold">
-                        {formatPrice(preset.mrp_inr, preset.price_usd ? Number(preset.price_usd) * 3 : null)}
+                        {formatPrice(rawMrp, isFestival ? preset.price_usd : (preset.price_usd ? Number(preset.price_usd) * 3 : null))}
                       </span>
                     )}
                     <span className="text-xs md:text-sm font-black text-black leading-none italic uppercase tracking-wider">
-                      {preset.price_inr === 0 ? 'FREE' : formatPrice(preset.price_inr, preset.price_usd)}
+                      {isFree ? 'FREE' : formatPrice(finalPriceInr, finalPriceUsd)}
                     </span>
                   </div>
 

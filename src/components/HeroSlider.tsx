@@ -81,13 +81,19 @@ export function HeroSlider({ packs }: { packs: any[] }) {
 
   const currentPriceInr = priceDetails ? priceDetails.priceInr : Number(activePack?.price_inr || 0)
   const isFree = currentPriceInr === 0 || Number(activePack?.price_inr) === 0
-  const priceNum = getAmount(currentPriceInr, activePack?.price_usd)
-  const rawMrp = activePack?.mrp_inr ? Number(activePack.mrp_inr) : (isFree ? 0 : currentPriceInr * 3)
-  const mrpNum = getAmount(rawMrp, activePack?.price_usd ? Number(activePack.price_usd) * 3 : null)
+  const priceNum = getAmount(currentPriceInr, priceDetails?.priceUsd || activePack?.price_usd)
+  
+  // Previous price vs Samplistic festival price
+  const prevPriceInr = Number(activePack?.price_inr || 0)
+  const prevPriceUsd = activePack?.price_usd ? Number(activePack.price_usd) : null
+  const rawMrp = priceDetails?.isFestivalDiscount
+    ? prevPriceInr
+    : (activePack?.mrp_inr ? Number(activePack.mrp_inr) : (isFree ? 0 : currentPriceInr * 3))
+  const mrpNum = getAmount(rawMrp, priceDetails?.isFestivalDiscount ? prevPriceUsd : (activePack?.price_usd ? Number(activePack.price_usd) * 3 : null))
 
-  const displayPrice = isFree ? 'FREE' : formatPrice(currentPriceInr, activePack?.price_usd)
-  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, activePack?.price_usd ? Number(activePack.price_usd) * 3 : null) : null
-  const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
+  const displayPrice = isFree ? 'FREE' : formatPrice(currentPriceInr, priceDetails?.priceUsd || activePack?.price_usd)
+  const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, priceDetails?.isFestivalDiscount ? prevPriceUsd : (activePack?.price_usd ? Number(activePack.price_usd) * 3 : null)) : null
+  const discountPercent = priceDetails?.isFestivalDiscount && !isFree ? 20 : (mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0)
   const isPreorderActive = priceDetails ? priceDetails.isPreorderActive : false
   const isExpired = priceDetails ? priceDetails.isExpired : false
 
@@ -120,11 +126,14 @@ export function HeroSlider({ packs }: { packs: any[] }) {
   const handleAddToCart = (e: React.MouseEvent, pack: any, price: number) => {
     e.preventDefault()
     e.stopPropagation()
+    const pDetails = getPackPriceDetails(pack)
     addItem({
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr),
-      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+      price: pDetails.priceInr,
+      price_usd: pDetails.priceUsd,
+      original_price: Number(pack.price_inr),
+      original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -137,11 +146,14 @@ export function HeroSlider({ packs }: { packs: any[] }) {
   const handleBuyNow = (e: React.MouseEvent, pack: any, price: number) => {
     e.preventDefault()
     e.stopPropagation()
+    const pDetails = getPackPriceDetails(pack)
     buyNow({
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr),
-      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+      price: pDetails.priceInr,
+      price_usd: pDetails.priceUsd,
+      original_price: Number(pack.price_inr),
+      original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -266,9 +278,18 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                         <>
                           <div className="flex flex-col">
                             {displayMrp && (
-                              <span className="text-[11px] text-white/40 line-through font-black">
-                                {displayMrp}
-                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className={`text-[12px] line-through font-black ${
+                                  priceDetails?.isFestivalDiscount ? 'text-white/60 font-mono' : 'text-white/40'
+                                }`}>
+                                  {displayMrp}
+                                </span>
+                                {priceDetails?.isFestivalDiscount && (
+                                  <span className="text-[8px] font-black uppercase text-[#FF7700] tracking-wider">
+                                    REGULAR
+                                  </span>
+                                )}
+                              </div>
                             )}
                             <span className={`text-3xl md:text-4xl font-black italic leading-none comic-text ${
                               isFree ? 'text-zinc-100' : 'text-studio-yellow'
@@ -278,9 +299,13 @@ export function HeroSlider({ packs }: { packs: any[] }) {
                           </div>
 
                           {!isFree && discountPercent > 0 ? (
-                            <div className="bg-[#18181b] px-3 py-1 border-2 border-zinc-700 shadow-[3px_3px_0px_black] rotate-3">
-                              <span className="text-[10px] md:text-xs font-black text-zinc-100 uppercase italic">
-                                {discountPercent}% OFF
+                            <div className={`${
+                              priceDetails?.isFestivalDiscount
+                                ? 'bg-gradient-to-r from-[#FFE600] to-[#FF7700] text-black border-2 border-black shadow-[3px_3px_0px_#FF0055]'
+                                : 'bg-[#18181b] border-2 border-zinc-700 shadow-[3px_3px_0px_black]'
+                            } px-3 py-1 rotate-3`}>
+                              <span className="text-[10px] md:text-xs font-black uppercase italic">
+                                {priceDetails?.isFestivalDiscount ? '🎉 20% OFF' : `${discountPercent}% OFF`}
                               </span>
                             </div>
                           ) : null}
