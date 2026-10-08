@@ -22,11 +22,14 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
   }, [router])
 
   const handleBuyNow = React.useCallback((pack: any, currentPrice: number) => {
+    const priceDetails = getPackPriceDetails(pack)
     addItem({
       id: pack.id,
       name: pack.name,
-      price: Number(pack.price_inr),
-      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+      price: priceDetails.priceInr,
+      price_usd: priceDetails.priceUsd,
+      original_price: Number(pack.price_inr),
+      original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
       slug: pack.slug,
       cover_url: pack.cover_url || undefined,
       type: 'pack',
@@ -80,13 +83,19 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
         const isExpired = priceDetails.isExpired
 
         const isFree = currentPrice === 0 || Number(pack.price_inr) === 0
-        const priceNum = getAmount(currentPrice, pack.price_usd)
-        const rawMrp = pack.mrp_inr ? Number(pack.mrp_inr) : (isFree ? 0 : currentPrice * 3)
-        const mrpNum = getAmount(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null)
+        const priceNum = getAmount(currentPrice, priceDetails.priceUsd)
+        
+        // Previous price vs Samplistic festival price
+        const prevPriceInr = Number(pack.price_inr)
+        const prevPriceUsd = pack.price_usd ? Number(pack.price_usd) : null
+        const rawMrp = priceDetails.isFestivalDiscount
+          ? prevPriceInr
+          : (pack.mrp_inr ? Number(pack.mrp_inr) : (isFree ? 0 : currentPrice * 3))
+        const mrpNum = getAmount(rawMrp, priceDetails.isFestivalDiscount ? prevPriceUsd : (priceDetails.priceUsd ? Number(priceDetails.priceUsd) * 3 : null))
 
-        const displayPrice = isFree ? 'FREE' : formatPrice(currentPrice, pack.price_usd)
-        const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, pack.price_usd ? Number(pack.price_usd) * 3 : null) : null
-        const discountPercent = mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0
+        const displayPrice = isFree ? 'FREE' : formatPrice(currentPrice, priceDetails.priceUsd)
+        const displayMrp = rawMrp > 0 && !isFree ? formatPrice(rawMrp, priceDetails.isFestivalDiscount ? prevPriceUsd : (priceDetails.priceUsd ? Number(priceDetails.priceUsd) * 3 : null)) : null
+        const discountPercent = priceDetails.isFestivalDiscount && !isFree ? 20 : (mrpNum > priceNum && priceNum > 0 ? Math.round((1 - (priceNum / mrpNum)) * 100) : 0)
 
         const isOwned = isItemOwned(pack.id, pack.slug)
 
@@ -155,14 +164,16 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
                       {!isOwned && displayMrp && (
-                        <span className="text-[9px] text-white/50 line-through font-bold">
+                        <span className={`text-[9px] line-through font-bold ${
+                          priceDetails.isFestivalDiscount ? 'text-white/60 font-mono' : 'text-white/50'
+                        }`}>
                           {displayMrp}
                         </span>
                       )}
                       <p className={`text-[14px] font-black italic leading-none ${
                         isOwned 
                           ? (isIndia ? 'text-[#FF9933]' : 'text-white/80') 
-                          : isFree ? 'text-[#00FF94]' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon')
+                          : isFree ? 'text-[#00FF94]' : (priceDetails.isFestivalDiscount ? 'text-studio-yellow' : (isIndia ? 'text-[#FF9933]' : 'text-studio-neon'))
                       }`}>
                         {isOwned ? 'OWNED' : displayPrice}
                       </p>
@@ -172,10 +183,12 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
                       <div className="flex flex-col gap-1">
                         {!isFree && discountPercent > 0 ? (
                           <div className={`px-2 py-0.5 rounded-sm shadow-[2px_2px_0px_black] ${
-                            isIndia ? 'bg-[#128807]' : 'bg-studio-red'
+                            priceDetails.isFestivalDiscount
+                              ? 'bg-gradient-to-r from-[#FFE600] to-[#FF7700] text-black border border-black shadow-[2px_2px_0px_#FF0055]'
+                              : (isIndia ? 'bg-[#128807]' : 'bg-studio-red')
                           }`}>
-                            <span className="text-[9px] font-black text-white uppercase italic">
-                              {discountPercent}% OFF
+                            <span className="text-[9px] font-black uppercase italic">
+                              {priceDetails.isFestivalDiscount ? '20% OFF' : `${discountPercent}% OFF`}
                             </span>
                           </div>
                         ) : null}
@@ -229,16 +242,21 @@ export function BrowseLibrary({ initialPacks, searchQuery, isIndiaJourney }: { i
               ) : (
                 <div className="flex gap-2 mt-auto pt-4">
                   <button 
-                    onClick={() => addItem({
-                      id: pack.id,
-                      name: pack.name,
-                      price: Number(pack.price_inr),
-                      price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
-                      slug: pack.slug,
-                      cover_url: pack.cover_url || undefined,
-                      type: 'pack',
-                      is_downloadable: pack.is_downloadable
-                    })}
+                    onClick={() => {
+                      const pDetails = getPackPriceDetails(pack)
+                      addItem({
+                        id: pack.id,
+                        name: pack.name,
+                        price: pDetails.priceInr,
+                        price_usd: pDetails.priceUsd,
+                        original_price: Number(pack.price_inr),
+                        original_price_usd: pack.price_usd ? Number(pack.price_usd) : undefined,
+                        slug: pack.slug,
+                        cover_url: pack.cover_url || undefined,
+                        type: 'pack',
+                        is_downloadable: pack.is_downloadable
+                      })
+                    }}
                     className={`flex-1 h-10 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-widest transition-all border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 active:translate-x-1 active:translate-y-1 active:shadow-none ${
                       isIndia ? 'hover:bg-[#FF9933] hover:text-white' : 'hover:bg-[#18181b] hover:text-white'
                     } group`}
