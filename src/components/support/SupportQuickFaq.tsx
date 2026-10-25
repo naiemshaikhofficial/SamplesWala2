@@ -1,10 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import {
-  HelpCircle,
-  ChevronDown,
-  ChevronUp,
   Download,
   CreditCard,
   Music,
@@ -13,6 +10,12 @@ import {
   Zap,
 } from 'lucide-react'
 import Link from 'next/link'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 
 const FAQS = [
   {
@@ -54,12 +57,6 @@ const FAQS = [
 ]
 
 export function SupportQuickFaq() {
-  const [openFaq, setOpenFaq] = useState<string | null>(null)
-
-  const toggle = (id: string) => {
-    setOpenFaq(openFaq === id ? null : id)
-  }
-
   return (
     <div className="space-y-6 pt-4">
       <div className="border-b border-white/10 pb-4 flex items-center justify-between">
@@ -74,25 +71,24 @@ export function SupportQuickFaq() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Accordion
+        type="multiple"
+        variant="filled"
+        indicator="plus"
+        defaultValue={['vault_sync']}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
         {FAQS.map((faq) => {
-          const isOpen = openFaq === faq.id
           const Icon = faq.icon
 
           return (
-            <div
+            <AccordionItem
               key={faq.id}
-              className={`studio-panel rounded-sm transition-all border ${
-                isOpen
-                  ? 'border-studio-blue/40 bg-zinc-950/90'
-                  : 'border-white/5 bg-zinc-950/40 hover:border-white/20'
-              }`}
+              value={faq.id}
+              className="bg-white/[0.03] hover:bg-white/[0.05] transition-all rounded-xl border border-white/[0.04] overflow-hidden"
             >
-              <div
-                onClick={() => toggle(faq.id)}
-                className="p-4 flex items-start justify-between gap-3 cursor-pointer select-none"
-              >
-                <div className="flex items-start gap-3">
+              <AccordionTrigger className="p-4 text-left hover:text-white">
+                <div className="flex items-start gap-3 pr-2">
                   <div className="w-7 h-7 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 text-studio-blue mt-0.5">
                     <Icon size={14} />
                   </div>
@@ -100,16 +96,13 @@ export function SupportQuickFaq() {
                     {faq.question}
                   </h4>
                 </div>
-                <div className="text-white/40 pt-0.5">
-                  {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                </div>
-              </div>
+              </AccordionTrigger>
 
-              {isOpen && (
-                <div className="px-4 pb-4 pt-1 border-t border-white/5 space-y-3 animate-fadeIn">
-                  <p className="text-[11px] text-white/60 leading-relaxed font-mono uppercase">
-                    {faq.answer}
-                  </p>
+              <AccordionContent className="px-4 pb-4 pt-1 border-t border-white/5 space-y-3">
+                <p className="text-[11px] text-white/60 leading-relaxed font-mono uppercase">
+                  {faq.answer}
+                </p>
+                <div className="pt-2">
                   <Link
                     href={faq.actionHref}
                     className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-studio-yellow hover:underline"
@@ -118,11 +111,12 @@ export function SupportQuickFaq() {
                     <ExternalLink size={10} />
                   </Link>
                 </div>
-              )}
-            </div>
+              </AccordionContent>
+            </AccordionItem>
           )
         })}
-      </div>
+      </Accordion>
     </div>
   )
 }
+

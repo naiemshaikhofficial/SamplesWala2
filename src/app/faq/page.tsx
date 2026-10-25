@@ -1,6 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowLeft, HelpCircle, Plus, MessageSquare } from 'lucide-react'
+import { ArrowLeft, HelpCircle, MessageSquare } from 'lucide-react'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { generatePageMetadata } from '@/lib/seo/metadata'
 
 export const metadata = generatePageMetadata({
@@ -117,29 +123,35 @@ export default function FAQPage() {
             <p className="text-[10px] font-black text-white/40 uppercase tracking-widest pt-4 italic">Everything you need to know about Samples Wala.</p>
           </div>
 
-          <div className="space-y-20 border-t border-white/5 pt-16">
+          <div className="space-y-16 border-t border-white/5 pt-16">
             {faqData.map((group, idx) => (
-              <section key={idx} className="space-y-8">
+              <section key={idx} className="space-y-6">
                 <h2 className="text-xs font-black uppercase tracking-[0.3em] text-studio-yellow italic border-l-2 border-studio-yellow pl-4">
                   {group.category}
                 </h2>
                 
-                <div className="grid gap-4">
+                <Accordion
+                  type="multiple"
+                  variant="filled"
+                  indicator="plus"
+                  defaultValue={idx === 0 ? [`${idx}-0`] : []}
+                  className="space-y-2.5"
+                >
                   {group.questions.map((faq, fIdx) => (
-                    <div 
-                      key={fIdx} 
-                      className="p-6 bg-white/[0.02] border border-white/5 rounded-sm hover:border-white/10 transition-colors group"
+                    <AccordionItem
+                      key={fIdx}
+                      value={`${idx}-${fIdx}`}
+                      className="bg-white/[0.03] hover:bg-white/[0.05] transition-colors rounded-xl border border-white/[0.04]"
                     >
-                      <h3 className="text-sm font-black uppercase tracking-tight text-white group-hover:text-studio-yellow transition-colors flex items-start gap-3">
-                        <Plus size={14} className="mt-1 flex-shrink-0 text-studio-yellow opacity-40" />
+                      <AccordionTrigger className="px-5 py-4 text-left text-sm font-black uppercase tracking-tight text-white hover:text-studio-yellow transition-colors">
                         {faq.q}
-                      </h3>
-                      <p className="mt-4 text-xs font-medium text-white/40 leading-relaxed pl-6">
+                      </AccordionTrigger>
+                      <AccordionContent className="px-5 pb-5 pt-1 text-xs font-medium text-white/50 leading-relaxed border-t border-white/[0.04]">
                         {faq.a}
-                      </p>
-                    </div>
+                      </AccordionContent>
+                    </AccordionItem>
                   ))}
-                </div>
+                </Accordion>
               </section>
             ))}
           </div>
